@@ -293,6 +293,32 @@ class CMSQCatalog {
 		CMSQFileManager::FilesDelete($db, $files);
 	}
 	
+	public static function FotosSync(CMSDatabase $db, $eltypeid, $elementid, $sfids){
+		$afotos = explode(",", $sfids);
+		$rows = CMSQCatalog::FotoList($db, $eltypeid, $elementid);
+		while (($row = $db->fetch_array($rows))){
+			$find = false;
+			foreach($afotos as $fid){
+				if ($fid == $row['fid']){
+					$find = true;
+					break;
+				}
+			}
+			if (!$find){
+				CMSQCatalog::FotoRemove($db, $row['id']);
+			}
+		}
+		
+		/*
+		$sql = "
+			DELETE FROM ".CMSQCatalog::$PFX."foto
+			WHERE eltypeid=".bkint($eltypeid)." AND elementid=".bkint($elementid)."
+		";
+		$db->query_write($sql);
+		CMSQCatalog::FotoAppend($db, $eltypeid, $elementid, $afotos);
+		/**/
+	}
+	
 	public static function FotoAppend(CMSDatabase $db, $eltypeid, $elementid, $fileids){
 		if (empty($fileids)){ return; }
 		$arr = array();
@@ -460,6 +486,8 @@ class CMSQCatalog {
 		CMSQCatalog::SessionRemove($db, $data->session);
 		CMSQCatalog::FotoAppend($db, $data->eltid, $element['elid'], $ids);
 		
+		CMSQCatalog::FotosSync($db, $data->eltid, $element['elid'], $data->fids);
+		
 		return $db->insert_id();
 	}
 	
@@ -492,6 +520,8 @@ class CMSQCatalog {
 			WHERE elementid=".bkint($data->id)." 
 		";
 		$db->query_write($sql);
+		
+		CMSQCatalog::FotosSync($db, $data->eltid, $data->elid, $data->fids);
 	}
 	
 	/**
@@ -616,13 +646,21 @@ class CMSQCatalog {
 		if (!empty($fields)){
 			$sfields = ",".implode(",", $fields);
 		}
+		
+		$fotosRows = CMSQCatalog::FotoList(Brick::$db, $elTypeId, $elementId);
+		$fotoIds = array();
+		while (($row = $db->fetch_array($fotosRows))){
+			array_push($fotoIds, $row['fid']);
+		}
+		
 		$sql = "
 			SELECT 
 				a.elementid as id,
 				a.globalelementid as elid,
 				a.catalogid as catid,
 				a.eltypeid as eltid
-				".$sfields."
+				".$sfields.",
+				'".implode(",", $fotoIds)."' as fids
 			FROM ".CMSQCatalog::$PFX."element a
 			LEFT JOIN ".$elTableName." b ON a.globalelementid=b.".$eltype['nm']."id
 			WHERE elementid=".bkint($elementId)."

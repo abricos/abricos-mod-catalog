@@ -308,6 +308,14 @@ var moduleInitialize = function(){
 			this.fotoRender();
 		},
 		onClick: function(el){
+			
+			var arr = el.id.split('-');
+			
+			if (arr[0] == TId['fotoitem']['id']){
+				this.imageRemove(arr[1]);
+				return true;
+			}
+			
 			var tp = TId['editor']; 
 			switch(el.id){
 			case tp['bcancel']: this.close(); return true;
@@ -316,6 +324,7 @@ var moduleInitialize = function(){
 				this.imageUpload();
 				break;
 			}
+			return false;
 		},
 		save: function(){
 
@@ -339,6 +348,13 @@ var moduleInitialize = function(){
 					}
 				}
 			}, this);
+
+			var afotos = [];
+			for (var fid in this.fotos){
+				afotos[afotos.length] = fid;
+			}
+			options['fids'] = afotos.join(","); 
+			
 			this.row.update(options);
 			
 			if (!this.row.isNew()){
@@ -371,6 +387,14 @@ var moduleInitialize = function(){
 			var fotos = {};
 			for (var i=0;i<data.length;i++){
 				fotos[data[i]] = data[i];
+			}
+			this.fotos = fotos;
+			this.fotoRender();
+		},
+		imageRemove: function(fotoid){
+			var fotos = {};
+			for (var id in this.fotos){
+				if (fotoid != id){ fotos[id] = this.fotos[id]; }
 			}
 			this.fotos = fotos;
 			this.fotoRender();
