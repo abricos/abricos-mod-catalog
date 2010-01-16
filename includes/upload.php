@@ -18,7 +18,7 @@ CMSQCatalog::PrefixSet(Brick::$db, $modMan->catinfo['dbprefix']);
 $brick = Brick::$builder->brick;
 $brick->param->var['url'] = Brick::$cms->adress->requestURI; 
 
-$upload = $modFM->GetUpload();
+$fmManager = $modFM->GetFileManager();
 
 $p_act = Brick::$cms->input->clean_gpc('p', 'act', TYPE_STR);
 if ($p_act != "upload"){ return; }
@@ -26,9 +26,11 @@ if ($p_act != "upload"){ return; }
 $arr = array();
 for ($i=0; $i<6; $i++){
 	$p_file = Brick::$cms->input->clean_gpc('f', 'file'.$i, TYPE_FILE);
-	$errornum = $upload->UploadFiles(0, $p_file, true);
-	if (empty($errornum)){
-		array_push($arr, $upload->lastLoadFileHash);
+	if (!empty($p_file)){
+		$errornum = $fmManager->UploadFiles(0, $p_file, true);
+		if (empty($errornum)){
+			array_push($arr, $fmManager->lastUploadFileHash);
+		}
 	}
 }
 if (empty($arr)){ return; }
@@ -37,7 +39,7 @@ if (empty($arr)){ return; }
 if (!empty($modMan->fotoPreviewFormat)){
 	foreach ($modMan->fotoPreviewFormat as $format){
 		foreach ($arr as $hash){
-			$upload->ImageConvert($hash, $format['w'], $format["h"], "");
+			$fmManager->ImageConvert($hash, $format['w'], $format["h"], "");
 		}
 	}
 }

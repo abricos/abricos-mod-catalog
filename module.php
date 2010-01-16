@@ -159,7 +159,6 @@ class CMSModCatalog extends CMSModule {
 
 class CMSCatalogMan {
 	
-	
 	/**
 	 * Добавление фотографии к элементу каталога
 	 * 
@@ -186,7 +185,7 @@ class CMSCatalogMan {
 			
 			$errornum = $upload->UploadSystemFile($file, $filename, $ext, filesize($file));
 			if (empty($errornum)){
-				array_push($arr, $upload->lastLoadFileHash);
+				array_push($arr, $upload->lastUploadFileHash);
 			}
 		}
 		if (empty($arr)){ return; }
@@ -274,7 +273,7 @@ class CMSQCatalog {
 		";
 		$db->query_write($sql);
 		
-		CMSRegistry::$instance->modules->GetModule('filemanager');
+		CMSRegistry::$instance->modules->GetModule('filemanager')->GetFileManager();
 		CMSQFileManager::FileDelete($db, $foto['fileid']);
 	}
 
