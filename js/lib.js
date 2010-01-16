@@ -11,8 +11,14 @@
 	Brick.namespace('Catalog.Element.Type.Option');
 	Brick.Loader.add({yahoo: ['json'],mod:[{name: 'sys', files: ['data.js']}]});
 	
-	var BCat = Brick.Catalog; 
-	var DATA = Brick.Catalog.Data;
+	var BCat = Brick.Catalog;
+	
+	Brick.namespace('Brick.mod.catalog');
+	if (!Brick.mod.catalog.data){
+		Brick.mod.catalog.data = {};
+	}
+
+	var DATA = Brick.mod.catalog.data;
 
 
 	BCat.Element.activeEditor = null;

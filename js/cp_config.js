@@ -50,8 +50,8 @@ var moduleInitialize = function(){
 	cpPage.prototype = {
 		init: function(container, mmPrefix){
 	
-			if (!Brick.Catalog.Data[mmPrefix]){
-				Brick.Catalog.Data[mmPrefix] = new Brick.util.data.byid.DataSet('catalog', mmPrefix);
+			if (!Brick.mod.catalog.data[mmPrefix]){
+				Brick.mod.catalog.data[mmPrefix] = new Brick.util.data.byid.DataSet('catalog', mmPrefix);
 			}
 
 			container.innerHTML = T['panel'];
@@ -81,7 +81,7 @@ var moduleInitialize = function(){
 				if (__self.onClick(E.getTarget(e))){ E.stopEvent(e); }
 			});
 
-			Brick.Catalog.Data[mmPrefix].request();
+			Brick.mod.catalog.data[mmPrefix].request();
 		},
 		onClick: function(el){
 			if (this.catalog.manager.onClick(el)){ return true; }

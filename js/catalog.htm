@@ -1,8 +1,8 @@
 <!--{css}-->
-#{gi#panel} { 
+#mod-catalog-manager { 
 	padding:4px 0 0 10px;
 }
-#{gi#panel} .{gi#root} {
+#mod-catalog-manager .root {
 	list-style-image:none;
 	list-style-position:outside;
 	list-style-type:none;
@@ -10,36 +10,36 @@
 	padding:4px 0 0 2px;
 }
 
-#{gi#panel} .{gi#root} li {
+#mod-catalog-manager .root li {
 	border-top:1px solid #DDDDDD;
 	padding:2px 0;
 	position:relative;
 }
 
-#{gi#panel} .{gi#buttons} {
+#mod-catalog-manager .ctg-buttons {
 	position:absolute;
 	right:9px;
 	top:3px;
 	width:120px;
 }
-#{gi#panel} .{gi#buttons} img {
+#mod-catalog-manager .ctg-buttons img {
 	margin-right:6px;
 	vertical-align:middle;
 	cursor:pointer;
 }
-#{gi#panel} .{gi#list} {
+#mod-catalog-manager .ctg-list {
 	list-style-image:none;
 	list-style-position:outside;
 	list-style-type:none;
 	margin:0;
 	padding:4px 0 0 10px;
 }
-#{gi#panel} .{gi#list} li {
+#mod-catalog-manager .ctg-list li {
 	border-top:1px solid #DDDDDD;
 	padding:2px 0;
 	position:relative;
 }
-#{gi#panel} a {
+#mod-catalog-manager a {
   text-decoration: none;
 }
 
@@ -49,11 +49,11 @@
 	<tbody>
 		<tr>
 			<td valign="top" style="width: 50%">
-				<div id="{gi#panel}">
-					<ul class="{gi#root}">
+				<div id="mod-catalog-manager">
+					<ul class="root">
 						<li> 
 				    	<span>Каталог товаров</span>
-					    <div class="{gi#buttons}">
+					    <div class="ctg-buttons">
 <img src="{#img.icons.empty}" alt="" />
 <img src="{#img.icons.empty}" alt="" />
 <img src="{#img.icons.empty}" alt="" />
@@ -62,7 +62,7 @@
 					    </div>
 						</li>
 					</ul>
-					<ul class="{gi#list}" id="{i#list}"></ul>
+					<ul class="ctg-list" id="{i#list}"></ul>
 				</div>
 			</td>
 			<td valign="top" style="width: 50%">
@@ -73,12 +73,12 @@
 </table>
 
 <!--{list}-->
-<ul class="{gi#list}">{v#list}</ul>
+<ul class="ctg-list">{v#list}</ul>
 
 <!--{item}-->
 <li> 
 	<span><a id="{i#bview}-{v#id}" title="" href="#">{v#tl}</a></span>
-	<div class="{gi#buttons}">
+	<div class="ctg-buttons">
 <img src="{#img.icons.empty}" alt="" />
 <img src="{#img.icons.empty}" alt="" />
 <img id="{i#bedit}-{v#id}" alt="Редактировать" title="Редактировать" src="/modules/catalog/images/edit.gif"/>

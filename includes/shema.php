@@ -6,14 +6,12 @@
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 */
 
-global $cms;
 $charset = "CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'";
-$svers = $cms->modules->moduleUpdateShema->serverVersion;
-$pfx = $cms->db->prefix."ctg_";
-$db = $cms->db;
+$updateManager = CMSRegistry::$instance->modules->updateManager; 
+$db = CMSRegistry::$instance->db;
+$pfx = $db->prefix."ctg_";
 
-if (version_compare($svers, "1.0.0", "<=")){
-
+if ($updateManager->isInstall()){
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."module` (
 		  `moduleid` int(3) unsigned NOT NULL auto_increment,
@@ -25,7 +23,6 @@ if (version_compare($svers, "1.0.0", "<=")){
 		  PRIMARY KEY  (`moduleid`)
 		)
 	". $charset);
-
 }
 
 ?>

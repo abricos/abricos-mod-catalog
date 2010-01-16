@@ -6,15 +6,14 @@
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 */
 
-global $cms;
+$cms = CMSRegistry::$instance;
 $charset = "CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'";
 $modCatalog = $cms->modules->GetModule('catalog');
+$updateManager = $modCatalog->updateShemaModule;
+$db = CMSRegistry::$instance->db;
+$pfx = $cms->db->prefix."ctg_".$updateManager->module->catinfo['dbprefix']."_";
 
-$svers = $modCatalog->updateShemaModule->serverVersion;
-$pfx = $cms->db->prefix."ctg_".$modCatalog->updateShemaModule->module->catinfo['dbprefix']."_";
-$db = $cms->db;
-
-if (version_compare($svers, "1.0.0", "<=")){
+if ($updateManager->isInstall()){
 	
 	// справочник
 	$db->query_write("
@@ -146,110 +145,6 @@ if (version_compare($svers, "1.0.0", "<=")){
 		  PRIMARY KEY (`sessionid`)
 		)
 	". $charset);
-	
-	
-/*
-	
-	
-	// старя версия
-	/*
-
-	// Настройка каталога
-	$db->query_write("
-		CREATE TABLE IF NOT EXISTS `".$pfx."catcfg` (
-		  `catcfgid` INT(10) UNSIGNED NOT NULL auto_increment,
-		  `level` INT(2) UNSIGNED NOT NULL default '0' COMMENT 'Уровень',
-		  `title` VARCHAR(250) NOT NULL default '',
-		  `descript` TEXT NOT NULL COMMENT 'Описание',
-		  PRIMARY KEY  (`catcfgid`)
-		)
-	". $charset);
-	
-	$db->query_write("
-		INSERT INTO `".$pfx."catcfg`
-		(level, title, descript) VALUES
-		(1, 'Тип автомобиля', ''),
-		(2, 'Марка', ''),
-		(3, 'Модель', '')
-	");
-
-	// Настройки модуля
-	$db->query_write("
-		CREATE TABLE IF NOT EXISTS `".$pfx."config` (
-		  `configid` int(1) unsigned NOT NULL auto_increment,
-		  `varname` varchar(250) NOT NULL default '' COMMENT 'Имя переменной',
-		  `varvalue` text NOT NULL COMMENT 'Значение переменной',
-		  PRIMARY KEY  (`configid`)
-		)
-	". $charset);
-	
-	$db->query_write("
-		INSERT INTO `".$pfx."config`
-		(varname, varvalue) VALUES
-		('catlevel', '3')
-	");
-	
-		// Цена - валюта
-	$db->query_write("
-		CREATE TABLE IF NOT EXISTS `".$pfx."currency` (
-		  `currencyid` int(3) unsigned NOT NULL auto_increment,
-		  `code` varchar(3) NOT NULL default '',
-		  `name` varchar(250) NOT NULL default '',
-		  PRIMARY KEY  (`currencyid`)
-		)
-	". $charset);
-
-	$db->query_write("
-		INSERT INTO `".$pfx."currency`
-		(code, name) VALUES 
-		('RUR', 'руб.'),
-		('USD', '$'),
-		('EUR', 'euro')
-	");
-	
-	/*
-	// Марка
-	$db->query_write("
-		CREATE TABLE IF NOT EXISTS `".$pfx."brand` (
-		  `brandid` int(5) unsigned NOT NULL auto_increment,
-		  `title` varchar(250) NOT NULL default '',
-		  `name` varchar(250) NOT NULL default '',
-		  PRIMARY KEY  (`brandid`)
-		)
-	". $charset);
-
-	// Модель
-	$db->query_write("
-		CREATE TABLE IF NOT EXISTS `".$pfx."model` (
-		  `modelid` int(5) unsigned NOT NULL auto_increment,
-		  `brandid` int(5) unsigned NOT NULL ,
-		  `title` varchar(250) NOT NULL default '',
-		  `name` varchar(250) NOT NULL default '',
-		  PRIMARY KEY  (`modelid`),
-		  KEY `brandid` (`brandid`)
-		)
-	". $charset);
-	
-	// Тип кузова
-	$db->query_write("
-		CREATE TABLE IF NOT EXISTS `".$pfx."bodytype` (
-		  `bodytypeid` int(3) unsigned NOT NULL auto_increment,
-		  `title` varchar(250) NOT NULL default '',
-		  `name` varchar(250) NOT NULL default '',
-		  PRIMARY KEY  (`bodytypeid`)
-		)
-	". $charset);
-	
-	// Цвет кузова
-	$db->query_write("
-		CREATE TABLE IF NOT EXISTS `".$pfx."bodycolor` (
-		  `bodycolorid` int(4) unsigned NOT NULL auto_increment,
-		  `title` varchar(250) NOT NULL default '',
-		  PRIMARY KEY  (`bodycolorid`)
-		)
-	". $charset);
-
-	/**/	
 }
 
 ?>

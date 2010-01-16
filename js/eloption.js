@@ -31,7 +31,7 @@
 		     {name: 'catalog', files: ['lib.js']}
 		    ],
     onSuccess: function() {
-			DATA = Brick.Catalog.Data;
+			DATA = Brick.mod.catalog.data;
 			
 			T = Brick.util.Template['catalog']['eloption'];
 			Brick.util.Template.fillLanguage(T);

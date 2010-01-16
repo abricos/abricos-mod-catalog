@@ -28,7 +28,7 @@
 		mod:[{name: 'sys', files: ['form.js','data.js']}],
     onSuccess: function() {
 			
-			DATA = Brick.Catalog.Data;
+			DATA = Brick.mod.catalog.data;
 			
 			T = Brick.util.Template['catalog']['catstruct'];
 			Brick.util.Template.fillLanguage(T);
@@ -53,10 +53,10 @@ var moduleInitialize = function(){
 			container.innerHTML = T['panel'];
 			this.levels = [];
 			
-			if (!Brick.Catalog.Data[mmPrefix]){
-				Brick.Catalog.Data[mmPrefix] = new Brick.util.data.byid.DataSet('catalog', mmPrefix);
+			if (!Brick.mod.catalog.data[mmPrefix]){
+				Brick.mod.catalog.data[mmPrefix] = new Brick.util.data.byid.DataSet('catalog', mmPrefix);
 			}
-			var ds = Brick.Catalog.Data[mmPrefix];
+			var ds = Brick.mod.catalog.data[mmPrefix];
 			
 			this.tables = {
 				'catalogcfg': ds.get('catalogcfg', true),
@@ -152,7 +152,7 @@ var moduleInitialize = function(){
 				this.levels[i].save();
 			}
 			this.tables['catalogcfg'].applyChanges();
-			Brick.Catalog.Data[this.mmPrefix].request();
+			Brick.mod.catalog.data[this.mmPrefix].request();
 		}
 	}
 	

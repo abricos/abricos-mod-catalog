@@ -32,7 +32,7 @@
 				 {name: 'catalog', files: ['lib.js']}
 				],
     onSuccess: function() {
-			DATA = Brick.Catalog.Data;
+			DATA = Brick.mod.catalog.data;
 			
 			T = Brick.util.Template['catalog']['dicttable'];
 			Brick.util.Template.fillLanguage(T);
@@ -54,14 +54,14 @@ var moduleInitialize = function(){
 		init: function(container, dictid, mmPrefix){
 			this.mmPrefix = mmPrefix;
 			this.dictid = dictid;
-			if (!Brick.Catalog.Data[mmPrefix]){
-				Brick.Catalog.Data[mmPrefix] = new Brick.util.Data.DataSet('catalog', mmPrefix);
+			if (!Brick.mod.catalog.data[mmPrefix]){
+				Brick.mod.catalog.data[mmPrefix] = new Brick.util.Data.DataSet('catalog', mmPrefix);
 			}
 
 			var __self = this;
 			container.innerHTML = T['panel'];
 			
-			var ds = Brick.Catalog.Data[mmPrefix];
+			var ds = Brick.mod.catalog.data[mmPrefix];
 			this.ds = {
 				'dictlist': ds.get(DATA.TN_DICT_LIST, true),
 				'dicttable': ds.get(DATA.TN_DICTICTIONARY+dictid, true)
@@ -124,7 +124,7 @@ var moduleInitialize = function(){
 		},
 		_query: function(o){
 			o['dictid'] = this.dictid;
-			var ds = Brick.Catalog.Data[this.mmPrefix]; 
+			var ds = Brick.mod.catalog.data[this.mmPrefix]; 
 			ds.setReloadFlag(this.ds['dictlist'].name);
 			
 			var dict = ds.loader.getJSON();
@@ -212,7 +212,7 @@ var moduleInitialize = function(){
 					'tl': this.elv('title')
 				}
 			};
-			var ds = Brick.Catalog.Data[this.mmPrefix]; 
+			var ds = Brick.mod.catalog.data[this.mmPrefix]; 
 			ds.setReloadFlag([DATA.TN_DICTICTIONARY+this.obj['dictid']]);
 			var dict = ds.loader.getJSON();
 			

@@ -32,7 +32,7 @@
 		     {name: 'catalog', files: ['lib.js','eloption.js']}
 		    ],
     onSuccess: function() {
-			DATA = Brick.Catalog.Data;
+			DATA = Brick.mod.catalog.data;
 			
 			T = Brick.util.Template['catalog']['eltype'];
 			Brick.util.Template.fillLanguage(T);

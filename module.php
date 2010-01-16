@@ -141,9 +141,14 @@ class CMSModCatalog extends CMSModule {
 
 		$svers = $info['vs'];
 		$cvers = $this->version;
-		if (version_compare($svers, $cvers, "==")){return;}
+		if ($svers == $cvers){ return; }
 		
-		$this->updateShemaModule = new CMSModuleUpdShema($modman, $svers);
+		$modInfo = array(
+			'name' => $modman->name,
+			'version' => $info['vs']
+		);
+		
+		$this->updateShemaModule = new CMSUpdateManager($modman, $modInfo);
 		
 		require(CWD."/modules/catalog/includes/shema_mod.php");
 		CMSQCatalog::ModuleManagerUpdate($this->registry->db, $info['id'], $this->version);

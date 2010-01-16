@@ -5,52 +5,59 @@
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 */
 
-(function(){
-	Brick.namespace('Catalog.Element');
-
-	var T, J, TId;
+var Component = new Brick.Component();
+Component.requires = {
+	mod:[
+	     {name: 'sys', files: ['form.js','data.js']},
+	     {name: 'catalog', files: ['api.js','lib.js']}
+	    ]
+};
+Component.entryPoint = function(){
+	Brick.namespace('Catalog.Element.Type');
 
 	var Dom = YAHOO.util.Dom,
 		E = YAHOO.util.Event,
 		L = YAHOO.lang,
-		W = YAHOO.widget,
 		J = YAHOO.lang.JSON;
+	
+	var NS = this.namespace,
+		TMG = this.template;
+	
+	var API = NS.API;
 
-	var BC = Brick.util.Connection;
-	var DATA;
+(function(){
+	var TM = TMG.build('css');
+	Brick.util.CSS.update(TM.data['css']);
+})();
 
 	var dateExt = Brick.dateExt;
 	var elClear = Brick.elClear;
 	var wWait = Brick.widget.WindowWait;
 	var tSetVar = Brick.util.Template.setProperty;
-
-	Brick.Loader.add({
-		yahoo: ['json'],
-		mod:[
-				 {name: 'sys', files: ['form.js','data.js']},
-				 {name: 'catalog', files: ['lib.js']}
-				],
-    onSuccess: function() {
-			DATA = Brick.Catalog.Data;
-		
-			T = Brick.util.Template['catalog']['element'];
-			Brick.util.Template.fillLanguage(T);
-			TId = new Brick.util.TIdManager(T);
-			Brick.util.CSS.update(Brick.util.CSS['catalog']['element']);
-
-			moduleInitialize();
-			delete moduleInitialize;
-	  }
-	});
 	
-var moduleInitialize = function(){
+	NS.data = NS.data || {};
 	
+	var DATA = NS.data;
+	
+	var pathTitle = function(catalogid, mmPrefix){
+		var get = function(id){
+			var d = DATA[mmPrefix].get('catalog').getRows().getById(id).cell;
+			var ret = d['tl'];
+			if (d['pid']>0){
+				ret = get(d['pid'])+' / '+ret;
+			}
+			return ret;
+		};
+		return get(catalogid);
+	};
+
+
 (function(){
 	
-	var manager = function(container, catalogid, mmPrefix){
+	var ElementManagerWidget = function(container, catalogid, mmPrefix){
 		this.init(container, catalogid, mmPrefix);
 	};
-	manager.prototype = {
+	ElementManagerWidget.prototype = {
 		init: function(container, catalogid, mmPrefix){
 			this.container = container;
 			this.catalogid = catalogid;
@@ -60,7 +67,10 @@ var moduleInitialize = function(){
 				DATA[mmPrefix] = new Brick.util.data.byid.DataSet('catalog', mmPrefix);
 			}
 			
-			var __self = this;
+			var TM = TMG.build('panel,table,elttable,eltrow,row,rowdel'),
+				T = TM.data, TId = TM.idManager;
+			this._TM = TM; this._T = T; this._TId = TId;
+			
 			container.innerHTML = T['panel'];
 			
 			var ds = DATA[mmPrefix];
@@ -70,7 +80,7 @@ var moduleInitialize = function(){
 				'eltype': ds.get('eltype', true),
 				'eloption': ds.get('eloption', true),
 				'eloptgroup': ds.get('eloptgroup', true)
-			}
+			};
 			
 			this.param = {'catid': catalogid}; 
 			this.rows = this.tables['catelements'].getRows(this.param);
@@ -87,9 +97,10 @@ var moduleInitialize = function(){
 			}
 		},
 		render: function(){
+			var T = this._T, TId = this._TId;
 			this.rows = this.tables['catelements'].getRows(this.param);
 			var catalog = this.tables['catalog'].getRows().getById(this.catalogid);
-			Dom.get(TId['panel']['catalog']).innerHTML = Brick.Catalog.Element.pathTitle(this.catalogid, this.mmPrefix);
+			Dom.get(TId['panel']['catalog']).innerHTML = pathTitle(this.catalogid, this.mmPrefix);
 			var data, lst = "", i, s, di;
 			
 			var rows = this.tables['eltype'].getRows();
@@ -129,6 +140,7 @@ var moduleInitialize = function(){
 			DATA[this.mmPrefix].onComplete.unsubscribe(this.onElementUpdate, this, true);
 		},
 		onClick: function(el){
+			var T = this._T, TId = this._TId;
 			if (el.id == TId['panel']['rcclear']){
 				this.recycleClear(); return true;
 			}else {
@@ -163,16 +175,24 @@ var moduleInitialize = function(){
 		},
 		_query: function(){
 			this.tables['catelements'].applyChanges();
-			DATA[this.mmPrefix].request();
+			API.dsRequest(this.mmPrefix);
 		}
-	}
-
-	Brick.Catalog.Element.Manager = manager;
+	};
 	
-	/* Редактор свободного элемента */
+	NS.ElementManagerWidget = ElementManagerWidget;
+	
+})();
+	
+(function(){
+	
+	var TM = TMG.build('editor,editoptrowonload,editoptrowcust,editoptrow0,editoptrow1,editoptrow4,editoptrow5,editoptrow6,editoptrow7,seloptionrow,fotoitem'), 
+		T = TM.data, TId = TM.idManager;
+	
+	// Редактор свободного элемента
 	var Editor = function(mmPrefix, row, callback){
-
+		
 		this.tables = DATA[mmPrefix].tables;
+		
 		this.mmPrefix = mmPrefix;
 		this.row = row;
 		if (row.isNew()){
@@ -180,11 +200,17 @@ var moduleInitialize = function(){
 		}
 		this.callback = callback;
 		this.uploadWindow = null;
-		Editor.superclass.constructor.call(this, T['editor']);
-	}
+		Editor.superclass.constructor.call(this,{
+			modal: true, fixedcenter: true,
+			overflow: true,
+			width: '790px',
+			height: '600px'
+		});
+	};
 	YAHOO.extend(Editor, Brick.widget.Panel, {
-		initTemplate: function(t){
-		
+		initTemplate: function(){
+			var t = T['editor'];
+			
 			var o = this.row.cell;
 			var ds = DATA[this.mmPrefix];
 			var catElementId = 0;
@@ -199,7 +225,7 @@ var moduleInitialize = function(){
 				'eloptgroup': ds.get('eloptgroup').getRows().filter({'eltid': o['eltid']})
 				// 'fotos': ds.get('fotos').getRows({'elid': elementId, 'eltid': o['eltid']})
 			};
-			
+
 			var fotos = {};
 			if (!this.row.isNew()){
 				ds.get('fotos').getRows({'elid': elementId, 'eltid': o['eltid']}).foreach(function(row){
@@ -208,9 +234,9 @@ var moduleInitialize = function(){
 			}
 			this.fotos = fotos;
 
-			t = tSetVar(t, 'catalog', Brick.Catalog.Element.pathTitle(o['catid'], this.mmPrefix));
+			t = tSetVar(t, 'catalog', pathTitle(o['catid'], this.mmPrefix));
 			t = tSetVar(t, 'eltype', eltype.cell['tl']);
-			
+
 			// Построение опций элемента
 			// участвующие в мульти не участвуют в общем списке
 			var rowsMulti = this.rows['eloption'].filter({'fldtp': 6});
@@ -228,6 +254,7 @@ var moduleInitialize = function(){
 				lst += this.buildRow(row, false); 
 			}, this);
 			t = tSetVar(t, 'options', lst);
+			
 			return t;
 		},
 		el: function(name){ return Dom.get(TId['editor'][name]); },
@@ -280,7 +307,7 @@ var moduleInitialize = function(){
 					for (j=0;j<list.length;j++){
 						var row = rows.get('nm', list[j]);
 						if (row)
-							lists += this.buildRow(row, true)
+							lists += this.buildRow(row, true);
 					}					
 					s = tSetVar(s, 'list', lists);
 					break;
@@ -408,21 +435,7 @@ var moduleInitialize = function(){
 			flist.innerHTML = lst;
 		}
 	});	
-	
 	Brick.Catalog.Element.Editor = Editor;
-	
-	Brick.Catalog.Element.pathTitle = function(catalogid, mmPrefix){
-		var get = function(id){
-			var d = DATA[mmPrefix].get('catalog').getRows().getById(id).cell;
-			var ret = d['tl'];
-			if (d['pid']>0){
-				ret = get(d['pid'])+' / '+ret;
-			}
-			return ret;
-		};
-		return get(catalogid);
-	};
-
+		
 })();
 };
-})();

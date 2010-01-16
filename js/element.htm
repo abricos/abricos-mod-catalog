@@ -53,13 +53,12 @@
 </tr>
 
 <!--{editor}-->
-
 <div class='hd'>Редактор элемента</div>
 <div class='bd'>
-	<div class="field linespace-1" style="width: 790px;" >
+	<div class="field linespace-1" >
 		<h3>Раздел в каталоге: <strong>{v#catalog}</strong></h3>
 		<h3>Тип элемента: <strong>{v#eltype}</strong></h3>
-		<div id="{i#options}" class="{gi#entercompl}">
+		<div id="{i#options}" class="mod-catalog-element-entercompl">
 			{v#options}
 		</div>
 		<div style="clear: both; padding-bottom: 1em;"></div>
@@ -94,7 +93,7 @@
 <option value="{v#id}">{v#tl}</option>
 
 <!--{editoptrow0}-->
-<div class="{gi#col}">
+<div class="mod-catalog-element-col">
 <p>
 	<label id="{gi#opt}-{v#id}-lbl" for="{gi#opt}-{v#id}">{v#title}</label>
 	<input type="checkbox" id="{gi#opt}-{v#id}" />
@@ -102,7 +101,7 @@
 </div>
 
 <!--{editoptrow1}-->
-<div class="{gi#col}">
+<div class="mod-catalog-element-col">
 <p>
 	<label id="{gi#opt}-{v#id}-lbl" for="{gi#opt}-{v#id}">{v#title}</label>
 	<input type="text" id="{gi#opt}-{v#id}" style="width: 80px" />
@@ -110,7 +109,7 @@
 </div>
 
 <!--{editoptrow4}-->
-<div class="{gi#col}">
+<div class="mod-catalog-element-col">
 	<p>
 		<label id="{gi#opt}-{v#id}-lbl" for="{gi#opt}-{v#id}">{v#title}</label>
 		<select id="{gi#opt}-{v#id}">{v#list}</select>
@@ -118,7 +117,7 @@
 </div>
 
 <!--{editoptrow5}-->
-<div class="{gi#col}">
+<div class="mod-catalog-element-col">
 	<p>
 		<label id="{gi#opt}-{v#id}-lbl" for="{gi#opt}-{v#id}">{v#title}</label>
 		<select id="{gi#opt}-{v#id}">
@@ -130,14 +129,14 @@
 </div>
 
 <!--{editoptrow6}-->
-<div class="{gi#col}">
+<div class="mod-catalog-element-col">
 	<p>
 		{v#title} {v#list}
 	</p>
 </div>
 
 <!--{editoptrow7}-->
-<div class="{gi#col}">
+<div class="mod-catalog-element-col">
 <p>
 	<label id="{gi#opt}-{v#id}-lbl" for="{gi#opt}-{v#id}">{v#title}</label>
 	<textarea id="{gi#opt}-{v#id}" style="width: 100px; height: 50px"></textarea>
@@ -145,7 +144,7 @@
 </div>
 
 <!--{editoptrow8}-->
-<div class="{gi#col}">
+<div class="mod-catalog-element-col">
 	<p>
 		<label id="{gi#opt}-{v#id}-lbl" for="{gi#opt}-{v#id}">{v#title}</label>
 		<select id="{gi#opt}-{v#id}">{v#list}</select>
@@ -154,7 +153,7 @@
 </div>
 
 <!--{editoptrowcust}-->
-<div class="{gi#col}">
+<div class="mod-catalog-element-col">
 	<p>
 		{v#el}
 	</p>
@@ -169,12 +168,12 @@ Brick.Catalog.Element.temp['currentOptRow'] = __t;
 
 
 <!--{css}-->
-.{gi#col}	{
+.mod-catalog-element-col {
 	margin-left:1%;
 	width:32%;
 	float: left; 
 }
-.{gi#entercompl} {
+.mod-catalog-element-entercompl {
 	width: 100%;
 	clear: both;
 }
