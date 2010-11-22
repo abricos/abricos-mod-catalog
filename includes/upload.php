@@ -1,33 +1,34 @@
 <?php
 /**
 * @version $Id$
-* @package CMSBrick
-* @copyright Copyright (C) 2008 CMSBrick. All rights reserved.
+* @package Abricos
+* @copyright Copyright (C) 2010 Abricos. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 */
-
-if (!Brick::$session->IsAdminMode()){	return;}
-
 
 $modCatalog = Brick::$modules->GetModule('catalog');
 $modMan = $modCatalog->currentModMan;
 $modFM = Brick::$modules->GetModule('filemanager');
+$manager = $modMan->GetCatalogManager();
+$fmManager = $modFM->GetManager();
 
-CMSQCatalog::PrefixSet(Brick::$db, $modMan->catinfo['dbprefix']);
+if (!$manager->isWriteRole()){ return; }
+if (!$fmManager->IsFileUploadRole()){ return; }
 
 $brick = Brick::$builder->brick;
 $brick->param->var['url'] = Brick::$cms->adress->requestURI; 
-
-$fmManager = $modFM->GetFileManager();
 
 $p_act = Brick::$cms->input->clean_gpc('p', 'act', TYPE_STR);
 if ($p_act != "upload"){ return; }
 
 $arr = array();
 for ($i=0; $i<6; $i++){
-	$p_file = Brick::$cms->input->clean_gpc('f', 'file'.$i, TYPE_FILE);
+	$p_file = CMSRegistry::$instance->input->clean_gpc('f', 'file'.$i, TYPE_FILE);
 	if (!empty($p_file)){
-		$errornum = $fmManager->UploadFiles(0, $p_file, true);
+		$folderId = $fmManager->FolderAppend(0, 'catalog');
+		$errornum = $fmManager->UploadFiles($folderId, $p_file, true);
+		
+		// print_r('error='.$errornum."<br>");
 		if (empty($errornum)){
 			array_push($arr, $fmManager->lastUploadFileHash);
 		}
@@ -35,34 +36,24 @@ for ($i=0; $i<6; $i++){
 }
 if (empty($arr)){ return; }
 
-// автоматическое создание превьюшек
-if (!empty($modMan->fotoPreviewFormat)){
-	foreach ($modMan->fotoPreviewFormat as $format){
-		foreach ($arr as $hash){
-			$fmManager->ImageConvert($hash, $format['w'], $format["h"], "");
-		}
-	}
-}
-
 $json = json_encode($arr); // массив идентификаторов загруженных файлов
 $newarr = array();
 
 $uploadId = $modCatalog->uploadId;
-$eltypeid = $modCatalog->uploadElementTypeId;
 
 if ($modCatalog->uploadStatus == 0){ 
 	// Элемент в процессе добавления, поэтому формируем список загруженных файлов и 
 	// складываем их в кеш
-	CMSQCatalog::SessionAppend(Brick::$db, $uploadId, $json);
-	$rows = CMSQCatalog::Session(Brick::$db, $uploadId);
+	CatalogQuery::SessionAppend(Brick::$db, $uploadId, $json);
+	$rows = CatalogQuery::Session(Brick::$db, $uploadId);
 	while (($row = Brick::$db->fetch_array($rows))){
 		$tarr = json_decode($row['data']);
 		foreach($tarr as $ta){ array_push($newarr, $ta); }
 	}
 } else {
-	CMSQCatalog::FotoAppend(Brick::$db, $eltypeid, $uploadId, $arr);
+	CatalogQuery::FotoAppend(Brick::$db, $uploadId, $arr);
 	
-	$rows = CMSQCatalog::FotoList(Brick::$db, $eltypeid, $uploadId);
+	$rows = CatalogQuery::FotoList(Brick::$db, $uploadId);
 	while (($row = Brick::$db->fetch_array($rows))){
 		array_push($newarr, $row['fid']);
 	}

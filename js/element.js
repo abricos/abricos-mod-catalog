@@ -1,20 +1,23 @@
-/**
-* @version $Id$
-* @package CMSBrick
-* @copyright Copyright (C) 2008 CMSBrick. All rights reserved.
-* @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+/*
+@version $Id$
+@package Abricos
+@copyright Copyright (C) 2010 Abricos. All rights reserved.
+@license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 */
 
+/**
+ * @module Catalog
+ * @namespace Brick.mod.catalog
+ */
 var Component = new Brick.Component();
 Component.requires = {
+	yahoo: ['json'],
 	mod:[
-	     {name: 'sys', files: ['form.js','data.js']},
-	     {name: 'catalog', files: ['api.js','lib.js']}
-	    ]
+	     {name: 'sys', files: ['form.js','data.js','container.js']},
+	     {name: 'catalog', files: ['eleditor.js']}
+    ]
 };
 Component.entryPoint = function(){
-	Brick.namespace('Catalog.Element.Type');
-
 	var Dom = YAHOO.util.Dom,
 		E = YAHOO.util.Event,
 		L = YAHOO.lang,
@@ -25,23 +28,21 @@ Component.entryPoint = function(){
 	
 	var API = NS.API;
 
-(function(){
-	var TM = TMG.build('css');
-	Brick.util.CSS.update(TM.data['css']);
-})();
+	Brick.util.CSS.update(Brick.util.CSS['catalog']['element']);
 
-	var dateExt = Brick.dateExt;
-	var elClear = Brick.elClear;
-	var wWait = Brick.widget.WindowWait;
-	var tSetVar = Brick.util.Template.setProperty;
-	
 	NS.data = NS.data || {};
-	
 	var DATA = NS.data;
+	
+	var buildTemplate = function(w, templates){
+		var TM = TMG.build(templates), T = TM.data, TId = TM.idManager;
+		w._TM = TM; w._T = T; w._TId = TId;
+	};
 	
 	var pathTitle = function(catalogid, mmPrefix){
 		var get = function(id){
-			var d = DATA[mmPrefix].get('catalog').getRows().getById(id).cell;
+			var row = NS.data[mmPrefix].get('catalog').getRows().getById(id);
+			if (L.isNull(row)){ return ''; }
+			var d = row.cell;
 			var ret = d['tl'];
 			if (d['pid']>0){
 				ret = get(d['pid'])+' / '+ret;
@@ -51,15 +52,12 @@ Component.entryPoint = function(){
 		return get(catalogid);
 	};
 
-
-(function(){
-	
 	var ElementManagerWidget = function(container, catalogid, mmPrefix){
 		this.init(container, catalogid, mmPrefix);
 	};
 	ElementManagerWidget.prototype = {
 		init: function(container, catalogid, mmPrefix){
-			this.container = container;
+			this.container = Dom.get(container);
 			this.catalogid = catalogid;
 			this.mmPrefix = mmPrefix;
 
@@ -67,11 +65,8 @@ Component.entryPoint = function(){
 				DATA[mmPrefix] = new Brick.util.data.byid.DataSet('catalog', mmPrefix);
 			}
 			
-			var TM = TMG.build('panel,table,elttable,eltrow,row,rowdel'),
-				T = TM.data, TId = TM.idManager;
-			this._TM = TM; this._T = T; this._TId = TId;
-			
-			container.innerHTML = T['panel'];
+			buildTemplate(this, 'panel,table,elttable,eltrow,eltrowbase,row,rowdel');
+			container.innerHTML = this._T['panel'];
 			
 			var ds = DATA[mmPrefix];
 			this.tables = {
@@ -97,44 +92,35 @@ Component.entryPoint = function(){
 			}
 		},
 		render: function(){
-			var T = this._T, TId = this._TId;
+			var TM = this._TM, T = this._T, TId = this._TId;
 			this.rows = this.tables['catelements'].getRows(this.param);
-			var catalog = this.tables['catalog'].getRows().getById(this.catalogid);
-			Dom.get(TId['panel']['catalog']).innerHTML = pathTitle(this.catalogid, this.mmPrefix);
+			// var catalog = this.tables['catalog'].getRows().getById(this.catalogid);
+			
+			TM.getEl('panel.catalog').innerHTML = pathTitle(this.catalogid, this.mmPrefix);
 			var data, lst = "", i, s, di;
 			
+			lst += T['eltrowbase'];
 			var rows = this.tables['eltype'].getRows();
 			rows.foreach(function(row){
 				di = row.cell;
-				s = T['eltrow'];
-				s = tSetVar(s, 'id', di['id']);
-				s = tSetVar(s, 'tl', di['tl']);
-				lst += s;
+				lst += TM.replace('eltrow', {'id': di['id'], 'tl': di['tl']});
 			}, this);
-			lst = tSetVar(T['elttable'], 'rows', lst);
 
-			var div = Dom.get(TId['panel']['elttable']);
-			elClear(div);
-			div.innerHTML = lst;
+			TM.getEl('panel.elttable').innerHTML = TM.replace('elttable', {'rows': lst});
 			
 			lst = "";
 			this.rows.foreach(function(row){
 				di = row.cell;
-				
-				s = di['dd']>0 ? T['rowdel'] : T['row'];
-				s = tSetVar(s, 'id', di['id']);
 				var eltype = this.tables['eltype'].getRows().getById(di['eltid']);
-				s = tSetVar(s, 'eltpnm', eltype.cell['tl']);
-				s = tSetVar(s, 'tl', di['tl']);
-				lst += s;
 				
+				lst += TM.replace(di['dd']>0 ? 'rowdel' : 'row', {
+					'id': di['elid'],
+					'eltpnm': L.isNull(eltype) ? "" : eltype.cell['tl'],
+					'tl': di['tl']
+				});
 			}, this);
 			
-			lst = tSetVar(T['table'], 'rows', lst);
-
-			var div = Dom.get(TId['panel']['table']);
-			elClear(div);
-			div.innerHTML = lst;
+			TM.getEl('panel.table').innerHTML = TM.replace('table', {'rows': lst});
 		},
 		destroy: function(){
 			DATA[this.mmPrefix].onComplete.unsubscribe(this.onElementUpdate, this, true);
@@ -149,11 +135,24 @@ Component.entryPoint = function(){
 	
 				switch(prefix){
 				case (TId['eltrow']['add']+'-'): 
-					Brick.Catalog.Element.create (this.catalogid, numid, this.mmPrefix);
+				case (TId['eltrowbase']['add']+'-'): 
+					API.showElementEditorPanel({
+						'catalogid': this.catalogid,
+						'eltypeid': numid,
+						'mmPrefix': this.mmPrefix,
+						'elementid': 0
+					});
 					return true;
 				case (TId['row']['edit']+'-'): 
 					var element = this.rows.getById(numid);
-					Brick.Catalog.Element.edit(this.catalogid, numid, element.cell['elid'], element.cell['eltid'], this.mmPrefix);
+					//Brick.Catalog.Element.edit(this.catalogid, numid, element.cell['elid'], element.cell['eltid'], this.mmPrefix);
+					API.showElementEditorPanel({
+						'catalogid': this.catalogid,
+						'eltypeid': element.cell['eltid'],
+						'mmPrefix': this.mmPrefix,
+						'elementid': numid
+					});
+
 					return true;
 				case (TId['row']['remove']+'-'): this.remove(numid); return true;
 				case (TId['rowdel']['restore']+'-'): this.restore(numid); return true;
@@ -175,267 +174,10 @@ Component.entryPoint = function(){
 		},
 		_query: function(){
 			this.tables['catelements'].applyChanges();
-			API.dsRequest(this.mmPrefix);
+			DATA[this.mmPrefix].request();
 		}
 	};
 	
 	NS.ElementManagerWidget = ElementManagerWidget;
 	
-})();
-	
-(function(){
-	
-	var TM = TMG.build('editor,editoptrowonload,editoptrowcust,editoptrow0,editoptrow1,editoptrow4,editoptrow5,editoptrow6,editoptrow7,seloptionrow,fotoitem'), 
-		T = TM.data, TId = TM.idManager;
-	
-	// Редактор свободного элемента
-	var Editor = function(mmPrefix, row, callback){
-		
-		this.tables = DATA[mmPrefix].tables;
-		
-		this.mmPrefix = mmPrefix;
-		this.row = row;
-		if (row.isNew()){
-			row.cell['session'] = Math.round(((new Date()).getTime()/1000));
-		}
-		this.callback = callback;
-		this.uploadWindow = null;
-		Editor.superclass.constructor.call(this,{
-			modal: true, fixedcenter: true,
-			overflow: true,
-			width: '790px',
-			height: '600px'
-		});
-	};
-	YAHOO.extend(Editor, Brick.widget.Panel, {
-		initTemplate: function(){
-			var t = T['editor'];
-			
-			var o = this.row.cell;
-			var ds = DATA[this.mmPrefix];
-			var catElementId = 0;
-			var elementId = 0;
-			if (!this.row.isNew()){
-				catElementId = this.row.id;
-				elementId = this.row.cell['elid'];
-			}
-			var eltype = this.elementType = ds.get('eltype').getRows().getById(o['eltid']);
-			this.rows = {
-				'eloption': ds.get('eloption').getRows().filter({'eltid': o['eltid']}),
-				'eloptgroup': ds.get('eloptgroup').getRows().filter({'eltid': o['eltid']})
-				// 'fotos': ds.get('fotos').getRows({'elid': elementId, 'eltid': o['eltid']})
-			};
-
-			var fotos = {};
-			if (!this.row.isNew()){
-				ds.get('fotos').getRows({'elid': elementId, 'eltid': o['eltid']}).foreach(function(row){
-					fotos[row.cell['fid']] = row.cell['fid'];  
-				});
-			}
-			this.fotos = fotos;
-
-			t = tSetVar(t, 'catalog', pathTitle(o['catid'], this.mmPrefix));
-			t = tSetVar(t, 'eltype', eltype.cell['tl']);
-
-			// Построение опций элемента
-			// участвующие в мульти не участвуют в общем списке
-			var rowsMulti = this.rows['eloption'].filter({'fldtp': 6});
-			rowsMulti.foreach(function(row){
-				var di = row.cell;
-				var prm = J.parse(decodeURIComponent(di['prms'])) || {};
-				var list = prm['val'].split('\n');
-				for (var j=0;j<list.length;j++){
-					var row = this.rows['eloption'].get('nm', list[j]);
-					if (row){ row['usedmulti'] = true; }
-				}
-			}, this);
-			var lst = "";
-			this.rows['eloption'].foreach(function(row){
-				lst += this.buildRow(row, false); 
-			}, this);
-			t = tSetVar(t, 'options', lst);
-			
-			return t;
-		},
-		el: function(name){ return Dom.get(TId['editor'][name]); },
-		elOnLoad: function(t, func){ func(t, tSetVar); },
-		buildRow: function(row, child){
-			if (!child && row['usedmulti']){ return ""; }
-
-			var ds = DATA[this.mmPrefix];
-			Brick.namespace('Catalog.Element.temp');
-
-			var di = row.cell;
-			var i, lst = "", s, prm, list, j, lists, ss, tt;
-			prm = J.parse(decodeURIComponent(di['prms'])) || {};
-			var cust = prm['cst'] || {};
-			if (cust['en']){
-				Brick.Catalog.Element.temp['currentOptRow'] = cust['inp'];
-				
-				tt = tSetVar(T['editoptrowonload'], 'script', cust['onld']);
-				Brick.readScript(tt);
-				s = tSetVar(T['editoptrowcust'], 'el', Brick.Catalog.Element.temp['currentOptRow']);
-				s = tSetVar(s, 'optid', TId['_global']['opt']);
-			}else{
-				switch (di['fldtp']){
-				case '0': s = T['editoptrow0']; break;
-				case '1': case '2': case '3':  s = T['editoptrow1']; break;
-				case '4':
-					s = T['editoptrow4'];
-					list = prm['val'].split('\n');
-					lists = "";
-					for (j=0;j<list.length;j++){
-						ss = tSetVar(T['seloptionrow'], 'id', j);
-						lists += tSetVar(ss, 'tl', list[j]);
-					}
-					s = tSetVar(s, 'list', lists);
-					break;
-				case '5':
-					s = T['editoptrow5'];
-					var rows = ds.get('eloptionfld').getRows({'eltpnm': this.elementType.cell['nm'], 'fldnm': di['nm']});
-					rows.foreach(function(row){
-						ss = tSetVar(T['seloptionrow'], 'id', row.cell['id']);
-						lists += tSetVar(ss, 'tl', row.cell['tl']);
-					});
-					s = tSetVar(s, 'list', lists);
-					break;
-				case '6':
-					s = T['editoptrow6'];
-					list = prm['val'].split('\n');
-					lists = "";
-					var rows = this.rows['eloption'];
-					for (j=0;j<list.length;j++){
-						var row = rows.get('nm', list[j]);
-						if (row)
-							lists += this.buildRow(row, true);
-					}					
-					s = tSetVar(s, 'list', lists);
-					break;
-				case '7': s = T['editoptrow7']; break;
-				default: s = ''; break;
-				}
-			}
-			s = tSetVar(s, 'id', di['nm']);
-			s = tSetVar(s, 'title', di['tl']);
-			
-			return s;
-		},
-		onLoad: function(){
-			var rows = this.rows['eloption'];
-			var element = this.row;
-			rows.foreach(function(row){
-				var di = row.cell;
-				switch(di['fldtp']){
-				case '0': case '1': case '2': case '3': case '4': case '5': case '7': case '8':
-					var el = Dom.get(TId['_global']['opt']+'-'+di['nm']);
-					Brick.util.Form.setValue(el, element.cell['fld_'+di['nm']]);
-					break;
-				}
-			}, this);
-			this.fotoRender();
-		},
-		onClick: function(el){
-			
-			var arr = el.id.split('-');
-			
-			if (arr[0] == TId['fotoitem']['id']){
-				this.imageRemove(arr[1]);
-				return true;
-			}
-			
-			var tp = TId['editor']; 
-			switch(el.id){
-			case tp['bcancel']: this.close(); return true;
-			case tp['bsave']: this.save(); return true;
-			case tp['imgload']:
-				this.imageUpload();
-				break;
-			}
-			return false;
-		},
-		save: function(){
-
-			var element = this.row;
-			var rows = this.rows['eloption'];
-			var options = {};
-			rows.foreach(function(row){
-				var di = row.cell;
-				
-				switch(di['fldtp']){
-				case '0': case '1': case '2': case '3': case '4': case '5': case '7': case '8':
-					var el = Dom.get(TId['_global']['opt']+'-'+di['nm']);
-					options['fld_'+di['nm']] = Brick.util.Form.getValue(el);
-					break;
-				}
-				if (di['fldtp']=='5'){
-					var newval = Brick.util.Form.getValue(Dom.get(TId['_global']['opt']+'-'+di['nm']+'-alt'));
-					if (newval.length > 0){
-						options['fld_'+di['nm']+'-alt'] = newval;
-						this.tables['eloptionfld'].getRows({'eltpnm': this.elementType.cell['nm'], 'fldnm': di['nm']}).clear();
-					}
-				}
-			}, this);
-
-			var afotos = [];
-			for (var fid in this.fotos){
-				afotos[afotos.length] = fid;
-			}
-			options['fids'] = afotos.join(","); 
-			
-			this.row.update(options);
-			
-			if (!this.row.isNew()){
-				DATA[this.mmPrefix].get('fotos').getRows({'elid': this.row.cell['elid'], 'eltid': this.row.cell['eltid']}).clear();
-			}
-			
-			this.callback();
-			this.close();
-		},
-		imageUpload: function(){
-			if (!L.isNull(this.uploadWindow) && !this.uploadWindow.closed){
-				this.uploadWindow.focus();
-			}else{
-				var element = this.row;
-				
-				var url = '/catalogbase/'+this.mmPrefix+'/upload/';
-				if (!element.isNew()){
-					url += 'id/'+ element.cell['elid'] + '/';
-				} else {
-					url += 'sess/'+ element.cell['session'] + '/';
-				}
-				url += element.cell['eltid']+'/';
-				this.uploadWindow = window.open(
-					url, 'catalogimage',	
-					'statusbar=no,menubar=no,toolbar=no,scrollbars=yes,resizable=yes,width=480,height=270' 
-				); 
-			}
-		},
-		imageUploadComplete: function(data){
-			var fotos = {};
-			for (var i=0;i<data.length;i++){
-				fotos[data[i]] = data[i];
-			}
-			this.fotos = fotos;
-			this.fotoRender();
-		},
-		imageRemove: function(fotoid){
-			var fotos = {};
-			for (var id in this.fotos){
-				if (fotoid != id){ fotos[id] = this.fotos[id]; }
-			}
-			this.fotos = fotos;
-			this.fotoRender();
-		},
-		fotoRender: function(){
-			var lst = "";
-			for(var fid in this.fotos){
-				lst += tSetVar(T['fotoitem'], 'id', fid); 
-			}
-			var flist = this.el("fotolist");
-			flist.innerHTML = lst;
-		}
-	});	
-	Brick.Catalog.Element.Editor = Editor;
-		
-})();
 };

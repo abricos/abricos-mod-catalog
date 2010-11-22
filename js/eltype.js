@@ -1,66 +1,65 @@
-/**
-* @version $Id$
-* @package CMSBrick
-* @copyright Copyright (C) 2008 CMSBrick. All rights reserved.
-* @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+/*
+@version $Id$
+@package Abricos
+@copyright Copyright (C) 2010 Abricos. All rights reserved.
+@license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 */
 
-(function(){
-	Brick.namespace('Catalog.Data');
-	Brick.namespace('Catalog.Element.Type');
-
-	var T, J, TId;
-
+/**
+ * @module Catalog
+ * @namespace Brick.mod.catalog
+ */
+ 
+var Component = new Brick.Component();
+Component.requires = { 
+	yahoo: ['json'],
+	mod:[
+	     {name: 'sys', files: ['form.js','data.js']},
+	     {name: 'catalog', files: ['eloption.js']}
+	    ]
+};
+Component.entryPoint = function(){
+	
 	var Dom = YAHOO.util.Dom,
 		E = YAHOO.util.Event,
-		L = YAHOO.lang,
-		W = YAHOO.widget,
-		J = YAHOO.lang.JSON;
-
+		L = YAHOO.lang;
+	
+	var NS = this.namespace,
+		TMG = this.template,
+		API = NS.API;
+	
 	var BC = Brick.util.Connection;
-	var DATA;
-
-	var dateExt = Brick.dateExt;
-	var elClear = Brick.elClear;
-	var wWait = Brick.widget.WindowWait;
-	var tSetVar = Brick.util.Template.setProperty;
-
-	Brick.Loader.add({
-		yahoo: ['json'],
-		mod:[
-		     {name: 'sys', files: ['form.js','data.js']},
-		     {name: 'catalog', files: ['lib.js','eloption.js']}
-		    ],
-    onSuccess: function() {
-			DATA = Brick.mod.catalog.data;
-			
-			T = Brick.util.Template['catalog']['eltype'];
-			Brick.util.Template.fillLanguage(T);
-			TId = new Brick.util.TIdManager(T);
-
-			moduleInitialize();
-			delete moduleInitialize;
-	  }
-	});
 	
-var moduleInitialize = function(){
+	NS.data = NS.data || {};
+	var DATA = NS.data;
 
-/* * * * * * * * * * * * Element Type * * * * * * * * * * * */
-(function(){
+	var buildTemplate = function(w, templates){
+		var TM = TMG.build(templates), T = TM.data, TId = TM.idManager;
+		w._TM = TM; w._T = T; w._TId = TId;
+	};
 	
-	/* * * * * * * * * Список типов элемента каталога * * * * * * * */
-	var manager = function(container, mmPrefix){
+	/**
+	 * Виджет.<br>
+	 * 
+	 * @class ElementTypeManagerWidget
+	 * @constructor
+	 * @param {HTMLObject | String} container Контейнер
+	 * @param {String} mmPrefix Префикс управляющего модуля
+	 */
+	var ElementTypeManagerWidget = function(container, mmPrefix){
 		this.init(container, mmPrefix);
 	};
-	manager.prototype = {
+	ElementTypeManagerWidget.prototype = {
 		init: function(container, mmPrefix){
 			this.mmPrefix = mmPrefix;
+			
+			buildTemplate(this, 'panel,table,row,rowdel');
+			
 			if (!DATA[mmPrefix]){
 				DATA[mmPrefix] = new Brick.util.data.byid.DataSet('catalog', mmPrefix);
 			}
-
-			var __self = this;
-			container.innerHTML = T['panel'];
+			
+			Dom.get(container).innerHTML = this._T['panel'];
 			
 			var ds = DATA[mmPrefix];
 			this.tables = {
@@ -73,6 +72,11 @@ var moduleInitialize = function(){
 			if (ds.isFill(this.tables)){
 				this.render();
 			}
+			
+			var __self = this;
+			E.on(container, 'click', function(e){
+				if (__self.onClick(E.getTarget(e))){ E.stopEvent(e); }
+			});
 		},
 		onDSUpdate: function(type, args){
 			if (args[0].check(['eltype'])){ this.render(); }
@@ -81,6 +85,7 @@ var moduleInitialize = function(){
 			 DATA[this.mmPrefix].onComplete.unsubscribe(this.onDSUpdate, this);
 		},
 		onClick: function(el){
+			var TId = this._TId;
 			if (this.activeOption){
 				if (this.activeOption.onClick(el)){ return true; }
 			}
@@ -100,6 +105,7 @@ var moduleInitialize = function(){
 					this.editById(numid);
 					return true;
 				case (TId['row']['conf']+'-'):
+				case (TId['table']['conf']+'-'):
 					this.showOption(numid);
 					return true;
 				case (TId['row']['remove']+'-'):
@@ -118,10 +124,10 @@ var moduleInitialize = function(){
 		},
 		editById: function(id){
 			var eltype = this.tables['eltype'].getRows().getById(id);
-			this.activeEditor = new Editor(eltype, this.mmPrefix);
+			this.activeEditor = new ElementTypeEditorPanel(eltype, this.mmPrefix);
 		},
 		edit: function(row){
-			this.activeEditor = new Editor(row, this.mmPrefix);
+			this.activeEditor = new ElementTypeEditorPanel(row, this.mmPrefix);
 		},
 		showOption: function(id){
 			if (this.activeOption){
@@ -131,7 +137,7 @@ var moduleInitialize = function(){
 					this.activeOption.destroy();
 				}
 			}
-			this.activeOption = new Brick.Catalog.Element.Type.Option.Manager(Dom.get(TId['panel']['optpanel']), id, this.mmPrefix);
+			this.activeOption = new NS.ElementOptionsWidget(Dom.get(this._TId['panel']['optpanel']), id, this.mmPrefix);
 			DATA[this.mmPrefix].request();
 		},
 		remove: function(id){ this._query({'act': 'remove', 'data':{'id': id}}); },
@@ -157,36 +163,40 @@ var moduleInitialize = function(){
 			BC.sendCommand('catalog', 'js_eltype', { json: o });
 		},
 		render: function(){
-			var rows = this.tables['eltype'].getRows();
-			
-			var lst = "", i, s, di;
-			rows.foreach(function(row){
-				di = row.cell;
-				
-				s = di['dd']>0 ? T['rowdel'] : T['row'];
-				s = tSetVar(s, 'id', di['id']);
-				s = tSetVar(s, 'tl', di['tl']);
-				s = tSetVar(s, 'dsc', di['dsc']);
-				lst += s;
-			}, this);
-			
-			lst = tSetVar(T['table'], 'rows', lst);
-
-			var div = Dom.get(TId['panel']['table']);
-			elClear(div);
-			div.innerHTML = lst;
+			var TM = this._TM, T = this._T, TId = this._TId,
+				lst = "";
+			this.tables['eltype'].getRows().foreach(function(row){
+				var di = row.cell;
+				lst += TM.replace(di['dd']>0 ? 'rowdel' :'row', {
+					'id': di['id'],
+					'tl': di['tl'],
+					'dsc': di['dsc']
+				}); 
+			});
+			TM.getEl('panel.table').innerHTML = TM.replace('table', {'rows': lst});
 		}
-	}
-	Brick.Catalog.Element.Type.Manager = manager;
-
-	var Editor = function(row, mmPrefix){
+	};
+	NS.ElementTypeManagerWidget = ElementTypeManagerWidget;
+	
+	/**
+	 * Панель. Редактор типа элемента
+	 * 
+	 * @class ElementTypeEditorPanel
+	 * @constructor
+	 * @param {DataRow} row Строка из таблицы <b>eltype</b>
+	 * @param {String} mmPrefix Префикс управляющего модуля
+	 */	
+	var ElementTypeEditorPanel = function(row, mmPrefix){
 		this.mmPrefix = mmPrefix;
 		this.row = row;
-		Editor.superclass.constructor.call(this, T['editor']);
-	}
-	YAHOO.extend(Editor, Brick.widget.Panel, {
-		initTemplate: function(t){
-			return t;
+		ElementTypeEditorPanel.superclass.constructor.call(this, {
+			modal: true, fixedcenter: true
+		});
+	};
+	YAHOO.extend(ElementTypeEditorPanel, Brick.widget.Panel, {
+		initTemplate: function(){
+			buildTemplate(this, 'editor');
+			return this._TM.replace('editor');
 		},
 		onLoad: function(){
 			var o = this.row.cell;
@@ -201,7 +211,7 @@ var moduleInitialize = function(){
 				name.disabled = "disabled";
 			}
 		},
-		el: function(name){ return Dom.get(TId['editor'][name]); },
+		el: function(name){ return Dom.get(this._TId['editor'][name]); },
 		elv: function(name){ return Brick.util.Form.getValue(this.el(name)); },
 		setelv: function(name, value){ Brick.util.Form.setValue(this.el(name), value); },
 		nameTranslite: function(){
@@ -212,7 +222,7 @@ var moduleInitialize = function(){
 			}
 		},
 		onClick: function(el){
-			var tp = TId['editor']; 
+			var tp = this._TId['editor']; 
 			switch(el.id){
 			case tp['name']:
 				this.nameTranslite();
@@ -243,10 +253,54 @@ var moduleInitialize = function(){
 			this.close();
 		}
 	});
+	NS.ElementTypeEditorPanel = ElementTypeEditorPanel;
+
+	/**
+	 * 
+	 * API модуля
+	 * 
+	 * @class API
+	 */
 	
-	Brick.Catalog.Element.Type.Editor = Editor;
+	/**
+	 * Отобразить панель редактора - тип элемента<br />
+	 * <br />
+	 * Пример вызова функции: 
+	 * <pre>
+	 *  Brick.f('catalog', 'eltype', 'showElementTypeEditorPanel', {
+	 *    'row': row,
+	 *    'mmPrefix': 'eshop'
+	 *  });
+	 * </pre>
+	 * 
+	 * @method showElementTypeEditorPanel
+	 * @static
+	 * @param {Object} config Объект параметров, где: row - DataRow, mmPrefix - префикс управляющего модуля
+	 */
 
+	API.showElementTypeEditorPanel = function(config){
+		new ElementTypeEditorPanel(config.row, config.mmPrefix);
+	}
 
-})();
+	/**
+	 * Отобразить виджет - список типов элемента<br />
+	 * 
+	 * Пример вызова функции: 
+	 * <pre>
+	 *  Brick.f('catalog', 'eltype', 'showElementTypeManagerWidget', {
+	 *    'container': container,
+	 *    'mmPrefix': 'eshop'
+	 *  });
+	 * </pre>
+	 * 
+	 * @method showElementTypeManagerWidget
+	 * @static
+	 * @param {Object} config Объект параметров, где: container - HTMLElement, mmPrefix - префикс управляющего модуля
+	 */
+	API.showElementTypeManagerWidget = function(config){
+		var widget = new ElementTypeManagerWidget(config.container, config.mmPrefix);
+		DATA[config.mmPrefix].request();
+		return widget;
+	}
+
 };
-})();

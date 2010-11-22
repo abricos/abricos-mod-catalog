@@ -1,0 +1,49 @@
+#mod-catalog-manager { 
+	padding:4px 0 0 10px;
+}
+#mod-catalog-manager .root {
+	list-style-image:none;
+	list-style-position:outside;
+	list-style-type:none;
+	margin:0;
+	padding:4px 0 0 2px;
+}
+
+#mod-catalog-manager .root li {
+	border-top:1px solid #DDDDDD;
+	padding:2px 0;
+	position:relative;
+}
+
+#mod-catalog-manager .ctg-buttons {
+	position:absolute;
+	right:9px;
+	top:3px;
+	width:120px;
+}
+#mod-catalog-manager .ctg-buttons img {
+	margin-right:6px;
+	vertical-align:middle;
+	cursor:pointer;
+}
+#mod-catalog-manager .ctg-list {
+	list-style-image:none;
+	list-style-position:outside;
+	list-style-type:none;
+	margin:0;
+	padding:4px 0 0 10px;
+}
+#mod-catalog-manager .ctg-list li {
+	border-top:1px solid #DDDDDD;
+	padding:2px 0;
+	position:relative;
+}
+#mod-catalog-manager a {
+  text-decoration: none;
+}
+
+.mod-catalog div p label	{
+	display:block;
+	float:left;
+	width:209px;
+}

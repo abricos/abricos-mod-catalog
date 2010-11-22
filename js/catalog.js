@@ -1,16 +1,20 @@
-/**
-* @version $Id$
-* @package CMSBrick
-* @copyright Copyright (C) 2008 CMSBrick. All rights reserved.
-* @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+/*
+@version $Id$
+@package Abricos
+@copyright Copyright (C) 2010 Abricos. All rights reserved.
+@license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 */
 
+/**
+ * @module Catalog
+ * @namespace Brick.mod.catalog
+ */
 
 var Component = new Brick.Component();
 Component.requires = {
 	mod:[
 	     {name: 'sys', files: ['form.js','data.js']},
-	     {name: 'catalog', files: ['api.js','lib.js','element.js']}
+	     {name: 'catalog', files: ['element.js']}
 	    ]
 };
 Component.entryPoint = function(){
@@ -23,21 +27,15 @@ Component.entryPoint = function(){
 		TMG = this.template;
 	
 	var API = NS.API;
+
+	Brick.util.CSS.update(Brick.util.CSS['catalog']['catalog']);
+
+	if (!NS.data){ NS.data = {}; }
 	
-(function(){
-	var TM = TMG.build('css');
-	Brick.util.CSS.update(TM.data['css']);
-})();
-
-	var dateExt = Brick.dateExt;
-	var elClear = Brick.elClear;
-	var wWait = Brick.widget.WindowWait;
-	var tSetVar = Brick.util.Template.setProperty;
-
-	if (!NS.data){
-		NS.data = {};
-	}
-(function(){
+	var buildTemplate = function(w, templates){
+		var TM = TMG.build(templates), T = TM.data, TId = TM.idManager;
+		w._TM = TM; w._T = T; w._TId = TId;
+	};
 	
 	var ManagerWidget = function(container, mmPrefix){
 		this.init(container, mmPrefix);
@@ -46,11 +44,10 @@ Component.entryPoint = function(){
 		init: function(container, mmPrefix){
 			this.mmPrefix = mmPrefix;
 			
-			var TM = TMG.build('panel,list,item,bcatadd,bcatempty'),
-				T = TM.data, TId = TM.idManager;
-			this._TM = TM; this._T = T; this._TId = TId;
+			buildTemplate(this, 'widget,list,item,itemwait,bcatadd,bcatempty');
+			var TM = this._TM, T = this._T, TId = this._TId;
 
-			container.innerHTML = T['panel'];
+			container.innerHTML = T['widget'];
 			var __self = this;
 			E.on(container, 'click', function(e){
 				if (__self.onClick(E.getTarget(e), e)){ E.stopEvent(e); }
@@ -60,65 +57,60 @@ Component.entryPoint = function(){
 				NS.data[mmPrefix] = new Brick.util.data.byid.DataSet('catalog', mmPrefix);
 			}
 			var ds = NS.data[mmPrefix];
-
 			this.tables = {
 				'catalog': 		ds.get('catalog', true),
-				'catalogcfg':	ds.get('catalogcfg', true),
 				'eltype': 		ds.get('eltype', true),
 				'eloption': 	ds.get('eloption', true),
 				'eloptgroup':	ds.get('eloptgroup', true)
 			};
-
-			var __self = this;
-			ds.onComplete.subscribe(function(type, args){
-				var f = args[0];
-				if (f.check(['catalog', 'catalogcfg'])){
-					__self.render();
-				}
-			});
+			
+			ds.onStart.subscribe(this.dsEvent, this, true);
+			ds.onComplete.subscribe(this.dsEvent, this, true);
+			ds.isFill(this.tables) ? this.render() : this.renderWait();
 		},
-		onCatalogUpdate: function(){
-			this.render();
+		dsEvent: function(type, args){
+			if (args[0].checkWithParam('catalog')){
+				type == 'onComplete' ? this.render() : this.renderWait(); 
+			}
+		},
+		destroy: function(){
+			var ds = NS.data[this.mmPrefix]
+			ds.onComplete.unsubscribe(this.dsEvent);
+			ds.onStart.unsubscribe(this.dsEvent);
 		},
 		render: function(){
-			var TId = this._TId;
-			
-			var rows = this.tables['catalog'].getRows().filter({'pid': 0});
-			var lst = "";
-			rows.foreach(function(row){
+			var lst = '';
+			this.tables['catalog'].getRows().filter({'pid': 0}).foreach(function(row){
 				lst += this.buildrow(row, 0);
 			}, this);
-			this._TM.getEl('panel.list').innerHTML = lst;
+			this._TM.getEl('widget.list').innerHTML = lst;
+		},
+		renderWait: function(){
+			this._TM.getEl('widget.list').innerHTML = this._T['itemwait'];
 		},
 		buildrow: function(row, level){
-			var TM = this._TM, T = this._T;
-			
-			var badd = (level >= this.tables['catalogcfg'].getRows().count()-1) ? T['bcatempty'] : T['bcatadd'];
-			var t = this._TM.replace('item', {
-				'badd': badd,
-				'id': row.cell['id'],
-				'level': level,
-				'tl': row.cell['tl']
-			}); 
-			var lst="", rows = this.tables['catalog'].getRows().filter({'pid': row.cell['id']});
-			rows.foreach(function(row){
-				lst += this.buildrow(row, level+1);
+			var TM = this._TM, T = this._T, lst = '', di = row.cell;
+			this.tables['catalog'].getRows().filter({'pid': di['id']}).foreach(function(chrow){
+				lst += this.buildrow(chrow, level+1);
 			}, this);
-			if (lst.length > 0){
-				lst = TM.replace('list', {'list': lst});
-			}
 			
-			t = tSetVar(t, 'child', lst);
-
-			return t;
+			return TM.replace('item', {
+				'badd': T['bcatadd'],
+				'id': di['id'],
+				'level': level,
+				'tl': di['tl'],
+				'child': lst.length > 0 ? TM.replace('list', {'list': lst}) : ''
+			}); 
 		},
-		destroy: function(){ },
 		onClick: function(el){
 			var TId = this._TId;
 			if (this.activeElements){
 				if (this.activeElements.onClick(el)){return true;}
 			}
-			if (el.id == TId['panel']['badd']){ this.add(0); return true; }
+			switch(el.id){
+			case TId['widget']['bview']: this.showElements(0); return true;
+			case TId['widget']['badd']: this.add(0); return true;
+			}
 
 			var prefix = el.id.replace(/([0-9]+$)/, '');
 			var numid = el.id.replace(prefix, "");
@@ -139,18 +131,18 @@ Component.entryPoint = function(){
 					this.activeElements.destroy();
 				}
 			}
-			this.activeElements = new NS.ElementManagerWidget(this._TM.getEl('panel.elements'), catalogid, this.mmPrefix);
-			API.dsRequest(this.mmPrefix);
+			this.activeElements = new NS.ElementManagerWidget(this._TM.getEl('widget.elements'), catalogid, this.mmPrefix);
+			NS.data[this.mmPrefix].request();
 		},
 		add: function(pid){
 			var row = this.tables['catalog'].newRow();
 			this.tables['catalog'].getRows().add(row);
 			row.cell['pid'] = pid;
-			this.activeEditor = new Editor(row, this.mmPrefix);
+			this.activeEditor = new CatalogEditor(row, this.mmPrefix);
 		},
 		edit: function(id){
 			var row = this.tables['catalog'].getRows().getById(id);
-			this.activeEditor = new Editor(row, this.mmPrefix);
+			this.activeEditor = new CatalogEditor(row, this.mmPrefix);
 		},
 		remove: function(id){
 			var __self = this;
@@ -159,33 +151,58 @@ Component.entryPoint = function(){
 			new CatalogRemoveMsg(row, function(){
 				row.remove();
 				__self.tables['catalog'].applyChanges();
-				API.dsRequest(mmPrefix);
+				NS.data[mmPrefix].request();
 			});
 		}
 	};
-
 	NS.ManagerWidget = ManagerWidget;
 	
-	var Editor = function(row, mmPrefix){
+	var ManagerPanel = function(mmPrefix){
 		this.mmPrefix = mmPrefix;
-		this.row = row;
-		Editor.superclass.constructor.call(this,{
-			modal: true, fixedcenter: true
+		ManagerPanel.superclass.constructor.call(this,{
+			fixedcenter: true, width: '780px', height: '480px'
 		});
 	};
-
-	YAHOO.extend(Editor, Brick.widget.Panel, {
+	YAHOO.extend(ManagerPanel, Brick.widget.Panel, {
 		initTemplate: function(){
-			var TM = TMG.build('editor'), T = TM.data, TId = TM.idManager;
-			this._TM = TM; this._T = T; this._TId = TId;
-			
-			return T['editor'];
+			buildTemplate(this, 'panel');
+			return this._T['panel'];
+		},
+		onLoad: function(){
+			this.widget = new ManagerWidget(this._TM.getEl('panel.widget'), this.mmPrefix);
+			NS.data[this.mmPrefix].request();
+		},
+		destroy: function(){
+			this.widget.destroy();
+			ManagerPanel.superclass.destroy.call(this);
+		}
+	});
+	NS.ManagerPanel = ManagerPanel;
+	
+	var CatalogEditor = function(row, mmPrefix){
+		this.mmPrefix = mmPrefix;
+		this.row = row;
+		CatalogEditor.superclass.constructor.call(this,{
+			modal: true, fixedcenter: true, width: '700px'
+		});
+	};
+	YAHOO.extend(CatalogEditor, Brick.widget.Panel, {
+		initTemplate: function(){
+			buildTemplate(this, 'editor');
+			return this._T['editor'];
 		},
 		onLoad: function(){
 			var o = this.row.cell;
 			this.setelv('name', o['nm']);
 			this.setelv('title', o['tl']);
 			this.setelv('descript', o['dsc']);
+			this.setelv('metatitle', o['ktl']);
+			this.setelv('metadesc', o['kdsc']);
+			this.setelv('metakeys', o['kwds']);
+			this.setelv('ord', o['ord']);
+			this.catalogWidget = new NS.CatalogSelectWidget(this._TM.getEl('editor.catalog'), this.mmPrefix);
+			this.catalogWidget.removeItem(o['id']);
+			this.catalogWidget.setValue(o['pid']);
 		},
 		el: function(name){
 			return Dom.get(this._TId['editor'][name]);
@@ -218,16 +235,21 @@ Component.entryPoint = function(){
 			this.row.update({
 				'nm': this.elv('name'),
 				'tl': this.elv('title'),
-				'dsc': this.elv('descript')
+				'dsc': this.elv('descript'),
+				'ktl': this.elv('metatitle'),
+				'kdsc': this.elv('metadesc'),
+				'kwds': this.elv('metakeys'),
+				'ord': this.elv('ord'),
+				'pid': this.catalogWidget.getValue()
 			});
 			var ds = NS.data[this.mmPrefix]; 
 			ds.get('catalog').applyChanges();
-			API.dsRequest(this.mmPrefix);
+			ds.request();
 			this.close();
 		}
 	});
 	
-	Brick.Catalog.Editor = Editor;
+	NS.CatalogEditor = CatalogEditor;
 	
 	
 	var CatalogRemoveMsg = function(row, callback){
@@ -256,5 +278,88 @@ Component.entryPoint = function(){
 		}
 	});
 	
-})();	
+	API.showManagerWidget = function(config){
+		var widget = new ManagerWidget(config.container, config.mmPrefix)
+		NS.data[config.mmPrefix].request();
+		return widget;
+	};
+	
+	API.showManagerPanel = function(mmPrefix){
+		var panel = new ManagerPanel(mmPrefix);
+		return panel;
+	};
+
+	
+	var CatalogSelectWidget = function(container, mmPrefix){
+		this.init(container, mmPrefix);
+	};
+	CatalogSelectWidget.prototype = {
+		init: function(container, mmPrefix){
+			this.container = container;
+			this.mmPrefix = mmPrefix;
+			this.selectedValue = 0;
+			this.removeId = 0;
+			
+			buildTemplate(this, 'selwidget,selrow,selrowwait,selroot');
+			var TM = this._TM, T = this._T, TId = this._TId;
+
+			if (!NS.data[mmPrefix]){
+				NS.data[mmPrefix] = new Brick.util.data.byid.DataSet('catalog', mmPrefix);
+			}
+			var ds = NS.data[mmPrefix];
+			this.tables = {'catalog': ds.get('catalog', true)};
+			
+			ds.onStart.subscribe(this.dsEvent, this, true);
+			ds.onComplete.subscribe(this.dsEvent, this, true);
+			ds.isFill(this.tables) ? this.render() : this.renderWait();  
+		},
+		dsEvent: function(type, args){
+			if (args[0].checkWithParam('catalog')){
+				type == 'onComplete' ? this.render() : this.renderWait(); 
+			}
+		},
+		destroy: function(){
+			var ds = NS.data[this.mmPrefix]
+			ds.onComplete.unsubscribe(this.dsEvent);
+			ds.onStart.unsubscribe(this.dsEvent);
+		},
+		renderWait: function(){
+			var TM = this._TM;
+			this.container.innerHTML = TM.replace('selwidget', {
+				'rows': TM.replace('selrowwait')
+			});
+		},
+		render: function(){
+			var TM = this._TM, T = this._T, lst = '';
+			this.tables['catalog'].getRows().filter({'pid': 0}).foreach(function(row){
+				lst += this.buildrow(row, 0, T['selroot']);
+			}, this);
+			this.container.innerHTML = TM.replace('selwidget', {
+				'rows': TM.replace('selrow', {'id': 0, 'tl': T['selroot']}) + lst
+			});
+			this.setValue(this.selectedValue);
+		},
+		buildrow: function(row, level, ptl){
+			var TM = this._TM, T = this._T, lst = '', di = row.cell;
+			if (di['id']*1 == this.removeId*1){ return '';}
+			this.tables['catalog'].getRows().filter({'pid': di['id']}).foreach(function(chrow){
+				lst += this.buildrow(chrow, level+1, ptl + ' / ' + di['tl']);
+			}, this);
+			
+			return TM.replace('selrow', {'id': di['id'], 'tl': ptl+' / '+di['tl']}) + lst; 
+		},
+		setValue: function(catalogid){
+			this.selectedValue = catalogid;
+			this._TM.getEl('selwidget.id').value = catalogid;
+		},
+		getValue: function(){
+			return this._TM.getEl('selwidget.id').value;
+		},
+		removeItem: function(id){
+			this.removeId = id;
+			this.render();
+		}
+	};
+	NS.CatalogSelectWidget = CatalogSelectWidget;
+	
 };

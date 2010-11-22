@@ -1,0 +1,114 @@
+<!--{editor}-->
+<div class='hd'>Редактор элемента</div>
+<div class='bd'>
+	<div class="mod-catalog field linespace-1" >
+		<p>Раздел в каталоге: <span id="{i#catalog}"></span></p>
+		<p>Тип элемента: <strong>{v#eltype}</strong></p>
+		<div id="{i#options}" class="mod-catalog-element-entercompl">
+			{v#options}
+		</div>
+		<div style="clear: both; padding-bottom: 1em;"></div>
+		<h3>Фотографии</h3>
+		<div id="{i#fotolist}"></div>
+		<br class="clearfloat"/>
+		<p>
+			<input id='{i#imgload}' type="button" value="Загрузить фотографии" />
+		</p>
+	</div>
+	<div class="buttons right">
+		<input id='{i#bsave}' type="button" value="Сохранить" />
+		<input id='{i#bcancel}' type="button" value="Отмена" />
+	</div>
+</div>
+
+<!--{edcatrow}-->
+<p>
+	<label id="{v#lvl}-{i#id}-lbl">{v#tl}:</label>
+	<select id="{v#lvl}-{i#id}" style="width: 200px">
+		<option value="-1">--&gt;</option>
+	</select>
+	<input type="text" id="{v#lvl}-{i#id}-alt" value="" style="width: 200px" />
+</p>
+
+<!--{fotoitem}-->
+<div class="imgdiv"><img src="/filemanager/file.html?i={v#id}&w=80&h=60" />
+<div class="adm-icons"><div id="{i#id}-{v#id}" onmouseout="this.className='adm-delete';" onmouseover="this.className='adm-delete adm-over';" class="adm-delete">
+</div></div></div>
+
+<!--{seloptionrow}-->
+<option value="{v#id}">{v#tl}</option>
+
+<!--{editoptrow0}-->
+<div class="mod-catalog-element-col">
+<p>
+	<label id="{gi#opt}-{v#id}-lbl" for="{gi#opt}-{v#id}">{v#title}</label>
+	<input type="checkbox" id="{gi#opt}-{v#id}" />
+</p>
+</div>
+
+<!--{editoptrow1}-->
+<div class="mod-catalog-element-col">
+<p>
+	<label id="{gi#opt}-{v#id}-lbl" for="{gi#opt}-{v#id}">{v#title}</label>
+	<input type="text" id="{gi#opt}-{v#id}" style="width: 300px" />
+</p>
+</div>
+
+<!--{editoptrow4}-->
+<div class="mod-catalog-element-col">
+	<p>
+		<label id="{gi#opt}-{v#id}-lbl" for="{gi#opt}-{v#id}">{v#title}</label>
+		<select id="{gi#opt}-{v#id}">{v#list}</select>
+	</p>
+</div>
+
+<!--{editoptrow5}-->
+<div class="mod-catalog-element-col">
+	<p>
+		<label id="{gi#opt}-{v#id}-lbl" for="{gi#opt}-{v#id}">{v#title}</label>
+		<select id="{gi#opt}-{v#id}">
+			<option value="0">--&gt;</option>
+			{v#list}
+		</select>
+		<input type="text" id="{gi#opt}-{v#id}-alt" value="" style="width: 200px" />
+	</p>
+</div>
+
+<!--{editoptrow6}-->
+<div class="mod-catalog-element-col">
+	<p>
+		{v#title} {v#list}
+	</p>
+</div>
+
+<!--{editoptrow7}-->
+<div class="mod-catalog-element-col">
+<p>
+	<label id="{gi#opt}-{v#id}-lbl" for="{gi#opt}-{v#id}" style="float: none">{v#title}</label>
+	<textarea id="{gi#opt}-{v#id}" style="width: 600px; height: 180px"></textarea>
+</p>
+</div>
+
+<!--{editoptrow8}-->
+<div class="mod-catalog-element-col">
+	<p>
+		<label id="{gi#opt}-{v#id}-lbl" for="{gi#opt}-{v#id}">{v#title}</label>
+		<select id="{gi#opt}-{v#id}">{v#list}</select>
+		<input type="text" id="{gi#opt}-{v#id}-alt" value="" style="width: 100px" />
+	</p>
+</div>
+
+<!--{editoptrowcust}-->
+<div class="mod-catalog-element-col">
+	<p>
+		{v#el}
+	</p>
+</div>
+
+<!--{editoptrowonload}-->
+var tSetVar = Brick.util.Template.setProperty;
+var T = Brick.util.Template['catalog']['element'];
+var __t = Brick.Catalog.Element.temp['currentOptRow'];
+{v#script}
+Brick.Catalog.Element.temp['currentOptRow'] = __t;
+

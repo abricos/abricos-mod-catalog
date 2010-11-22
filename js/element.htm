@@ -1,20 +1,17 @@
 <!--{panel}-->
-<label id="{i#catalog}" style="font-weight: bold"></label>
-
+<div id="{i#catalog}" style="font-weight: bold; padding: 5px 0;"></div>
 <div id="{i#elttable}"></div>
-Список товара:
+<div style="padding: 5px 0;">Список элементов:</div>
 <div id="{i#table}"></div>
-<div style="text-align: right">
+<div style="text-align: right; padding: 5px 0;">
 	<a href="#" id="{i#rcclear}">Очистить корзину</a>
 </div>
 
 <!--{elttable}-->
 <table class="bk-table-def">
-	<thead>
-		<tr>
-			<th colspan="2">Допустимые типы элементов:</th>
-		</tr>
-	</thead>
+	<thead><tr>
+		<th colspan="2">Типы элементов:</th>
+	</tr></thead>
 	<tbody>{v#rows}</tbody>
 </table>
 
@@ -22,6 +19,12 @@
 <tr>
 	<td width="50%">{v#tl}</td>
 	<td style="width: 50%; text-align: right"><a href="#" id="{i#add}-{v#id}">Добавить</a></td>
+<tr>
+
+<!--{eltrowbase}-->
+<tr>
+	<td width="50%"><strong>Базовый</strong></td>
+	<td style="width: 50%; text-align: right"><a href="#" id="{i#add}-0">Добавить</a></td>
 <tr>
 
 <!--{table}-->
@@ -52,128 +55,3 @@
 	<td colspan="2" align="center" style="text-align: center;"><a href="#" id="{i#restore}-{v#id}">Восстановить</a></td>
 </tr>
 
-<!--{editor}-->
-<div class='hd'>Редактор элемента</div>
-<div class='bd'>
-	<div class="field linespace-1" >
-		<h3>Раздел в каталоге: <strong>{v#catalog}</strong></h3>
-		<h3>Тип элемента: <strong>{v#eltype}</strong></h3>
-		<div id="{i#options}" class="mod-catalog-element-entercompl">
-			{v#options}
-		</div>
-		<div style="clear: both; padding-bottom: 1em;"></div>
-		<h3>Фотографии</h3>
-		<div id="{i#fotolist}"></div>
-		<br class="clearfloat"/>
-		<p>
-			<input id='{i#imgload}' type="button" value="Загрузить фотографии" />
-		</p>
-	</div>
-	<div class="buttons right">
-		<input id='{i#bsave}' type="button" value="Сохранить" />
-		<input id='{i#bcancel}' type="button" value="Отмена" />
-	</div>
-</div>
-
-<!--{edcatrow}-->
-<p>
-	<label id="{v#lvl}-{i#id}-lbl">{v#tl}:</label>
-	<select id="{v#lvl}-{i#id}" style="width: 200px">
-		<option value="-1">--&gt;</option>
-	</select>
-	<input type="text" id="{v#lvl}-{i#id}-alt" value="" style="width: 200px" />
-</p>
-
-<!--{fotoitem}-->
-<div class="imgdiv"><img src="/filemanager/file.html?i={v#id}&w=80&h=60" />
-<div class="adm-icons"><div id="{i#id}-{v#id}" onmouseout="this.className='adm-delete';" onmouseover="this.className='adm-delete adm-over';" class="adm-delete">
-</div></div></div>
-
-<!--{seloptionrow}-->
-<option value="{v#id}">{v#tl}</option>
-
-<!--{editoptrow0}-->
-<div class="mod-catalog-element-col">
-<p>
-	<label id="{gi#opt}-{v#id}-lbl" for="{gi#opt}-{v#id}">{v#title}</label>
-	<input type="checkbox" id="{gi#opt}-{v#id}" />
-</p>
-</div>
-
-<!--{editoptrow1}-->
-<div class="mod-catalog-element-col">
-<p>
-	<label id="{gi#opt}-{v#id}-lbl" for="{gi#opt}-{v#id}">{v#title}</label>
-	<input type="text" id="{gi#opt}-{v#id}" style="width: 80px" />
-</p>
-</div>
-
-<!--{editoptrow4}-->
-<div class="mod-catalog-element-col">
-	<p>
-		<label id="{gi#opt}-{v#id}-lbl" for="{gi#opt}-{v#id}">{v#title}</label>
-		<select id="{gi#opt}-{v#id}">{v#list}</select>
-	</p>
-</div>
-
-<!--{editoptrow5}-->
-<div class="mod-catalog-element-col">
-	<p>
-		<label id="{gi#opt}-{v#id}-lbl" for="{gi#opt}-{v#id}">{v#title}</label>
-		<select id="{gi#opt}-{v#id}">
-			<option value="0">--&gt;</option>
-			{v#list}
-		</select>
-		<input type="text" id="{gi#opt}-{v#id}-alt" value="" style="width: 100px" />
-	</p>
-</div>
-
-<!--{editoptrow6}-->
-<div class="mod-catalog-element-col">
-	<p>
-		{v#title} {v#list}
-	</p>
-</div>
-
-<!--{editoptrow7}-->
-<div class="mod-catalog-element-col">
-<p>
-	<label id="{gi#opt}-{v#id}-lbl" for="{gi#opt}-{v#id}">{v#title}</label>
-	<textarea id="{gi#opt}-{v#id}" style="width: 100px; height: 50px"></textarea>
-</p>
-</div>
-
-<!--{editoptrow8}-->
-<div class="mod-catalog-element-col">
-	<p>
-		<label id="{gi#opt}-{v#id}-lbl" for="{gi#opt}-{v#id}">{v#title}</label>
-		<select id="{gi#opt}-{v#id}">{v#list}</select>
-		<input type="text" id="{gi#opt}-{v#id}-alt" value="" style="width: 100px" />
-	</p>
-</div>
-
-<!--{editoptrowcust}-->
-<div class="mod-catalog-element-col">
-	<p>
-		{v#el}
-	</p>
-</div>
-
-<!--{editoptrowonload}-->
-var tSetVar = Brick.util.Template.setProperty;
-var T = Brick.util.Template['catalog']['element'];
-var __t = Brick.Catalog.Element.temp['currentOptRow'];
-{v#script}
-Brick.Catalog.Element.temp['currentOptRow'] = __t;
-
-
-<!--{css}-->
-.mod-catalog-element-col {
-	margin-left:1%;
-	width:32%;
-	float: left; 
-}
-.mod-catalog-element-entercompl {
-	width: 100%;
-	clear: both;
-}

@@ -1,8 +1,9 @@
 <?php
 /**
 * @version $Id$
-* @package CMSBrick
-* @copyright Copyright (C) 2008 CMSBrick. All rights reserved.
+* @package Abricos
+* @subpackage Catalog
+* @copyright Copyright (C) 2010 Abricos. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 */
 
@@ -32,10 +33,9 @@ if ($updateManager->isInstall()){
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."element` (
 		  `elementid` int(10) unsigned NOT NULL auto_increment COMMENT 'Идентификатор записи',
-		  `globalelementid` int(10) unsigned NOT NULL COMMENT 'Идентификатор в таблицы элементов конкретного типа',
 		  `catalogid` int(10) unsigned NOT NULL COMMENT 'Категория',
 		  `eltypeid` int(5) unsigned NOT NULL COMMENT 'Тип элемента',
-			`title` VARCHAR(250) NOT NULL default 'Название',
+		  `title` VARCHAR(250) NOT NULL default 'Название',
 		  `name` VARCHAR(250) NOT NULL default 'Имя',
 		  
 		  `dateline` int(10) unsigned NOT NULL default '0' COMMENT 'дата добавления',
@@ -115,20 +115,22 @@ if ($updateManager->isInstall()){
 		  `name` varchar(250) NOT NULL default '',
 		  `title` varchar(250) NOT NULL default '',
 		  `descript` text NOT NULL COMMENT 'Описание',
+		  `metatitle` varchar(250) NOT NULL default '' COMMENT 'Тег title',
+		  `metakeys` varchar(250) NOT NULL default '' COMMENT 'Тег keywords',
+		  `metadesc` varchar(250) NOT NULL default '' COMMENT 'Тег description',
 		  `dateline` int(10) unsigned NOT NULL default '0' COMMENT 'дата добавления',
 		  `deldate` int(10) unsigned NOT NULL default '0' COMMENT 'дата удаления',
 		  `level` int(2) unsigned NOT NULL default '0' COMMENT 'Уровень вложений',
 		  `ord` int(3) NOT NULL default '0' COMMENT 'Сортировка',
 		  PRIMARY KEY  (`catalogid`)
 		)
-	". $charset);
+	".$charset);
 
 		// картинки элементов
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."foto` (
 		  `fotoid` int(10) unsigned NOT NULL auto_increment,
-		  `eltypeid` int(10) unsigned NOT NULL COMMENT 'Идентификатор типа элемента',
-		  `elementid` int(10) unsigned NOT NULL COMMENT 'Идентификатор элемента конкретного типа',
+		  `elementid` int(10) unsigned NOT NULL COMMENT 'Идентификатор элемента',
 		  `fileid` varchar(8) NOT NULL,
 		  `ord` int(4) unsigned NOT NULL default '0' COMMENT 'Сортировка',
 		  PRIMARY KEY (`fotoid`),

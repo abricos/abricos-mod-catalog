@@ -1,73 +1,75 @@
-/**
-* @version $Id$
-* @package CMSBrick
-* @copyright Copyright (C) 2008 CMSBrick. All rights reserved.
-* @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+/*
+@version $Id$
+@package Abricos
+@copyright Copyright (C) 2010 Abricos. All rights reserved.
+@license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 */
 
-(function(){
-	Brick.namespace('Catalog.Element.Type.Option');
 
-	var T, J, TId;
+/**
+ * @module Catalog
+ * @namespace Brick.mod.catalog
+ */
 
+var Component = new Brick.Component();
+Component.requires = { 
+	yahoo: ['json'],
+	mod:[
+	     {name: 'sys', files: ['form.js','data.js']},
+	     {name: 'catalog', files: ['lib.js']}
+	    ]
+};
+Component.entryPoint = function(){
+	
 	var Dom = YAHOO.util.Dom,
 		E = YAHOO.util.Event,
 		L = YAHOO.lang,
-		W = YAHOO.widget,
 		J = YAHOO.lang.JSON;
-
-	var BC = Brick.util.Connection;
-	var DATA;
-
-	var dateExt = Brick.dateExt;
-	var elClear = Brick.elClear;
-	var wWait = Brick.widget.WindowWait;
-	var tSetVar = Brick.util.Template.setProperty;
-
-	Brick.Loader.add({
-		yahoo: ['json'],
-		mod:[
-		     {name: 'sys', files: ['form.js','data.js']},
-		     {name: 'catalog', files: ['lib.js']}
-		    ],
-    onSuccess: function() {
-			DATA = Brick.mod.catalog.data;
-			
-			T = Brick.util.Template['catalog']['eloption'];
-			Brick.util.Template.fillLanguage(T);
-			TId = new Brick.util.TIdManager(T);
-
-			moduleInitialize();
-			delete moduleInitialize;
-	  }
-	});
 	
-var moduleInitialize = function(){
+	var NS = this.namespace,
+		TMG = this.template,
+		API = NS.API;
 
-(function(){
-	
-	var manager = function(container, eltypeid, mmPrefix){
+	NS.data = NS.data || {};
+	var DATA = NS.data;
+
+	var buildTemplate = function(w, templates){
+		var TM = TMG.build(templates), T = TM.data, TId = TM.idManager;
+		w._TM = TM; w._T = T; w._TId = TId;
+	};
+
+	/**
+	 * Виджет. Список полей элемента определенного типа<br>
+	 * 
+	 * @class ElementOptionsWidget
+	 * @constructor
+	 * @param {HTMLObject | String} container Контейнер
+	 * @param {Integer} eltypeid Идентификатор типа элемента
+	 * @param {String} mmPrefix Префикс управляющего модуля
+	 */
+	var ElementOptionsWidget = function(container, eltypeid, mmPrefix){
 		this.init(container, eltypeid, mmPrefix);
 	};
-	manager.prototype = {
+	ElementOptionsWidget.prototype = {
 		init: function(container, eltypeid, mmPrefix){
 			if (!DATA[mmPrefix]){
 				DATA[mmPrefix] = new Brick.util.data.byid.DataSet('catalog', mmPrefix);
 			}
 	
-			this.container = container;
+			this.container = Dom.get(container);
 			this.eltypeid = eltypeid;
 			this.mmPrefix = mmPrefix;
 			
-			var __self = this;
-			container.innerHTML = T['panel'];
+			buildTemplate(this, 'panel,table,rowdel,row,rowgroup');
+			
+			container.innerHTML = this._TM.replace('panel');
 			
 			var ds = DATA[mmPrefix];
 			this.tables = {
 				'eltype': ds.get('eltype', true),
 				'eloption': ds.get('eloption', true),
 				'eloptgroup': ds.get('eloptgroup', true)
-			}
+			};
 			ds.onComplete.subscribe(this.onDSUpdate, this, true);
 			if (ds.isFill(this.tables)){
 				this.render();
@@ -80,43 +82,39 @@ var moduleInitialize = function(){
 			DATA[this.mmPrefix].onComplete.unsubscribe(this.onDSUpdate, this);
 		},
 		render: function(){
+			var TM = this._TM, T = this._T, TId = this._TId;
 			
-			var elTypeRow = this.tables['eltype'].getRows().getById(this.eltypeid);
-			Dom.get(TId['panel']['eltypetl']).innerHTML = elTypeRow.cell['tl'];
+			if (this.eltypeid > 0){
+				var elTypeRow = this.tables['eltype'].getRows().getById(this.eltypeid);
+				TM.getEl('panel.eltypetl').innerHTML = elTypeRow.cell['tl'];
+			}
 			
 			var lang = Brick.util.Language.getData()['catalog']['element']['fieldtype']; 
-			var rows = this.tables['eloption'].getRows().filter({'eltid': this.eltypeid});
-			var lst = "", i, s, di;
-			var lastGroupId = 0, group;
+			var lst = "", lastGroupId = 0, group, tables = this.tables;
 			
-			rows.foreach(function(row){
-				di = row.cell;
-				
+			tables['eloption'].getRows().filter({'eltid': this.eltypeid}).foreach(function(row){
+				var di = row.cell;
 				if (lastGroupId != di['grp']){
-					group = this.tables['eloptgroup'].getRows().getById(di['grp']);
+					group = tables['eloptgroup'].getRows().getById(di['grp']);
 					if (group){
-						s = tSetVar(T['rowgroup'], 'id', di['grp']);
-						s = tSetVar(s, 'tl', group.cell['tl']);
-						lst += s;
+						lst += TM.replace('rowgroup', {
+							'id': di['grp'], 'tl': group.cell['tl']
+						});
 					}
 				}
 				lastGroupId = di['grp'];
-				
-				s = di['dd']>0 ? T['rowdel'] : T['row'];
-				s = tSetVar(s, 'id', di['id']);
-				s = tSetVar(s, 'tl', di['tl']);
-				s = tSetVar(s, 'dsc', di['dsc']);
-				s = tSetVar(s, 'fldtp', lang[di['fldtp']]);
-				lst += s;
-			}, this);
+				lst += TM.replace(di['dd']>0 ? 'rowdel' : 'row', {
+					'id': di['id'], 
+					'tl': di['tl'], 
+					'dsc': di['dsc'],
+					'fldtp': lang[di['fldtp']]
+				});
+			});
 			
-			lst = tSetVar(T['table'], 'rows', lst);
-
-			var div = Dom.get(TId['panel']['table']);
-			elClear(div);
-			div.innerHTML = lst;
+			TM.getEl('panel.table').innerHTML = TM.replace('table', {'rows': lst});
 		},
 		onClick: function(el){
+			var TId = this._TId;
 			if (el.id == TId['panel']['badd']){
 				this.add();
 				return true;
@@ -141,11 +139,11 @@ var moduleInitialize = function(){
 			var row = this.tables['eloption'].newRow();
 			this.tables['eloption'].getRows().add(row);
 			row.cell['eltid'] = this.eltypeid;
-			this.activeEditor = new editor(row, this.mmPrefix);
+			this.activeEditor = new ElementOptionEditorPanel(row, this.mmPrefix);
 		},
 		edit: function(id){
 			var row = this.tables['eloption'].getRows().getById(id); 
-			this.activeEditor = new editor(row, this.mmPrefix);
+			this.activeEditor = new ElementOptionEditorPanel(row, this.mmPrefix);
 		},
 		remove: function(id){
 			this.tables['eloption'].getRows().getById(id).remove();
@@ -163,61 +161,75 @@ var moduleInitialize = function(){
 			this.tables['eloption'].applyChanges();
 			DATA[this.mmPrefix].request();
 		}
-	}
-
-	Brick.Catalog.Element.Type.Option.Manager = manager;
+	};
+	NS.ElementOptionsWidget = ElementOptionsWidget;
 	
-	/* * * * * * * * * * * * Редактор опции * * * * * * * * * * * * */
-	var editor = function(row, mmPrefix){
+	/**
+	 * Панель. Редактор поля элемента определенного типа<br>
+	 * 
+	 * @class ElementOptionEditorPanel
+	 * @constructor
+	 * @param {DataRow} row Строка таблицы DataSet
+	 * @param {String} mmPrefix Префикс управляющего модуля
+	 */
+	var ElementOptionEditorPanel = function(row, mmPrefix){
 		this.mmPrefix = mmPrefix;
 		this.row = row;
-		editor.superclass.constructor.call(this, T['editor']);
-	}
-	YAHOO.extend(editor, Brick.widget.Panel, {
-		initTemplate: function(t){
+		ElementOptionEditorPanel.superclass.constructor.call(this, {
+			modal: true, fixedcenter: true
+		});
+	};
+	YAHOO.extend(ElementOptionEditorPanel, Brick.widget.Panel, {
+		initTemplate: function(){
+		
+			buildTemplate(this, 'editor,custfuncinsrow,custfunccount,custfunc0,custfuncinp0,custfunconld0,custfunc1,custfuncinp1,custfunconld1');
+			var TM = this._TM, T = this._T, TId = this._TId;
 			
 			var ds = DATA[this.mmPrefix];
 			this.tables = {
 				'eloption': ds.get('eloption', true),
 				'eloptgroup': ds.get('eloptgroup', true)
-			}
+			};
+			var tables = this.tables;
 
-			var o = this.row.cell;
-
-			var rows = this.tables['eloptgroup'].getRows();
-			
-			var lst = "", tt;
-			rows.foreach(function(row){
-				di = row.cell;
-				tt = tSetVar(T['edrowgroup'], 'id', di['id']);
-				lst += tSetVar(tt, 'tl', di['tl']);
-			}, this);
-			t = tSetVar(t, 'grouplist', lst);
-			
-			// Составной тип опции
-			lst = "";
-			rows = this.tables['eloption'].getRows();
-			rows.foreach(function(row){
-				di = row.cell;
-				if (di['fldtp'] != 6){
-					tt = tSetVar(T['edrowgroup'], 'id', di['nm']);
-					lst += tSetVar(tt, 'tl', di['tl']);
-				}
-			}, this);
-			t = tSetVar(t, 'opt6vallist', lst);
-			
-			// Расширенные возможности
-			// Заполнение справочника готовых функций
-			var s, custcount = T['custfunccount'];
-			for (i=0;i<custcount;i++){
-				s = tSetVar(T['custfuncinsrow'], 'id', i);
-				lst += tSetVar(s, 'tl', T['custfunc'+i]);
-			}
-			t = tSetVar(t, 'custfunc', lst);
-
-			return t;
+			return TM.replace('editor', {
+				'grouplist': (function(){
+						var lst = "";
+						tables['eloptgroup'].getRows().foreach(function(row){
+							di = row.cell;
+							lst += TM.replace('edrowgroup', {
+								'id': di['id'], 'tl': di['tl']
+							});
+						});
+						return lst;
+					})(),
+				'opt6vallist': (function(){
+						// Составной тип опции
+						var lst = "";
+						tables['eloption'].getRows().foreach(function(row){
+							di = row.cell;
+							if (di['fldtp'] == 6){ return; }
+							lst += TM.replace('edrowgroup', {
+								'id': di['nm'], 'tl': di['tl']
+							});
+						}, this);
+						return lst;
+					})(),
+				'custfunc': (function(){
+					// Расширенные возможности
+					// Заполнение справочника готовых функций
+					var lst = '', custcount = T['custfunccount'];
+					for (var i=0;i<custcount;i++){
+						lst += TM.replace('custfuncinsrow', {
+							'id': i,
+							'tl': T['custfunc'+i]
+						});
+					}
+					return lst;
+				})()
+			});
 		},
-		el: function(name){ return Dom.get(TId['editor'][name]); },
+		el: function(name){ return Dom.get(this._TId['editor'][name]); },
 		elv: function(name){
 			var el = this.el(name);
 			return Brick.util.Form.getValue(el);
@@ -228,6 +240,7 @@ var moduleInitialize = function(){
 			this.setel(el, value);
 		},
 		onLoad: function(){
+			var TM = this._TM, T = this._T, TId = this._TId;
 
 			var __self = this;
 			var title = this.el('title');
@@ -239,7 +252,7 @@ var moduleInitialize = function(){
 			var fldtype = this.el('fldtype');
 
 			var o = this.row.cell;
-			var sprm = decodeURIComponent(o['prms']);
+			var sprm = o['prms'];
 			var prm = sprm ? J.parse(sprm) : {};
 			prm['cst'] = prm['cst'] || {};
 			var opt = this.getTypeOpt();
@@ -267,11 +280,11 @@ var moduleInitialize = function(){
 			};
 
 			this.setelv('title', o['tl']);
-			this.setelv('name', o['nm'])
+			this.setelv('name', o['nm']);
 			this.setelv('descript', o['dsc']);
 			this.setelv('fldtype', o['fldtp']);
 			this.setelv('group', o['grp']);
-			this.setelv('eltitlesource', o['ets'])
+			this.setelv('eltitlesource', o['ets']);
 			
 			var optel = opt[o['fldtp']];
 			if (prm['size']){this.setel(optel['size'], prm['size']);}
@@ -281,7 +294,7 @@ var moduleInitialize = function(){
 			this.setelv('cust', prm['cst']['en']);
 			this.setelv('custinputb', prm['cst']['inpen']);
 			this.setelv('custinput', prm['cst']['inp']);
-			this.setelv('custonloadb', prm['cst']['onlden'])
+			this.setelv('custonloadb', prm['cst']['onlden']);
 			this.setelv('custonload', prm['cst']['onld']);
 			
 			updList();
@@ -350,7 +363,7 @@ var moduleInitialize = function(){
 			}
 		},
 		onClick: function(el){
-			var tp = TId['editor']; 
+			var tp = this._TId['editor']; 
 			switch(el.id){
 			case tp['bcancel']: this.close(); return true;
 			case tp['bsave']: this.save(); return true;
@@ -385,15 +398,14 @@ var moduleInitialize = function(){
 			this.setelv('opt6val', arr.join('\n'));
 		},
 		custFuncInsertClick: function(){
+			var T = this._T;
 			var fid = this.elv('custfunc');
-			if (fid < 0){
-				return;
-			}
+			if (fid < 0){ return; }
 			
 			this.setelv('custinputb', 1);
 			this.setelv('custonloadb', 1);
-			this.setelv('custinput', T['custfuncinp'+fid])
-			this.setelv('custonload', T['custfunconld'+fid])
+			this.setelv('custinput', T['custfuncinp'+fid]);
+			this.setelv('custonload', T['custfunconld'+fid]);
 			
 			var i, lsn;
 			lsn = E.getListeners(this.el('custinputb'), "change");
@@ -406,9 +418,6 @@ var moduleInitialize = function(){
 			
 			this.nameTranslite();
 			
-			// var errors = this._validator.check();
-			// if (errors.length > 0){ return; }
-
 			var disabled = this.el('disabled');
 
 			var prm = {
@@ -451,7 +460,7 @@ var moduleInitialize = function(){
 				'grp': this.elv('group'),
 				'grpalt': this.elv('groupalt'),
 				'ets': this.elv('eltitlesource'),
-				'prms': encodeURIComponent(J.stringify(prm))
+				'prms': J.stringify(prm)
 			});
 
 			var ds = DATA[this.mmPrefix];
@@ -465,9 +474,52 @@ var moduleInitialize = function(){
 			this.close();
 		}
 	});
+	NS.ElementOptionEditorPanel = ElementOptionEditorPanel;
 	
-	Brick.Catalog.Element.Type.Option.Editor = editor;
+	
+	/**
+	 * 
+	 * API модуля
+	 * 
+	 * @class API
+	 */
+	
+	/**
+	 * Отобразить виджет списка полей элемента определенного типа <br />
+	 * Пример вызова функции: 
+	 * <pre>
+	 *  Brick.f('catalog', 'eloption', 'showElementOptionWidget', {
+	 *    'container': container,
+	 *    'eltypeid': 4,
+	 *    'mmPrefix': 'eshop'
+	 *  });
+	 * </pre>
+	 * 
+	 * @method showElementOptionWidget
+	 * @static
+	 * @param {Object} config Объект параметров, где: container - HTMLElement, eltypeid - идентификатор типа элемента, mmPrefix - префикс управляющего модуля
+	 */
+	API.showElementOptionWidget = function(config){
+		new ElementOptionsWidget(config.container, config.eltypeid, config.mmPrefix);
+	}
+	
+	/**
+	 * Отобразить панель редактора поля элемента определенного типа <br />
+	 * Пример вызова функции: 
+	 * <pre>
+	 *  Brick.f('catalog', 'eloption', 'showElementOptionWidget', {
+	 *    'row': row,
+	 *    'mmPrefix': 'eshop'
+	 *  });
+	 * </pre>
+	 * 
+	 * @method showElementOptionEditorPanel
+	 * @static
+	 * @param {Object} config Объект параметров, где: row - DataRow, mmPrefix - префикс управляющего модуля
+	 */
+	API.showElementOptionEditorPanel = function(config){
+		new ElementOptionEditorPanel(config.row, config.mmPrefix);
+	}
 
-})();
+
 };
-})();
