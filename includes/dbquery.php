@@ -621,7 +621,8 @@ class CatalogQuery {
 				metadesc='".bkstr($data->kdsc)."',
 				metakeys='".bkstr($data->kwds)."',
 				ord=".bkint($data->ord).",
-				parentcatalogid=".bkint($data->pid)."
+				parentcatalogid=".bkint($data->pid).",
+				imageid='".bkstr($data->img)."'
 			WHERE catalogid=".bkint($data->id)."
 		";
 		$db->query_write($sql);
@@ -630,7 +631,7 @@ class CatalogQuery {
 	public static function CatalogAppend(CMSDatabase $db, $data){
 		$sql = "
 			INSERT INTO ".CatalogQuery::$PFX."catalog
-			(parentcatalogid, title, name, descript, metatitle, metadesc, metakeys, ord) VALUES
+			(parentcatalogid, title, name, descript, metatitle, metadesc, metakeys, ord, imageid) VALUES
 			(
 				'".bkint($data->pid)."',
 				'".bkstr($data->tl)."',
@@ -639,7 +640,8 @@ class CatalogQuery {
 				'".bkstr($data->ktl)."',
 				'".bkstr($data->kdsc)."',
 				'".bkstr($data->kwds)."',
-				'".bkint($data->ord)."'
+				'".bkint($data->ord)."',
+				'".bkstr($data->img)."'
 			)
 		";
 		$db->query_write($sql);
@@ -658,7 +660,8 @@ class CatalogQuery {
 		dateline as dl,
 		deldate as dd,
 		level as lvl,
-		ord as ord
+		ord as ord,
+		imageid as img
 	";
 	
 	public static function Catalog(CMSDatabase $db, $catalogid){

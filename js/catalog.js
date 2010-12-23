@@ -188,7 +188,7 @@ Component.entryPoint = function(){
 	};
 	YAHOO.extend(CatalogEditor, Brick.widget.Panel, {
 		initTemplate: function(){
-			buildTemplate(this, 'editor');
+			buildTemplate(this, 'editor,image');
 			return this._T['editor'];
 		},
 		onLoad: function(){
@@ -200,18 +200,28 @@ Component.entryPoint = function(){
 			this.setelv('metadesc', o['kdsc']);
 			this.setelv('metakeys', o['kwds']);
 			this.setelv('ord', o['ord']);
+			
+			this.imageid = o['img'];
+			this.setImage(this.imageid);
+			
 			this.catalogWidget = new NS.CatalogSelectWidget(this._TM.getEl('editor.catalog'), this.mmPrefix);
 			this.catalogWidget.removeItem(o['id']);
 			this.catalogWidget.setValue(o['pid']);
 		},
-		el: function(name){
-			return Dom.get(this._TId['editor'][name]);
+		el: function(name){ return Dom.get(this._TId['editor'][name]); },
+		elv: function(name){ return Brick.util.Form.getValue(this.el(name)); },
+		setelv: function(name, value){ Brick.util.Form.setValue(this.el(name), value); },
+		setImage: function(fid){
+			var TM = this._TM;
+			var t = TM.replace('image', {'id': fid});
+			TM.getEl('editor.image').innerHTML = t;
+			this.imageid = fid;
 		},
-		elv: function(name){
-			return Brick.util.Form.getValue(this.el(name));
-		},
-		setelv: function(name, value){
-			Brick.util.Form.setValue(this.el(name), value);
+		selectImage: function(){
+			var __self = this;
+			Brick.Component.API.fire('filemanager', 'api', 'showFileBrowserPanel', function(result){
+				__self.setImage(result.file.id);
+        	});
 		},
 		nameTranslite: function(){
 			var el = this.el('name');
@@ -223,9 +233,9 @@ Component.entryPoint = function(){
 		onClick: function(el){
 			var tp = this._TId['editor']; 
 			switch(el.id){
-			case tp['name']:
-				this.nameTranslite();
-				return true;
+			case tp['name']: this.nameTranslite(); return true;
+			case tp['bimage']: this.selectImage(); return true;
+			case tp['bimageremove']: this.setImage(''); return true;
 			case tp['bcancel']: this.close(); return true;
 			case tp['bsave']: this.save(); return true;
 			}
@@ -240,7 +250,8 @@ Component.entryPoint = function(){
 				'kdsc': this.elv('metadesc'),
 				'kwds': this.elv('metakeys'),
 				'ord': this.elv('ord'),
-				'pid': this.catalogWidget.getValue()
+				'pid': this.catalogWidget.getValue(),
+				'img': this.imageid
 			});
 			var ds = NS.data[this.mmPrefix]; 
 			ds.get('catalog').applyChanges();

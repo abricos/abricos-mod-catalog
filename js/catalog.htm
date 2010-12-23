@@ -53,36 +53,43 @@
 <div class='hd'>Редактор каталога</div>
 <div class='bd mod-catalog '>
 	<div class="field">
-		<p>
+		<p style="margin: 5px 2px 10px 10px;">
 			<label>Расположение:</label>
 			<span id="{i#catalog}"></span>
 		</p>
-		<p>
+		<p style="margin: 5px 2px 10px 10px;">
 			<label id="{i#title}-lbl">Название:</label>
 			<input type="text" id="{i#title}" value="" style="width: 350px" />
 		</p>
-		<p>
+		<p style="margin: 5px 2px 10px 10px;">
 			<label id="{i#name}-lbl">Имя:</label>
 			<input type="text" id="{i#name}" value="" style="width: 350px" />
 			<span class="dsc">* Вводится латинскими буквами. Используется в создании адреса URI</span>
 		</p>
-		<p>
+		<p style="margin: 5px 2px 10px 10px;">
 			<label id="{i#descript}-lbl">Описание:</label>
 			<textarea id="{i#descript}" style="width: 460px; height: 100px"></textarea>
 		</p>
-		<p>
+		<p style="margin: 5px 2px 10px 10px;">
+			<label id="{i#image}-lbl">Картинка:</label>
+			<span id="{i#image}" style="width: 100px;"></span>
+			<input type="button" id="{i#bimage}" value="Установить"/>
+			<input type="button" id="{i#bimageremove}" value="Удалить"/>
+			<br style="clear: both" />
+		</p>
+		<p style="margin: 5px 2px 10px 10px;">
 			<label id="{i#metatitle}-lbl">Title:</label>
 			<input type="text" id="{i#metatitle}" value="" style="width: 350px" />
 		</p>
-		<p>
+		<p style="margin: 5px 2px 10px 10px;">
 			<label id="{i#metakeys}-lbl">Keywords:</label>
 			<input type="text" id="{i#metakeys}" value="" style="width: 350px" />
 		</p>
-		<p>
+		<p style="margin: 5px 2px 10px 10px;">
 			<label id="{i#metadesc}-lbl">Description:</label>
 			<input type="text" id="{i#metadesc}" value="" style="width: 350px" />
 		</p>
-		<p>
+		<p style="margin: 5px 2px 10px 10px;">
 			<label id="{i#ord}-lbl">Вес (сортировка):</label>
 			<input type="text" id="{i#ord}" value="" style="width: 50px" />
 		</p>
@@ -93,6 +100,8 @@
 	</div>
 </div>
 
+<!--{image}-->
+<img src="/filemanager/i/{v#id}/w_80-h_80/thumb" />
 
 <!--{itemremovemsg}-->
 <div class='hd'>Удаление каталога</div>

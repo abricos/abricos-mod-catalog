@@ -149,4 +149,12 @@ if ($updateManager->isInstall()){
 	". $charset);
 }
 
+if ($updateManager->isUpdate('0.2.2')){
+	$db->query_write("
+		ALTER TABLE `".$pfx."catalog` 
+		ADD `imageid`  varchar(8) NOT NULL DEFAULT '' COMMENT 'Картника'"
+	);
+	
+}
+
 ?>
