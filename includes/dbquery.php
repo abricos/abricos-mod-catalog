@@ -10,9 +10,9 @@
 
 /**
  * Термины:
- * Element - свободный элемент (один и тот же элемент может содержаться в нескольких разделов каталога, поэтому элемент назвается свободным).
- * ElementType - тип свободного элемента. Для каждого типа элемента создается своя таблица хранения элементов.
- * ElementOption - опция свободного элемента
+ * Element - свободный элемент.
+ * ElementType - тип элемента. Для каждого типа элемента создается своя таблица хранения дополнительных опций элемента.
+ * ElementOption - опция элемента
  * Catalog - раздел в каталоге.
  * CatalogElement - элемент в каталоге (в таблице element связывает раздел каталога со свободным элементом). 
  */
@@ -33,23 +33,23 @@ class CatalogQuery {
 	 * 
 	 * @var int $elementId идентификатор элемента в таблице элементов каталога (element)
 	 */
-	public static function Element(CMSDatabase $db, $elementId, $retarray = false){
-		$sql = "
-			SELECT eltypeid as eltid
-			FROM ".CatalogQuery::$PFX."element
-			WHERE elementid=".bkint($elementId)."
-			LIMIT 1
-		";
-		$row = $db->query_first($sql);
-		$elTypeId = $row['eltid'];
-
-		$rows = CatalogQuery::ElementOptionListByType($db, $elTypeId);
-		$fields = array();
-		$minprefix = $elTypeId > 0 ? "b." : "a.";
-		while (($row = $db->fetch_array($rows))){
-			array_push($fields, $minprefix."fld_".$row['nm']);
+	public static function Element(CMSDatabase $db, $elementId, $retarray = false, $elTypeId = -1){
+		if ($elTypeId < 0){
+			$sql = "
+				SELECT eltypeid as eltid
+				FROM ".CatalogQuery::$PFX."element
+				WHERE elementid=".bkint($elementId)."
+				LIMIT 1
+			";
+			$row = $db->query_first($sql);
+			$elTypeId = $row['eltid'];
 		}
-		$sfields = !empty($fields) ? ",".implode(",", $fields) : "";
+		
+		$fields = array();
+		$rows = CatalogQuery::ElementOptionListByType($db, 0, true);
+		foreach ($rows as $row){
+			array_push($fields, "a.fld_".$row['nm']);
+		}
 
 		$fotosRows = CatalogQuery::FotoList($db, $elementId);
 		$fotoIds = array();
@@ -61,33 +61,32 @@ class CatalogQuery {
 			$eltype = CatalogQuery::ElementTypeById($db, $elTypeId);
 			$elTableName = CatalogQuery::BuildElementTableName($eltype['nm']);
 			
-			$sql = "
-				SELECT 
-					a.elementid as id,
-					a.elementid as elid,
-					a.catalogid as catid,
-					a.eltypeid as eltid
-					".$sfields.",
-					'".implode(",", $fotoIds)."' as fids
-				FROM ".CatalogQuery::$PFX."element a
-				LEFT JOIN ".$elTableName." b ON a.globalelementid=b.".$eltype['nm']."id
-				WHERE elementid=".bkint($elementId)."
-				LIMIT 1
-			";
-		}else{
-			$sql = "
-				SELECT 
-					a.elementid as id,
-					a.elementid as elid,
-					a.catalogid as catid,
-					a.eltypeid as eltid
-					".$sfields.",
-					'".implode(",", $fotoIds)."' as fids
-				FROM ".CatalogQuery::$PFX."element a
-				WHERE elementid=".bkint($elementId)."
-				LIMIT 1
+			$rows = CatalogQuery::ElementOptionListByType($db, $elTypeId, true);
+			foreach ($rows as $row){
+				array_push($fields, "b.fld_".$row['nm']);
+			}
+		}
+		$sfields = !empty($fields) ? ",".implode(",", $fields) : "";
+		
+		$sql = "
+			SELECT 
+				a.elementid as id,
+				a.elementid as elid,
+				a.catalogid as catid,
+				a.eltypeid as eltid
+				".$sfields.",
+				'".implode(",", $fotoIds)."' as fids
+			FROM ".CatalogQuery::$PFX."element a
+		";
+		if ($elTypeId > 0){
+			$sql .= "
+				LEFT JOIN ".$elTableName." b ON a.elementid=b.elementid
 			";
 		}
+		$sql .= "
+			WHERE a.elementid=".bkint($elementId)."
+			LIMIT 1
+		";
 		if ($retarray){
 			return $db->query_first($sql);
 		}
@@ -157,56 +156,29 @@ class CatalogQuery {
 	 * @param object $data данные
 	 */
 	public static function ElementAppend(CMSDatabase $db, $data){
-		$elementTypeId = intval($data->eltid);
-		$dobj = CatalogQuery::ElementBuildVars($db, $data);
 		
+		// первым делом добавить базовый элемент
+		$dobj = CatalogQuery::ElementBuildVars($db, $data, 0);
 		$sfields = ""; $svalues = ""; 
-		$fields = $dobj->fields;
-		$values = $dobj->values;
+		$fields = $dobj->fields; $values = $dobj->values;
 		
 		if (!empty($fields)){
 			$sfields = ",".implode(",", $fields);
 			$svalues = ",".implode(",", $values);
 		}
-		if ($elementTypeId > 0){
-			/*
-			$sql = "
-				INSERT INTO ".CatalogQuery::$PFX."element
-				(catalogid, eltypeid, title, name, dateline) VALUES (
-					".bkint($data->id).",
-					".bkint($data->catid).", 
-					".bkint($data->eltid).", 
-					'".bkstr($dobj->stitle)."', 
-					'".bkstr($dobj->sname)."', 
-					".TIMENOW." 
-				)
-			";
-			$db->query_write($sql);
-			$elementid = $db->insert_id();
-			/**/
-			echo('error CatalogElementAppend'); exit;			
-			$sql = "
-				INSERT INTO `".$dobj->table."` 
-				(dateline ".$sfields.") VALUES (
-					".TIMENOW."
-					".$svalues."
-				)
-			";
-
-		}else{
-			$sql = "
-				INSERT INTO ".CatalogQuery::$PFX."element
-				(catalogid, eltypeid, title, name, dateline ".$sfields.") VALUES (
-					".bkint($data->catid).",0, 
-					'".bkstr($dobj->stitle)."', 
-					'".bkstr($dobj->sname)."', 
-					".TIMENOW." 
-					".$svalues."
-				)
-			";
-			$db->query_write($sql);
-			$elementid = $db->insert_id();
-		}
+		
+		$sql = "
+			INSERT INTO ".CatalogQuery::$PFX."element
+			(catalogid, eltypeid, title, name, dateline ".$sfields.") VALUES (
+				".bkint($data->catid).",0, 
+				'".bkstr($dobj->stitle)."', 
+				'".bkstr($dobj->sname)."', 
+				".TIMENOW." 
+				".$svalues."
+			)
+		";
+		$db->query_write($sql);
+		$elementid = $db->insert_id();
 		
 		// добавление фото
 		$rows = CatalogQuery::Session($db, $data->session);
@@ -219,19 +191,38 @@ class CatalogQuery {
 		}
 		CatalogQuery::SessionRemove($db, $data->session);
 		CatalogQuery::FotoAppend($db, $elementid, $ids);
-		
 		CatalogQuery::FotosSync($db, $elementid, $data->fids);
+		
+		$elTypeId = intval($data->eltid);
+		if ($elTypeId == 0){
+			return $elementid;
+		}
+		
+		// добавить дополнительные поля, если тип элемента не базовый
+		$dobj = CatalogQuery::ElementBuildVars($db, $data, $elTypeId);
+		$sfields = ""; $svalues = ""; 
+		$fields = $dobj->fields; $values = $dobj->values;
+		
+		if (!empty($fields)){
+			$sfields = ",".implode(",", $fields);
+			$svalues = ",".implode(",", $values);
+		}
+		$sql = "
+			INSERT INTO `".$dobj->table."` 
+			(elementid ".$sfields.") VALUES (
+				".$elementid."
+				".$svalues."
+			)
+		";
+		$db->query_write($sql);
 		
 		return $elementid;
 	}
 	
 	public static function ElementUpdate(CMSDatabase $db, $data, $fullUpdate = true){
 		
-		$elementTypeId = intval($data->eltid);
-		
-		$dobj = CatalogQuery::ElementBuildVars($db, $data);
-		$fields = $dobj->fields;
-		$values = $dobj->values;
+		$dobj = CatalogQuery::ElementBuildVars($db, $data, 0);
+		$fields = $dobj->fields; $values = $dobj->values;
 		
 		$objVars = get_object_vars($data);
 		
@@ -247,41 +238,47 @@ class CatalogQuery {
 			catalogid=".bkint($data->catid).",
 			name='".bkstr($dobj->sname)."',
 			title='".bkstr($dobj->stitle)."'
-		" : "
-			name=name
-		";
+		" : " name=name ";
 		
-		if ($elementTypeId > 0){
-			$sql = "
-				UPDATE `".$dobj->table."` 
-				SET upddate=".TIMENOW." 
-					".(!empty($sset) ? ',' : '')."
-					".$sset."
-				WHERE ".$dobj->idfield."=".bkint($data->elid)." 
-			";
-			$db->query_write($sql);
-	
-			$sql = "
-				UPDATE ".CatalogQuery::$PFX."element
-				SET
-					".$sFU."
-				WHERE elementid=".bkint($data->elid)." 
-			";
-		}else{
-			$sql = "
-				UPDATE ".CatalogQuery::$PFX."element
-				SET
-					".$sFU."
-					".(!empty($sset) ? ',' : '')."
-					".$sset."
-				WHERE elementid=".bkint($data->elid)." 
-			";
-		}
+		$sql = "
+			UPDATE ".CatalogQuery::$PFX."element
+			SET
+				".$sFU."
+				".(!empty($sset) ? ',' : '')."
+				".$sset."
+			WHERE elementid=".bkint($data->elid)." 
+		";
 		$db->query_write($sql);
 		
 		if ($fullUpdate){
 			CatalogQuery::FotosSync($db, $data->elid, $data->fids);
 		}
+		
+		$elTypeId = intval($data->eltid);
+		if ($elTypeId < 1){ return; }
+		
+		// обновить дополнительные поля, если тип элемента не базовый
+		$dobj = CatalogQuery::ElementBuildVars($db, $data, $elTypeId);
+		$fields = $dobj->fields; $values = $dobj->values;
+		
+		$objVars = get_object_vars($data);
+		
+		$sset = "";
+		if (empty($fields)){
+			return;
+		}
+		$set = array();
+		for ($i=0; $i<count($fields); $i++){
+			array_push($set, $fields[$i]."=".$values[$i]);
+		}
+		$sset=implode(",", $set);
+		
+		$sql = "
+			UPDATE `".$dobj->table."` 
+			SET ".$sset."
+			WHERE elementid=".bkint($data->elid)." 
+		";
+		$db->query_write($sql);
 	}
 
 	public static function ElementRemove(CMSDatabase $db, $elementId){
@@ -505,10 +502,6 @@ class CatalogQuery {
 	}
 
 
-	
-	
-	
-	
 	public static $PFX = "";
 	public static function PrefixSet(CMSDatabase $db, $mmPrefix){
 		CatalogQuery::$PFX = $db->prefix."ctg_".$mmPrefix."_";
@@ -524,12 +517,10 @@ class CatalogQuery {
 	const OPTIONTYPE_TEXT = 7;
 	const OPTIONTYPE_DICT = 8;
 	
-	
-	
-	private static function ElementBuildVars(CMSDatabase $db, $data){
-		$eltype = CatalogQuery::ElementTypeById($db, $data->eltid);
+	private static function ElementBuildVars(CMSDatabase $db, $data, $elTypeId){
+		$eltype = CatalogQuery::ElementTypeById($db, $elTypeId);
 		
-		$rows = CatalogQuery::ElementOptionListByType($db, $data->eltid);
+		$rows = CatalogQuery::ElementOptionListByType($db, $elTypeId);
 		
 		$ret = new stdClass();
 		$ret->idfield = $eltype['nm']."id";
@@ -792,6 +783,13 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 	
+	/**
+	 * Добавить опцию элемента в определенный тип
+	 * 
+	 * @param CMSDatabase $db
+	 * @param unknown_type $data
+	 * @param unknown_type $prms
+	 */
 	public static function ElementOptionAppend(CMSDatabase $db, $data, $prms){
 		$sql = "
 			INSERT INTO ".CatalogQuery::$PFX."eloption
@@ -809,7 +807,6 @@ class CatalogQuery {
 			)
 		";
 		$db->query_write($sql);
-
 
 		$table = CatalogQuery::BuildElementTableName($data->eltypenm); 
 		
@@ -902,14 +899,17 @@ class CatalogQuery {
 		return $db->query_first($sql);
 	}
 	
+	private static $_elementOptionListByType = array();
+	
 	/**
 	 * Список опций элемента конкретного типа
 	 *
 	 * @param CMSDatabase $db
 	 * @param integer $elTypeId идентификатор типа элемента
-	 * @return resource
+	 * @param boolean $retarray вернуть массив
+	 * @return resource || array
 	 */
-	public static function ElementOptionListByType(CMSDatabase $db, $elTypeId){
+	public static function ElementOptionListByType(CMSDatabase $db, $elTypeId, $retarray = false){
 		$sql = "
 			SELECT 
 				".CatalogQuery::FIELD_ELEMENTOPTION."
@@ -917,7 +917,19 @@ class CatalogQuery {
 			WHERE eltypeid=".bkint($elTypeId)."
 			ORDER BY eloptgroupid, ord
 		";
-		return $db->query_read($sql);
+		if (!$retarray){
+			return $db->query_read($sql);
+		}
+		if (is_array(CatalogQuery::$_elementOptionListByType[$elTypeId])){
+			return CatalogQuery::$_elementOptionListByType[$elTypeId];
+		}
+		$ret = array();
+		$rows = $db->query_read($sql);
+		while (($row = $db->fetch_array($rows))){
+			array_push($ret, $row);
+		}
+		CatalogQuery::$_elementOptionListByType[$elTypeId] = $ret;
+		return CatalogQuery::$_elementOptionListByType[$elTypeId];
 	}
 	
 	public static function ElementOptionList(CMSDatabase $db, $elTypeId = -1, $fieldType = -1){
@@ -1003,11 +1015,8 @@ class CatalogQuery {
 
 		$sql = "
 			CREATE TABLE IF NOT EXISTS `".$tablename."` (
-			  `".$name."id` int(10) unsigned NOT NULL auto_increment,
-			  `dateline` int(10) unsigned NOT NULL default '0' COMMENT 'дата добавления',
-			  `upddate` int(10) unsigned NOT NULL default '0' COMMENT 'дата обновления',
-			  `deldate` int(10) unsigned NOT NULL default '0' COMMENT 'дата удаления',
-			  PRIMARY KEY  (`".$name."id`)
+			`elementid` int(10) unsigned NOT NULL,
+			PRIMARY KEY  (`elementid`)
 		)".$charset;
 		$db->query_write($sql);
 	}
@@ -1021,12 +1030,11 @@ class CatalogQuery {
 	public static function ElementTypeAppend(CMSDatabase $db, $obj){
 		$sql = "
 			INSERT INTO ".CatalogQuery::$PFX."eltype
-			(name, title, descript, fotouse) VALUES
+			(name, title, descript) VALUES
 			(
 				'".bkstr($obj->nm)."',
 				'".bkstr($obj->tl)."',
-				'".bkstr($obj->dsc)."',
-				'".bkint($obj->foto)."'
+				'".bkstr($obj->dsc)."'
 			)
 		";
 		$db->query_write($sql);
@@ -1035,9 +1043,8 @@ class CatalogQuery {
 	public static function ElementTypeUpdate(CMSDatabase $db, $obj){
 		$sql = "
 			UPDATE ".CatalogQuery::$PFX."eltype
-				SET 
-					title='".bkstr($obj->tl)."',
-					descript='".bkstr($obj->dsc)."'
+			SET title='".bkstr($obj->tl)."',
+				descript='".bkstr($obj->dsc)."'
 			WHERE eltypeid=".bkint($obj->id)."
 		";
 		$db->query_write($sql);
@@ -1052,23 +1059,39 @@ class CatalogQuery {
 		deldate as dd
 	";
 	
+	private static $_elementTypeById = array();
+	
 	public static function ElementTypeById(CMSDatabase $db, $id){
 		$id = bkint($id);
 		if ($id == 0){ return array(); }
+		
+		if (!empty(CatalogQuery::$_elementTypeById[$id])){
+			return CatalogQuery::$_elementTypeById[$id];
+		}
+		
 		$sql = "
 			SELECT
-				".CatalogQuery::FIELD_ELEMENTTYPE." 
+				eltypeid as id,
+				title as tl,
+				name as nm,
+				descript as dsc,
+				deldate as dd
 			FROM ".CatalogQuery::$PFX."eltype
 			WHERE eltypeid=".bkint($id)."
 			LIMIT 1
 		";
-		return $db->query_first($sql);
+		CatalogQuery::$_elementTypeById[$id] = $db->query_first($sql); 
+		return CatalogQuery::$_elementTypeById[$id];
 	}
 	
 	public static function ElementTypeByName(CMSDatabase $db, $name){
 		$sql = "
 			SELECT 
-				".CatalogQuery::FIELD_ELEMENTTYPE." 
+				eltypeid as id,
+				title as tl,
+				name as nm,
+				descript as dsc,
+				deldate as dd
 			FROM ".CatalogQuery::$PFX."eltype
 			WHERE name='".bkstr($name)."'
 			LIMIT 1
@@ -1079,15 +1102,14 @@ class CatalogQuery {
 	public static function ElementTypeList(CMSDatabase $db){
 		$sql = "
 			SELECT 
-				".CatalogQuery::FIELD_ELEMENTTYPE." 
+				eltypeid as id,
+				title as tl,
+				name as nm,
+				descript as dsc,
+				deldate as dd
 			FROM ".CatalogQuery::$PFX."eltype
 		";
 		return $db->query_read($sql);
-	}
-	
-
-	public static function BuildDictionaryTable($dictionaryName){
-		return CatalogQuery::$PFX."dict_".$dictionaryName;
 	}
 	
 	public static function BuildElementTableName($elementName){

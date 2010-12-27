@@ -145,22 +145,32 @@ Component.entryPoint = function(){
 		recyclerClear: function(){ this._query({'act': 'rcclear'}); },
 		_query: function(o){
 			var rtbl = [];
-			if (o['act'] == 'remove' || o['act'] == 'restore'){
-				rtbl = ['eltype'];
-			}else{
-				rtbl = ['eltype', 'eloption', 'eloptgroup'];
-			}
 			var ds = DATA[this.mmPrefix];
-			
-			ds.setReloadFlag(rtbl);
-			
-			var dict = ds.loader.getJSON();
-			
-			if (!L.isNull(dict)){
-				o = L.merge(dict, o);
+			o['mmprefix'] = this.mmPrefix;
+			if (o['act'] == 'remove' || o['act'] == 'restore'){
+				ds.get('eltype').clear();
+			}else{
+				ds.get('eltype').clear();
+				ds.get('eloption').clear();
+				ds.get('eloptgroup').clear();
 			}
+			
 			var __self = this;
 			BC.sendCommand('catalog', 'js_eltype', { json: o });
+			
+			Brick.ajax('catalog', {
+				'data': o,
+				'event': function(request){
+					/*
+					var project = request.data;
+					if (!L.isNull(project)){ 
+						CACHE.project[project.id] = project;
+					}
+					__self.refresh();
+					/**/
+				}
+			});
+			
 		},
 		render: function(){
 			var TM = this._TM, T = this._T, TId = this._TId,
