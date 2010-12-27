@@ -446,10 +446,11 @@ class CatalogManager extends ModuleManager {
 	 * Доступ: роль пользователя {@link CatalogAction::VIEW}
 	 * 
 	 * @param integer $elTypeId Идентификатор типа элемента
+	 * @param boolean $retarray Если True вернуть массив и закешировать его
 	 */
-	public function ElementOptionListByType($elTypeId){
+	public function ElementOptionListByType($elTypeId, $retarray = false){
 		if (!$this->IsViewRole()){ return null; }
-		return CatalogQuery::ElementOptionListByType($this->db, $elTypeId);
+		return CatalogQuery::ElementOptionListByType($this->db, $elTypeId, $retarray);
 	}
 	
 	/**

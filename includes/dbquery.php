@@ -170,7 +170,8 @@ class CatalogQuery {
 		$sql = "
 			INSERT INTO ".CatalogQuery::$PFX."element
 			(catalogid, eltypeid, title, name, dateline ".$sfields.") VALUES (
-				".bkint($data->catid).",0, 
+				".bkint($data->catid).",
+				".bkint($data->eltid).", 
 				'".bkstr($dobj->stitle)."', 
 				'".bkstr($dobj->sname)."', 
 				".TIMENOW." 
