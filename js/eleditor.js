@@ -13,8 +13,7 @@ var Component = new Brick.Component();
 Component.requires = {
 	yahoo: ['json'],
 	mod:[
-	     {name: 'sys', files: ['form.js','data.js','editor.js','container.js']},
-	     {name: 'catalog', files: ['catalog.js']}
+	     {name: 'sys', files: ['form.js','data.js','editor.js','container.js']}
     ]
 };
 Component.entryPoint = function(){
