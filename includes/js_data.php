@@ -22,13 +22,18 @@ foreach ($ds->ts as $ts){
 	foreach($ts->cmd as $cmd){
 		if ($cmd == 'rc'){ $rcclear = true; }
 	}
-	switch ($ts->nm){
-		case 'catelements':
-			if ($rcclear){ $manager->ElementRecycleClear(); }
-			break;
-		case 'eloption':
-			if ($rcclear){ $manager->ElementOptionRecycleClear(); }
-			break;
+	if ($rcclear){
+		switch ($ts->nm){
+			case 'catelements':
+				$manager->ElementRecycleClear(); 
+				break;
+			case 'eloption':
+				$manager->ElementOptionRecycleClear();
+				break;
+			case 'eltype':
+				$manager->ElementTypeRecycleClear();
+				break;
+		}
 	}
 	foreach ($ts->rs as $tsrs){
 		if (empty($tsrs->r)){continue; }

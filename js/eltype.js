@@ -12,9 +12,7 @@
  
 var Component = new Brick.Component();
 Component.requires = { 
-	yahoo: ['json'],
 	mod:[
-	     {name: 'sys', files: ['form.js','data.js']},
 	     {name: 'catalog', files: ['eloption.js']}
 	    ]
 };
@@ -53,36 +51,44 @@ Component.entryPoint = function(){
 		init: function(container, mmPrefix){
 			this.mmPrefix = mmPrefix;
 			
-			buildTemplate(this, 'panel,table,row,rowdel');
+			buildTemplate(this, 'panel,table,row,rowdel,rowwait');
 			
-			if (!DATA[mmPrefix]){
-				DATA[mmPrefix] = new Brick.util.data.byid.DataSet('catalog', mmPrefix);
+			if (!NS.data[mmPrefix]){
+				NS.data[mmPrefix] = new Brick.util.data.byid.DataSet('catalog', mmPrefix);
 			}
 			
 			Dom.get(container).innerHTML = this._T['panel'];
 			
-			var ds = DATA[mmPrefix];
-			this.tables = {
-				'eltype': ds.get('eltype', true),
-				'eloption': ds.get('eloption', true),
-				'eloptgroup': ds.get('eloptgroup', true)
-			};
-
-			ds.onComplete.subscribe(this.onDSUpdate, this, true);
-			if (ds.isFill(this.tables)){
-				this.render();
-			}
-			
+			var ds = NS.data[mmPrefix];
+			this.tables = new Brick.mod.sys.TablesManager(ds, ['eltype','eloption','eloptgroup'], {'owner': this});
 			var __self = this;
 			E.on(container, 'click', function(e){
 				if (__self.onClick(E.getTarget(e))){ E.stopEvent(e); }
 			});
 		},
-		onDSUpdate: function(type, args){
-			if (args[0].check(['eltype'])){ this.render(); }
-		},
 		destroy: function(){
-			 DATA[this.mmPrefix].onComplete.unsubscribe(this.onDSUpdate, this);
+			this.tables.destroy();
+		},
+		onDataLoadWait: function(tables){
+			var TM = this._TM;
+			TM.getEl('panel.table').innerHTML = TM.replace('table', {'rows': this._T['rowwait']});
+		},
+		onDataLoadComplete: function(tables){
+			this.tables = tables;
+			this.render();
+		},
+		render: function(){
+			var TM = this._TM, T = this._T, TId = this._TId,
+				lst = "";
+			this.tables.get('eltype').getRows().foreach(function(row){
+				var di = row.cell;
+				lst += TM.replace(di['dd']>0 ? 'rowdel' :'row', {
+					'id': di['id'],
+					'tl': di['tl'],
+					'dsc': di['dsc']
+				}); 
+			});
+			TM.getEl('panel.table').innerHTML = TM.replace('table', {'rows': lst});
 		},
 		onClick: function(el){
 			var TId = this._TId;
@@ -91,7 +97,7 @@ Component.entryPoint = function(){
 			}
 			
 			if (el.id == TId['panel']['badd']){
-				this.add();
+				this.editType(0);
 				return true;
 			}else if (el.id == TId['panel']['rcclear']){
 				this.recyclerClear();
@@ -101,9 +107,7 @@ Component.entryPoint = function(){
 				var numid = el.id.replace(prefix, "");
 				
 				switch(prefix){
-				case (TId['row']['edit']+'-'):
-					this.editById(numid);
-					return true;
+				case (TId['row']['edit']+'-'): this.editType(numid); return true;
 				case (TId['row']['conf']+'-'):
 				case (TId['table']['conf']+'-'):
 					this.showOption(numid);
@@ -118,16 +122,23 @@ Component.entryPoint = function(){
 			}
 			return false;
 		},
-		add: function(){
-			var row = this.tables['eltype'].newRow();
-			this.edit(row);
-		},
-		editById: function(id){
-			var eltype = this.tables['eltype'].getRows().getById(id);
-			this.activeEditor = new ElementTypeEditorPanel(eltype, this.mmPrefix);
-		},
-		edit: function(row){
-			this.activeEditor = new ElementTypeEditorPanel(row, this.mmPrefix);
+		editType: function(eltypeid){
+			eltypeid = eltypeid*1 || 0;
+			
+			var tables = this.tables,
+				table = tables.get('eltype'),
+				rows = table.getRows(),
+				row = eltypeid == 0 ?
+					table.newRow() :
+					table.getRows().getById(eltypeid);
+			
+			new ElementTypeEditorPanel(row, this.mmPrefix, function(){
+				if (row.isNew()){
+					rows.add(this.row);
+				}
+				table.applyChanges();
+				tables.request();
+			});
 		},
 		showOption: function(id){
 			if (this.activeOption){
@@ -140,50 +151,27 @@ Component.entryPoint = function(){
 			this.activeOption = new NS.ElementOptionsWidget(Dom.get(this._TId['panel']['optpanel']), id, this.mmPrefix);
 			DATA[this.mmPrefix].request();
 		},
-		remove: function(id){ this._query({'act': 'remove', 'data':{'id': id}}); },
-		restore: function(id){ this._query({'act': 'restore', 'data':{'id': id}}); },
+		remove: function(id){ this._query({'act': 'remove', 'id': id}); },
+		restore: function(id){ this._query({'act': 'restore', 'id': id}); },
 		recyclerClear: function(){ this._query({'act': 'rcclear'}); },
 		_query: function(o){
-			var rtbl = [];
-			var ds = DATA[this.mmPrefix];
-			o['mmprefix'] = this.mmPrefix;
-			if (o['act'] == 'remove' || o['act'] == 'restore'){
-				ds.get('eltype').clear();
-			}else{
-				ds.get('eltype').clear();
-				ds.get('eloption').clear();
-				ds.get('eloptgroup').clear();
+			var ds = this.tables.ds;
+			ds.get('eloption').clear();
+			ds.get('eloptgroup').clear();
+			
+			var table = ds.get('eltype'),
+				rows = table.getRows(),
+				row = rows.getById(o.id);
+			
+			if (o.act == 'remove'){
+				row.remove();
+			}else if (o.act == 'rcclear'){
+				table.recycleClear();
+			}else if (o.act == 'restore'){
+				row.restore();
 			}
-			
-			var __self = this;
-			BC.sendCommand('catalog', 'js_eltype', { json: o });
-			
-			Brick.ajax('catalog', {
-				'data': o,
-				'event': function(request){
-					/*
-					var project = request.data;
-					if (!L.isNull(project)){ 
-						CACHE.project[project.id] = project;
-					}
-					__self.refresh();
-					/**/
-				}
-			});
-			
-		},
-		render: function(){
-			var TM = this._TM, T = this._T, TId = this._TId,
-				lst = "";
-			this.tables['eltype'].getRows().foreach(function(row){
-				var di = row.cell;
-				lst += TM.replace(di['dd']>0 ? 'rowdel' :'row', {
-					'id': di['id'],
-					'tl': di['tl'],
-					'dsc': di['dsc']
-				}); 
-			});
-			TM.getEl('panel.table').innerHTML = TM.replace('table', {'rows': lst});
+			table.applyChanges();
+			ds.request();
 		}
 	};
 	NS.ElementTypeManagerWidget = ElementTypeManagerWidget;
@@ -196,9 +184,10 @@ Component.entryPoint = function(){
 	 * @param {DataRow} row Строка из таблицы <b>eltype</b>
 	 * @param {String} mmPrefix Префикс управляющего модуля
 	 */	
-	var ElementTypeEditorPanel = function(row, mmPrefix){
+	var ElementTypeEditorPanel = function(row, mmPrefix, callback){
 		this.mmPrefix = mmPrefix;
 		this.row = row;
+		this.callback = callback;
 		ElementTypeEditorPanel.superclass.constructor.call(this, {
 			modal: true, fixedcenter: true
 		});
@@ -215,10 +204,9 @@ Component.entryPoint = function(){
 			this.setelv('name', o['nm']);
 			this.setelv('title', o['tl']);
 			this.setelv('descript', o['dsc']);
-			this.setelv('foto', o['foto']);
 			
 			if (!this.row.isNew()){
-				name.disabled = "disabled";
+				this._TM.getEl('editor.name').disabled = "disabled";
 			}
 		},
 		el: function(name){ return Dom.get(this._TId['editor'][name]); },
@@ -248,18 +236,15 @@ Component.entryPoint = function(){
 		},
 		save: function(){
 			this.nameTranslite();
+			
 			this.row.update({
 				'nm': this.elv('name'),
 				'tl': this.elv('title'),
-				'dsc': this.elv('descript'),
-				'foto': this.elv('foto')
+				'dsc': this.elv('descript')
 			});
-			var ds = DATA[this.mmPrefix];
-			if (this.row.isNew()){
-				ds.get('eltype').getRows().add(this.row);
+			if (L.isFunction(this.callback)){
+				this.callback();
 			}
-			ds.get('eltype').applyChanges();
-			ds.request();
 			this.close();
 		}
 	});
@@ -290,7 +275,7 @@ Component.entryPoint = function(){
 
 	API.showElementTypeEditorPanel = function(config){
 		new ElementTypeEditorPanel(config.row, config.mmPrefix);
-	}
+	};
 
 	/**
 	 * Отобразить виджет - список типов элемента<br />
@@ -311,6 +296,6 @@ Component.entryPoint = function(){
 		var widget = new ElementTypeManagerWidget(config.container, config.mmPrefix);
 		DATA[config.mmPrefix].request();
 		return widget;
-	}
+	};
 
 };

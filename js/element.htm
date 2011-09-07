@@ -55,3 +55,31 @@
 	<td colspan="2" align="center" style="text-align: center;"><a href="#" id="{i#restore}-{v#id}">Восстановить</a></td>
 </tr>
 
+
+<!--{selpanel}-->
+<div class='hd'>Список элементов</div>
+<div class='bd'>
+	<div style="width: 100%; height: 300px; overflow-y: scroll; margin-bottom: 10px; margin-top: 8px; padding-bottom: 20px; border:1px solid #CBCBCB;">
+		<div id="{i#table}"></div>
+	</div>
+</div>
+
+<!--{seltable}-->
+<table class="bk-table-def" style="border: 0">
+	<tbody>{v#rows}</tbody>
+</table>
+
+<!--{selrowwait}-->
+<tr valign="top">
+	<td>Идет загрузка данных...</td>
+</tr>
+
+<!--{selrow}-->
+<tr valign="top">
+	<td>{v#cat}</td>
+	<td>
+		<a href="#" id="{i#sel}-{v#id}" title="Выбрать">{v#tl}</a>
+	</td>
+	<td><a href="#" id="{i#selb}-{v#id}">Выбрать</a></td>
+</tr>
+

@@ -15,8 +15,7 @@ var Component = new Brick.Component();
 Component.requires = { 
 	yahoo: ['json'],
 	mod:[
-	     {name: 'sys', files: ['form.js','data.js']},
-	     {name: 'catalog', files: ['lib.js']}
+	     {name: 'sys', files: ['form.js','data.js']}
 	    ]
 };
 Component.entryPoint = function(){
@@ -139,11 +138,11 @@ Component.entryPoint = function(){
 			var row = this.tables['eloption'].newRow();
 			this.tables['eloption'].getRows().add(row);
 			row.cell['eltid'] = this.eltypeid;
-			this.activeEditor = new ElementOptionEditorPanel(row, this.mmPrefix);
+			this.activeEditor = new OptionEditorPanel(row, this.mmPrefix);
 		},
 		edit: function(id){
 			var row = this.tables['eloption'].getRows().getById(id); 
-			this.activeEditor = new ElementOptionEditorPanel(row, this.mmPrefix);
+			this.activeEditor = new OptionEditorPanel(row, this.mmPrefix);
 		},
 		remove: function(id){
 			this.tables['eloption'].getRows().getById(id).remove();
@@ -167,19 +166,19 @@ Component.entryPoint = function(){
 	/**
 	 * Панель. Редактор поля элемента определенного типа<br>
 	 * 
-	 * @class ElementOptionEditorPanel
+	 * @class OptionEditorPanel
 	 * @constructor
 	 * @param {DataRow} row Строка таблицы DataSet
 	 * @param {String} mmPrefix Префикс управляющего модуля
 	 */
-	var ElementOptionEditorPanel = function(row, mmPrefix){
+	var OptionEditorPanel = function(row, mmPrefix){
 		this.mmPrefix = mmPrefix;
 		this.row = row;
-		ElementOptionEditorPanel.superclass.constructor.call(this, {
+		OptionEditorPanel.superclass.constructor.call(this, {
 			modal: true, fixedcenter: true
 		});
 	};
-	YAHOO.extend(ElementOptionEditorPanel, Brick.widget.Panel, {
+	YAHOO.extend(OptionEditorPanel, Brick.widget.Panel, {
 		initTemplate: function(){
 		
 			buildTemplate(this, 'editor,custfuncinsrow,custfunccount,custfunc0,custfuncinp0,custfunconld0,custfunc1,custfuncinp1,custfunconld1');
@@ -258,7 +257,7 @@ Component.entryPoint = function(){
 			var opt = this.getTypeOpt();
 			
 			var updList = function(){
-				for (var i=0;i<9;i++){
+				for (var i=0;i<10;i++){
 					if (opt[i]){opt[i]['panel'].style.display = (i == fldtype.value ? "" : "none");}
 				}
 				__self.center();
@@ -346,7 +345,8 @@ Component.entryPoint = function(){
 				'7': { 'panel': this.el('contopt7') },
 				'8': { 'panel': this.el('contopt8'),
 					'size': this.el('opt8size')
-				}
+				},
+				'9': { 'panel': this.el('contopt9')}
 			};
 			return opt;
 		},
@@ -474,7 +474,7 @@ Component.entryPoint = function(){
 			this.close();
 		}
 	});
-	NS.ElementOptionEditorPanel = ElementOptionEditorPanel;
+	NS.OptionEditorPanel = OptionEditorPanel;
 	
 	
 	/**
@@ -501,7 +501,7 @@ Component.entryPoint = function(){
 	 */
 	API.showElementOptionWidget = function(config){
 		new ElementOptionsWidget(config.container, config.eltypeid, config.mmPrefix);
-	}
+	};
 	
 	/**
 	 * Отобразить панель редактора поля элемента определенного типа <br />
@@ -513,13 +513,13 @@ Component.entryPoint = function(){
 	 *  });
 	 * </pre>
 	 * 
-	 * @method showElementOptionEditorPanel
+	 * @method showOptionEditorPanel
 	 * @static
 	 * @param {Object} config Объект параметров, где: row - DataRow, mmPrefix - префикс управляющего модуля
 	 */
-	API.showElementOptionEditorPanel = function(config){
-		new ElementOptionEditorPanel(config.row, config.mmPrefix);
-	}
+	API.showOptionEditorPanel = function(config){
+		new OptionEditorPanel(config.row, config.mmPrefix);
+	};
 
 
 };

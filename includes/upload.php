@@ -22,16 +22,24 @@ $p_act = Brick::$cms->input->clean_gpc('p', 'act', TYPE_STR);
 if ($p_act != "upload"){ return; }
 
 $arr = array();
+$errors = array();
 for ($i=0; $i<6; $i++){
-	$p_file = CMSRegistry::$instance->input->clean_gpc('f', 'file'.$i, TYPE_FILE);
-	if (!empty($p_file)){
-		$folderId = $fmManager->FolderAppend(0, 'catalog');
-		$errornum = $fmManager->UploadFiles($folderId, $p_file, true);
-		
-		// print_r('error='.$errornum."<br>");
-		if (empty($errornum)){
-			array_push($arr, $fmManager->lastUploadFileHash);
-		}
+	
+	$uploadFile = FileManagerModule::$instance->GetManager()->CreateUploadByVar('file'.$i);
+	$uploadFile->maxImageWidth = 1024;
+	$uploadFile->maxImageHeight = 768;
+	$uploadFile->ignoreFileSize = true;
+	$uploadFile->isOnlyImage = true;
+	$uploadFile->folderPath = "system/".date("d.m.Y", TIMENOW);
+	
+	$errornum = $uploadFile->Upload();
+	if (empty($errornum)){
+		array_push($arr, $uploadFile->uploadFileHash);
+	}else {
+		array_push($errors, array(
+			"fhash" => $uploadFile->uploadFileHash,
+			"fname" => $uploadFile->fileName
+		));
 	}
 }
 if (empty($arr)){ return; }

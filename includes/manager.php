@@ -107,6 +107,15 @@ class CatalogManager extends ModuleManager {
 					}
 				}
 				break;
+			case 'linkelements':
+				foreach ($rows->r as $r){
+					if ($r->f == 'a'){ 
+						$this->LinkElementAppend($p->elid, $p->optid, $r->d->elid);
+					}else if ($r->f == 'd'){ 
+						$this->LinkElementRemove($p->elid, $p->optid, $r->d->elid);
+					}
+				}
+				break;
 			case 'catalog':
 				foreach ($rows->r as $r){
 					if ($r->f == 'a'){ $this->CatalogAppend($r->d);
@@ -118,7 +127,10 @@ class CatalogManager extends ModuleManager {
 			case 'eltype':
 				foreach ($rows->r as $r){
 					if ($r->f == 'a'){			$this->ElementTypeAppend($r->d);
-					}else if ($r->f == 'u'){	$this->ElementTypeUpdate($r->d); }
+					}else if ($r->f == 'u'){	$this->ElementTypeUpdate($r->d);
+					}else if ($r->f == 'd'){	$this->ElementTypeRemove($r->d->id);
+					}else if ($r->f == 'r'){	$this->ElementTypeRestore($r->d->id);
+					}
 				}
 				break;
 			case 'eloption':
@@ -146,6 +158,7 @@ class CatalogManager extends ModuleManager {
 		switch ($name){
 			case 'catelement': return $this->Element($p->id);
 			case 'catelements': return $this->ElementList($p->catid, 1, 500);
+			case 'linkelements': return $this->LinkElementList($p->elid, $p->optid);
 			case 'catalog': return $this->CatalogList();
 			case 'fotos': return $this->FotoList($p->elid);
 			case 'eltype': return $this->ElementTypeList();
@@ -229,13 +242,13 @@ class CatalogManager extends ModuleManager {
 	 * 
 	 * Доступ: роль пользователя {@link CatalogAction::VIEW}
 	 * 
-	 * @param integer $elementId Идентификатор элемента
+	 * @param integer $elementid Идентификатор элемента
 	 * @param boolean $retarray Опционально true - вернуть элемент в виде массива, иначе указатель на запись в БД
 	 * @return mixed resource | array
 	 */
-	public function Element($elementId, $retarray = false){
+	public function Element($elementid, $retarray = false){
 		if (!$this->IsViewRole()){ return null; }
-		return CatalogQuery::Element($this->db, $elementId, $retarray);
+		return CatalogQuery::Element($this->db, $elementid, $retarray);
 	}
 	
 	/**
@@ -273,11 +286,11 @@ class CatalogManager extends ModuleManager {
 	 * 
 	 * Доступ: роль пользователя {@link CatalogAction::WRITE}
 	 * 
-	 * @param integer $elementId Идентификатор элемента
+	 * @param integer $elementid Идентификатор элемента
 	 */
-	public function ElementRemove($elementId){
+	public function ElementRemove($elementid){
 		if (!$this->IsWriteRole()){ return; }
-		CatalogQuery::ElementRemove($this->db, $elementId);
+		CatalogQuery::ElementRemove($this->db, $elementid);
 	}
 	
 	/**
@@ -285,11 +298,11 @@ class CatalogManager extends ModuleManager {
 	 * 
 	 * Доступ: роль пользователя {@link CatalogAction::WRITE}
 	 * 
-	 * @param integer $elementId Идентификатор элемента
+	 * @param integer $elementid Идентификатор элемента
 	 */
-	public function ElementRestore($elementId){
+	public function ElementRestore($elementid){
 		if (!$this->IsWriteRole()){ return; }
-		CatalogQuery::ElementRestore($this->db, $elementId);
+		CatalogQuery::ElementRestore($this->db, $elementid);
 	}
 
 	/**
@@ -326,16 +339,31 @@ class CatalogManager extends ModuleManager {
 		return CatalogQuery::ElementUpdate($this->db, $d, $fullUpdate);
 	}
 	
+	public function LinkElementList($elementid, $optionid){
+		if (!$this->IsViewRole()){ return; }
+		return CatalogQuery::LinkElementList($this->db, $elementid, $optionid);
+	}
+	
+	public function LinkElementAppend($elementid, $optionid, $childid){
+		if (!$this->IsWriteRole()){ return; }
+		return CatalogQuery::LinkElementAppend($this->db, $elementid, $optionid, $childid);
+	}
+	
+	public function LinkElementRemove($elementid, $optionid, $childid){
+		if (!$this->IsWriteRole()){ return; }
+		return CatalogQuery::LinkElementRemove($this->db, $elementid, $optionid, $childid);
+	}
+	
 	/**
 	 * Получить список фотографий элемента
 	 * 
 	 * Доступ: роль пользователя {@link CatalogAction::VIEW}
 	 * 
-	 * @param integer $elementId Идентификатор элемента
+	 * @param integer $elementid Идентификатор элемента
 	 */
-	public function FotoList($elementId){
+	public function FotoList($elementid){
 		if (!$this->IsViewRole()){ return null; }
-		return CatalogQuery::FotoList($this->db, $elementId);
+		return CatalogQuery::FotoList($this->db, $elementid);
 	}
 	
 	/**
@@ -410,7 +438,22 @@ class CatalogManager extends ModuleManager {
 	 */
 	public function ElementTypeUpdate($d){
 		if (!$this->IsAdminRole()){ return; }
-		CatalogQuery::ElementTypeUpdate($db, $d);
+		CatalogQuery::ElementTypeUpdate($this->db, $d);
+	}
+	
+	public function ElementTypeRemove($eltypeid){
+		if (!$this->IsAdminRole()){ return; }
+		CatalogQuery::ElementTypeRemove($this->db, $eltypeid);
+	}
+	
+	public function ElementTypeRestore($eltypeid){
+		if (!$this->IsAdminRole()){ return; }
+		CatalogQuery::ElementTypeRestore($this->db, $eltypeid);
+	}
+	
+	public function ElementTypeRecycleClear(){
+		if (!$this->IsAdminRole()){ return; }
+		CatalogQuery::ElementTypeRecycleClear($this->db);
 	}
 	
 	/**
@@ -472,11 +515,11 @@ class CatalogManager extends ModuleManager {
 	 * 
 	 * Доступ: роль пользователя {@link CatalogAction::ADMIN}
 	 * 
-	 * @param integer $optionId
+	 * @param integer $optionid
 	 */
-	public function ElementOptionRemove($optionId){
+	public function ElementOptionRemove($optionid){
 		if (!$this->IsAdminRole()){ return; }
-		CatalogQuery::ElementOptionRemove($this->db, $optionId);
+		CatalogQuery::ElementOptionRemove($this->db, $optionid);
 	}
 
 	/**
@@ -484,11 +527,11 @@ class CatalogManager extends ModuleManager {
 	 * 
 	 * Доступ: роль пользователя {@link CatalogAction::ADMIN}
 	 * 
-	 * @param integer $optionId
+	 * @param integer $optionid
 	 */
-	public function ElementOptionRestore($optionId){
+	public function ElementOptionRestore($optionid){
 		if (!$this->IsAdminRole()){ return; }
-		CatalogQuery::ElementOptionRestore($this->db, $optionId); 
+		CatalogQuery::ElementOptionRestore($this->db, $optionid); 
 	}
 	
 	/**

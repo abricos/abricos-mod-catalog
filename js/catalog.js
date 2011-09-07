@@ -13,7 +13,6 @@
 var Component = new Brick.Component();
 Component.requires = {
 	mod:[
-	     {name: 'sys', files: ['form.js','data.js']},
 	     {name: 'catalog', files: ['element.js']}
 	    ]
 };
@@ -47,7 +46,7 @@ Component.entryPoint = function(){
 			buildTemplate(this, 'widget,list,item,itemwait,bcatadd,bcatempty');
 			var TM = this._TM, T = this._T, TId = this._TId;
 
-			container.innerHTML = T['widget'];
+			container.innerHTML = TM.replace('widget');
 			var __self = this;
 			E.on(container, 'click', function(e){
 				if (__self.onClick(E.getTarget(e), e)){ E.stopEvent(e); }
@@ -74,7 +73,7 @@ Component.entryPoint = function(){
 			}
 		},
 		destroy: function(){
-			var ds = NS.data[this.mmPrefix]
+			var ds = NS.data[this.mmPrefix];
 			ds.onComplete.unsubscribe(this.dsEvent);
 			ds.onStart.unsubscribe(this.dsEvent);
 		},
@@ -183,7 +182,7 @@ Component.entryPoint = function(){
 		this.mmPrefix = mmPrefix;
 		this.row = row;
 		CatalogEditor.superclass.constructor.call(this,{
-			modal: true, fixedcenter: true, width: '700px'
+			modal: true, fixedcenter: true, width: '750px'
 		});
 	};
 	YAHOO.extend(CatalogEditor, Brick.widget.Panel, {
@@ -192,6 +191,9 @@ Component.entryPoint = function(){
 			return this._T['editor'];
 		},
 		onLoad: function(){
+			
+			var TM = this._TM;
+			
 			var o = this.row.cell;
 			this.setelv('name', o['nm']);
 			this.setelv('title', o['tl']);
@@ -204,9 +206,17 @@ Component.entryPoint = function(){
 			this.imageid = o['img'];
 			this.setImage(this.imageid);
 			
-			this.catalogWidget = new NS.CatalogSelectWidget(this._TM.getEl('editor.catalog'), this.mmPrefix);
+			this.catalogWidget = new NS.CatalogSelectWidget(TM.getEl('editor.catalog'), this.mmPrefix);
 			this.catalogWidget.removeItem(o['id']);
 			this.catalogWidget.setValue(o['pid']);
+			
+			var el = TM.getEl('editor.descript'),
+				Editor = Brick.widget.Editor;
+			this._editor = new Editor(el, {'mode': Editor.MODE_VISUAL});
+		},
+		destroy: function(){
+			this._editor.destroy();
+			CatalogEditor.superclass.destroy.call(this);
 		},
 		el: function(name){ return Dom.get(this._TId['editor'][name]); },
 		elv: function(name){ return Brick.util.Form.getValue(this.el(name)); },
@@ -245,7 +255,7 @@ Component.entryPoint = function(){
 			this.row.update({
 				'nm': this.elv('name'),
 				'tl': this.elv('title'),
-				'dsc': this.elv('descript'),
+				'dsc': this._editor.getContent(),
 				'ktl': this.elv('metatitle'),
 				'kdsc': this.elv('metadesc'),
 				'kwds': this.elv('metakeys'),
@@ -290,7 +300,7 @@ Component.entryPoint = function(){
 	});
 	
 	API.showManagerWidget = function(config){
-		var widget = new ManagerWidget(config.container, config.mmPrefix)
+		var widget = new ManagerWidget(config.container, config.mmPrefix);
 		NS.data[config.mmPrefix].request();
 		return widget;
 	};
@@ -330,7 +340,7 @@ Component.entryPoint = function(){
 			}
 		},
 		destroy: function(){
-			var ds = NS.data[this.mmPrefix]
+			var ds = NS.data[this.mmPrefix];
 			ds.onComplete.unsubscribe(this.dsEvent);
 			ds.onStart.unsubscribe(this.dsEvent);
 		},

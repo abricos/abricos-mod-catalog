@@ -126,7 +126,7 @@ if ($updateManager->isInstall()){
 		)
 	".$charset);
 
-		// картинки элементов
+	// картинки элементов
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."foto` (
 		  `fotoid` int(10) unsigned NOT NULL auto_increment,
@@ -134,7 +134,7 @@ if ($updateManager->isInstall()){
 		  `fileid` varchar(8) NOT NULL,
 		  `ord` int(4) unsigned NOT NULL default '0' COMMENT 'Сортировка',
 		  PRIMARY KEY (`fotoid`),
-		  KEY `carid` (`elementid`)
+		  KEY `elementid` (`elementid`)
 		)
 	". $charset);
 	
@@ -154,7 +154,24 @@ if ($updateManager->isUpdate('0.2.2')){
 		ALTER TABLE `".$pfx."catalog` 
 		ADD `imageid`  varchar(8) NOT NULL DEFAULT '' COMMENT 'Картника'"
 	);
-	
+}
+
+if ($updateManager->isUpdate('0.2.3')){
+
+	// Таблица вложенных элементов в элемент
+	$db->query_write("
+		CREATE TABLE IF NOT EXISTS `".$pfx."link` (
+		  `linkid` int(10) unsigned NOT NULL auto_increment,
+		  `optionid` varchar(50) NOT NULL DEFAULT '',
+		  `elementid` int(10) unsigned NOT NULL COMMENT 'Идентификатор элемента',
+		  `childid` int(10) unsigned NOT NULL COMMENT 'Идентификатор вложенного элемента',
+		  `ord` int(4) unsigned NOT NULL default '0' COMMENT 'Сортировка',
+		  PRIMARY KEY (`linkid`),
+		  KEY `elementid` (`elementid`), 
+		  UNIQUE KEY `elopt` (`elementid`,`optionid`,`childid`)
+		)
+	". $charset);
+
 }
 
 ?>

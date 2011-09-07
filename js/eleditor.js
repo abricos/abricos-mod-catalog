@@ -18,7 +18,6 @@ Component.requires = {
 };
 Component.entryPoint = function(){
 	var Dom = YAHOO.util.Dom,
-		E = YAHOO.util.Event,
 		L = YAHOO.lang,
 		J = YAHOO.lang.JSON;
 	
@@ -49,10 +48,299 @@ Component.entryPoint = function(){
 		return get(catalogid);
 	};
 	
-	var ElementEditorOptionBuilder = function(mmPrefix, row, elTypeId){
+	var ElementOptionEditor = function(mmPrefix, elRow, optRow){
+		this.init(mmPrefix, elRow, optRow);
+	};
+	ElementOptionEditor.prototype = {
+		buildTemplate: function(){ return ''; },
+		init: function(mmPrefix, elRow, optRow){
+			this.mmPrefix = mmPrefix;
+			this.elRow = elRow;
+			this.optRow = optRow;
+			this.fieldName = 'fld_'+this.optRow.cell['nm'];
+		},
+		getValue: function(){
+			return this.elRow.cell[this.fieldName] || '';
+		},
+		setValue: function(value){
+			var d = {};
+			d[this.fieldName] = value;
+			this.elRow.update(d);
+		},
+		onLoad: function(){},
+		onClick: function(el){ return false; },
+		save: function(){},
+		destroy: function(){}
+	};
+	NS.ElementOptionEditor = ElementOptionEditor;
+	NS.ElementOptionEditors = {};
+	
+	var ElementOptionEditorBoolean = function(mmPrefix, elRow, optRow){
+		ElementOptionEditorBoolean.superclass.constructor.call(this, mmPrefix, elRow, optRow);
+	};
+	YAHOO.extend(ElementOptionEditorBoolean, ElementOptionEditor, {
+		buildTemplate: function(){
+			buildTemplate(this, 'editoptrow0');
+			var di = this.optRow.cell;
+			return this._TM.replace('editoptrow0', { 'id': di['nm'], 'title': di['tl'] });
+		},
+		getEl: function(){ return this._TM.getEl('editoptrow0.id'); },
+		onLoad: function(){
+			Brick.util.Form.setValue(this.getEl(), this.getValue());
+		},
+		save: function(){
+			var value = Brick.util.Form.getValue(this.getEl());
+			this.setValue(value);
+		}
+	});
+	NS.ElementOptionEditors['0'] = ElementOptionEditorBoolean;
+	
+	var ElementOptionEditorString = function(mmPrefix, elRow, optRow){
+		ElementOptionEditorString.superclass.constructor.call(this, mmPrefix, elRow, optRow);
+	};
+	YAHOO.extend(ElementOptionEditorString, ElementOptionEditor, {
+		buildTemplate: function(){
+			buildTemplate(this, 'editoptrow1');
+			var di = this.optRow.cell;
+			return this._TM.replace('editoptrow1', { 'id': di['nm'], 'title': di['tl'] });
+		},
+		getEl: function(){ return this._TM.getEl('editoptrow1.id'); },
+		onLoad: function(){
+			this.getEl().value = this.getValue();
+		},
+		save: function(){
+			var value = Brick.util.Form.getValue(this.getEl());
+			this.setValue(value);
+		}
+	});
+	NS.ElementOptionEditors['1'] = ElementOptionEditorString;
+	NS.ElementOptionEditors['2'] = ElementOptionEditorString;
+	NS.ElementOptionEditors['3'] = ElementOptionEditorString;
+
+	var ElementOptionEditorList = function(mmPrefix, elRow, optRow){
+		ElementOptionEditorList.superclass.constructor.call(this, mmPrefix, elRow, optRow);
+	};
+	YAHOO.extend(ElementOptionEditorList, ElementOptionEditor, {
+		buildTemplate: function(){
+			buildTemplate(this, 'editoptrow4,seloptionrow');
+			var di = this.optRow.cell;
+			var prm = J.parse(di['prms']) || {};
+			var TM = this._TM;
+			return TM.replace('editoptrow4', { 
+				'id': di['nm'], 
+				'title': di['tl'],
+				'list': (function(){
+					var lst = '', list = prm['val'].split('\n');
+					for (j=0;j<list.length;j++){
+						lst += TM.replace('seloptionrow', {'id': j, 'tl': list[j]});
+					}
+					return lst;
+				})()				
+			});
+		},
+		getEl: function(){ return this._TM.getEl('editoptrow4.id'); },
+		onLoad: function(){ this.getEl().value = this.getValue(); },
+		save: function(){
+			var value = Brick.util.Form.getValue(this.getEl());
+			this.setValue(value);
+		}
+	});
+	NS.ElementOptionEditors['4'] = ElementOptionEditorList;
+
+	var ElementOptionEditorTable = function(mmPrefix, elRow, optRow){
+		ElementOptionEditorTable.superclass.constructor.call(this, mmPrefix, elRow, optRow);
+	};
+	YAHOO.extend(ElementOptionEditorTable, ElementOptionEditor, {
+		buildTemplate: function(){
+			buildTemplate(this, 'editoptrow5,seloptionrow');
+			var di = this.optRow.cell,
+				TM = this._TM,
+				elTypeId = di['eltid'] * 1,
+				elementTypeName = elTypeId > 0 ? 
+						NS.data[this.mmPrefix].get('eltype').getRows().getById(elTypeId).cell['nm'] : '';
+			
+			this.elementTypeName = elementTypeName;
+
+			var lst = '';
+			NS.data[this.mmPrefix].get('eloptionfld').getRows({'eltpnm': elementTypeName, 'fldnm': this.optRow.cell['nm']}).foreach(function(row){
+				lst += TM.replace('seloptionrow', {
+					'id': row.cell['id'],
+					'tl': row.cell['tl']
+				});
+			});
+			return TM.replace('editoptrow5', { 
+				'id': di['nm'], 
+				'title': di['tl'],
+				'list': lst				
+			});
+		},
+		getEl: function(){ return this._TM.getEl('editoptrow5.id'); },
+		onLoad: function(){ this.getEl().value = this.getValue(); },
+		save: function(){
+			var value = Brick.util.Form.getValue(this.getEl());
+			this.setValue(value);
+			
+			var elAlt = this._TM.getEl('editoptrow5.alt');
+			var newval = Brick.util.Form.getValue(elAlt);
+			if (newval.length > 0){
+				var ops = {};
+				ops[this.fieldName+'-alt'] = newval;
+				this.elRow.update(ops);
+				NS.data[this.mmPrefix].get('eloptionfld').getRows({'eltpnm': this.elementTypeName, 'fldnm': this.optRow.cell['nm']}).clear();
+			}
+		}
+	});
+	NS.ElementOptionEditors['5'] = ElementOptionEditorTable;
+
+	var ElementOptionEditorText = function(mmPrefix, elRow, optRow){
+		ElementOptionEditorText.superclass.constructor.call(this, mmPrefix, elRow, optRow);
+	};
+	YAHOO.extend(ElementOptionEditorText, ElementOptionEditor, {
+		buildTemplate: function(){
+			buildTemplate(this, 'editoptrow7');
+			var di = this.optRow.cell;
+			return this._TM.replace('editoptrow7', { 'id': di['nm'], 'title': di['tl'] });
+		},
+		onLoad: function(){
+			var el = this._TM.getEl('editoptrow7.id'),
+				Editor = Brick.widget.Editor;
+			el.value = this.getValue();
+			this._editor = new Editor(el, {'mode': Editor.MODE_VISUAL});
+		},
+		destroy: function(){
+			this._editor.destroy();
+		},
+		save: function(){
+			this.setValue(this._editor.getContent());
+		}
+	});
+	NS.ElementOptionEditors['7'] = ElementOptionEditorText;
+	
+	var ElementOptionEditorChildEl = function(mmPrefix, elRow, optRow){
+		ElementOptionEditorChildEl.superclass.constructor.call(this, mmPrefix, elRow, optRow);
+	};
+	YAHOO.extend(ElementOptionEditorChildEl, ElementOptionEditor, {
+		buildTemplate: function(){
+			buildTemplate(this, 'editoptrow9,table9,row9,row9wait');
+			var di = this.optRow.cell;
+			return this._TM.replace('editoptrow9', { 'id': di['nm'], 'title': di['tl'] });
+		},
+		onLoad: function(){
+			var row = this.elRow,
+				di = row.cell;
+			this.isNew = row.isNew();
+			
+			if (this.isNew){
+				this.linkList = {};
+				this.linkLastId = 1;
+				this.render();
+			}else{
+				var ds = NS.data[this.mmPrefix];
+				this.tables = new Brick.mod.sys.TablesManager(ds, ['linkelements'], {'owner': this});
+				this.linkParam = {'elid': di['elid'], 'optid': this.optRow.cell['id']};
+				this.tables.setParam('linkelements', this.linkParam);
+			}
+		},
+		onClick: function(el){
+			var TId = this._TId;
+			
+			switch(el.id){
+			case TId['editoptrow9']['badd']: this.showAppendElement(); return true;
+			}
+			
+			var prefix = el.id.replace(/([a-z0-9]+$)/, '');
+			var numid = el.id.replace(prefix, "");
+			
+			switch(prefix){
+			case (TId['row9']['bremove']+'-'): this.removeElement(numid); return true;
+			}
+			return false;
+		},
+		showAppendElement: function(){
+			var __self = this;
+			Brick.ff('catalog', 'element', function(){
+			    API.showElementSelectPanel('eshop', function(element){
+			        __self.appendElement(element);
+			    });
+			});
+		},
+		appendElement: function(element){
+			if (this.isNew){
+				this.linkList[this.linkLastId++] = {
+					'elid': element['id'],
+					'tl': element['tl']
+				};
+			}else{
+				var table = this.tables.get('linkelements'),
+					rows = table.getRows(this.linkParam),
+					row = table.newRow();
+				row.update({
+					'elid': element['id'],
+					'tl': element['tl']
+				});
+				rows.add(row);
+			}
+			this.render();
+		},
+		removeElement: function(numid){
+			if (this.isNew){
+				delete this.linkList[numid];
+			}else{
+				this.tables.get('linkelements').getRows(this.linkParam).getById(numid).remove();
+			}
+			this.render();
+		},
+		onDataLoadWait: function(tables){
+			var TM = this._TM;
+			TM.getEl('editoptrow9.table').innerHTML = TM.replace('table9', {'rows': this._T['row9wait']});
+		},
+		onDataLoadComplete: function(tables){
+			this.tables = tables;
+			this.render();
+		},
+		render: function(){
+			var TM = this._TM, 
+				lst = "";
+			TM.getEl('editoptrow9.badd').style.display = '';
+			
+			var arr = {};
+			if (this.isNew){
+				arr = this.linkList;
+			}else{
+				this.tables.foreach('linkelements', function(row){
+					if (row.isRemove()){ return; }
+					arr[row.cell['id']] = row.cell;
+				}, this.linkParam);
+			}
+			for (var n in arr){
+				var di = arr[n];
+				lst += TM.replace('row9', {
+					'id': n,
+					'tl': di['tl']
+				});
+			}
+			TM.getEl('editoptrow9.table').innerHTML = TM.replace('table9', {'rows': lst});
+		},
+		save: function(){
+			if (this.isNew){
+				var a = [];
+				for (var n in this.linkList){
+					a[a.length] = this.linkList[n]['elid'];
+				}
+				var d = {};
+				d[this.fieldName] = a.join(',');
+				this.elRow.update(d);
+			}else{
+				this.tables.get('linkelements').getRows(this.linkParam).applyChanges();
+			}
+		}
+	});
+	NS.ElementOptionEditors['9'] = ElementOptionEditorChildEl;
+
+	var ElementOptionEditorBuilder = function(mmPrefix, row, elTypeId){
 		this.init(mmPrefix, row, elTypeId);
 	};
-	ElementEditorOptionBuilder.prototype = {
+	ElementOptionEditorBuilder.prototype = {
 		init: function(mmPrefix, row, elTypeId){
 			this.mmPrefix = mmPrefix;
 			this.row = row;
@@ -62,12 +350,12 @@ Component.entryPoint = function(){
 
 			// список редакторов
 			this._editors = {};
+			
+			this.widgets = {};
 
-			buildTemplate(this, 'editoptrow0,editoptrow1,editoptrow4,editoptrow5,editoptrow6,editoptrow7,seloptionrow,editoptrowcust');
+			buildTemplate(this, 'editoptrow0,editoptrow1,editoptrow4,editoptrow5,editoptrow6,editoptrow7,editoptrow9,seloptionrow,editoptrowcust');
 		},
 		buildTemplate: function(){
-			
-			Brick.namespace('Catalog.Element.temp');
 			
 			var ds = NS.data[this.mmPrefix];
 			var elTypeId = this.elTypeId;
@@ -96,114 +384,35 @@ Component.entryPoint = function(){
 			return lst;
 		},
 		buildRow: function(option, child){
-			if (!child && option['usedmulti']){ return ""; }
-			
-			var TM = this._TM, T = this._T, TId = this._TId,
-				ds = NS.data[this.mmPrefix];;
-
+			if (!child && option['usedmulti']){ return ''; }
 			var di = option.cell;
-			var i, lst = "", s, prm, list, j, lists, ss, tt;
-			prm = J.parse(di['prms']) || {};
-			
-			var rows = this.rows['eloption'];
+			var optType = di['fldtp'];
+			if (!NS.ElementOptionEditors[optType]){ return ''; }
 
-			switch (di['fldtp']){
-			case '0': s = T['editoptrow0']; break;
-			case '1': case '2': case '3':  s = T['editoptrow1']; break;
-			case '4':
-				s = TM.replace('editoptrow4', {
-					'list': (function(){
-						var lst = '', list = prm['val'].split('\n');
-						for (j=0;j<list.length;j++){
-							lst += TM.replace('seloptionrow', {
-								'id': j, 'tl': list[j]
-							});
-						}
-						return lst;
-					})()
-				});
-				break;
-			case '5':
-				var lst = '';
-				ds.get('eloptionfld').getRows({'eltpnm': this.elementTypeName, 'fldnm': di['nm']}).foreach(function(row){
-					lst += TM.replace('seloptionrow', {
-						'id': row.cell['id'],
-						'tl': row.cell['tl']
-					});
-				});
-				s = TM.replace('editoptrow5', {'list': lst});
-				break;
-			case '6':
-				list = prm['val'].split('\n');
-				for (j=0;j<list.length;j++){
-					var row = rows.get('nm', list[j]);
-					if (row){
-						lists += this.buildRow(row, true);
-					}
-				}					
-				s = TM.replace('editoptrow6', {'list': lst})
-				break;
-			case '7': s = T['editoptrow7']; break;
-			default: s = ''; break;
-			}
-			var tSetVar = Brick.util.Template.setProperty;
-			s = tSetVar(s, 'id', di['nm']);
-			s = tSetVar(s, 'title', di['tl']);
-
-			return s;
+			var widget = new NS.ElementOptionEditors[optType](this.mmPrefix, this.row, option);
+			this.widgets[di['id']] = widget;
+			return widget.buildTemplate();
 		},
 		onLoad: function(){
-			var TId = this._TId;
-			var element = this.row;
-			this.rows['eloption'].foreach(function(row){
-				var di = row.cell;
-				switch(di['fldtp']){
-				case '0': case '1': case '2': case '3': case '4': case '5': case '8':
-					var el = Dom.get(TId['_global']['opt']+'-'+di['nm']);
-					Brick.util.Form.setValue(el, element.cell['fld_'+di['nm']]);
-					break;
-				case '7': // прикрепляем визуальный редактор к текстовому полю
-					var edId = TId['_global']['opt']+'-'+di['nm'];
-					var el = Dom.get(edId);
-					var Editor = Brick.widget.Editor;
-					this._editors[edId] = new Editor(el, {
-						width: '600px', height: '450px', 'mode': Editor.MODE_VISUAL
-					});
-					Brick.util.Form.setValue(el, element.cell['fld_'+di['nm']]);
-					break;
-				}
-			}, this);
+			var wds = this.widgets;
+			for (var i in wds){ wds[i].onLoad(); }
 		},
 		save: function(){
-			var TId = this._TId;
-
-			var element = this.row;
-			var options = {};
-			this.rows['eloption'].foreach(function(row){
-				var di = row.cell;
-				
-				switch(di['fldtp']){
-				case '0': case '1': case '2': case '3': case '4': case '5': case '8':
-					var el = Dom.get(TId['_global']['opt']+'-'+di['nm']);
-					options['fld_'+di['nm']] = Brick.util.Form.getValue(el);
-					break;
-				case '7':
-					// Получаем данные из визуального редактора
-					var edId = TId['_global']['opt']+'-'+di['nm'];
-					var el = Dom.get(edId);
-					options['fld_'+di['nm']] = this._editors[edId].getContent();
-					break;
+			var wds = this.widgets;
+			for (var i in wds){ wds[i].save(); }
+		},
+		destroy: function(){
+			var wds = this.widgets;
+			for (var i in wds){ wds[i].destroy(); }
+		},
+		onClick: function(el){
+			var wds = this.widgets;
+			for (var i in wds){
+				if (wds[i].onClick(el)){
+					return true; 
 				}
-				if (di['fldtp']=='5'){
-					var newval = Brick.util.Form.getValue(Dom.get(TId['_global']['opt']+'-'+di['nm']+'-alt'));
-					if (newval.length > 0){
-						options['fld_'+di['nm']+'-alt'] = newval;
-						this.tables['eloptionfld'].getRows({'eltpnm': this.elementTypeName, 'fldnm': di['nm']}).clear();
-					}
-				}
-			}, this);
-
-			this.row.update(options);
+			}
+			return false;
 		}
 	};
 	
@@ -220,7 +429,6 @@ Component.entryPoint = function(){
 		this.callback = callback;
 		this.uploadWindow = null;
 		ElementEditorPanel.activeEditor = this;
-
 		
 		ElementEditorPanel.superclass.constructor.call(this,{
 			modal: true, fixedcenter: true,
@@ -232,17 +440,12 @@ Component.entryPoint = function(){
 	YAHOO.extend(ElementEditorPanel, Brick.widget.Panel, {
 		initTemplate: function(){
 		
-			buildTemplate(this, 'editor,editoptrowonload,fotoitem'); 
+			buildTemplate(this, 'editor,fotoitem'); 
 
-			var o = this.row.cell;
-			var ds = NS.data[this.mmPrefix];
-			var catElementId = 0;
-			var elementId = 0;
-			if (!this.row.isNew()){
-				catElementId = this.row.id;
-				elementId = o['elid'];
-			}
-
+			var o = this.row.cell,
+				ds = NS.data[this.mmPrefix],
+				elementId = !this.row.isNew() ? o['elid'] : 0;
+			
 			var fotos = {};
 			if (!this.row.isNew()){
 				ds.get('fotos').getRows({'elid': elementId}).foreach(function(row){
@@ -252,26 +455,27 @@ Component.entryPoint = function(){
 			this.fotos = fotos;
 			
 			o['eltid'] = o['eltid'] * 1;
-			this.optionsBase = new ElementEditorOptionBuilder(this.mmPrefix, this.row, 0);
+			this.optionsBase = new ElementOptionEditorBuilder(this.mmPrefix, this.row, 0);
 			this.optionsType = o['eltid'] > 0 ?
-				new ElementEditorOptionBuilder(this.mmPrefix, this.row, o['eltid']) : null;
+				new ElementOptionEditorBuilder(this.mmPrefix, this.row, o['eltid']) : null;
 
+			var eltype = ds.get('eltype').getRows().getById(o['eltid']);
 			return this._TM.replace('editor', {
 				'catalog': pathTitle(o['catid'], this.mmPrefix),
 				// 'eltype': L.isNull(eltype) ? '' : eltype.cell['tl'],
-				'eltype': 'TODO: modify',
+				'eltype': L.isNull(eltype) ? 'Базовый' : eltype.cell['tl'],
 				'options': this.optionsBase.buildTemplate() +
 					(L.isNull(this.optionsType) ? '' : this.optionsType.buildTemplate()) 
 			});
 		},
 		destroy: function(){
+			this.optionsBase.destroy();
 			ElementEditorPanel.activeEditor = null;
 			ElementEditorPanel.superclass.destroy.call(this);
 		},
 		el: function(name){ return Dom.get(this._TId['editor'][name]); },
 		elOnLoad: function(t, func){ func(t, tSetVar); },
 		onLoad: function(){
-			var TId = this._TId;
 			var element = this.row;
 			
 			this.optionsBase.onLoad();
@@ -283,17 +487,17 @@ Component.entryPoint = function(){
 			
 			this.catalogWidget = new NS.CatalogSelectWidget(this._TM.getEl('editor.catalog'), this.mmPrefix);
 			this.catalogWidget.setValue(element.cell['catid']);
-		},
-		onClose: function(){
-			// убиваем визуальный редактор
-			for (var nn in this._editors){
-				this._editors[nn].destroy();
-			}
+			NS.data[this.mmPrefix].request();
 		},
 		onClick: function(el){
 			var TId = this._TId;
 
 			var arr = el.id.split('-');
+			
+			if (this.optionsBase.onClick(el)){ return true; }
+			if (!L.isNull(this.optionsType)){
+				if (this.optionsType.onClick(el)){ return true; }
+			} 
 			
 			if (arr[0] == TId['fotoitem']['id']){
 				this.imageRemove(arr[1]);
@@ -311,9 +515,6 @@ Component.entryPoint = function(){
 			return false;
 		},
 		save: function(){
-			var TId = this._TId;
-
-			var element = this.row;
 			var options = {};
 
 			var afotos = [];
@@ -385,14 +586,12 @@ Component.entryPoint = function(){
 	
 	
 	/**
-	 * 
 	 * API модуля
-	 * 
 	 * @class API
 	 */
 	
 	/**
-	 * Редактировать элемент<br />
+	 * Редактировать элемент <br />
 	 * 
 	 * Пример вызова функции: 
 	 * <pre>
@@ -466,13 +665,16 @@ Component.entryPoint = function(){
 		};
 		
 		var loadOFV = function(){
-			var elType = tables['eltype'].getRows().getById(eltypeid);
-			var elTypeName = eltypeid > 0 ? elType.cell['nm'] : '';
-			var rows = tables['eloption'].getRows().filter({'eltid': eltypeid, 'fldtp': 5});
+			var rows = tables['eloption'].getRows().filter({'fldtp': 5});
+			
 			rows.foreach(function(row){
 				if (!tables['eloptionfld']){
 					tables['eloptionfld'] = ds.get('eloptionfld', true);
 				}
+
+				var fElTId = row.cell['eltid'];
+					elTypeName = fElTId > 0 ? tables['eltype'].getRows().getById(fElTId).cell['nm'] : '';
+				
 				tables['eloptionfld'].getRows({'eltpnm': elTypeName, 'fldnm': row.cell['nm']});
 			});
 			if (ds.isFill(tables)){
@@ -482,7 +684,7 @@ Component.entryPoint = function(){
 					showEditor();
 				});
 			}
-		}
+		};
 		if (ds.isFill(tables)){
 			loadOFV();
 		}else{

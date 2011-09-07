@@ -7,9 +7,6 @@
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 */
 
-$mod = new CatalogModule();
-CMSRegistry::$instance->modules->Register($mod);
-
 class CatalogModule extends CMSModule {
 	
 	/**
@@ -39,7 +36,7 @@ class CatalogModule extends CMSModule {
 	
 	
 	function __construct(){
-		$this->version = "0.2.2"; 
+		$this->version = "0.2.3"; 
 		$this->name = "catalog";
 		$this->takelink = "catalogbase";
 		
@@ -232,38 +229,7 @@ class CatalogQueryExt {
 	}
 }
 
-/*
-class CMSCatalogMan {
-	
-	public static function ImageUpload($elementId, $files){
-		
-		$modCatalog = Brick::$modules->GetModule('catalog');
-		$modMan = $modCatalog->currentModMan;
-		$modFM = Brick::$modules->GetModule('filemanager');
-		$db = CMSRegistry::$instance->db;
-		CatalogQuery::PrefixSet($db, $modMan->catinfo['dbprefix']);
-		$upload = $modFM->GetUpload();
-		
-		$arr = array();
-		foreach ($files as $file){
-			if (!file_exists($file)){ continue; } 
-			
-			$filename = basename($file);
-			$tarr = explode('.', $filename);
-			$ext = $tarr[count($tarr)-1];
-			
-			$errornum = $upload->UploadSystemFile($file, $filename, $ext, filesize($file));
-			if (empty($errornum)){
-				array_push($arr, $upload->lastUploadFileHash);
-			}
-		}
-		if (empty($arr)){ return; }
-		
-		CatalogQuery::FotoAppend($db, $elementId, $arr);
-	}
-	
-}
-/**/
-
+$mod = new CatalogModule();
+CMSRegistry::$instance->modules->Register($mod);
 
 ?>

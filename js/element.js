@@ -11,9 +11,7 @@
  */
 var Component = new Brick.Component();
 Component.requires = {
-	yahoo: ['json'],
 	mod:[
-	     {name: 'sys', files: ['form.js','data.js','container.js']},
 	     {name: 'catalog', files: ['eleditor.js']}
     ]
 };
@@ -179,5 +177,92 @@ Component.entryPoint = function(){
 	};
 	
 	NS.ElementManagerWidget = ElementManagerWidget;
+
+	var pathTitle = function(catalogid, mmPrefix){
+		var get = function(id){
+			var row = NS.data[mmPrefix].get('catalog').getRows().getById(id);
+			if (L.isNull(row)){ return ''; }
+			var d = row.cell;
+			var ret = d['tl'];
+			if (d['pid']>0){
+				ret = get(d['pid'])+' / '+ret;
+			}
+			return ret;
+		};
+		return get(catalogid);
+	};
 	
+	var ElementSelectPanel = function(mmPrefix, callback){
+		this.mmPrefix = mmPrefix;
+		this.callback = callback;
+		
+		ElementSelectPanel.superclass.constructor.call(this,{
+			modal: true, fixedcenter: true, overflow: true,
+			width: '600px', height: '400px'
+		});
+	};
+	YAHOO.extend(ElementSelectPanel, Brick.widget.Panel, {
+		initTemplate: function(){
+			buildTemplate(this, 'selpanel,seltable,selrow,selrowwait');
+			return this._TM.replace('selpanel');
+		},
+		onLoad: function(){
+			var ds = NS.data[this.mmPrefix];
+			this.tables = new Brick.mod.sys.TablesManager(ds, ['catalog','catelements'], {'owner': this});
+			this.tables.setParam('catelements', {'catid': -1});
+			this.tables.request();
+		},
+		destroy: function(){
+			this.tables.destroy();
+			ElementSelectPanel.superclass.destroy.call(this);
+		},
+		onDataLoadWait: function(tables){
+			var TM = this._TM;
+			TM.getEl('selpanel.table').innerHTML = TM.replace('seltable', {'rows': this._T['selrowwait']});
+		},
+		onDataLoadComplete: function(tables){
+			var TM = this._TM, lst = "";
+			var pfx = this.mmPrefix;
+			
+			tables.foreach('catelements', function(row){
+				var di = row.cell;
+				lst += TM.replace('selrow', {
+					'id': di['id'],
+					'tl': di['tl'],
+					'cat': pathTitle(di['catid'], pfx)
+				});
+			}, {'catid': -1});
+			
+			TM.getEl('selpanel.table').innerHTML = TM.replace('seltable', {'rows': lst});
+		}, 
+		onClick: function(el){
+			var TId = this._TId;
+			var prefix = el.id.replace(/([0-9]+$)/, '');
+			var numid = el.id.replace(prefix, "");
+
+			switch(prefix){
+			case (TId['selrow']['sel']+'-'):
+			case (TId['selrow']['selb']+'-'):
+				this.selectElement(numid);
+				return true;
+			}
+		
+			return false;
+		},
+		selectElement: function(numid){
+			var row = this.tables.get('catelements').getRows({'catid': -1}).getById(numid);
+			if (L.isNull(row)){ return; }
+			
+			if (L.isFunction(this.callback)){
+				this.callback(row.cell);
+			}
+			this.close();
+		}
+	});
+	
+	NS.ElementSelectPanel = ElementSelectPanel;
+	
+	API.showElementSelectPanel = function(mmPrefix, callback){
+		new ElementSelectPanel(mmPrefix, callback);
+	};
 };

@@ -48,6 +48,7 @@ class CatalogQuery {
 		$fields = array();
 		$rows = CatalogQuery::ElementOptionListByType($db, 0, true);
 		foreach ($rows as $row){
+			if ($row['fldtp'] == 9){ continue; }
 			array_push($fields, "a.fld_".$row['nm']);
 		}
 
@@ -63,6 +64,7 @@ class CatalogQuery {
 			
 			$rows = CatalogQuery::ElementOptionListByType($db, $elTypeId, true);
 			foreach ($rows as $row){
+				if ($row['fldtp'] == 9){ continue; }
 				array_push($fields, "b.fld_".$row['nm']);
 			}
 		}
@@ -108,7 +110,16 @@ class CatalogQuery {
 		}
 		$arr = array();
 		foreach ($catalogId as $cid){
-			array_push($arr, "catalogid=".bkint($cid));
+			if ($cid < 0){
+				array_push($arr, "1=1");
+				
+				if (empty($custOrder)){
+					$custOrder = " catalogid, title";
+				}
+				
+			}else{
+				array_push($arr, "catalogid=".bkint($cid));
+			}
 		}
 		$sql = "
 			SELECT
@@ -120,7 +131,7 @@ class CatalogQuery {
 				name as nm,
 				deldate as dd
 				".(!empty($overFields) ? ", ".$overFields : "")."
-			FROM ".CatalogQuery::$PFX."element
+			FROM ".CatalogQuery::$PFX."element 
 			WHERE ".bkstr(empty($custWhere) ? implode(" OR ", $arr) : $custWhere)."
 			ORDER BY ".bkstr(empty($custOrder) ? "dateline DESC" : $custOrder)."
 			LIMIT ".$from.",".bkint($limit)."
@@ -199,10 +210,27 @@ class CatalogQuery {
 			return $elementid;
 		}
 		
+		// добавление ссылок на элементы базового типа
+		foreach ($dobj->childs as $key => $value){
+			$arr = explode(",", $value);
+			foreach ($arr as $selid){
+				CatalogQuery::LinkElementAppend($db, $elementid, $key, $selid);
+			}
+		}
+		
 		// добавить дополнительные поля, если тип элемента не базовый
 		$dobj = CatalogQuery::ElementBuildVars($db, $data, $elTypeId);
 		$sfields = ""; $svalues = ""; 
 		$fields = $dobj->fields; $values = $dobj->values;
+		
+		// добавление ссылок на элементы
+		foreach ($dobj->childs as $key => $value){
+			$arr = explode(",", $value);
+			foreach ($arr as $selid){
+				CatalogQuery::LinkElementAppend($db, $elementid, $key, $selid);
+			}
+		}
+		
 		
 		if (!empty($fields)){
 			$sfields = ",".implode(",", $fields);
@@ -321,12 +349,48 @@ class CatalogQuery {
 				$elTableName = CatalogQuery::BuildElementTableName($row['nm']);
 				$sql = "
 					DELETE FROM ".$elTableName."
-					WHERE ".$row['nm']."id=".$row['elid']."
+					WHERE elementid=".$row['elid']."
 				";
 				$db->query_write($sql);
 			}
 		}
 		$sql = "DELETE FROM ".CatalogQuery::$PFX."element WHERE deldate>0";
+		$db->query_write($sql);
+	}
+	
+	public static function LinkElementList(CMSDatabase $db, $elementId, $optionId){
+		$sql = "
+			SELECT 
+				l.linkid as id,
+				l.childid as elid,
+				l.ord as ord,
+				e.name as nm,
+				e.title as tl 
+			FROM ".CatalogQuery::$PFX."link l
+			LEFT JOIN ".CatalogQuery::$PFX."element e ON l.childid=e.elementid
+			WHERE l.elementid=".bkint($elementId)." AND optionid=".bkint($optionId)."
+		";
+		return $db->query_read($sql);
+	}
+	
+	public static function LinkElementAppend(CMSDatabase $db, $elementId, $optionId, $childid){
+		$sql = "
+			INSERT IGNORE INTO ".CatalogQuery::$PFX."link
+			(elementid, optionid, childid) VALUES (
+				'".bkint($elementId)."',
+				'".bkint($optionId)."',
+				'".bkint($childid)."'
+			)
+		";
+		$db->query_write($sql);
+		return $db->insert_id();
+	}
+	
+	public static function LinkElementRemove(CMSDatabase $db, $elementId, $optionId, $childid){
+		$sql = "
+			DELETE FROM ".CatalogQuery::$PFX."link
+			WHERE elementid='".bkint($elementId)."' AND optionid='".bkint($optionId)."' AND childid='".bkint($childid)."'
+		";
 		$db->query_write($sql);
 	}
 	
@@ -423,15 +487,17 @@ class CatalogQuery {
 	public static function FotoAppend(CMSDatabase $db, $elementid, $fileids){
 		if (empty($fileids)){ return; }
 		$arr = array();
+		$i = 0;
 		foreach ($fileids as $fileid){
 			array_push($arr, "(
 				".intval($elementid).",
-				'".addslashes($fileid)."'
+				'".addslashes($fileid)."',
+				".($i++)."
 			)");
 		}
 		$sql = "
 			INSERT INTO ".CatalogQuery::$PFX."foto
-			(elementid, fileid) VALUES 
+			(elementid, fileid, ord) VALUES 
 			".implode($arr, ',')."
 		";
 		$db->query_write($sql);
@@ -446,7 +512,7 @@ class CatalogQuery {
 				ord
 			FROM ".CatalogQuery::$PFX."foto
 			WHERE elementid=".intval($elementid)."
-			ORDER BY fotoid 
+			ORDER BY ord
 		";
 		return $db->query_read($sql);
 	}
@@ -460,7 +526,7 @@ class CatalogQuery {
 				ord
 			FROM ".CatalogQuery::$PFX."foto
 			WHERE elementid=".intval($elementid)."
-			ORDER BY fotoid
+			ORDER BY ord
 			LIMIT 1 
 		";
 		return $db->query_first($sql);
@@ -497,6 +563,7 @@ class CatalogQuery {
 			FROM ".CatalogQuery::$PFX."foto f
 			INNER JOIN ".$db->prefix."fm_file s ON f.fileid = s.filehash
 			WHERE f.elementid=".intval($elementid)."
+			ORDER BY f.ord
 			".($limit > 0 ? ("LIMIT ".$limit) : "")."
 		";
 		return $db->query_read($sql);
@@ -517,6 +584,7 @@ class CatalogQuery {
 	const OPTIONTYPE_MULTI = 6;
 	const OPTIONTYPE_TEXT = 7;
 	const OPTIONTYPE_DICT = 8;
+	const OPTIONTYPE_CHILDELEMENT = 9;
 	
 	private static function ElementBuildVars(CMSDatabase $db, $data, $elTypeId){
 		$eltype = CatalogQuery::ElementTypeById($db, $elTypeId);
@@ -527,7 +595,7 @@ class CatalogQuery {
 		$ret->idfield = $eltype['nm']."id";
 		$ret->table = CatalogQuery::BuildElementTableName($eltype['nm']);
 		
-		$fields = array(); $values = array(); $elnamevals = array();
+		$fields = array(); $values = array(); $elnamevals = array(); $childs = array();
 		$objVars = get_object_vars($data);
 		// формирование списка полей и их значений
 		while (($row = $db->fetch_array($rows))){
@@ -558,18 +626,26 @@ class CatalogQuery {
 					array_push($fields, $fdbname);
 					array_push($values, bkint($data->$fdbname));
 					break;
+				case CatalogQuery::OPTIONTYPE_CHILDELEMENT:
+					$childs[$row['id']] = $data->$fdbname;
+					break;
 			}
 			if (!empty($row['ets'])){
 				if($row['fldtp'] == CatalogQuery::OPTIONTYPE_TABLE){
 					$row = CatalogQuery::ElementOptionFieldTableValue($db, $eltype['nm'],  $row['nm'], $data->$fdbname);
-					array_push($elnamevals, $row['tl']);
+					if(!empty($row['tl'])){
+						array_push($elnamevals, $row['tl']);
+					}
 				}else{
-					array_push($elnamevals, $data->$fdbname);
+					if (!empty($data->$fdbname)){
+						array_push($elnamevals, $data->$fdbname);
+					}
 				}
 			}
 		}
 		$ret->fields = $fields;
 		$ret->values = $values;
+		$ret->childs = $childs;
 		$ret->stitle = "";
 		$ret->sname = "";
 		
@@ -833,6 +909,7 @@ class CatalogQuery {
 				CatalogQuery::ElementOptionFieldTableCreate($db, $data->eltypenm, $data->nm);
 				break;
 			case CatalogQuery::OPTIONTYPE_MULTI:
+			case CatalogQuery::OPTIONTYPE_CHILDELEMENT:
 				return;
 			case CatalogQuery::OPTIONTYPE_TEXT:
 				$sql .= "TEXT NOT NULL ";
