@@ -26,8 +26,8 @@ $errors = array();
 for ($i=0; $i<6; $i++){
 	
 	$uploadFile = FileManagerModule::$instance->GetManager()->CreateUploadByVar('file'.$i);
-	$uploadFile->maxImageWidth = 1024;
-	$uploadFile->maxImageHeight = 768;
+	// $uploadFile->maxImageWidth = 1024;
+	// $uploadFile->maxImageHeight = 768;
 	$uploadFile->ignoreFileSize = true;
 	$uploadFile->isOnlyImage = true;
 	$uploadFile->folderPath = "system/".date("d.m.Y", TIMENOW);
