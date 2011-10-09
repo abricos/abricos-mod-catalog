@@ -197,11 +197,11 @@ Component.entryPoint = function(){
 		this.callback = callback;
 		
 		ElementSelectPanel.superclass.constructor.call(this,{
-			modal: true, fixedcenter: true, overflow: true,
+			overflow: true,
 			width: '600px', height: '400px'
 		});
 	};
-	YAHOO.extend(ElementSelectPanel, Brick.widget.Panel, {
+	YAHOO.extend(ElementSelectPanel, Brick.widget.Dialog, {
 		initTemplate: function(){
 			buildTemplate(this, 'selpanel,seltable,selrow,selrowwait');
 			return this._TM.replace('selpanel');

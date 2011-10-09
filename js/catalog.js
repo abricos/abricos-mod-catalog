@@ -182,10 +182,10 @@ Component.entryPoint = function(){
 		this.mmPrefix = mmPrefix;
 		this.row = row;
 		CatalogEditor.superclass.constructor.call(this,{
-			modal: true, fixedcenter: true, width: '750px'
+			width: '750px'
 		});
 	};
-	YAHOO.extend(CatalogEditor, Brick.widget.Panel, {
+	YAHOO.extend(CatalogEditor, Brick.widget.Dialog, {
 		initTemplate: function(){
 			buildTemplate(this, 'editor,image');
 			return this._T['editor'];
@@ -276,11 +276,9 @@ Component.entryPoint = function(){
 	var CatalogRemoveMsg = function(row, callback){
 		this.row = row;
 		this.callback = callback;
-		CatalogRemoveMsg.superclass.constructor.call(this, {
-			modal: true, fixedcenter: true
-		});
+		CatalogRemoveMsg.superclass.constructor.call(this);
 	};
-	YAHOO.extend(CatalogRemoveMsg, Brick.widget.Panel, {
+	YAHOO.extend(CatalogRemoveMsg, Brick.widget.Dialog, {
 		initTemplate: function(){
 			var TM = TMG.build('itemremovemsg'), T = TM.data, TId = TM.idManager;
 			this._TM = TM; this._T = T; this._TId = TId;

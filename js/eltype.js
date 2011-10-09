@@ -188,11 +188,9 @@ Component.entryPoint = function(){
 		this.mmPrefix = mmPrefix;
 		this.row = row;
 		this.callback = callback;
-		ElementTypeEditorPanel.superclass.constructor.call(this, {
-			modal: true, fixedcenter: true
-		});
+		ElementTypeEditorPanel.superclass.constructor.call(this);
 	};
-	YAHOO.extend(ElementTypeEditorPanel, Brick.widget.Panel, {
+	YAHOO.extend(ElementTypeEditorPanel, Brick.widget.Dialog, {
 		initTemplate: function(){
 			buildTemplate(this, 'editor');
 			return this._TM.replace('editor');

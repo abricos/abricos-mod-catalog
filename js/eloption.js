@@ -174,11 +174,9 @@ Component.entryPoint = function(){
 	var OptionEditorPanel = function(row, mmPrefix){
 		this.mmPrefix = mmPrefix;
 		this.row = row;
-		OptionEditorPanel.superclass.constructor.call(this, {
-			modal: true, fixedcenter: true
-		});
+		OptionEditorPanel.superclass.constructor.call(this);
 	};
-	YAHOO.extend(OptionEditorPanel, Brick.widget.Panel, {
+	YAHOO.extend(OptionEditorPanel, Brick.widget.Dialog, {
 		initTemplate: function(){
 		
 			buildTemplate(this, 'editor,custfuncinsrow,custfunccount,custfunc0,custfuncinp0,custfunconld0,custfunc1,custfuncinp1,custfunconld1');

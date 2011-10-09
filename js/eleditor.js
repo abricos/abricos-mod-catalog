@@ -431,13 +431,12 @@ Component.entryPoint = function(){
 		ElementEditorPanel.activeEditor = this;
 		
 		ElementEditorPanel.superclass.constructor.call(this,{
-			modal: true, fixedcenter: true,
 			overflow: true,
 			width: '790px',
 			height: '400px'
 		});
 	};
-	YAHOO.extend(ElementEditorPanel, Brick.widget.Panel, {
+	YAHOO.extend(ElementEditorPanel, Brick.widget.Dialog, {
 		initTemplate: function(){
 		
 			buildTemplate(this, 'editor,fotoitem'); 
