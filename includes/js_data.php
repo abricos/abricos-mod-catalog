@@ -6,8 +6,8 @@
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 */
 
-$mod = Brick::$modules->GetModule('sys');
-$modCatalog = Brick::$modules->GetModule('catalog'); 
+$mod = Abricos::GetModule('sys');
+$modCatalog = Abricos::GetModule('catalog'); 
 $manager = $modCatalog->GetManager();
 $ds = $mod->getDataSet();
 $modCatalog->SetModuleManager($ds->pfx);

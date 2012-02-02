@@ -18,10 +18,10 @@ require_once 'dbquery.php';
  * 
  * Например, для модуля EShop:
  * <pre> 
- *  CatalogQuery::PrefixSet(CMSRegistry::$instance->db, 'eshp');
+ *  CatalogQuery::PrefixSet(Abricos::$db, 'eshp');
  * </pre>
  */
-class CatalogManager extends ModuleManager {
+class CatalogManager extends Ab_ModuleManager {
 	
 	/**
 	 * Основной класс модуля
@@ -30,20 +30,10 @@ class CatalogManager extends ModuleManager {
 	 */
 	public $module = null;
 	
-	/**
-	 * User
-	 * @var User
-	 */
-	private $user = null;
-	private $userid = 0;
-	
 	private $_disableRole = false;
 	
-	public function CatalogManager(CatalogModule $module){
-		parent::ModuleManager($module);
-		
-		$this->user = CMSRegistry::$instance->modules->GetModule('user');
-		$this->userid = $this->user->info['userid'];
+	public function __construct(CatalogModule $module){
+		parent::__construct($module);
 	}
 	
 	/**
@@ -60,7 +50,7 @@ class CatalogManager extends ModuleManager {
 	 */
 	public function IsAdminRole(){
 		if ($this->_disableRole){ return true; }
-		return $this->module->permission->CheckAction(CatalogAction::ADMIN) > 0;
+		return $this->IsRoleEnable(CatalogAction::ADMIN);
 	}
 	
 	/**
@@ -69,7 +59,7 @@ class CatalogManager extends ModuleManager {
 	 */
 	public function IsWriteRole(){
 		if ($this->_disableRole){ return true; }
-		return $this->module->permission->CheckAction(CatalogAction::WRITE) > 0;
+		return $this->IsRoleEnable(CatalogAction::WRITE);
 	}
 	
 	/**
@@ -78,7 +68,7 @@ class CatalogManager extends ModuleManager {
 	 */
 	public function IsViewRole(){
 		if ($this->_disableRole){ return true; }
-		return $this->module->permission->CheckAction(CatalogAction::VIEW) > 0;
+		return $this->IsRoleEnable(CatalogAction::VIEW);
 	}
 	
 	/**
@@ -416,7 +406,7 @@ class CatalogManager extends ModuleManager {
 		if (empty($row)){ 
 			$tablefind = false;
 			$rows = CatalogQuery::TableList($db);
-			while (($row = $db->fetch_array($rows, CMSDatabase::DBARRAY_NUM))){
+			while (($row = $db->fetch_array($rows, Ab_Database::DBARRAY_NUM))){
 				if ($row[0] == ($db->prefix."ctg_eltbl_".$d->nm)){
 					$tablefind = true;
 					break;
@@ -590,7 +580,7 @@ class CatalogManager extends ModuleManager {
 		if (empty($d->grp) && !empty($d->grpalt)){
 			$d->grp = CatalogQuery::ElementOptGroupAppend($this->db, $d->eltid, $d->grpalt, '');
 		}
-		$db = CMSRegistry::$instance->db;
+		$db = Abricos::$db;
 		$error = false;
 		$prms = json_decode($d->prms);
 		$d->fldtp = intval($d->fldtp);
@@ -631,7 +621,7 @@ class CatalogManager extends ModuleManager {
 			// если это опция - тип таблица
 			if (!$fieldfind && $d->fldtp == CatalogQuery::OPTIONTYPE_TABLE){
 				$rows = CatalogQuery::TableList($db);
-				while (($row = $db->fetch_array($rows, CMSDatabase::DBARRAY_NUM))){
+				while (($row = $db->fetch_array($rows, Ab_Database::DBARRAY_NUM))){
 					if ($row[0] == ($db->prefix."ctg_eltbl_".$eltype['nm']."_fld_".$d->nm)){
 						$fieldfind = true;
 						break;

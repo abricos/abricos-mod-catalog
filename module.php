@@ -7,7 +7,7 @@
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 */
 
-class CatalogModule extends CMSModule {
+class CatalogModule extends Ab_Module {
 	
 	/**
 	 * Upload Status: 0 - session, 1 - id
@@ -36,7 +36,7 @@ class CatalogModule extends CMSModule {
 	
 	
 	function __construct(){
-		$this->version = "0.2.3"; 
+		$this->version = "0.2.4"; 
 		$this->name = "catalog";
 		$this->takelink = "catalogbase";
 		
@@ -115,9 +115,9 @@ class CatalogModule extends CMSModule {
 	/**
 	 * Регистрация модуля "паразита"
 	 *
-	 * @param CMSModule $modman
+	 * @param Ab_Module $modman
 	 */
-	public function Register(CMSModule $modman){
+	public function Register(Ab_Module $modman){
 		$this->currentModMan = $modman;
 		$this->UpdateModMan();
 		if (empty($this->modManInfo[$modman->name])){
@@ -137,8 +137,7 @@ class CatalogModule extends CMSModule {
 			'version' => $info['vs']
 		);
 		
-		$this->updateShemaModule = new CMSUpdateManager($modman, $modInfo);
-		
+		$this->updateShemaModule = new Ab_UpdateManager($modman, $modInfo);
 		require(CWD."/modules/catalog/includes/shema_mod.php");
 		CatalogQueryExt::ModuleManagerUpdate($this->registry->db, $info['id'], $this->version);
 		$this->updateShemaModule = null;
@@ -194,7 +193,7 @@ class CatalogPermission extends CMSPermission {
 }
 
 class CatalogQueryExt {
-	public static function ModuleManagerUpdate(CMSDatabase $db, $modmanid, $version){
+	public static function ModuleManagerUpdate(Ab_Database $db, $modmanid, $version){
 		$sql = "
 			UPDATE ".$db->prefix."ctg_module
 			SET
@@ -204,7 +203,7 @@ class CatalogQueryExt {
 		$db->query_write($sql);
 	}
 	
-	public static function ModuleManagerAppend(CMSDatabase $db, CMSModule $modman){
+	public static function ModuleManagerAppend(Ab_Database $db, Ab_Module $modman){
 		$sql = "
 			INSERT INTO ".$db->prefix."ctg_module
 			(name, dbprefix, version) VALUES (
@@ -216,7 +215,7 @@ class CatalogQueryExt {
 		$db->query_write($sql);
 	}
 	
-	public static function ModuleManagerList(CMSDatabase $db){
+	public static function ModuleManagerList(Ab_Database $db){
 		$sql = "
 			SELECT 
 				moduleid as id,
@@ -229,7 +228,6 @@ class CatalogQueryExt {
 	}
 }
 
-$mod = new CatalogModule();
-CMSRegistry::$instance->modules->Register($mod);
+Abricos::ModuleRegister(new CatalogModule());
 
 ?>

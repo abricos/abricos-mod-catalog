@@ -7,12 +7,11 @@
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 */
 
-$cms = CMSRegistry::$instance;
 $charset = "CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'";
-$modCatalog = $cms->modules->GetModule('catalog');
+$modCatalog = Abricos::GetModule('catalog');
 $updateManager = $modCatalog->updateShemaModule;
-$db = CMSRegistry::$instance->db;
-$pfx = $cms->db->prefix."ctg_".$updateManager->module->catinfo['dbprefix']."_";
+$db = Abricos::$db;
+$pfx = Abricos::$db->prefix."ctg_".$updateManager->module->catinfo['dbprefix']."_";
 
 if ($updateManager->isInstall()){
 	

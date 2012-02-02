@@ -18,7 +18,7 @@
  */
 class CatalogQuery {
 	
-	public static function CatalogList(CMSDatabase $db, $extFields = ""){
+	public static function CatalogList(Ab_Database $db, $extFields = ""){
 		$sql = "
 			SELECT
 				".CatalogQuery::FIELD_CATALOGLIST." 
@@ -33,7 +33,7 @@ class CatalogQuery {
 	 * 
 	 * @var int $elementId идентификатор элемента в таблице элементов каталога (element)
 	 */
-	public static function Element(CMSDatabase $db, $elementId, $retarray = false, $elTypeId = -1){
+	public static function Element(Ab_Database $db, $elementId, $retarray = false, $elTypeId = -1){
 		if ($elTypeId < 0){
 			$sql = "
 				SELECT eltypeid as eltid
@@ -98,11 +98,11 @@ class CatalogQuery {
 	/**
 	 * Получить список элементов в каталоге
 	 *
-	 * @param CMSDatabase $db
+	 * @param Ab_Database $db
 	 * @param Integer|array $catalogId
 	 * @return resource
 	 */
-	public static function ElementList(CMSDatabase $db, $catalogId, $page = 1, $limit = 10, $custWhere = '', $custOrder = '', $overFields = ''){
+	public static function ElementList(Ab_Database $db, $catalogId, $page = 1, $limit = 10, $custWhere = '', $custOrder = '', $overFields = ''){
 		$from = $limit * (max(1, $page) - 1);
 		
 		if (!is_array($catalogId)){
@@ -139,7 +139,7 @@ class CatalogQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function ElementCount(CMSDatabase $db, $catalogId){
+	public static function ElementCount(Ab_Database $db, $catalogId){
 		if (!is_array($catalogId)){
 			$catalogId = array($catalogId);
 		}
@@ -163,10 +163,10 @@ class CatalogQuery {
 	 * 1) добавить элемент в свою таблицу элементов (ctg_eltbl_[имя типа элемента]);
 	 * 2) добавить элемент в таблицу элементов каталога (ctg_element)
 	 *
-	 * @param CMSDatabase $db
+	 * @param Ab_Database $db
 	 * @param object $data данные
 	 */
-	public static function ElementAppend(CMSDatabase $db, $data){
+	public static function ElementAppend(Ab_Database $db, $data){
 		
 		// первым делом добавить базовый элемент
 		$dobj = CatalogQuery::ElementBuildVars($db, $data, 0);
@@ -248,7 +248,7 @@ class CatalogQuery {
 		return $elementid;
 	}
 	
-	public static function ElementUpdate(CMSDatabase $db, $data, $fullUpdate = true){
+	public static function ElementUpdate(Ab_Database $db, $data, $fullUpdate = true){
 		
 		$dobj = CatalogQuery::ElementBuildVars($db, $data, 0);
 		$fields = $dobj->fields; $values = $dobj->values;
@@ -310,7 +310,7 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 
-	public static function ElementRemove(CMSDatabase $db, $elementId){
+	public static function ElementRemove(Ab_Database $db, $elementId){
 		$sql = "
 			UPDATE ".CatalogQuery::$PFX."element
 			SET deldate=".TIMENOW."
@@ -319,14 +319,14 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function ElementRestore(CMSDatabase $db, $elementId){
+	public static function ElementRestore(Ab_Database $db, $elementId){
 		$sql = "
 			UPDATE ".CatalogQuery::$PFX."element SET deldate=0 WHERE  elementid=".bkint($elementId)."
 		";
 		$db->query_write($sql);
 	}
 	
-	public static function ElementRemoveAll(CMSDatabase $db, $catalogid){
+	public static function ElementRemoveAll(Ab_Database $db, $catalogid){
 		$sql = "
 			UPDATE ".CatalogQuery::$PFX."element
 			SET deldate=".TIMENOW."
@@ -335,7 +335,7 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function ElementRecycleClear(CMSDatabase $db){
+	public static function ElementRecycleClear(Ab_Database $db){
 		$sql = "
 			SELECT a.elementid as elid, b.name as nm, a.eltypeid as eltid
 			FROM ".CatalogQuery::$PFX."element a
@@ -358,7 +358,7 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function LinkElementList(CMSDatabase $db, $elementId, $optionId){
+	public static function LinkElementList(Ab_Database $db, $elementId, $optionId){
 		$sql = "
 			SELECT 
 				l.linkid as id,
@@ -373,7 +373,7 @@ class CatalogQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function LinkElementAppend(CMSDatabase $db, $elementId, $optionId, $childid){
+	public static function LinkElementAppend(Ab_Database $db, $elementId, $optionId, $childid){
 		$sql = "
 			INSERT IGNORE INTO ".CatalogQuery::$PFX."link
 			(elementid, optionid, childid) VALUES (
@@ -386,7 +386,7 @@ class CatalogQuery {
 		return $db->insert_id();
 	}
 	
-	public static function LinkElementRemove(CMSDatabase $db, $elementId, $optionId, $childid){
+	public static function LinkElementRemove(Ab_Database $db, $elementId, $optionId, $childid){
 		$sql = "
 			DELETE FROM ".CatalogQuery::$PFX."link
 			WHERE elementid='".bkint($elementId)."' AND optionid='".bkint($optionId)."' AND childid='".bkint($childid)."'
@@ -394,7 +394,7 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function SessionAppend(CMSDatabase $db, $sessionid, $data){
+	public static function SessionAppend(Ab_Database $db, $sessionid, $data){
 		$sql = "
 			INSERT INTO ".CatalogQuery::$PFX."session
 			(session, data) VALUES (
@@ -405,7 +405,7 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function SessionRemove(CMSDatabase $db, $sessionid){
+	public static function SessionRemove(Ab_Database $db, $sessionid){
 		$sql = "
 			DELETE FROM ".CatalogQuery::$PFX."session
 			WHERE session='".addslashes($sessionid)."'
@@ -413,7 +413,7 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function Session(CMSDatabase $db, $sessionid){
+	public static function Session(Ab_Database $db, $sessionid){
 		$sql = "
 			SELECT *
 			FROM ".CatalogQuery::$PFX."session
@@ -422,7 +422,7 @@ class CatalogQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function Foto(CMSDatabase $db, $fotoid){
+	public static function Foto(Ab_Database $db, $fotoid){
 		$sql = "
 			SELECT *
 			FROM ".CatalogQuery::$PFX."foto
@@ -435,7 +435,7 @@ class CatalogQuery {
 	/**
 	 * Удаление фотографии
 	 */
-	public static function FotoRemove(CMSDatabase $db, $fotoid){
+	public static function FotoRemove(Ab_Database $db, $fotoid){
 		$foto = CatalogQuery::Foto($db, $fotoid);
 		$sql = "
 			DELETE FROM ".CatalogQuery::$PFX."foto
@@ -443,14 +443,14 @@ class CatalogQuery {
 		";
 		$db->query_write($sql);
 		
-		CMSRegistry::$instance->modules->GetModule('filemanager')->GetFileManager();
+		Abricos::GetModule('filemanager')->GetFileManager();
 		CMSQFileManager::FileDelete($db, $foto['fileid']);
 	}
 
 	/**
 	 * Удаление всех фотографий элемента
 	 */
-	public static function FotoListRemove(CMSDatabase $db, $elementid){
+	public static function FotoListRemove(Ab_Database $db, $elementid){
 		$files = array();
 		
 		$rows = CatalogQuery::FotoList($db, $elementid);
@@ -463,11 +463,11 @@ class CatalogQuery {
 		";
 		$db->query_write($sql);
 		
-		CMSRegistry::$instance->modules->GetModule('filemanager')->GetManager();
+		Abricos::GetModule('filemanager')->GetManager();
 		CMSQFileManager::FilesDelete($db, $files);
 	}
 	
-	public static function FotosSync(CMSDatabase $db, $elementid, $sfids){
+	public static function FotosSync(Ab_Database $db, $elementid, $sfids){
 		$afotos = explode(",", $sfids);
 		$rows = CatalogQuery::FotoList($db, $elementid);
 		while (($row = $db->fetch_array($rows))){
@@ -484,7 +484,7 @@ class CatalogQuery {
 		}
 	}
 	
-	public static function FotoAppend(CMSDatabase $db, $elementid, $fileids){
+	public static function FotoAppend(Ab_Database $db, $elementid, $fileids){
 		if (empty($fileids)){ return; }
 		$arr = array();
 		$i = 0;
@@ -503,7 +503,7 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function FotoList(CMSDatabase $db, $elementid) {
+	public static function FotoList(Ab_Database $db, $elementid) {
 		$sql = "
 			SELECT 
 				fotoid as id,
@@ -517,7 +517,7 @@ class CatalogQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function FotoFirst(CMSDatabase $db, $elementid){
+	public static function FotoFirst(Ab_Database $db, $elementid){
 		$sql = "
 			SELECT 
 				fotoid as id,
@@ -536,14 +536,14 @@ class CatalogQuery {
 	 * Получить информацию по первой фото товара и при этом проверить, есть ли уже 
 	 * сформированная превьюшка на эту картинку.
 	 * 
-	 * @param CMSDatabase $db
+	 * @param Ab_Database $db
 	 * @param integer $eltypeid
 	 * @param integer $elementid
 	 * @param integer $width
 	 * @param integer $height
 	 * @param integer $limit ограничение, если 0 (по умолчанию) то ограничений нет
 	 */
-	public static function FotoListThumb(CMSDatabase $db, $elementid, $width, $height, $limit = 0){
+	public static function FotoListThumb(Ab_Database $db, $elementid, $width, $height, $limit = 0){
 		$sql = "
 			SELECT 
 				f.fotoid as id,
@@ -571,7 +571,7 @@ class CatalogQuery {
 
 
 	public static $PFX = "";
-	public static function PrefixSet(CMSDatabase $db, $mmPrefix){
+	public static function PrefixSet(Ab_Database $db, $mmPrefix){
 		CatalogQuery::$PFX = $db->prefix."ctg_".$mmPrefix."_";
 	}
 	
@@ -586,7 +586,7 @@ class CatalogQuery {
 	const OPTIONTYPE_DICT = 8;
 	const OPTIONTYPE_CHILDELEMENT = 9;
 	
-	private static function ElementBuildVars(CMSDatabase $db, $data, $elTypeId){
+	private static function ElementBuildVars(Ab_Database $db, $data, $elTypeId){
 		$eltype = CatalogQuery::ElementTypeById($db, $elTypeId);
 		
 		$rows = CatalogQuery::ElementOptionListByType($db, $elTypeId);
@@ -660,7 +660,7 @@ class CatalogQuery {
 	/**
 	 * Удаление каталога и его элементов
 	 */
-	public static function CatalogRemove(CMSDatabase $db, $catalogid){
+	public static function CatalogRemove(Ab_Database $db, $catalogid){
 		$catalog = CatalogQuery::Catalog($db, $catalogid);
 		if (empty($catalog)){ return; }
 		
@@ -678,7 +678,7 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function CatalogUpdate(CMSDatabase $db, $data){
+	public static function CatalogUpdate(Ab_Database $db, $data){
 		$sql = "
 			UPDATE ".CatalogQuery::$PFX."catalog
 			SET 
@@ -696,7 +696,7 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function CatalogAppend(CMSDatabase $db, $data){
+	public static function CatalogAppend(Ab_Database $db, $data){
 		$sql = "
 			INSERT INTO ".CatalogQuery::$PFX."catalog
 			(parentcatalogid, title, name, descript, metatitle, metadesc, metakeys, ord, imageid) VALUES
@@ -732,7 +732,7 @@ class CatalogQuery {
 		imageid as img
 	";
 	
-	public static function Catalog(CMSDatabase $db, $catalogid){
+	public static function Catalog(Ab_Database $db, $catalogid){
 		$sql = "
 			SELECT
 				".CatalogQuery::FIELD_CATALOGLIST." 
@@ -743,7 +743,7 @@ class CatalogQuery {
 		return $db->query_first($sql);
 	}
 	
-	public static function CatalogListByParentId(CMSDatabase $db, $parentCatalogId){
+	public static function CatalogListByParentId(Ab_Database $db, $parentCatalogId){
 		$sql = "
 			SELECT
 				".CatalogQuery::FIELD_CATALOGLIST." 
@@ -754,7 +754,7 @@ class CatalogQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function ElementOptGroupAppend(CMSDatabase $db, $elementTypeId, $title, $descript){
+	public static function ElementOptGroupAppend(Ab_Database $db, $elementTypeId, $title, $descript){
 		$sql = "
 			INSERT INTO ".CatalogQuery::$PFX."eloptgroup
 			(eltypeid, title, descript) VALUES (
@@ -767,7 +767,7 @@ class CatalogQuery {
 		return $db->insert_id();
 	}
 	
-	public static function ElementOptGroupList(CMSDatabase $db){
+	public static function ElementOptGroupList(Ab_Database $db){
 		$sql = "
 			SELECT
 				eloptgroupid as id,
@@ -799,7 +799,7 @@ class CatalogQuery {
 		deldate as dd
 	";
 	
-	public static function ElementOptionRemove(CMSDatabase $db, $id){
+	public static function ElementOptionRemove(Ab_Database $db, $id){
 		$sql = "
 			UPDATE ".CatalogQuery::$PFX."eloption
 			SET 
@@ -809,7 +809,7 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 
-	public static function ElementOptionRestore(CMSDatabase $db, $id){
+	public static function ElementOptionRestore(Ab_Database $db, $id){
 		$sql = "
 			UPDATE ".CatalogQuery::$PFX."eloption
 			SET deldate=0
@@ -818,7 +818,7 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function ElementOptionSave(CMSDatabase $db, $data){
+	public static function ElementOptionSave(Ab_Database $db, $data){
 		$sql = "
 			UPDATE ".CatalogQuery::$PFX."eloption
 			SET 
@@ -831,7 +831,7 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function ElementOptionRecycleClear(CMSDatabase $db){
+	public static function ElementOptionRecycleClear(Ab_Database $db){
 		$sql = "
 			SELECT
 				a.fieldtype as fldtp,
@@ -863,11 +863,11 @@ class CatalogQuery {
 	/**
 	 * Добавить опцию элемента в определенный тип
 	 * 
-	 * @param CMSDatabase $db
+	 * @param Ab_Database $db
 	 * @param unknown_type $data
 	 * @param unknown_type $prms
 	 */
-	public static function ElementOptionAppend(CMSDatabase $db, $data, $prms){
+	public static function ElementOptionAppend(Ab_Database $db, $data, $prms){
 		$sql = "
 			INSERT INTO ".CatalogQuery::$PFX."eloption
 			(eltypeid, eloptgroupid, fieldtype, param, name, title, eltitlesource, descript, dateline) VALUES
@@ -922,7 +922,7 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function ElementOptionFieldTableCreate(CMSDatabase $db, $eltypename, $fieldname){
+	public static function ElementOptionFieldTableCreate(Ab_Database $db, $eltypename, $fieldname){
 		$tablename = CatalogQuery::BuilElementOptionFieldTable($eltypename, $fieldname); 
 		$charset = "CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'";
 		$sql = "
@@ -934,14 +934,14 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function ElementOptionFieldTableAppendValue(CMSDatabase $db, $eltypename, $fieldname, $value){
+	public static function ElementOptionFieldTableAppendValue(Ab_Database $db, $eltypename, $fieldname, $value){
 		$tablename = CatalogQuery::BuilElementOptionFieldTable($eltypename, $fieldname); 
 		$sql = "INSERT INTO `".$tablename."` (title) VALUES ('".bkstr($value)."')";
 		$db->query_write($sql);
 		return $db->insert_id();
 	}
 	
-	public static function ElementOptionFieldTableValue(CMSDatabase $db, $eltypename, $fieldname, $id){
+	public static function ElementOptionFieldTableValue(Ab_Database $db, $eltypename, $fieldname, $id){
 		$tablename = CatalogQuery::BuilElementOptionFieldTable($eltypename, $fieldname);
 		$sql = "
 			SELECT 
@@ -954,7 +954,7 @@ class CatalogQuery {
 		return $db->query_first($sql); 
 	}
 	
-	public static function ElementOptionFieldTableList(CMSDatabase $db, $eltypename, $fieldname){
+	public static function ElementOptionFieldTableList(Ab_Database $db, $eltypename, $fieldname){
 		$tablename = CatalogQuery::BuilElementOptionFieldTable($eltypename, $fieldname);
 		$sql = "
 			SELECT 
@@ -966,7 +966,7 @@ class CatalogQuery {
 		return $db->query_read($sql);
 	}
 
-	public static function ElementOptionByName(CMSDatabase $db, $elementTypeId, $name){
+	public static function ElementOptionByName(Ab_Database $db, $elementTypeId, $name){
 		$sql = "
 			SELECT 
 				".CatalogQuery::FIELD_ELEMENTOPTION."
@@ -982,12 +982,12 @@ class CatalogQuery {
 	/**
 	 * Список опций элемента конкретного типа
 	 *
-	 * @param CMSDatabase $db
+	 * @param Ab_Database $db
 	 * @param integer $elTypeId идентификатор типа элемента
 	 * @param boolean $retarray вернуть массив
 	 * @return resource || array
 	 */
-	public static function ElementOptionListByType(CMSDatabase $db, $elTypeId, $retarray = false){
+	public static function ElementOptionListByType(Ab_Database $db, $elTypeId, $retarray = false){
 		$sql = "
 			SELECT 
 				".CatalogQuery::FIELD_ELEMENTOPTION."
@@ -1010,7 +1010,7 @@ class CatalogQuery {
 		return CatalogQuery::$_elementOptionListByType[$elTypeId];
 	}
 	
-	public static function ElementOptionList(CMSDatabase $db, $elTypeId = -1, $fieldType = -1){
+	public static function ElementOptionList(Ab_Database $db, $elTypeId = -1, $fieldType = -1){
 		$where = array();
 		if ($elTypeId > -1){
 			array_push($where, "eltypeid=".bkint($elTypeId));
@@ -1028,7 +1028,7 @@ class CatalogQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function TableList(CMSDatabase $db){
+	public static function TableList(Ab_Database $db){
 		$sql = "
 			SHOW TABLES FROM ".$db->database."
 		";
@@ -1038,9 +1038,9 @@ class CatalogQuery {
 	/**
 	 * Очистка корзины и удаление всех связанных с удаляемыми записями обьекты
 	 *
-	 * @param CMSDatabase $db
+	 * @param Ab_Database $db
 	 */
-	public static function ElementTypeRecycleClear(CMSDatabase $db){
+	public static function ElementTypeRecycleClear(Ab_Database $db){
 		$sql = "
 			SELECT name as nm
 			FROM ".CatalogQuery::$PFX."eltype
@@ -1060,10 +1060,10 @@ class CatalogQuery {
 	/**
 	 * Удаление записи типа элемента в корзину
 	 *
-	 * @param CMSDatabase $db
+	 * @param Ab_Database $db
 	 * @param Integer $id
 	 */
-	public static function ElementTypeRemove(CMSDatabase $db, $id){
+	public static function ElementTypeRemove(Ab_Database $db, $id){
 		$sql = "
 			UPDATE ".CatalogQuery::$PFX."eltype
 			SET deldate=".TIMENOW."
@@ -1072,7 +1072,7 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function ElementTypeRestore(CMSDatabase $db, $id){
+	public static function ElementTypeRestore(Ab_Database $db, $id){
 		$sql = "
 			UPDATE ".CatalogQuery::$PFX."eltype
 			SET deldate=0
@@ -1081,13 +1081,13 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function ElementTypeTableRemove(CMSDatabase $db, $name){
+	public static function ElementTypeTableRemove(Ab_Database $db, $name){
 		$tablename = CatalogQuery::BuildElementTableName($name);  
 		$sql = "DROP TABLE `".$tablename."`";
 		$db->query_write($sql);
 	}
 	
-	public static function ElementTypeTableCreate(CMSDatabase $db, $name){
+	public static function ElementTypeTableCreate(Ab_Database $db, $name){
 		$tablename = CatalogQuery::BuildElementTableName($name);  
 		$charset = "CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'";
 
@@ -1099,13 +1099,13 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function ElementTypeTableFieldList(CMSDatabase $db, $name){
+	public static function ElementTypeTableFieldList(Ab_Database $db, $name){
 		$tablename = CatalogQuery::BuildElementTableName($name); 
 		$sql = "SHOW COLUMNS FROM ".$tablename;
 		return $db->query_read($sql);
 	}
 
-	public static function ElementTypeAppend(CMSDatabase $db, $obj){
+	public static function ElementTypeAppend(Ab_Database $db, $obj){
 		$sql = "
 			INSERT INTO ".CatalogQuery::$PFX."eltype
 			(name, title, descript) VALUES
@@ -1118,7 +1118,7 @@ class CatalogQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function ElementTypeUpdate(CMSDatabase $db, $obj){
+	public static function ElementTypeUpdate(Ab_Database $db, $obj){
 		$sql = "
 			UPDATE ".CatalogQuery::$PFX."eltype
 			SET title='".bkstr($obj->tl)."',
@@ -1139,7 +1139,7 @@ class CatalogQuery {
 	
 	private static $_elementTypeById = array();
 	
-	public static function ElementTypeById(CMSDatabase $db, $id){
+	public static function ElementTypeById(Ab_Database $db, $id){
 		$id = bkint($id);
 		if ($id == 0){ return array(); }
 		
@@ -1162,7 +1162,7 @@ class CatalogQuery {
 		return CatalogQuery::$_elementTypeById[$id];
 	}
 	
-	public static function ElementTypeByName(CMSDatabase $db, $name){
+	public static function ElementTypeByName(Ab_Database $db, $name){
 		$sql = "
 			SELECT 
 				eltypeid as id,
@@ -1177,7 +1177,7 @@ class CatalogQuery {
 		return $db->query_first($sql);
 	}
 	
-	public static function ElementTypeList(CMSDatabase $db){
+	public static function ElementTypeList(Ab_Database $db){
 		$sql = "
 			SELECT 
 				eltypeid as id,

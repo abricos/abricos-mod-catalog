@@ -6,9 +6,9 @@
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 */
 
-$modCatalog = Brick::$modules->GetModule('catalog');
+$modCatalog = Abricos::GetModule('catalog');
 $modMan = $modCatalog->currentModMan;
-$modFM = Brick::$modules->GetModule('filemanager');
+$modFM = Abricos::GetModule('filemanager');
 $manager = $modMan->GetCatalogManager();
 $fmManager = $modFM->GetManager();
 
@@ -16,9 +16,9 @@ if (!$manager->isWriteRole()){ return; }
 if (!$fmManager->IsFileUploadRole()){ return; }
 
 $brick = Brick::$builder->brick;
-$brick->param->var['url'] = Brick::$cms->adress->requestURI; 
+$brick->param->var['url'] = Abricos::$adress->requestURI; 
 
-$p_act = Brick::$cms->input->clean_gpc('p', 'act', TYPE_STR);
+$p_act = Abricos::CleanGPC('p', 'act', TYPE_STR);
 if ($p_act != "upload"){ return; }
 
 $arr = array();
@@ -52,17 +52,17 @@ $uploadId = $modCatalog->uploadId;
 if ($modCatalog->uploadStatus == 0){ 
 	// Элемент в процессе добавления, поэтому формируем список загруженных файлов и 
 	// складываем их в кеш
-	CatalogQuery::SessionAppend(Brick::$db, $uploadId, $json);
-	$rows = CatalogQuery::Session(Brick::$db, $uploadId);
-	while (($row = Brick::$db->fetch_array($rows))){
+	CatalogQuery::SessionAppend(Abricos::$db, $uploadId, $json);
+	$rows = CatalogQuery::Session(Abricos::$db, $uploadId);
+	while (($row = Abricos::$db->fetch_array($rows))){
 		$tarr = json_decode($row['data']);
 		foreach($tarr as $ta){ array_push($newarr, $ta); }
 	}
 } else {
-	CatalogQuery::FotoAppend(Brick::$db, $uploadId, $arr);
+	CatalogQuery::FotoAppend(Abricos::$db, $uploadId, $arr);
 	
-	$rows = CatalogQuery::FotoList(Brick::$db, $uploadId);
-	while (($row = Brick::$db->fetch_array($rows))){
+	$rows = CatalogQuery::FotoList(Abricos::$db, $uploadId);
+	while (($row = Abricos::$db->fetch_array($rows))){
 		array_push($newarr, $row['fid']);
 	}
 }
