@@ -139,7 +139,7 @@ class CatalogQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function ElementCount(Ab_Database $db, $catalogId){
+	public static function ElementCount(Ab_Database $db, $catalogId, $custWhere = ''){
 		if (!is_array($catalogId)){
 			$catalogId = array($catalogId);
 		}
@@ -151,7 +151,7 @@ class CatalogQuery {
 			SELECT
 				count(elementid) as cnt
 			FROM ".CatalogQuery::$PFX."element
-			WHERE ".implode(" OR ", $arr)."
+			WHERE ".bkstr(empty($custWhere) ? implode(" OR ", $arr) : $custWhere)."
 			LIMIT 1
 		";
 		$row = $db->query_first($sql);

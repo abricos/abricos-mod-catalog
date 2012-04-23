@@ -30,10 +30,16 @@ class CatalogManager extends Ab_ModuleManager {
 	 */
 	public $module = null;
 	
+	/**
+	 * @var CatalogManager
+	 */
+	public static $instance = null;
+	
 	private $_disableRole = false;
 	
 	public function __construct(CatalogModule $module){
 		parent::__construct($module);
+		CatalogManager::$instance = $this;
 	}
 	
 	/**
@@ -266,9 +272,9 @@ class CatalogManager extends Ab_ModuleManager {
 	 * @param integer $catalogId Идентификатор каталога
 	 * @return integer
 	 */
-	public function ElementCount($catalogId){
+	public function ElementCount($catalogId, $custWhere = ''){
 		if (!$this->IsViewRole()){ return null; }
-		return CatalogQuery::ElementCount($this->db, $catalogId);
+		return CatalogQuery::ElementCount($this->db, $catalogId, $custWhere);
 	}
 	
 	/**

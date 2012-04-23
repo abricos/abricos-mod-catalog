@@ -53,52 +53,77 @@
 
 <!--{editor}-->
 <div class='hd'>Редактор каталога</div>
-<div class='bd mod-catalog '>
-	<div class="field">
-		<p style="margin: 5px 2px 10px 10px;">
-			<label>Расположение:</label>
-			<span id="{i#catalog}"></span>
-		</p>
-		<p style="margin: 5px 2px 10px 10px;">
-			<label id="{i#title}-lbl">Название:</label>
-			<input type="text" id="{i#title}" value="" style="width: 350px" />
-		</p>
-		<p style="margin: 5px 2px 10px 10px;">
-			<label id="{i#name}-lbl">Имя:</label>
-			<input type="text" id="{i#name}" value="" style="width: 350px" />
-			<span class="dsc">* Вводится латинскими буквами. Используется в создании адреса URI</span>
-		</p>
-		<p style="margin: 5px 2px 10px 10px;">
-			<label id="{i#descript}-lbl">Описание:</label><br />
-			<textarea id="{i#descript}" style="width: 640px; height: 140px"></textarea>
-		</p>
-		<p style="margin: 5px 2px 10px 10px;">
-			<label id="{i#image}-lbl">Изображение:</label>
-			<span id="{i#image}" style="width: 100px;"></span>
-			<input type="button" id="{i#bimage}" value="Установить"/>
-			<input type="button" id="{i#bimageremove}" value="Удалить"/>
-			<br style="clear: both" />
-		</p>
-		<p style="margin: 5px 2px 10px 10px;">
-			<label id="{i#metatitle}-lbl">Title:</label>
-			<input type="text" id="{i#metatitle}" value="" style="width: 350px" />
-		</p>
-		<p style="margin: 5px 2px 10px 10px;">
-			<label id="{i#metakeys}-lbl">Keywords:</label>
-			<input type="text" id="{i#metakeys}" value="" style="width: 350px" />
-		</p>
-		<p style="margin: 5px 2px 10px 10px;">
-			<label id="{i#metadesc}-lbl">Description:</label>
-			<input type="text" id="{i#metadesc}" value="" style="width: 350px" />
-		</p>
-		<p style="margin: 5px 2px 10px 10px;">
-			<label id="{i#ord}-lbl">Вес (сортировка):</label>
-			<input type="text" id="{i#ord}" value="" style="width: 50px" />
-		</p>
-	</div>
-	<div class="buttons right">
-		<input id='{i#bsave}' type="button" value="Сохранить" />
-		<input id='{i#bcancel}' type="button" value="Отмена" />
+<div class='bd aw-catalog'>
+	<div class="catedit">
+	
+		<dl class="sel">
+			<dt>Расположение</dt>
+			<dd><span id="{i#catalog}"></span></dd>
+		</dl>
+		<dl>
+			<dt><label id="{i#title}-lbl">Название</label></dt>
+			<dd><input type="text" id="{i#title}" class="fld" /></dd>
+		</dl>
+		<dl class="sel">
+			<dt><label id="{i#name}-lbl">Имя</label></dt>
+			<dd>
+				<input type="text" id="{i#name}" class="fld" /><br />
+				<span class="dsc">Вводится латинскими буквами. Используется в создании адреса URI</span>
+			</dd>
+		</dl>
+		
+		<dl class="fld-descript">
+			<dt>
+				<label id="{i#descript}-lbl">Описание</label>
+			</dt>
+			<dd>
+				<textarea id="{i#descript}" style="width: 640px; height: 140px"></textarea>			
+			</dd>
+		</dl>
+		
+		<dl class="fld-img sel">
+			<dt><label id="{i#image}-lbl">Изображение</label></dt>
+			<dd>
+				<span id="{i#image}"></span>
+				<input type="button" id="{i#bimage}" value="Установить" class="btn" />
+				<input type="button" id="{i#bimageremove}" value="Удалить"class="btn" />
+			</dd>
+		</dl>
+		<dl>
+			<dt><label id="{i#ord}-lbl">Вес (сортировка)</label></dt>
+			<dd>
+				<input type="text" id="{i#ord}" class="fld-ord" value="" style="width: 50px" />
+				<span class="dsc">Чем больше значение, тем выше позиция в списке</span>
+			</dd>
+		</dl>
+	
+
+		<dl class="sel">
+			<dt><span class="h">META-теги</span></dt>
+			<dd>&nbsp;</dd>
+		</dl>
+		
+		<dl>
+			<dt><label id="{i#metatitle}-lbl">Title</label></dt>
+			<dd>
+				<input type="text" id="{i#metatitle}" class="fld" />
+			</dd>
+		</dl>
+		
+		<dl>
+			<dt><label id="{i#metakeys}-lbl">Keywords</label></dt>
+			<dd><input type="text" id="{i#metakeys}" class="fld" /></dd>
+		</dl>
+		<dl>
+			<dt><label id="{i#metadesc}-lbl">Description</label></dt>
+			<dd><input type="text" id="{i#metadesc}" class="fld" /></dd>
+		</dl>
+		<div class="clear"></div>
+
+		<div class="buttons right">
+			<input id='{i#bsave}' type="button" value="Сохранить" class="btn" />
+			<input id='{i#bcancel}' type="button" value="Отмена" class="btn"  />
+		</div>
 	</div>
 </div>
 

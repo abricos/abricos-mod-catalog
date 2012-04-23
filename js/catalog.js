@@ -12,29 +12,24 @@
 
 var Component = new Brick.Component();
 Component.requires = {
+	// yahoo: ['tabview','dragdrop'],
 	mod:[
-	     {name: 'catalog', files: ['element.js']}
+	     	{name: 'catalog', files: ['element.js']}
 	    ]
 };
-Component.entryPoint = function(){
+Component.entryPoint = function(NS){
 	
 	var Dom = YAHOO.util.Dom,
 		E = YAHOO.util.Event,
 		L = YAHOO.lang;
 	
-	var NS = this.namespace,
-		TMG = this.template;
+	var TMG = this.template;
 	
 	var API = NS.API;
 
-	Brick.util.CSS.update(Brick.util.CSS['catalog']['catalog']);
-
 	if (!NS.data){ NS.data = {}; }
 	
-	var buildTemplate = function(w, templates){
-		var TM = TMG.build(templates), T = TM.data, TId = TM.idManager;
-		w._TM = TM; w._T = T; w._TId = TId;
-	};
+	var buildTemplate = this.buildTemplate;
 	
 	var ManagerWidget = function(container, mmPrefix){
 		this.init(container, mmPrefix);
@@ -187,8 +182,7 @@ Component.entryPoint = function(){
 	};
 	YAHOO.extend(CatalogEditor, Brick.widget.Dialog, {
 		initTemplate: function(){
-			buildTemplate(this, 'editor,image');
-			return this._T['editor'];
+			return buildTemplate(this, 'editor,image').replace('editor');
 		},
 		onLoad: function(){
 			
@@ -280,10 +274,8 @@ Component.entryPoint = function(){
 	};
 	YAHOO.extend(CatalogRemoveMsg, Brick.widget.Dialog, {
 		initTemplate: function(){
-			var TM = TMG.build('itemremovemsg'), T = TM.data, TId = TM.idManager;
-			this._TM = TM; this._T = T; this._TId = TId;
 			
-			return TM.replace('itemremovemsg', {
+			return buildTemplate(this, 'itemremovemsg').replace('itemremovemsg', {
 				'info': this.row.cell['tl']
 			}); 
 		},

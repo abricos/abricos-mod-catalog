@@ -1,3 +1,53 @@
+.aw-catalog .clear { clear: both; }
+
+.aw-catalog .catedit dt span.h {
+	font-weight: bold;
+	border-bottom: 1px dashed;
+}
+
+.aw-catalog .catedit dl {
+	margin-bottom: 5px;
+}
+.aw-catalog .catedit dl.sel {
+	background-color: #f8f8f7; 
+}
+
+.aw-catalog .catedit dt {
+	float: left;
+	clear: left;
+	padding: 3px;
+	padding-left: 7px;
+	width: 209px;
+}
+.aw-catalog .catedit dd {
+	padding: 3px;
+	float: none;
+	margin-left: 209px;
+}
+.aw-catalog .catedit dl.fld-descript dt {
+	float: none;
+}
+.aw-catalog .catedit dl.fld-descript dd {
+	margin-left: 0;
+}
+.aw-catalog .catedit dd input.fld {
+	width: 350px;
+}
+.aw-catalog .catedit .dsc {
+	color: #999999;
+	display: block;
+	font-size: 0.89em;
+}
+.aw-catalog .catedit dl.fld-img img {
+	border: 1px solid #CCCCCC;
+	margin-right: 10px;
+}
+
+.aw-catalog .catedit dl input {
+	vertical-align: top;
+}
+
+
 #mod-catalog-manager { 
 	padding:4px 0 0 10px;
 }
@@ -40,10 +90,4 @@
 }
 #mod-catalog-manager a {
   text-decoration: none;
-}
-
-.mod-catalog div p label	{
-	display:block;
-	float:left;
-	width:209px;
 }
