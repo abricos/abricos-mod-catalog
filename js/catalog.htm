@@ -1,22 +1,19 @@
-<!--{panel}-->
-<div class='hd'>Каталог</div>
+<!--{panel}--><div class='hd'>{#mod.catalog.catalog.panel.1}</div>
 <div class='bd'>
 	<div id="{i#widget}"></div>
 </div>
-
-<!--{widget}-->
-<div style="max-height: 480px; overflow-y: auto">
+<!--{widget}--><div style="max-height: 480px; overflow-y: auto">
 <table style="width: 100%"><tbody><tr>
 	<td valign="top" style="width: 50%">
 		<div id="mod-catalog-manager">
 			<ul class="root">
 				<li> 
-				<span><a id="{i#bview}" href="#">Каталог</a></span>
+				<span><a id="{i#bview}" href="#">{#mod.catalog.catalog.widget.1}</a></span>
 			    <div class="ctg-buttons">
 					<img src="{#img.icons.empty}" alt="" />
 					<img src="{#img.icons.empty}" alt="" />
 					<img src="{#img.icons.empty}" alt="" />
-					<img id="{i#badd}" alt="Добавить" title="Добавить" src="/modules/catalog/images/add.png"/>
+					<img id="{i#badd}" alt="{#mod.catalog.catalog.widget.2}" title="{#mod.catalog.catalog.widget.2}" src="/modules/catalog/images/add.png"/>
 					<img src="{#img.icons.empty}" alt="" />
 			    </div>
 				</li>
@@ -29,52 +26,44 @@
 	</td>
 </tr></tbody></table>
 </div>
-
-<!--{list}-->
-<ul class="ctg-list">{v#list}</ul>
-
-<!--{item}-->
-<li> 
+<!--{list}--><ul class="ctg-list">{v#list}</ul>
+<!--{item}--><li> 
 	<span><a id="{i#bview}-{v#id}" title="" href="#">{v#tl}&nbsp;</a></span>
 	<div class="ctg-buttons">
 		<img src="{#img.icons.empty}" alt="" />
 		<img src="{#img.icons.empty}" alt="" />
-		<img id="{i#bedit}-{v#id}" alt="Редактировать" title="Редактировать" src="/modules/catalog/images/edit.gif"/>
+		<img id="{i#bedit}-{v#id}" alt="{#mod.catalog.catalog.item.1}" title="{#mod.catalog.catalog.item.1}" src="/modules/catalog/images/edit.gif"/>
 		{v#badd}
-		<img id="{i#bremove}-{v#id}" alt="Удалить" title="Удалить" src="/modules/catalog/images/remove.gif"/>
+		<img id="{i#bremove}-{v#id}" alt="{#mod.catalog.catalog.item.2}" title="{#mod.catalog.catalog.item.2}" src="/modules/catalog/images/remove.gif"/>
 	</div>
   {v#child}
 </li>
 <!--{bcatempty}--><img src="{#img.icons.empty}" alt="" />
 <!--{bcatadd}--><img id="{i#badd}-{v#id}" alt="Добавить" title="Добавить" src="/modules/catalog/images/add.png"/>
-<!--{itemwait}-->
-<li>Идет загрузка данных...</li>
-
-
-<!--{editor}-->
-<div class='hd'>Редактор каталога</div>
+<!--{itemwait}--><li>{#mod.catalog.catalog.itemwait.1}</li>
+<!--{editor}--><div class='hd'>{#mod.catalog.catalog.editor.1}</div>
 <div class='bd aw-catalog'>
 	<div class="catedit">
 	
 		<dl class="sel">
-			<dt>Расположение</dt>
+			<dt>{#mod.catalog.catalog.editor.2}</dt>
 			<dd><span id="{i#catalog}"></span></dd>
 		</dl>
 		<dl>
-			<dt><label id="{i#title}-lbl">Название</label></dt>
+			<dt><label id="{i#title}-lbl">{#mod.catalog.catalog.editor.3}</label></dt>
 			<dd><input type="text" id="{i#title}" class="fld" /></dd>
 		</dl>
 		<dl class="sel">
-			<dt><label id="{i#name}-lbl">Имя</label></dt>
+			<dt><label id="{i#name}-lbl">{#mod.catalog.catalog.editor.4}</label></dt>
 			<dd>
 				<input type="text" id="{i#name}" class="fld" /><br />
-				<span class="dsc">Вводится латинскими буквами. Используется в создании адреса URI</span>
+				<span class="dsc">{#mod.catalog.catalog.editor.5}</span>
 			</dd>
 		</dl>
 		
 		<dl class="fld-descript">
 			<dt>
-				<label id="{i#descript}-lbl">Описание</label>
+				<label id="{i#descript}-lbl">{#mod.catalog.catalog.editor.6}</label>
 			</dt>
 			<dd>
 				<textarea id="{i#descript}" style="width: 640px; height: 140px"></textarea>			
@@ -82,24 +71,24 @@
 		</dl>
 		
 		<dl class="fld-img sel">
-			<dt><label id="{i#image}-lbl">Изображение</label></dt>
+			<dt><label id="{i#image}-lbl">{#mod.catalog.catalog.editor.7}</label></dt>
 			<dd>
 				<span id="{i#image}"></span>
-				<input type="button" id="{i#bimage}" value="Установить" class="btn" />
-				<input type="button" id="{i#bimageremove}" value="Удалить"class="btn" />
+				<input type="button" id="{i#bimage}" value="{#mod.catalog.catalog.editor.8}" class="btn" />
+				<input type="button" id="{i#bimageremove}" value="{#mod.catalog.catalog.editor.9}"class="btn" />
 			</dd>
 		</dl>
 		<dl>
-			<dt><label id="{i#ord}-lbl">Вес (сортировка)</label></dt>
+			<dt><label id="{i#ord}-lbl">{#mod.catalog.catalog.editor.10}</label></dt>
 			<dd>
 				<input type="text" id="{i#ord}" class="fld-ord" value="" style="width: 50px" />
-				<span class="dsc">Чем больше значение, тем выше позиция в списке</span>
+				<span class="dsc">{#mod.catalog.catalog.editor.11}</span>
 			</dd>
 		</dl>
 	
 
 		<dl class="sel">
-			<dt><span class="h">META-теги</span></dt>
+			<dt><span class="h">{#mod.catalog.catalog.editor.12}</span></dt>
 			<dd>&nbsp;</dd>
 		</dl>
 		
@@ -121,36 +110,24 @@
 		<div class="clear"></div>
 
 		<div class="buttons right">
-			<input id='{i#bsave}' type="button" value="Сохранить" class="btn" />
-			<input id='{i#bcancel}' type="button" value="Отмена" class="btn"  />
+			<input id='{i#bsave}' type="button" value="{#mod.catalog.catalog.editor.13}" class="btn" />
+			<input id='{i#bcancel}' type="button" value="{#mod.catalog.catalog.editor.14}" class="btn"  />
 		</div>
 	</div>
 </div>
-
-<!--{image}-->
-<img src="/filemanager/i/{v#id}/w_80-h_80/thumb" />
-
-<!--{itemremovemsg}-->
-<div class='hd'>Удаление каталога</div>
+<!--{image}--><img src="/filemanager/i/{v#id}/w_80-h_80/thumb" />
+<!--{itemremovemsg}--><div class='hd'>{#mod.catalog.catalog.itemremovemsg.1}</div>
 <div class='bd'>
 	<div class="field" style="width: 400px">
-		<h3>Внимание!</h3>
-		<p>Вы действительно хотите удалить каталог <strong>{v#info}</strong> и все подкаталоги содержащиеся в нем?</p>
+		<h3>{#mod.catalog.catalog.itemremovemsg.2}</h3>
+		<p>{#mod.catalog.catalog.itemremovemsg.3}</p>
 	</div>
 	<div class="buttons right">
-		<input id='{i#bremove}' type="button" value="Удалить" />
-		<input id='{i#bcancel}' type="button" value="Отмена" />
+		<input id='{i#bremove}' type="button" value="{#mod.catalog.catalog.itemremovemsg.4}" />
+		<input id='{i#bcancel}' type="button" value="{#mod.catalog.catalog.itemremovemsg.5}" />
 	</div>
 </div>
-
-<!--{selwidget}-->
-<select id="{i#id}">{v#rows}</select>
-
-<!--{selrow}-->
-<option value="{v#id}">{v#tl}</option>
-
-<!--{selrowwait}-->
-<option value="0">Идет загрузка...</option>
-
-<!--{selroot}-->
-Каталог
+<!--{selwidget}--><select id="{i#id}">{v#rows}</select>
+<!--{selrow}--><option value="{v#id}">{v#tl}</option>
+<!--{selrowwait}--><option value="0">{#mod.catalog.catalog.selrowwait.1}</option>
+<!--{selroot}-->{#mod.catalog.catalog.selroot.1}

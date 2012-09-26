@@ -1,69 +1,54 @@
-<!--{editor}-->
-<div class='hd'>Редактор элемента</div>
+<!--{editor}--><div class='hd'>Редактор элемента</div>
 <div class='bd'>
 	<div class="mod-catalog field linespace-1" >
-		<p>Раздел в каталоге: <span id="{i#catalog}"></span></p>
-		<p>Тип элемента: <strong>{v#eltype}</strong></p>
+		<p>{#mod.catalog.eleditor.editor.1}: <span id="{i#catalog}"></span></p>
+		<p>{#mod.catalog.eleditor.editor.2}: <strong>{v#eltype}</strong></p>
 		<div id="{i#options}" class="mod-catalog-element-entercompl">
 			{v#options}
 		</div>
 		<div style="clear: both; padding-bottom: 1em;"></div>
-		<h3>Фотографии</h3>
+		<h3>{#mod.catalog.eleditor.editor.3}</h3>
 		<div id="{i#fotolist}"></div>
 		<br class="clearfloat"/>
 		<p>
-			<input id='{i#imgload}' type="button" value="Загрузить фотографии" />
+			<input id='{i#imgload}' type="button" value="{#mod.catalog.eleditor.editor.4}" />
 		</p>
 	</div>
 	<div class="buttons right">
-		<input id='{i#bsave}' type="button" value="Сохранить" />
-		<input id='{i#bcancel}' type="button" value="Отмена" />
+		<input id='{i#bsave}' type="button" value="{#mod.catalog.eleditor.editor.5}" />
+		<input id='{i#bcancel}' type="button" value="{#mod.catalog.eleditor.editor.6}" />
 	</div>
 </div>
-
-<!--{edcatrow}-->
-<p>
+<!--{edcatrow}--><p>
 	<label id="{v#lvl}-{i#id}-lbl">{v#tl}:</label>
 	<select id="{v#lvl}-{i#id}" style="width: 200px">
 		<option value="-1">--&gt;</option>
 	</select>
 	<input type="text" id="{v#lvl}-{i#id}-alt" value="" style="width: 200px" />
 </p>
-
-<!--{fotoitem}-->
-<div class="imgdiv"><img src="/filemanager/i/{v#id}/w_80-h_60/thumb" />
+<!--{fotoitem}--><div class="imgdiv"><img src="/filemanager/i/{v#id}/w_80-h_60/thumb" />
 <div class="adm-icons"><div id="{i#id}-{v#id}" onmouseout="this.className='adm-delete';" onmouseover="this.className='adm-delete adm-over';" class="adm-delete">
 </div></div></div>
-
-<!--{seloptionrow}-->
-<option value="{v#id}">{v#tl}</option>
-
-<!--{editoptrow0}-->
-<div class="mod-catalog-element-col">
+<!--{seloptionrow}--><option value="{v#id}">{v#tl}</option>
+<!--{editoptrow0}--><div class="mod-catalog-element-col">
 	<p>
 		<label id="{i#id}-lbl" for="{i#id}">{v#title}</label>
 		<input type="checkbox" id="{i#id}" />
 	</p>
 </div>
-
-<!--{editoptrow1}-->
-<div class="mod-catalog-element-col">
+<!--{editoptrow1}--><div class="mod-catalog-element-col">
 <p>
 	<label id="{i#id}-lbl" for="{i#id}">{v#title}</label>
 	<input type="text" id="{i#id}" style="width: 300px" />
 </p>
 </div>
-
-<!--{editoptrow4}-->
-<div class="mod-catalog-element-col">
+<!--{editoptrow4}--><div class="mod-catalog-element-col">
 	<p>
 		<label id="{i#id}-lbl" for="{i#id}">{v#title}</label>
 		<select id="{i#id}">{v#list}</select>
 	</p>
 </div>
-
-<!--{editoptrow5}-->
-<div class="mod-catalog-element-col">
+<!--{editoptrow5}--><div class="mod-catalog-element-col">
 	<p>
 		<label id="{i#id}-lbl" for="{i#id}">{v#title}</label>
 		<select id="{i#id}">
@@ -73,33 +58,25 @@
 		<input type="text" id="{i#alt}" value="" style="width: 200px" />
 	</p>
 </div>
-
-<!--{editoptrow6}-->
-<div class="mod-catalog-element-col">
+<!--{editoptrow6}--><div class="mod-catalog-element-col">
 	<p>
 		{v#title} {v#list}
 	</p>
 </div>
-
-<!--{editoptrow7}-->
-<div class="mod-catalog-element-col">
+<!--{editoptrow7}--><div class="mod-catalog-element-col">
 	<p>
 		<label id="{i#id}-lbl" for="{i#id}" style="float: none">{v#title}</label>
 		<textarea id="{i#id}" style="width: 600px; height: 180px"></textarea>
 	</p>
 </div>
-
-<!--{editoptrow8}-->
-<div class="mod-catalog-element-col">
+<!--{editoptrow8}--><div class="mod-catalog-element-col">
 	<p>
 		<label id="{gi#opt}-{v#id}-lbl" for="{gi#opt}-{v#id}">{v#title}</label>
 		<select id="{gi#opt}-{v#id}">{v#list}</select>
 		<input type="text" id="{gi#opt}-{v#id}-alt" value="" style="width: 100px" />
 	</p>
 </div>
-
-<!--{editoptrow9}-->
-<div class="mod-catalog-element-col">
+<!--{editoptrow9}--><div class="mod-catalog-element-col">
 	<table style="width: 100%;"><tbody><tr>
 		<td>
 			<p>{v#title}</p>
@@ -110,29 +87,20 @@
 			</div>
 		</td>
 		<td>
-			<a href="#" id="{i#badd}" style="display: none;">Добавить</a>
+			<a href="#" id="{i#badd}" style="display: none;">{#mod.catalog.eleditor.editoptrow9.1}</a>
 		</td>
 	
 	</tr></tbody></table>
 </div>
-
-<!--{table9}-->
-<table style="width: 100%;"><tbody>{v#rows}</tbody></table>
-
-<!--{row9}-->
-<tr>
+<!--{table9}--><table style="width: 100%;"><tbody>{v#rows}</tbody></table>
+<!--{row9}--><tr>
 	<td>&nbsp;{v#tl}</td>
-	<td><a href="#" id="{i#bremove}-{v#id}">Удалить</a></td>
+	<td><a href="#" id="{i#bremove}-{v#id}">{#mod.catalog.eleditor.row9.1}</a></td>
 </tr>
-
-<!--{row9wait}-->
-<tr>
-	<td>Загрузка данных...</td>
+<!--{row9wait}--><tr>
+	<td>{#mod.catalog.eleditor.row9wait.1}</td>
 </tr>
-
-
-<!--{editoptrowcust}-->
-<div class="mod-catalog-element-col">
+<!--{editoptrowcust}--><div class="mod-catalog-element-col">
 	<p>
 		{v#el}
 	</p>

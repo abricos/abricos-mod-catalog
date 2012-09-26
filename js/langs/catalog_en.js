@@ -1,4 +1,4 @@
-Brick.util.Language.add('ru',{'mod': {'{C#MODNAME}':{
+Brick.util.Language.add('en',{'mod': {'{C#MODNAME}':{
 	'catalog': {
 		'title': 'Настройка каталога',
 		'element': {
