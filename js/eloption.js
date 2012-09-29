@@ -31,11 +31,9 @@ Component.entryPoint = function(){
 
 	NS.data = NS.data || {};
 	var DATA = NS.data;
-
-	var buildTemplate = function(w, templates){
-		var TM = TMG.build(templates), T = TM.data, TId = TM.idManager;
-		w._TM = TM; w._T = T; w._TId = TId;
-	};
+	
+	var LNG = this.language;
+	var buildTemplate = this.buildTemplate;
 
 	/**
 	 * Виджет. Список полей элемента определенного типа<br>
@@ -87,8 +85,8 @@ Component.entryPoint = function(){
 				var elTypeRow = this.tables['eltype'].getRows().getById(this.eltypeid);
 				TM.getEl('panel.eltypetl').innerHTML = elTypeRow.cell['tl'];
 			}
-			
-			var lang = Brick.util.Language.getData()['catalog']['element']['fieldtype']; 
+
+			var lang = LNG['catalog']['element']['fieldtype']; 
 			var lst = "", lastGroupId = 0, group, tables = this.tables;
 			
 			tables['eloption'].getRows().filter({'eltid': this.eltypeid}).foreach(function(row){
