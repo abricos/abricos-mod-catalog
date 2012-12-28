@@ -551,6 +551,7 @@ class CatalogQuery {
 				f.fileid as fid,
 				f.ord,
 				s.filename as fn,
+				s.extension as ext,
 				(
 					SELECT CONCAT(t.filehashdst,':',ss.imgwidth,'x',ss.imgheight) as info
 					FROM ".$db->prefix."fm_imgprev t
