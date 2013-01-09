@@ -98,8 +98,13 @@ class CatalogModule extends Ab_Module {
 		$arr = array();
 		if ($w > 0) array_push($arr, "w_".$w);
 		if ($h > 0) array_push($arr, "h_".$h);
+		
+		$ret = "/filemanager/i/".$fid."/";
+		if (count($arr)>0){
+			$ret = $ret.implode("-", $arr)."/";
+		}
 
-		return "/filemanager/i/".$fid."/".implode("-", $arr)."/".$fn;
+		return $ret.$fn;
 	}
 	
 	private function UpdateModMan(){
