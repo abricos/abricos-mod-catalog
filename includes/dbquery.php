@@ -263,6 +263,11 @@ class CatalogQuery {
 			}
 			$sset=implode(",", $set);
 		}
+		
+		$utmf = Abricos::TextParser(true);
+		
+		$dobj->stitle = $utmf->Parser($dobj->stitle);
+		
 		$sFU = $fullUpdate ? "
 			catalogid=".bkint($data->catid).",
 			name='".bkstr($dobj->sname)."',
