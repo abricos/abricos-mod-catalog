@@ -1,11 +1,9 @@
 <?php
 /**
- * @version $Id: dbquery.php 687 2010-08-25 10:00:21Z roosit $
  * @package Abricos
  * @subpackage Catalog
- * @copyright Copyright (C) 2008 Abricos. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
- * @author Alexander Kuzmin (roosit@abricos.org)
+ * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
 /**
@@ -627,7 +625,14 @@ class CatalogQuery {
 					$data->$fdbname = bkint($data->$fdbname);
 					$fdbnamealt = $fdbname."-alt"; 
 					if (empty($data->$fdbname) && !empty($data->$fdbnamealt)){
-						$data->$fdbname = CatalogQuery::ElementOptionFieldTableAppendValue($db, $eltype['nm'], $row['nm'], $data->$fdbnamealt);
+						
+						// необходимо проверить наличие дубликата
+						$trow =  CatalogQuery::ElementOptionFieldTableValueByTitle($db, $eltype['nm'], $row['nm'], $data->$fdbnamealt);
+						if (!empty($trow)){
+							$data->$fdbname = $trow['id'];
+						}else{
+							$data->$fdbname = CatalogQuery::ElementOptionFieldTableAppendValue($db, $eltype['nm'], $row['nm'], $data->$fdbnamealt);
+						}
 					}
 					array_push($fields, $fdbname);
 					array_push($values, bkint($data->$fdbname));
@@ -958,6 +963,19 @@ class CatalogQuery {
 			LIMIT 1
 		"; 
 		return $db->query_first($sql); 
+	}
+	
+	public static function ElementOptionFieldTableValueByTitle(Ab_Database $db, $eltypename, $fieldname, $title){
+		$tablename = CatalogQuery::BuilElementOptionFieldTable($eltypename, $fieldname);
+		$sql = "
+			SELECT
+				".$fieldname."id as id,
+				title as tl
+			FROM ".$tablename."
+			WHERE title='".bkstr($title)."'
+			LIMIT 1
+		";
+		return $db->query_first($sql);
 	}
 	
 	public static function ElementOptionFieldTableList(Ab_Database $db, $eltypename, $fieldname){

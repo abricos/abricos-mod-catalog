@@ -1,11 +1,10 @@
 <?php
 /**
-* @version $Id$
-* @package Abricos
-* @subpackage Catalog
-* @copyright Copyright (C) 2010 Abricos. All rights reserved.
-* @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
-*/
+ * @package Abricos
+ * @subpackage Catalog
+ * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+ * @author Alexander Kuzmin <roosit@abricos.org>
+ */
 
 $charset = "CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'";
 $modCatalog = Abricos::GetModule('catalog');

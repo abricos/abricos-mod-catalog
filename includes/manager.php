@@ -1,11 +1,9 @@
 <?php
 /**
- * @version $Id: manager.php 698 2010-09-06 12:37:21Z roosit $
  * @package Abricos
  * @subpackage Catalog
- * @copyright Copyright (C) 2010 Abricos. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
- * @author Alexander Kuzmin (roosit@abricos.org)
+ * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
 require_once 'dbquery.php';
