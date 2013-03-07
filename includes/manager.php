@@ -6,7 +6,7 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
-require_once 'dbquery.php';
+require_once 'classes.php';
 
 /**
  * Менеджер каталога. Запрос основных функций осуществляется через этот класс.

@@ -6,6 +6,33 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
+
+class CatalogDbQuery {
+
+	public static function CatalogList(Ab_Database $db, $pfx){
+		$sql = "
+			SELECT
+				catalogid as id,
+				parentcatalogid as pid,
+				name as nm,
+				title as tl,
+				dateline as dl,
+				level as lvl,
+				ord as ord,
+				imageid as img
+			FROM ".$pfx."catalog
+			WHERE deldate=0
+			ORDER BY ord DESC, title
+		";
+		return $db->query_read($sql);
+	}
+	
+}
+
+/*
+ * TODO: Старая версия запросов - на удаление
+ */
+
 /**
  * Термины:
  * Element - свободный элемент.

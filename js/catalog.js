@@ -1,7 +1,5 @@
 /*
-@version $Id$
 @package Abricos
-@copyright Copyright (C) 2010 Abricos. All rights reserved.
 @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 */
 
@@ -12,7 +10,6 @@
 
 var Component = new Brick.Component();
 Component.requires = {
-	// yahoo: ['tabview','dragdrop'],
 	mod:[
 	     	{name: 'catalog', files: ['element.js']}
 	    ]
@@ -23,10 +20,6 @@ Component.entryPoint = function(NS){
 		E = YAHOO.util.Event,
 		L = YAHOO.lang;
 	
-	var TMG = this.template;
-	
-	var API = NS.API;
-
 	if (!NS.data){ NS.data = {}; }
 	
 	var buildTemplate = this.buildTemplate;
@@ -289,13 +282,13 @@ Component.entryPoint = function(NS){
 		}
 	});
 	
-	API.showManagerWidget = function(config){
+	NS.API.showManagerWidget = function(config){
 		var widget = new ManagerWidget(config.container, config.mmPrefix);
 		NS.data[config.mmPrefix].request();
 		return widget;
 	};
 	
-	API.showManagerPanel = function(mmPrefix){
+	NS.API.showManagerPanel = function(mmPrefix){
 		var panel = new ManagerPanel(mmPrefix);
 		return panel;
 	};
