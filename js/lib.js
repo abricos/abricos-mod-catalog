@@ -29,7 +29,8 @@ Component.entryPoint = function(NS){
 		d = L.merge({
 			'pid': 0,
 			'tl':'', // заголовок
-			'nm': '' // имя (URL)
+			'nm': '', // имя (URL)
+			'childs': []
 		}, d || {});
 		CatalogItem.superclass.constructor.call(this, d);
 	};
@@ -38,6 +39,14 @@ Component.entryPoint = function(NS){
 			this.parentid	= d['pid']*1;
 			this.title		= d['tl'];
 			this.name		= d['nm'];
+			
+			this.parent		= null;
+			this.childs		= new CatalogList(d['childs']);
+			
+			var __self = this;
+			this.childs.foreach(function(cat){
+				cat.parent = __self;
+			});
 		},
 		url: function(){
 			// return NS.navigator.category.view(this.id);
@@ -49,7 +58,21 @@ Component.entryPoint = function(NS){
 		CatalogList.superclass.constructor.call(this, d, CatalogItem);
 	};
 	YAHOO.extend(CatalogList, SysNS.ItemList, {
-		
+		find: function(catid){
+			var fcat = null;
+			this.foreach(function(cat){
+				if (cat.id == catid){
+					fcat = cat;
+					return true;
+				}
+				var ffcat = cat.childs.find(catid);
+				if (!L.isNull(ffcat) && ffcat.id == catid){
+					fcat = ffcat;
+					return true;
+				}
+			});
+			return fcat;
+		}
 	});
 	NS.CatalogList = CatalogList;	
 	
@@ -85,12 +108,9 @@ Component.entryPoint = function(NS){
 				'do': 'cataloglist'
 			}, function(d){
 				var list = null;
-				Brick.console(d);
-				
 				if (!L.isNull(d) && !L.isNull(d['catalogs'])){
-					list = new NS.CatalogList();
+					list = new NS.CatalogList(d['catalogs']);
 				}
-				
 				NS.life(callback, list);
 			});
 		}
