@@ -18,7 +18,14 @@ Component.entryPoint = function(NS){
 	
 	var CatalogTreeWidget = function(container, list, cfg){
 		cfg = L.merge({
+			'rootItem': null
 		}, cfg || {});
+		
+		if (!L.isNull(cfg['rootItem'])){
+			cfg['rootItem'] = L.merge({
+				'title': 'Catalog'
+			}, cfg['rootItem'] || {});
+		}
 		
 		CatalogTreeWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'widget,table,row' 

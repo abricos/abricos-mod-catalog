@@ -11,21 +11,85 @@ class CatalogDbQuery {
 
 	public static function CatalogList(Ab_Database $db, $pfx){
 		$sql = "
-			SELECT
-				catalogid as id,
-				parentcatalogid as pid,
-				name as nm,
-				title as tl,
-				dateline as dl,
-				level as lvl,
-				ord as ord,
-				imageid as img
-			FROM ".$pfx."catalog
-			WHERE deldate=0
-			ORDER BY ord DESC, title
+			(SELECT
+				0 as id,
+				-1 as pid,
+				'root' as nm,
+				'Root' as tl,
+				0 as dl,
+				0 as lvl,
+				0 as ord,
+				'' as img,
+				(
+					SELECT count(*) as cnt
+					FROM ".$pfx."element e
+					WHERE e.catalogid=0 AND e.deldate=0
+					GROUP BY e.catalogid
+				) as ecnt
+			FROM ".$pfx."catalog cat
+			LEFT JOIN ".$pfx."element e ON e.catalogid=0 AND e.deldate=0
+			GROUP BY e.catalogid
+			LIMIT 1)
+							
+			UNION
+			
+			(SELECT
+				cat.catalogid as id,
+				cat.parentcatalogid as pid,
+				cat.name as nm,
+				cat.title as tl,
+				cat.dateline as dl,
+				cat.level as lvl,
+				cat.ord as ord,
+				cat.imageid as img,
+				(
+					SELECT count(*) as cnt
+					FROM ".$pfx."element e
+					WHERE e.catalogid=cat.catalogid AND e.deldate=0
+					GROUP BY e.catalogid
+				) as ecnt
+			FROM ".$pfx."catalog cat
+			WHERE cat.deldate=0
+			ORDER BY cat.ord DESC, cat.title)
 		";
 		return $db->query_read($sql);
 	}
+	
+	public static function ElementTypeList(Ab_Database $db, $pfx){
+		$sql = "
+			SELECT
+				eltypeid as id,
+				title as tl,
+				name as nm,
+				descript as dsc
+			FROM ".$pfx."eltype t
+			WHERE t.deldate=0
+		";
+		return $db->query_read($sql);
+	}
+	
+	public static function ElementTypeOptionList(Ab_Database $db, $pfx){
+		$sql = "
+			SELECT
+				eloptionid as id,
+				eltypeid as eltpid,
+				fieldtype as tp,
+				name as nm,
+				title as tl,
+				descript as dsc,
+				ord as ord,
+				
+				eloptgroupid as gpid,
+				param as prms,
+				eltitlesource as ets,
+				disable as dsb
+			FROM ".$pfx."eloption
+			WHERE deldate=0
+			ORDER BY tpid, eloptgroupid, ord
+		";
+		return $db->query_read($sql);
+	}
+	
 	
 }
 

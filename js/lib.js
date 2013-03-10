@@ -36,6 +36,7 @@ Component.entryPoint = function(NS){
 	};
 	YAHOO.extend(CatalogItem, SysNS.Item, {
 		update: function(d){
+			
 			this.parentid	= d['pid']*1;
 			this.title		= d['tl'];
 			this.name		= d['nm'];
@@ -47,6 +48,7 @@ Component.entryPoint = function(NS){
 			this.childs.foreach(function(cat){
 				cat.parent = __self;
 			});
+			this.expanded = d['id'] == 0;
 		},
 		url: function(){
 			// return NS.navigator.category.view(this.id);
