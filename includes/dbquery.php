@@ -55,6 +55,60 @@ class CatalogDbQuery {
 		return $db->query_read($sql);
 	}
 	
+	
+	public static function Catalog(Ab_Database $db, $pfx, $catid){
+		if ($catid == 0){
+			$sql = "
+				SELECT count(*) as ecnt
+				FROM ".$pfx."element e
+				WHERE e.catalogid=0 AND e.deldate=0
+			";
+		}else{
+			$sql = "
+				SELECT
+					cat.catalogid as id,
+					cat.parentcatalogid as pid,
+					cat.name as nm,
+					cat.title as tl,
+					cat.dateline as dl,
+					cat.level as lvl,
+					cat.ord as ord,
+					cat.imageid as img,
+					(
+						SELECT count(*) as cnt
+						FROM ".$pfx."element e
+						WHERE e.catalogid=cat.catalogid AND e.deldate=0
+						GROUP BY e.catalogid
+					) as ecnt,
+					
+					cat.descript as dsc,
+					cat.metatitle as mtl,
+					cat.metakeys as mks,
+					cat.metadesc as mdsc
+					 
+				FROM ".$pfx."catalog cat
+				WHERE catalogid=".bkint($catid)." AND cat.deldate=0
+				LIMIT 1
+			";
+		}
+		return $db->query_first($sql);
+	}
+	
+	public static function ElementList(Ab_Database $db, $pfx, $catid){
+		$sql = "
+			SELECT
+				e.elementid as id,
+				e.catalogid as catid,
+				e.eltypeid as eltpid,
+				e.title as tl,
+				e.name as nm
+			FROM ".$pfx."element e
+			INNER JOIN ".$pfx."catalog cat ON cat.catalogid=e.catalogid
+			WHERE e.deldate=0 AND e.catalogid=".bkint($catid)." AND cat.deldate=0
+		";
+		return $db->query_read($sql);
+	}	
+	
 	public static function ElementTypeList(Ab_Database $db, $pfx){
 		$sql = "
 			SELECT
@@ -85,7 +139,7 @@ class CatalogDbQuery {
 				disable as dsb
 			FROM ".$pfx."eloption
 			WHERE deldate=0
-			ORDER BY tpid, eloptgroupid, ord
+			ORDER BY eltpid, eloptgroupid, ord
 		";
 		return $db->query_read($sql);
 	}

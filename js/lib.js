@@ -90,8 +90,10 @@ Component.entryPoint = function(NS){
 			this.modname = modname;
 			
 			var __self = this;
-			this.catalogListLoad(function(list){
-				__self.catalogList = list;
+			this.ajax({
+				'do': 'cataloginitdata'
+			}, function(d){
+				__self._initDataUpdate(d);
 				NS.life(callback, __self);
 			});
 		},
@@ -105,14 +107,58 @@ Component.entryPoint = function(NS){
 				}
 			});
 		},
+		_initDataUpdate: function(d){
+			this.catalogList = this._catalogListUpdate(d);
+		},
+		_catalogListUpdate: function(d){
+			var list = null;
+			if (!L.isNull(d) && !L.isNull(d['catalogs'])){
+				list = new NS.CatalogList(d['catalogs']);
+			}
+			return list;
+		},
 		catalogListLoad: function(callback){
+			var __self = this;
 			this.ajax({
 				'do': 'cataloglist'
 			}, function(d){
-				var list = null;
-				if (!L.isNull(d) && !L.isNull(d['catalogs'])){
-					list = new NS.CatalogList(d['catalogs']);
-				}
+				var list = __self._catalogListUpdate(d);
+				NS.life(callback, list);
+			});
+		},
+		// вся информация по каталогу включая его элементы
+		catalogLoad: function(catid, callback, cfg){
+			cfg = L.merge({
+				'elementlist': false
+			}, cfg||{});
+
+			var __self = this;
+			this.ajax({
+				'do': 'catalog',
+				'catid': catid,
+				'elementlist': cfg['elementlist']
+			}, function(d){
+				Brick.console(d);
+				
+				var cat = null;
+				var list = __self._elementListUpdate(d);
+				
+				NS.life(callback, cat, list);
+			});
+		},
+		_elementListUpdate: function(d){
+			var list = null;
+			if (!L.isNull(d) && !L.isNull(d['elements'])){
+				list = new NS.CatalogList(d['elements']['list']);
+			}
+			return list;
+		},
+		elementListLoad: function(catid, callback){
+			var __self = this;
+			this.ajax({
+				'do': 'elementlist'
+			}, function(d){
+				var list = __self._elementListUpdate(d);
 				NS.life(callback, list);
 			});
 		}

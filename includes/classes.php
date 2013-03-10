@@ -11,7 +11,7 @@ require_once 'dbquery.php';
 /**
  * Раздел каталога
  */
-class CatalogInfo {
+class Catalog {
 	
 	public $id;
 	public $parentid;
@@ -29,6 +29,11 @@ class CatalogInfo {
 	 * @var CatalogList
 	 */
 	public $childs;
+	
+	/**
+	 * @var CatalogDetail
+	 */
+	public $detail = null;
 	
 	public function __construct($d){
 		$this->id		= intval($d['id']);
@@ -48,9 +53,40 @@ class CatalogInfo {
 		$ret->nm	= $this->name;
 		$ret->ecnt	= $this->elementCount;
 		
+		$ret->dtl	= null;
+		if (!empty($this->detail)){
+			$ret->dtl = $this->detail->ToAJAX();
+		}
+		
 		if ($this->childs->Count()>0){
 			$ret->childs = $this->childs->ToAJAX();
 		}
+		return $ret;
+	}
+}
+
+/**
+ * Подробная информация по разделу каталога
+ */
+class CatalogDetail {
+	
+	public $descript;
+	public $metaTitle;
+	public $metaKeys;
+	public $metaDescript;
+
+	public function __construct($d){
+		$this->metaTitle	= $d['mtl'];
+		$this->metaKeys		= $d['mks'];
+		$this->metaDescript	= $d['mdsc'];
+	}
+	
+	public function ToAJAX(){
+		$ret = new stdClass();
+		$ret->dsc	= $this->descript;
+		$ret->mtl	= $this->metaTitle;
+		$ret->mks	= $this->metaKeys;
+		$ret->mdsc	= $this->metaDescript;
 		return $ret;
 	}
 }
@@ -61,9 +97,10 @@ class CatalogList {
 	
 	public function __construct(){
 		$this->_list = array();
+		$this->_map = array();
 	}
 
-	public function Add(CatalogInfo $item){
+	public function Add(Catalog $item){
 		$index = count($this->_list);
 		$this->_list[$index] = $item;
 		$this->_map[$item->id] = $index;
@@ -76,7 +113,7 @@ class CatalogList {
 	/**
 	 * Получить раздел каталога по индексу
 	 * @param integer $id
-	 * @return CatalogInfo
+	 * @return Catalog
 	 */
 	public function GetByIndex($index){
 		return $this->_list[$index];
@@ -85,7 +122,7 @@ class CatalogList {
 	/**
 	 * Получить раздел каталога по идентификатору
 	 * @param integer $id
-	 * @return CatalogInfo
+	 * @return Catalog
 	 */
 	public function Get($id){
 		$index = $this->_map[$id];
@@ -95,7 +132,7 @@ class CatalogList {
 	/**
 	 * Поиск элемента по списку, включая поиск по дочерним элементам
 	 * @param integer $id
-	 * @return CatalogInfo
+	 * @return Catalog
 	 */
 	public function Find($id){
 		$item = $this->Get($id);
@@ -266,12 +303,91 @@ class CatalogElementTypeOptionList {
 	}
 }
 
-class CatalogElementInfo {
-	public $id = 0;
-	public $catelogid = 0;
+class CatalogElement {
+	public $id;
+	public $catalogid;
+	public $elTypeId;
 	
 	public $title;
 	public $name;
+	
+	public function __construct($d){
+		$this->id		= intval($d['id']);
+		$this->catalogid = intval($d['catid']);
+		$this->elTypeId = intval($d['eltpid']);
+		$this->title	= $d['tl'];
+		$this->name		= $d['nm'];
+	}
+	
+	public function ToAJAX(){
+		$ret = new stdClass();
+		$ret->id		= $this->id;
+		$ret->catid		= $this->catalogid;
+		$ret->eltpid	= $this->elTypeId;
+		$ret->tl		= $this->title;
+		$ret->nm		= $this->name;
+		return $ret;
+	}	
+}
+
+
+class CatalogElementList {
+
+	private $_list = array();
+	private $_map = array();
+
+	/**
+	 * Всего таких записей в базе
+	 * @var integer
+	 */
+	public $total;
+	
+	public function __construct(){
+		$this->_list = array();
+		$this->_map = array();
+	}
+	
+	public function Add(CatalogElement $item){
+		$index = count($this->_list);
+		$this->_list[$index] = $item;
+		$this->_map[$item->id] = $index;
+	}
+
+	public function Count(){
+		return count($this->list);
+	}
+
+	/**
+	 * @param integer $index
+	 * @return CatalogElement
+	 */
+	public function GetByIndex($index){
+		return $this->list[$index];
+	}
+	
+	/**
+	 * @param integer $id
+	 * @return CatalogElement
+	 */
+	public function Get($id){
+		$index = $this->_map[$id];
+		return $this->_list[$index];
+	}
+
+	public function ToAJAX(){
+		$list = array();
+		$count = $this->Count();
+		for ($i=0; $i<$count; $i++){
+			array_push($list, $this->GetByIndex($i)->ToAJAX());
+		}
+		
+		$ret = new stdClass();
+		$ret->elements = new stdClass();
+		$ret->elements->list = $list;
+		$ret->elements->total = $this->total;
+	
+		return $ret;
+	}
 }
 
 /**
@@ -339,7 +455,7 @@ class CatalogModuleManager {
 		$list = array();
 		$rows = CatalogDbQuery::CatalogList($this->db, $this->pfx);
 		while (($d = $this->db->fetch_array($rows))){
-			array_push($list, new CatalogInfo($d));
+			array_push($list, new Catalog($d));
 		}
 		
 		$catList = new CatalogList();
@@ -372,6 +488,56 @@ class CatalogModuleManager {
 		$ret = new stdClass();
 		$ret->catalogs = $list->ToAJAX();
 		return $ret;
+	}
+
+	/**
+	 * @param integer $catid
+	 * @return Catalog
+	 */
+	public function Catalog($catid){
+		if (!$this->IsViewRole()){ return false; }
+		
+		$d = CatalogDbQuery::Catalog($this->db, $this->pfx, $catid);
+		if (empty($d)){ return null; }
+		
+		$cat = new Catalog($d);
+		$cat->detail = new CatalogDetail($d);
+		
+		return $cat;
+	}
+	
+	public function CatalogToAJAX($catid, $isElementList = false){
+		$cat = $this->Catalog($catid);
+		
+		if (empty($cat)){ return null; }
+		
+		$ret = new stdClass();
+		$ret->catalog = $cat->ToAJAX();
+		
+	}
+	
+	public function ElementList($catid){
+		if (!$this->IsViewRole()){ return false; }
+		
+		$list = new CatalogElementList();
+		
+		$rows = CatalogDbQuery::ElementList($this->db, $this->pfx, $catid);
+		while (($d = $this->db->fetch_array($rows))){
+			$list->Add(new CatalogElement($d));
+		}
+		
+		return $list;
+	}
+	
+	public function ElementListToAJAX($catid){
+		$list = $this->ElementList();
+		
+		if (empty($list)){ return null; }
+		
+		$ret = new stdClass();
+		$ret->eltypes = $list->ToAJAX();
+		return $ret;
+		
 	}
 	
 	private $_cacheElementTypeList;
