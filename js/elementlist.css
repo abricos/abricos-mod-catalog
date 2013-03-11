@@ -1,23 +1,24 @@
 .aw-catalog .elementlist .elrow {
-	height: 22px;
+	min-height: 22px;
 	position: relative;
 }
 .aw-catalog .elementlist .elrow:hover {
 	background-color: #FFF0C6;
 }
-
 .aw-catalog .elementlist .elrow .tl {
-	padding-left: 2px;
 	cursor: pointer;
     margin: 0 10px 0 5px;
     overflow: hidden;
-    padding: 3px;
+    padding: 3px; 
     position: relative;
     white-space: nowrap;
 }
-
+.aw-catalog .elementlist .elrow .rborder {
+	border: 1px solid #D1D3DC;
+	border-radius: 5px;
+}
 /* * * Menu * * */
-.aw-catalog .elementlist .elrow .tkmenu {
+.aw-catalog .elementlist .elrow .elrmenu {
 	position: absolute;
 	background-color: #fff;
 	border: 1px solid #dadada;
@@ -26,14 +27,14 @@
     right: 0px;
     top: -1px;
 }
-.aw-catalog .elementlist .elrow:hover .tkmenu {
+.aw-catalog .elementlist .elrow:hover .elrmenu {
 	display: block;
 }
 
-.aw-catalog .elementlist .elrow .itemline:hover .tkmenu {
+.aw-catalog .elementlist .elrow .itemline:hover .elrmenu {
 	display: block;
 }
-.aw-catalog .elementlist .elrow .tkmenu .b {
+.aw-catalog .elementlist .elrow .elrmenu .b {
 	cursor: pointer;
 	padding-left: 5px;
 	padding-top: 4px;
@@ -42,23 +43,62 @@
 	float: left;
 	border-right: 1px solid #dadada;
 }
-.aw-catalog .elementlist .elrow .tkmenu .b:hover {
+.aw-catalog .elementlist .elrow .elrmenu .b:hover {
 	background-color: #FFF0C6; 
 }
-.aw-catalog .elementlist .elrow .tkmenu .bc {
+.aw-catalog .elementlist .elrow .elrmenu .bc {
 	width: 12px;
 	height: 14px;
 }
-.aw-catalog .elementlist .elrow .tkmenu .bgo {
+.aw-catalog .elementlist .elrow .elrmenu .bgo {
 	background: url("/modules/catalog/images/icons.png") no-repeat scroll -20px -39px transparent;
 }
 
-.aw-catalog .elementlist .elrow .tkmenu .badd {
+.aw-catalog .elementlist .elrow .elrmenu .badd {
 	background: url("/modules/catalog/images/icons.png") no-repeat scroll -57px -24px transparent;
 }
-.aw-catalog .elementlist .elrow .tkmenu .bedit {
+.aw-catalog .elementlist .elrow .elrmenu .bedit {
 	background: url("/modules/catalog/images/icons.png") no-repeat scroll -29px -24px transparent;
 }
-.aw-catalog .elementlist .elrow .tkmenu .bremove {
+.aw-catalog .elementlist .elrow .elrmenu .bremove {
 	background: url("/modules/catalog/images/icons.png") no-repeat scroll -42px -24px transparent;
+}
+
+/* * * EasyEditor * * */
+.aw-catalog .elrow .easyeditor {
+	margin: 5px;
+	padding: 0 5px;
+}
+.aw-catalog .elrow .easyeditor .r {
+	margin-bottom: 7px;
+}
+.aw-catalog .elrow .easyeditor .rtl {
+	margin-bottom: 7px;
+	padding-bottom: 3px;
+	border-bottom: 1px solid #D1D3DC;
+	position: relative;
+}
+.aw-catalog .elrow .easyeditor .rtl .habtn {
+	position: absolute;
+	top: 0px; right: 0px;
+	border-bottom: none;
+}
+.aw-catalog .elrow .easyeditor .fl {
+	float: left;
+}
+.aw-catalog .elrow .easyeditor .fldtl {
+	padding: 3px;
+	width: 99%;
+}
+.aw-catalog .elrow .easyeditor .btns {
+	border-top: 1px solid #D1D3DC;
+	padding-top: 10px;
+	margin-bottom: 10px;
+}
+.aw-catalog .elrow .easyeditor .mext {
+	display: none;
+}
+
+.aw-catalog .elrow .easyeditor .fotolist {
+	font-style: italic;
 }

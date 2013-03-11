@@ -1,0 +1,120 @@
+.aw-catalog .clear { clear: both;}
+.aw-catalog .loading,
+.aw-catalog .nullitem { 
+	text-align: center;
+	padding: 70px 0; 
+}
+
+/* * * * * * AHref Button * * * * */
+.aw-catalog a.habtn {
+	border-bottom: 1px dotted;
+	text-decoration: none;
+	margin: 0 5px;
+}
+.aw-catalog a.warn {
+	color: #DA4242;
+}
+
+/* * * * Превьюшки * * * * */
+.aw-catalog .tmb24 { width: 24px; height: 24px; }
+.aw-catalog .tmb24 img { max-width: 24px; max-height: 24px; }
+
+.aw-catalog .tmb { display: table; }
+.aw-catalog .tmb .tmbpre {
+	display: table-cell;
+	vertical-align: middle;
+}
+.aw-catalog .tmb .tmbpre img {
+	display: block;
+	margin: 0 auto;
+}
+
+
+/* * * * Editor Form * * * */
+.aw-catalog .editform {
+	padding: 10px 0;
+	background-color: #F9F5DF;
+}
+.aw-catalog .editform .dsc,
+.aw-catalog .viewform .dsc {
+	color: #555555;
+	font-size: .9em;
+}
+
+.aw-catalog .editform h3,
+.aw-catalog .viewform h3 {
+    color: #333333;
+    font-size: 1.28em;
+    font-weight: bold;
+    padding-bottom: 0.5em;
+
+	font-weight: normal !important;
+}
+.aw-catalog .editform h4,
+.aw-catalog .viewform h4 {
+	margin-bottom: 10px;
+	font-weight: bold;
+}
+.aw-catalog .editform .group,
+.aw-catalog .viewform .group {
+	margin: 0 20px;
+	border-bottom: 1px solid #E3E3D7;
+	margin-bottom: 1em;
+	padding-bottom: .8em;
+}
+.aw-catalog .editform .fieldline {
+	margin-bottom: 10px;
+}
+.aw-catalog .editform dl,
+.aw-catalog .viewform dl {
+	margin: 0 0 0.3em;
+    padding: 0;
+    clear: both;
+}
+.aw-catalog .editform dt,
+.aw-catalog .viewform dt {
+    float: left;
+    padding: 0.5em 0 0.5em 0;
+    width: 12em;
+}
+.aw-catalog .viewform dt {
+	text-align: right;
+	color: #999999;
+}
+
+.aw-catalog .editform dd,
+.aw-catalog .viewform dd  {
+    float: none;
+    margin-left: 13em;
+    padding: 0.5em 0;
+}
+.aw-catalog .editform p {
+	margin: 5px 0 7px;
+}
+.aw-catalog .editform input.inp,
+.aw-catalog .editform select.inp,
+.aw-catalog .editform textarea.inp {
+    border: 1px solid #ACAEB4;
+    border-radius: 3px 3px 3px 3px;
+    line-height: 20px;
+    padding: 3px;
+    width: 400px;
+}
+.aw-catalog .editform select.inp {
+	width: 407px;
+}
+.aw-catalog .editform textarea.inp {
+	height: 100px;
+}
+.aw-catalog .editform .baction {
+	margin-top: 10px;
+	margin-right: 2em;
+}
+.aw-catalog .editform .baction input {
+ 	margin-right: 10px;
+    padding: 2px 5px;	
+}
+.aw-catalog .editform .baction .error {
+	color: red;
+	margin-right: 10px;
+}

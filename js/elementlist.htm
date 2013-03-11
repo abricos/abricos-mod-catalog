@@ -7,17 +7,52 @@
 
 <!--{row}-->
 <div id="{i#id}" class="elrow">
-	<div id="{i#dtl}" class="tl">
-		<a id="{i#tl}" href="#"></a>
-	</div>
-	
-	<div class="tkmenu">
-		<div id="{i#bedit}" class="b" title="Редактировать">
-			<div id="{i#beditc}" class="bedit bc"></div>
+	<div id="{i#wrap}">
+		<div id="{i#dtl}" class="tl">
+			<a id="{i#tl}" href="#"></a>
 		</div>
-		<div id="{i#bremove}" class="b" title="Удалить">
-			<div id="{i#bremovec}" class="bremove bc"></div>
+		
+		<div class="elrmenu">
+			<div id="{i#bedit}" class="b" title="Редактировать">
+				<div id="{i#beditc}" class="bedit bc"></div>
+			</div>
+			<div id="{i#bremove}" class="b" title="Удалить">
+				<div id="{i#bremovec}" class="bremove bc"></div>
+			</div>
+		</div>
+		
+		<div id="{i#easyeditor}"></div>
+	</div>
+</div>
+
+<!--{easyeditor}-->
+<div id="{i#id}" class="easyeditor">
+	<div id="{i#wrap}">
+		<div class="r">
+			<input id="{i#tl}" class="fldtl" type="text" />
+		</div>
+		
+		<div class="r">
+
+			<div class="rtl">
+				<a href="#" class="habtn" title="Добавить фотографии">Добавить</a>
+				Фотографии
+			</div>
+			
+			<div id="{i#fotolist}" class="fotolist">
+				Нет фотографий
+			</div>
+		</div>
+		
+		<div class="r mext">
+			<input id="{i#nm}" class="fldtl" type="text" />
+		</div>
+		
+		<div class="btns right r">
+			<a href="#" class="habtn fl">Развернуть редактор</a>
+			<a href="#" class="habtn">Сохранить</a>
+			<a href="#" class="habtn">Отмена</a>
+			<div class="clear"></div>
 		</div>
 	</div>
-	
 </div>
