@@ -75,6 +75,9 @@ Component.entryPoint = function(NS){
 			this.elSetHTML({
 				'tl': element.title
 			});
+		},
+		onClick: function(el){
+			
 		}
 	});
 	NS.ElementRowWidget = ElementRowWidget;	
