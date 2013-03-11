@@ -1,0 +1,179 @@
+.aw-catalog .explore {
+	min-width: 100px;
+	min-height: 64px;
+}
+.aw-catalog .explore .list a {
+	color: #000;
+	text-decoration: none;
+}
+
+/* * * * * Tree List * * * */
+.aw-catalog .explore .list {
+	padding: 5px;
+}
+
+.aw-catalog .explore table {
+	table-layout: fixed;
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.aw-catalog .explore td {
+	height: 22px;
+}
+
+.aw-catalog .explore .staticon {
+	width: 16px;
+	position: relative;
+	margin-top: 3px;
+}
+
+.aw-catalog .explore .staticon .chdcls {
+	background: url("/modules/catalog/images/icons.png") no-repeat scroll -70px -24px transparent;
+}
+.aw-catalog .explore .staticon .chdexpd {
+	background: url("/modules/catalog/images/icons.png") no-repeat scroll -81px -24px transparent;
+}
+.aw-catalog .explore .staticon .chd {
+	position: absolute;
+	left: 3px;
+	top: 2px;
+	
+	background-color: #fff;
+	width: 9px;
+	height: 9px;
+	cursor: pointer;
+}
+
+.aw-catalog .explore td.tn {
+	background: url("/modules/catalog/images/tn.gif") no-repeat scroll 0 0 transparent;
+	width: 16px;
+}
+.aw-catalog .explore td.ln {
+	background: url("/modules/catalog/images/ln.gif") no-repeat scroll 0 0 transparent;
+	width: 16px;
+}
+
+.aw-catalog .explore .ch-tl {
+	overflow: hidden;
+	position: relative;
+	white-space: nowrap;
+	margin: 0 10px 0 5px;
+	padding: 3px;
+	cursor: pointer;
+}
+.aw-catalog .explore .ch-tl .shadow {
+    background: url("/modules/catalog/images/shadow.png") repeat-y scroll 0 0 transparent;
+    height: 1.3em;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 16px;
+}
+
+.aw-catalog .explore .ttypefolder .ch-tl {
+	padding-left: 16px;
+}
+
+.aw-catalog .explore .ticon {
+	position: absolute; left: 0; top: 1px;
+}
+.aw-catalog .explore .ttypefolder .ticon {
+	width: 18px;
+    height: 18px;
+}
+.aw-catalog .explore .rowuser .ticon img {
+	margin-left: 1px;
+	margin-top: 1px;
+	width: 16px;
+	height: 16px;
+}
+.aw-catalog .explore .ttypefolder .ticonchdcls {
+	background: url("/modules/catalog/images/tfolderopen.gif") no-repeat scroll 0 0 transparent;    
+}
+.aw-catalog .explore .ttypefolder .ticonchdexpd {
+    background: url("/modules/catalog/images/tfolderclose.gif") no-repeat scroll 0 0 transparent;    
+}
+
+.aw-catalog .explore .row .itemline:hover {
+	background-color: #FFF0C6;
+}
+.aw-catalog .explore .row .itemline:hover .ch-tl .shadow {
+    background: url("/modules/catalog/images/shadow-row.png") repeat-y scroll 0 0 transparent;
+}
+
+.aw-catalog .explore tr .select {
+	font-weight: bold;
+}
+
+.aw-catalog .explore tr .seluser a {
+	font-style: italic;
+	color: red;
+}
+
+/* * * * * * Menu * * * * * */
+.aw-catalog .explore .row .itemline {
+	position: relative;
+}
+.aw-catalog .explore .tkmenu {
+	position: absolute;
+	background-color: #fff;
+	border: 1px solid #dadada;
+	border-right: none;
+}
+.aw-catalog .explore .head .tkmenu {
+	top: 1px;
+	right: 3px;
+}
+.aw-catalog .explore .row .tkmenu {
+	display: none;
+	top: -3px;
+	right: -4px;
+}
+
+.aw-catalog .explore .itemline:hover .tkmenu {
+	display: block;
+}
+.aw-catalog .explore .tkmenu .b {
+	cursor: pointer;
+	padding-left: 5px;
+	padding-top: 4px;
+	width: 18px;
+	height: 18px;
+	float: left;
+	border-right: 1px solid #dadada;
+}
+.aw-catalog .explore .tkmenu .b:hover {
+	background-color: #FFF0C6; 
+}
+.aw-catalog .explore .tkmenu .bc {
+	width: 12px;
+	height: 14px;
+}
+.aw-catalog .explore .tkmenu .bgo {
+	background: url("/modules/catalog/images/icons.png") no-repeat scroll -20px -39px transparent;
+}
+
+.aw-catalog .explore .tkmenu .badd {
+	background: url("/modules/catalog/images/icons.png") no-repeat scroll -57px -24px transparent;
+}
+.aw-catalog .explore .tkmenu .bedit {
+	background: url("/modules/catalog/images/icons.png") no-repeat scroll -29px -24px transparent;
+}
+.aw-catalog .explore .tkmenu .bremove {
+	background: url("/modules/catalog/images/icons.png") no-repeat scroll -42px -24px transparent;
+}
+
+/* * * * * * Status * * * * * */
+.aw-catalog .explore .row .strem .ch-tl {
+	text-decoration: line-through;
+}
+.aw-catalog .explore .row .starch .ch-tl {
+	font-style: italic;
+}
+
+.aw-catalog .explore .row .notmenu .tkmenu,
+.aw-catalog .explore .row .strem .tkmenu,
+.aw-catalog .explore .row .starch .tkmenu {
+	display: none;
+}

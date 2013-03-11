@@ -38,8 +38,8 @@ class Catalog {
 	public function __construct($d){
 		$this->id		= intval($d['id']);
 		$this->parentid	= intval($d['pid']); 
-		$this->title	= $d['tl']; 
-		$this->name		= $d['nm'];
+		$this->title	= strval($d['tl']);
+		$this->name		= strval($d['nm']);
 		$this->elementCount = intval($d['ecnt']);
 		 
 		$this->childs = new CatalogList();
@@ -76,9 +76,10 @@ class CatalogDetail {
 	public $metaDescript;
 
 	public function __construct($d){
-		$this->metaTitle	= $d['mtl'];
-		$this->metaKeys		= $d['mks'];
-		$this->metaDescript	= $d['mdsc'];
+		$this->descript		= strval($d['dsc']);
+		$this->metaTitle	= strval($d['mtl']);
+		$this->metaKeys		= strval($d['mks']);
+		$this->metaDescript	= strval($d['mdsc']);
 	}
 	
 	public function ToAJAX(){
@@ -315,8 +316,8 @@ class CatalogElement {
 		$this->id		= intval($d['id']);
 		$this->catalogid = intval($d['catid']);
 		$this->elTypeId = intval($d['eltpid']);
-		$this->title	= $d['tl'];
-		$this->name		= $d['nm'];
+		$this->title	= strval($d['tl']);
+		$this->name		= strval($d['nm']);
 	}
 	
 	public function ToAJAX(){
@@ -354,7 +355,7 @@ class CatalogElementList {
 	}
 
 	public function Count(){
-		return count($this->list);
+		return count($this->_list);
 	}
 
 	/**
@@ -362,7 +363,7 @@ class CatalogElementList {
 	 * @return CatalogElement
 	 */
 	public function GetByIndex($index){
-		return $this->list[$index];
+		return $this->_list[$index];
 	}
 	
 	/**
@@ -382,9 +383,8 @@ class CatalogElementList {
 		}
 		
 		$ret = new stdClass();
-		$ret->elements = new stdClass();
-		$ret->elements->list = $list;
-		$ret->elements->total = $this->total;
+		$ret->list = $list;
+		$ret->total = $this->total;
 	
 		return $ret;
 	}
@@ -424,6 +424,10 @@ class CatalogModuleManager {
 				return $this->CatalogInitDataToAJAX();
 			case "cataloglist":
 				return $this->CatalogListToAJAX();
+			case "catalog":
+				return $this->CatalogToAJAX($d->catid, $d->elementlist);
+			case "elementlist":
+				return $this->ElementListToAJAX($d->catid);
 			case "elementtypelist":
 				return $this->ElementTypeList();
 		}
@@ -514,6 +518,11 @@ class CatalogModuleManager {
 		$ret = new stdClass();
 		$ret->catalog = $cat->ToAJAX();
 		
+		if ($isElementList){
+			$retEls = $this->ElementListToAJAX($catid);
+			$ret->elements = $retEls->elements; 
+		}
+		return $ret;
 	}
 	
 	public function ElementList($catid){
@@ -530,14 +539,13 @@ class CatalogModuleManager {
 	}
 	
 	public function ElementListToAJAX($catid){
-		$list = $this->ElementList();
+		$list = $this->ElementList($catid);
 		
 		if (empty($list)){ return null; }
 		
 		$ret = new stdClass();
-		$ret->eltypes = $list->ToAJAX();
+		$ret->elements = $list->ToAJAX();
 		return $ret;
-		
 	}
 	
 	private $_cacheElementTypeList;

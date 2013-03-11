@@ -105,6 +105,7 @@ class CatalogDbQuery {
 			FROM ".$pfx."element e
 			INNER JOIN ".$pfx."catalog cat ON cat.catalogid=e.catalogid
 			WHERE e.deldate=0 AND e.catalogid=".bkint($catid)." AND cat.deldate=0
+			LIMIT 500
 		";
 		return $db->query_read($sql);
 	}	

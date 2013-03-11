@@ -35,8 +35,11 @@ Component.entryPoint = function(NS){
 		CatalogItem.superclass.constructor.call(this, d);
 	};
 	YAHOO.extend(CatalogItem, SysNS.Item, {
+		init: function(d){
+			this.detail = null;
+			CatalogItem.superclass.init.call(this, d);
+		},
 		update: function(d){
-			
 			this.parentid	= d['pid']*1;
 			this.title		= d['tl'];
 			this.name		= d['nm'];
@@ -56,6 +59,25 @@ Component.entryPoint = function(NS){
 	});		
 	NS.CatalogItem = CatalogItem;
 	
+	var CatalogDetail = function(d){
+		d = L.merge({
+			'dsc': '',
+			'mtl': '', 
+			'mks': '', 
+			'mdsc': '' 
+		}, d || {});
+		CatalogDetail.superclass.constructor.call(this, d);
+	};
+	YAHOO.extend(CatalogDetail, SysNS.Item, {
+		update: function(d){
+			this.descript		= d['dsc'];
+			this.metaTitle		= d['mtl'];
+			this.metaKeys		= d['mks'];
+			this.metaDescript	= d['mdsc'];
+		}
+	});		
+	NS.CatalogDetail = CatalogDetail;
+
 	var CatalogList = function(d){
 		CatalogList.superclass.constructor.call(this, d, CatalogItem);
 	};
@@ -76,7 +98,34 @@ Component.entryPoint = function(NS){
 			return fcat;
 		}
 	});
-	NS.CatalogList = CatalogList;	
+	NS.CatalogList = CatalogList;
+	
+
+	var Element = function(d){
+		d = L.merge({
+			'catid': 0, 
+			'eltpid': 0, 
+			'tl': '', 
+			'nm': '' 
+		}, d || {});
+		Element.superclass.constructor.call(this, d);
+	};
+	YAHOO.extend(Element, SysNS.Item, {
+		update: function(d){
+			this.catid		= d['catid']*1;
+			this.typeid		= d['eltpid']*1;
+			this.title		= d['tl'];
+			this.name		= d['nm'];
+		}
+	});		
+	NS.Element = Element;
+	
+	var ElementList = function(d){
+		ElementList.superclass.constructor.call(this, d, Element);
+	};
+	YAHOO.extend(ElementList, SysNS.ItemList, {});
+	NS.ElementList = ElementList;
+	
 	
 	NS.managers = {};
 	
@@ -131,6 +180,8 @@ Component.entryPoint = function(NS){
 			cfg = L.merge({
 				'elementlist': false
 			}, cfg||{});
+			
+			var cat = this.catalogList.find(catid);
 
 			var __self = this;
 			this.ajax({
@@ -138,18 +189,21 @@ Component.entryPoint = function(NS){
 				'catid': catid,
 				'elementlist': cfg['elementlist']
 			}, function(d){
-				Brick.console(d);
+				if (d && d['catalog'] && d['catalog']['dtl']){
+					if (L.isNull(cat)){
+						cat = new NS.Catalog(d);
+					}
+					cat.detail = new NS.CatalogDetail(d['catalog']['dtl']);
+				}
 				
-				var cat = null;
 				var list = __self._elementListUpdate(d);
-				
 				NS.life(callback, cat, list);
 			});
 		},
 		_elementListUpdate: function(d){
 			var list = null;
 			if (!L.isNull(d) && !L.isNull(d['elements'])){
-				list = new NS.CatalogList(d['elements']['list']);
+				list = new NS.ElementList(d['elements']['list']);
 			}
 			return list;
 		},
