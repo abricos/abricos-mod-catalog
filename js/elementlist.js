@@ -16,17 +16,18 @@ Component.entryPoint = function(NS){
 		buildTemplate = this.buildTemplate,
 		BW = Brick.mod.widget.Widget;
 	
-	var ElementListWidget = function(container, list, cfg){
+	var ElementListWidget = function(container, manager, list, cfg){
 		
 		cfg = L.merge({
 		}, cfg || {});
 		
 		ElementListWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'widget' 
-		}, list, cfg);
+		}, manager, list, cfg);
 	};
 	YAHOO.extend(ElementListWidget, BW, {
-		init: function(list, cfg){
+		init: function(manager, list, cfg){
+			this.manager = manager;
 			this.list = list;
 			this.config = cfg;
 			this.wsList = [];
@@ -50,12 +51,12 @@ Component.entryPoint = function(NS){
 			this.clearList();
 			
 			var elList = this.gel('list'), ws = this.wsList, 
-				__self = this;
+				__self = this, man = this.manager;
 
 			this.list.foreach(function(element){
 				var div = document.createElement('div');
 				elList.appendChild(div);
-				ws[ws.length] = new NS.ElementRowWidget(div, element, {
+				ws[ws.length] = new NS.ElementRowWidget(div, __self.manager, element, {
 					'onEditClick': function(w){__self.onElementEditClick(w);},
 					'onRemoveClick': function(w){__self.onElementRemoveClick(w);},
 					'onSelectClick': function(w){__self.onElementSelectClick(w);}
@@ -72,22 +73,24 @@ Component.entryPoint = function(NS){
 		allEasyEditorClose: function(wExclude){
 			this.foreach(function(w){
 				if (w != wExclude){
-					w.easyEditorClose();
+					w.editorClose();
 				}
 			});
 		},
 		onElementEditClick: function(w){
+			this.allEasyEditorClose(w);
+			w.editorShow();
 		},
 		onElementRemoveClick: function(w){
 		},
 		onElementSelectClick: function(w){
 			this.allEasyEditorClose(w);
-			w.easyEditorShow();
+			w.editorShow();
 		}
 	});
 	NS.ElementListWidget = ElementListWidget;
 	
-	var ElementRowWidget = function(container, element, cfg){
+	var ElementRowWidget = function(container, manager, element, cfg){
 		cfg = L.merge({
 			'onEditClick': null,
 			'onRemoveClick': null,
@@ -95,15 +98,16 @@ Component.entryPoint = function(NS){
 		}, cfg || {});
 		ElementRowWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'row' 
-		}, element, cfg);
+		}, manager, element, cfg);
 	};
-	YAHOO.extend(ElementRowWidget, Brick.mod.widget.Widget, {
-		init: function(element, cfg){
+	YAHOO.extend(ElementRowWidget, BW, {
+		init: function(manager, element, cfg){
+			this.manager = manager;
 			this.element = element;
 			this.cfg = cfg;
-			this.easyEditorWidget = null;
+			this.editorWidget = null;
 		},
-		onLoad: function(element){
+		onLoad: function(manager, element){
 			this.elSetHTML({
 				'tl': element.title
 			});
@@ -131,47 +135,83 @@ Component.entryPoint = function(NS){
 		onSelectClick: function(){
 			NS.life(this.cfg['onSelectClick'], this);
 		},
-		easyEditorShow: function(){
-			if (!L.isNull(this.easyEditorWidget)){ return; }
-			this.easyEditorWidget = 
-				new NS.ElementEasyEditRowWidget(this.gel('easyeditor'), this.element);
+		editorShow: function(){
+			if (!L.isNull(this.editorWidget)){ return; }
+			var __self = this;
+			this.editorWidget = 
+				new NS.ElementEasyEditRowWidget(this.gel('easyeditor'), this.manager, this.element, {
+					'onSaveClick': function(wEditor, saveData){
+						__self.onEditorSaveClick(wEditor, saveData);
+					},
+					'onCancelClick': function(wEditor){ __self.editorClose(); }
+				});
 			
 			Dom.addClass(this.gel('wrap'), 'rborder');
 		},
-		easyEditorClose: function(){
-			if (L.isNull(this.easyEditorWidget)){ return; }
+		editorClose: function(){
+			if (L.isNull(this.editorWidget)){ return; }
 
 			Dom.removeClass(this.gel('wrap'), 'rborder');
-			this.easyEditorWidget.destroy();
-			this.easyEditorWidget = null;
+			this.editorWidget.destroy();
+			this.editorWidget = null;
 		}
 	});
 	NS.ElementRowWidget = ElementRowWidget;	
 	
-	var ElementEasyEditRowWidget = function(container, element, cfg){
+	var ElementEasyEditRowWidget = function(container, manager, element, cfg){
 		cfg = L.merge({
-			'onEditClick': null,
-			'onRemoveClick': null,
-			'onSelectClick': null
+			'onSaveClick': null,
+			'onCancelClick': null
 		}, cfg || {});
 		ElementEasyEditRowWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'easyeditor' 
-		}, element, cfg);
+		}, manager, element, cfg);
 	};
-	YAHOO.extend(ElementEasyEditRowWidget, Brick.mod.widget.Widget, {
-		init: function(element, cfg){
+	YAHOO.extend(ElementEasyEditRowWidget, BW, {
+		init: function(manager, element, cfg){
+			this.manager = manager;
 			this.element = element;
 			this.cfg = cfg;
+			this.uploadWindow = null;
 		},
-		onLoad: function(element){
+		onLoad: function(manager, element){
 			this.elSetValue({
 				'tl': element.title
 			});
 		},
 		onClick: function(el, tp){
 			switch(el.id){
+			case tp['baddfotos']: this.imageUploadShow(); return true;
+			case tp['bsave']: this.onSaveClick(); return true;
+			case tp['bcancel']: this.onCancelClick(); return true;
 			}
 			return false;
+		},
+		onSaveClick: function(){
+			NS.life(this.cfg['onSaveClick'], this);
+		},
+		onCancelClick: function(){
+			NS.life(this.cfg['onCancelClick'], this);
+		},
+		imageUploadShow: function(wEditor){
+			
+			NS.uploadActiveImageList = this;
+			
+			var man = this.manager;
+			
+			if (!L.isNull(this.uploadWindow) && !this.uploadWindow.closed){
+				this.uploadWindow.focus();
+				return;
+			}
+			var url = '/catalogbase/uploadelementimg/'+man.modname+'/';
+			this.uploadWindow = window.open(
+				url, 'catalogimage',	
+				'statusbar=no,menubar=no,toolbar=no,scrollbars=yes,resizable=yes,width=550,height=500' 
+			);
+			NS.activeImageList = this;
+		},
+		imageAdd: function(imgs){
+			Brick.console(imgs);
 		}
 	});
 	NS.ElementEasyEditRowWidget = ElementEasyEditRowWidget;

@@ -182,7 +182,7 @@ if ($updateManager->isUpdate('0.2.3')){
 
 }
 
-if ($updateManager->isUpdate('0.2.5') && !$updateManager->isInstall){
+if ($updateManager->isUpdate('0.2.5.1') && !$updateManager->isInstall){
 
 	$db->query_write("
 		ALTER TABLE `".$pfx."element` 

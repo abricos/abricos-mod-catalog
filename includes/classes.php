@@ -593,6 +593,12 @@ class CatalogModuleManager {
 		return $ret;
 	}
 	
+	public function FotoAddToBuffer($fhash){
+		if (!$this->IsWriteRole()){ return false; }
+		
+		CatalogDbQuery::FotoAddToBuffer($this->db, $this->pfx, $fhash);
+	}
+	
 }
 
 ?>

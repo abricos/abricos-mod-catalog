@@ -1,0 +1,130 @@
+<!--[*]
+[tt=window]_sys[/tt]
+[script]content_uploadelementimg.php[/script]
+
+[bkvar=result] [] [/bkvar];
+
+[*]-->
+
+<style type="text/css">
+	.mod-catalog .upload h2 {
+		font-size: 18px;
+	}
+	.mod-catalog  .upload .errortext {
+		color: red;
+	}
+	.mod-catalog  .upload input.image {
+		margin-bottom: 10px;
+	}
+	.mod-catalog  .upload .btns {
+		text-align: right;
+		margin-top: 10px;
+	}
+</style>
+
+<div class="mod-catalog">
+	<form class="upload" enctype="multipart/form-data" action="/catalogbase/uploadelementimg/{v#modname}/go/" method="POST" onsubmit="return beginUpload();">
+	
+		<h2>Загрузка изображений</h2>
+		
+		<input type="hidden" name="MAX_FILE_SIZE" value="15728640" />
+		
+		<fieldset id="errorpanel" style="display: none">
+			<legend class="errortext">Ошибка</legend>
+			<div class="errortext">
+				Не удалось выполнить загрузку:
+			</div>
+		</fieldset>
+
+		<fieldset>
+			<legend>Загрузить изображение с вашего компьютера</legend>
+			<div id="btnsUpload">
+				<input type="file" name="image0" class="image" size="60" />
+				
+				<div id="morefiles"></div>
+				
+				<a href="#" onclick="moreFile(); return false;">+ выбрать еще файл</a>
+			
+				<div class="btns">
+					<input type="submit" value="Загрузить" />
+				</div>				
+			</div>
+			
+			<div id="loading" style="display: none">
+				<img src="/images/loading.gif" />&nbsp;Идет загрузка, пожалуйста, подождите...
+			</div>
+		</fieldset>
+		
+	</form>
+</div>
+
+<script type="text/javascript">
+   	var error = {
+		"1": "Неизвестный тип файла",
+		"2": "Размер файла превышает допустимый",
+		"3": "Ошибка сервера",
+		"4": "Размер изображения превышает допустимый",
+		"5": "Недостаточно свободного места в вашем профиле",
+		"6": "Нет прав на загрузку файла",
+		"7": "Файл с таким именем уже загружен",
+		"8": "Не выбран файл или выбранный файл слишком большой",
+		"9": "Некорректное изображение",
+		"10": "Некорректное изображение"
+	};
+	    
+	/*
+	var el = document.getElementById('errorpanel');
+	if (el){
+		el.style.display = '';
+	}
+	var elErr = document.getElementById('et-{v#errnum}');
+	if (elErr){
+		elErr.style.display = '';		
+	}
+	/**/
+	
+	var resa = [bkvar]result[/bkvar], imgs = [];
+
+	var setResult = function(){
+		var aiList = window.opener.Brick.mod.catalog.uploadActiveImageList;
+		var iserr = false;
+		
+		for (var i=0;i<resa.length;i++){
+			var r = resa[i];
+			if (r['error']> 0){
+				iserr = true;
+				
+			}else{
+				imgs[imgs.length] = r['fhash'];
+			}
+		}
+		
+		try{
+			aiList.imageAdd[imgs];
+		}catch(e){}
+		
+		if (!iserr){
+			self.close();
+		}
+		
+		// .setImageByFID('{v#fhash}', '{v#fname}');
+		// self.close();
+	}
+	setResult();
+
+	
+	var fileCounter = 1;
+
+	var moreFile = function(){
+		var el = document.getElementById('morefiles');
+		el.innerHTML += '<input type="file" name="image'+fileCounter+'" class="image" size="60" />'
+		fileCounter++;
+	};
+	
+	var beginUpload = function(){
+		document.getElementById('btnsUpload').style.display = 'none';
+		document.getElementById('loading').style.display = '';
+		return true;
+	};
+</script>
+

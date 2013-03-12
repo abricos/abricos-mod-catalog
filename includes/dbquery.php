@@ -145,7 +145,14 @@ class CatalogDbQuery {
 		return $db->query_read($sql);
 	}
 	
-	
+	public static function FotoAddToBuffer(Ab_Database $db, $pfx, $fhash){
+		$sql = "
+			INSERT INTO ".$pfx."foto (fileid) VALUES (
+				'".bkstr($fhash)."'
+			)
+		";
+		$db->query_write($sql);
+	}
 }
 
 /*

@@ -35,7 +35,7 @@ class CatalogModule extends Ab_Module {
 	
 	
 	function __construct(){
-		$this->version = "0.2.5"; 
+		$this->version = "0.2.5.1";
 		$this->name = "catalog";
 		$this->takelink = "catalogbase";
 		
@@ -64,8 +64,13 @@ class CatalogModule extends Ab_Module {
 	}
 	
 	public function GetContentName(){
-		$cname = 'index';
+		$cname = '';
 		$adress = $this->registry->adress;
+		$dir = Abricos::$adress->dir;
+
+		if ($dir[1] == 'uploadelementimg'){
+			return 'uploadelementimg';
+		}
 		
 		if ($adress->level >= 2){
 			
