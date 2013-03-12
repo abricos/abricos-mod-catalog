@@ -111,6 +111,10 @@ Component.entryPoint = function(NS){
 		Element.superclass.constructor.call(this, d);
 	};
 	YAHOO.extend(Element, SysNS.Item, {
+		init: function(d){
+			this.detail = null;
+			Element.superclass.init.call(this, d);
+		},
 		update: function(d){
 			this.catid		= d['catid']*1;
 			this.typeid		= d['eltpid']*1;
@@ -119,6 +123,20 @@ Component.entryPoint = function(NS){
 		}
 	});		
 	NS.Element = Element;
+	
+	var ElementDetail = function(d){
+		d = L.merge({
+			'imgs': []
+		}, d || {});
+		ElementDetail.superclass.constructor.call(this, d);
+	};
+	YAHOO.extend(ElementDetail, SysNS.Item, {
+		update: function(d){
+			this.images = d['imgs'];
+		}
+	});
+	NS.ElementDetail = ElementDetail;
+	
 	
 	var ElementList = function(d){
 		ElementList.superclass.constructor.call(this, d, Element);
@@ -214,6 +232,23 @@ Component.entryPoint = function(NS){
 			}, function(d){
 				var list = __self._elementListUpdate(d);
 				NS.life(callback, list);
+			});
+		},
+		elementLoad: function(elementid, callback, element){
+			element = element || null;
+			this.ajax({
+				'do': 'element',
+				'elementid': elementid
+			}, function(d){
+				Brick.console(d);
+				if (d && d['element'] && d['element']['dtl']){
+					if (L.isNull(element)){
+						element = new NS.Element(d);
+					}
+					element.detail = new NS.ElementDetail(d['element']['dtl']);
+				}
+				
+				NS.life(callback, element);
 			});
 		}
 	};

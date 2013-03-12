@@ -51,7 +51,7 @@ Component.entryPoint = function(NS){
 			this.clearList();
 			
 			var elList = this.gel('list'), ws = this.wsList, 
-				__self = this, man = this.manager;
+				__self = this;
 
 			this.list.foreach(function(element){
 				var div = document.createElement('div');
@@ -146,12 +146,12 @@ Component.entryPoint = function(NS){
 					'onCancelClick': function(wEditor){ __self.editorClose(); }
 				});
 			
-			Dom.addClass(this.gel('wrap'), 'rborder');
+			Dom.addClass(this.gel('view'), 'rborder');
 		},
 		editorClose: function(){
 			if (L.isNull(this.editorWidget)){ return; }
 
-			Dom.removeClass(this.gel('wrap'), 'rborder');
+			Dom.removeClass(this.gel('view'), 'rborder');
 			this.editorWidget.destroy();
 			this.editorWidget = null;
 		}
@@ -175,6 +175,13 @@ Component.entryPoint = function(NS){
 			this.uploadWindow = null;
 		},
 		onLoad: function(manager, element){
+			var __self = this;
+			manager.elementLoad(element.id, function(detail){
+				__self._onLoadElement();
+			}, element);
+		},
+		_onLoadElement: function(){
+			var element = this.element;
 			this.elSetValue({
 				'tl': element.title
 			});

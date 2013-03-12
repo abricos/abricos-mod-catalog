@@ -36,11 +36,13 @@
 	<td colspan="4" style="text-align: center;"><b>{v#tl}</b></td>
 <tr>
 <!--{edrowgroup}--><option value="{v#id}">{v#tl}</option>
-<!--{editor}--><div class='hd'>{#mod.catalog.eloption.editor.1}</div>
+
+<!--{editor}-->
+<div class='hd'>{#mod.catalog.eloption.editor.1}</div>
 <div class='bd'>
 	<div class="field linespace-1" style="width: 500px">
 		<h3>{#mod.catalog.eloption.editor.2}</h3>
-		<p>
+		<p style="display: none">
 			<label id="{i#group}-lbl">{#mod.catalog.eloption.editor.3}:</label>
 			<select id="{i#group}">
 				<option value="0">--&gt;</option>
@@ -61,9 +63,16 @@
 			<span class="dsc">* {#mod.catalog.eloption.editor.8}</span>
 		</p>
 		<p>
-			<label id="{i#eltitlesource}-lbl" for="{i#eltitlesource}">{#mod.catalog.eloption.editor.9}</label> 
+			<label id="{i#eltitlesource}-lbl" for="{i#eltitlesource}">{#mod.catalog.eloption.editor.9}</label>
+			&nbsp;
 			<input type="checkbox" id="{i#eltitlesource}" />
 			<span class="dsc">* {#mod.catalog.eloption.editor.10}</span>
+		</p>
+		<p>
+			<label id="{i#elsystem}-lbl" for="{i#elsystem}">Системная опция</label>
+			&nbsp;
+			<input type="checkbox" id="{i#elsystem}" />
+			<span class="dsc">* Системная опция не видна простым пользователям</span>
 		</p>
 		<p>
 			<label id="{i#fldtype}-lbl">{#mod.catalog.eloption.editor.11}:</label>
@@ -160,29 +169,32 @@
 			</p>
 		</div>
 		<div id="{i#contopt9}" style="display: none;"></div>
-		<h3>
-			<label for="{i#cust}">{#mod.catalog.eloption.editor.39}</label> 
-			<input type="checkbox" id="{i#cust}" />
-		</h3>
-		<div id="{i#custcont}" style="display: none;">
-			<p>
-				{#mod.catalog.eloption.editor.40} 
-				<select id="{i#custfunc}">
-					<option value="-1">----</option>
-					{v#custfunc}
-				</select>
-				<input id='{i#bcustfuncins}' type="button" value="{#mod.catalog.eloption.editor.41}" />
-			</p>
-			<p>
-				<label id="{i#custinputb}-lbl" for="{i#custinputb}">{#mod.catalog.eloption.editor.42}</label> 
-				<input type="checkbox" id="{i#custinputb}" /><br />
-				<textarea id="{i#custinput}" style="width: 480px; height: 50px" disabled="disabled"></textarea>
-			</p>
-			<p>
-				<label id="{i#custonloadb}-lbl" for="{i#custonloadb}">{#mod.catalog.eloption.editor.44}</label> 
-				<input type="checkbox" id="{i#custonloadb}" /><br />
-				<textarea id="{i#custonload}" style="width: 480px; height: 50px" disabled="disabled"></textarea>
-			</p>
+		
+		<div style="display: none;">
+			<h3>
+				<label for="{i#cust}">{#mod.catalog.eloption.editor.39}</label> 
+				<input type="checkbox" id="{i#cust}" />
+			</h3>
+			<div id="{i#custcont}" style="display: none;">
+				<p>
+					{#mod.catalog.eloption.editor.40} 
+					<select id="{i#custfunc}">
+						<option value="-1">----</option>
+						{v#custfunc}
+					</select>
+					<input id='{i#bcustfuncins}' type="button" value="{#mod.catalog.eloption.editor.41}" />
+				</p>
+				<p>
+					<label id="{i#custinputb}-lbl" for="{i#custinputb}">{#mod.catalog.eloption.editor.42}</label> 
+					<input type="checkbox" id="{i#custinputb}" /><br />
+					<textarea id="{i#custinput}" style="width: 480px; height: 50px" disabled="disabled"></textarea>
+				</p>
+				<p>
+					<label id="{i#custonloadb}-lbl" for="{i#custonloadb}">{#mod.catalog.eloption.editor.44}</label> 
+					<input type="checkbox" id="{i#custonloadb}" /><br />
+					<textarea id="{i#custonload}" style="width: 480px; height: 50px" disabled="disabled"></textarea>
+				</p>
+			</div>
 		</div>
 		<p style="display: none;">
 			<input type="checkbox" id="{i#disable}" /> <label for="{i#flddsb}">{#mod.catalog.eloption.editor.45}</label>

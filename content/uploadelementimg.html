@@ -86,6 +86,9 @@
 	var resa = [bkvar]result[/bkvar], imgs = [];
 
 	var setResult = function(){
+		if (resa.length == 0){
+			return;
+		}
 		var aiList = window.opener.Brick.mod.catalog.uploadActiveImageList;
 		var iserr = false;
 		
@@ -93,7 +96,6 @@
 			var r = resa[i];
 			if (r['error']> 0){
 				iserr = true;
-				
 			}else{
 				imgs[imgs.length] = r['fhash'];
 			}
@@ -106,15 +108,10 @@
 		if (!iserr){
 			self.close();
 		}
-		
-		// .setImageByFID('{v#fhash}', '{v#fname}');
-		// self.close();
 	}
 	setResult();
-
 	
 	var fileCounter = 1;
-
 	var moreFile = function(){
 		var el = document.getElementById('morefiles');
 		el.innerHTML += '<input type="file" name="image'+fileCounter+'" class="image" size="60" />'
@@ -126,5 +123,6 @@
 		document.getElementById('loading').style.display = '';
 		return true;
 	};
+	
 </script>
 

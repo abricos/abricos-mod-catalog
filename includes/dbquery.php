@@ -108,7 +108,41 @@ class CatalogDbQuery {
 			LIMIT 500
 		";
 		return $db->query_read($sql);
-	}	
+	}
+	
+	public static function Element(Ab_Database $db, $pfx, $elementid){
+		$sql = "
+			SELECT
+				e.elementid as id,
+				e.catalogid as catid,
+				e.eltypeid as eltpid,
+				e.title as tl,
+				e.name as nm
+			FROM ".$pfx."element e
+			INNER JOIN ".$pfx."catalog cat ON cat.catalogid=e.catalogid
+			WHERE e.deldate=0 AND e.elementid=".bkint($elementid)." AND cat.deldate=0
+			LIMIT 1
+		";
+		return $db->query_first($sql);
+	}
+	
+	public static function ElementDetail(Ab_Database $db, $pfx, $elementid, CatalogElementType $elType){
+		$options = $elType->options;
+		$fields = array();
+		for ($i=0; $i<$options->Count(); $i++){
+			$option = $options->GetByIndex($i);
+			array_push($fields, "e.fld_".$option->name);
+		}
+		$sql = "
+			SELECT
+				e.elementid as id
+				".(count($fields)>0?",".implode(",", $fields):"")."
+			FROM ".$pfx.$elType->tableName." e
+			WHERE e.elementid=".bkint($elementid)."
+			LIMIT 1
+		";
+		return $db->query_first($sql);
+	}
 	
 	public static function ElementTypeList(Ab_Database $db, $pfx){
 		$sql = "

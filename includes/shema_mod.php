@@ -58,6 +58,10 @@ if ($updateManager->isInstall()){
 			`title` VARCHAR(250) NOT NULL default 'Название',
 			`name` VARCHAR(250) NOT NULL default 'Имя',
 			`ord` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'Пользовательская сортировка',
+			
+			`metatitle` varchar(250) NOT NULL default '' COMMENT 'Тег title',
+			`metakeys` varchar(250) NOT NULL default '' COMMENT 'Тег keywords',
+			`metadesc` varchar(250) NOT NULL default '' COMMENT 'Тег description',
 					  
 			`dateline` int(10) unsigned NOT NULL default '0' COMMENT 'дата добавления',
 			`deldate` int(10) unsigned NOT NULL default '0' COMMENT 'дата удаления',
@@ -112,6 +116,7 @@ if ($updateManager->isInstall()){
 		  `descript` text NOT NULL COMMENT 'Описание',
 		  `eltitlesource` int(1) NOT NULL default '0' COMMENT '1-элемент является составной частью названия элемента',
 		  `ord` int(5) NOT NULL default '0' COMMENT 'Сортировка',
+		  `issystem` tinyint(1) unsigned NOT NULL default '0' COMMENT '1-системная опция',
 		  `disable` int(2) unsigned NOT NULL default '0' COMMENT 'Опция отключена',
 		  `dateline` int(10) unsigned NOT NULL default '0' COMMENT 'дата добавления',
 		  `deldate` int(10) unsigned NOT NULL default '0' COMMENT 'дата удаления',
@@ -187,6 +192,11 @@ if ($updateManager->isUpdate('0.2.5.1') && !$updateManager->isInstall){
 	$db->query_write("
 		ALTER TABLE `".$pfx."element` 
 		ADD `ord` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'Пользовательская сортировка',
+			
+		ADD `metatitle` varchar(250) NOT NULL default '' COMMENT 'Тег title',
+		ADD `metakeys` varchar(250) NOT NULL default '' COMMENT 'Тег keywords',
+		ADD `metadesc` varchar(250) NOT NULL default '' COMMENT 'Тег description',
+			
 		ADD KEY `element` (`catalogid`, `deldate`),
 		ADD KEY `ord` (`ord`)
 	");
@@ -195,7 +205,11 @@ if ($updateManager->isUpdate('0.2.5.1') && !$updateManager->isInstall){
 		ALTER TABLE `".$pfx."catalog`
 		ADD KEY `deldate` (`deldate`)
 	");
-	
+
+	$db->query_write("
+		ALTER TABLE `".$pfx."eloption`
+		ADD `issystem` tinyint(1) unsigned NOT NULL default '0' COMMENT '1-системная опция'
+	");
 	
 }
 

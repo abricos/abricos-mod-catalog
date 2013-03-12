@@ -162,6 +162,8 @@ class CatalogElementType {
 	public $title;
 	public $name;
 	
+	public $tableName = "";
+	
 	/**
 	 * @var CatalogElementTypeOptionList
 	 */
@@ -173,6 +175,8 @@ class CatalogElementType {
 		$this->name		= $d['nm'];
 
 		$this->options = new CatalogElementTypeOptionList();
+		
+		$this->tableName = "element";
 	}
 	
 	public function ToAJAX(){
@@ -312,6 +316,11 @@ class CatalogElement {
 	public $title;
 	public $name;
 	
+	/**
+	 * @var CatalogElementDetail
+	 */
+	public $detail = null;
+	
 	public function __construct($d){
 		$this->id		= intval($d['id']);
 		$this->catalogid = intval($d['catid']);
@@ -327,8 +336,36 @@ class CatalogElement {
 		$ret->eltpid	= $this->elTypeId;
 		$ret->tl		= $this->title;
 		$ret->nm		= $this->name;
+		
+		$ret->dtl	= null;
+		if (!empty($this->detail)){
+			$ret->dtl = $this->detail->ToAJAX();
+		}
+		
 		return $ret;
 	}	
+}
+
+
+/**
+ * Подробная информация по элементу
+ */
+class CatalogElementDetail {
+
+	public $optionsBase = array();
+	public $optionsExt = array();
+	public $images = array();
+
+	public function __construct($optionsBase){
+		$this->optionsBase = $optionsBase;
+	}
+
+	public function ToAJAX(){
+		$ret = new stdClass();
+		$ret->imgs	= $this->images;
+		$ret->optb = $this->optionsBase;
+		return $ret;
+	}
 }
 
 
@@ -428,6 +465,8 @@ class CatalogModuleManager {
 				return $this->CatalogToAJAX($d->catid, $d->elementlist);
 			case "elementlist":
 				return $this->ElementListToAJAX($d->catid);
+			case "element":
+				return $this->ElementToAJAX($d->elementid);
 			case "elementtypelist":
 				return $this->ElementTypeList();
 		}
@@ -545,6 +584,38 @@ class CatalogModuleManager {
 		
 		$ret = new stdClass();
 		$ret->elements = $list->ToAJAX();
+		return $ret;
+	}
+	
+	public function Element($elementid){
+		if (!$this->IsViewRole()){ return false; }
+		
+		$d = CatalogDbQuery::Element($this->db, $this->pfx, $elementid);
+		if (empty($d)){ return null; }
+		
+		
+		$element = new CatalogElement($d);
+		
+		
+		$elTypeList = $this->ElementTypeList();
+		
+		$elTypeBase = $elTypeList->Get(0);
+		$d = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $elementid, $elTypeBase);
+		$detail = new CatalogElementDetail($d);
+		
+		// $elType = $elTypeList->Get($element->elTypeId);
+		$element->detail = $detail;
+		
+		return $element;
+	}
+	
+	public function ElementToAJAX($elementid){
+		$element = $this->Element($elementid);
+		if (empty($element)){ return null; }
+		
+		$ret = new stdClass();
+		$ret->element = $element->ToAJAX();
+		
 		return $ret;
 	}
 	
