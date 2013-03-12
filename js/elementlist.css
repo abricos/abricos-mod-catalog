@@ -102,20 +102,3 @@
 .aw-catalog .elrow .easyeditor .fotolist {
 	font-style: italic;
 }
-/* * * * Превьюшки * * * * */
-.aw-catalog .tmb50 { width: 50px; height: 50px; }
-.aw-catalog .tmb80 { width: 80px; height: 80px; }
-
-.aw-catalog .tmb50 img { max-width: 50px; max-height: 50px; }
-.aw-catalog .tmb80 img { max-width: 80px; max-height: 80px; }
-
-.aw-catalog .tmb { display: table; }
-.aw-catalog .tmb .tmbpre {
-	display: table-cell;
-	vertical-align: middle;
-}
-.aw-catalog .tmb .tmbpre img {
-	display: block;
-	margin: 0 auto;
-}
-
