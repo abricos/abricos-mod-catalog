@@ -146,17 +146,32 @@ Component.entryPoint = function(NS){
 					'onCancelClick': function(wEditor){ __self.editorClose(); }
 				});
 			
-			Dom.addClass(this.gel('view'), 'rborder');
+			Dom.addClass(this.gel('wrap'), 'rborder');
 		},
 		editorClose: function(){
 			if (L.isNull(this.editorWidget)){ return; }
 
-			Dom.removeClass(this.gel('view'), 'rborder');
+			Dom.removeClass(this.gel('wrap'), 'rborder');
 			this.editorWidget.destroy();
 			this.editorWidget = null;
 		}
 	});
 	NS.ElementRowWidget = ElementRowWidget;	
+	
+	var ElementImage50Widget = function(container, fh, cfg){
+		cfg = L.merge({
+			'onRemoveClick': null
+		}, cfg || {});
+		ElementImage50Widget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'foto', 'isRowWidget': true 
+		}, fh, cfg);
+	};
+	YAHOO.extend(ElementImage50Widget, BW, {
+		buildTData: function(fh){
+			return {'fh': fh};
+		}
+	});
+	NS.ElementImage50Widget = ElementImage50Widget;
 	
 	var ElementEasyEditRowWidget = function(container, manager, element, cfg){
 		cfg = L.merge({
@@ -164,7 +179,7 @@ Component.entryPoint = function(NS){
 			'onCancelClick': null
 		}, cfg || {});
 		ElementEasyEditRowWidget.superclass.constructor.call(this, container, {
-			'buildTemplate': buildTemplate, 'tnames': 'easyeditor' 
+			'buildTemplate': buildTemplate, 'tnames': 'easyeditor,nofoto' 
 		}, manager, element, cfg);
 	};
 	YAHOO.extend(ElementEasyEditRowWidget, BW, {
@@ -173,18 +188,52 @@ Component.entryPoint = function(NS){
 			this.element = element;
 			this.cfg = cfg;
 			this.uploadWindow = null;
+			this.wsFotos = [];
 		},
 		onLoad: function(manager, element){
-			var __self = this;
-			manager.elementLoad(element.id, function(detail){
-				__self._onLoadElement();
-			}, element);
+			if (!L.isNull(element.detail)){
+				this._onLoadElement(element);
+			}else{
+				var __self = this;
+				manager.elementLoad(element.id, function(element){
+					__self._onLoadElement(element);
+				}, element);
+			}
 		},
-		_onLoadElement: function(){
-			var element = this.element;
+		_onLoadElement: function(element){
+			this.elHide('loading');
+			this.elShow('view');
 			this.elSetValue({
 				'tl': element.title
 			});
+			
+			this.renderFotos();
+		},
+		clearFotos: function(){
+			var ws = this.wsFotos;
+			for (var i=0;i<ws.length;i++){
+				ws[i].destroy();
+			}
+			this.wsFotos = [];
+		},
+		renderFotos: function(){
+			this.clearFotos();
+			
+			var fotos = this.element.detail.fotos;
+			if (fotos.length == 0){
+				this.elSetHTML('fotolist', this._TM.replace('nofoto'));
+			}else{
+				this.elSetHTML('fotolist', '');
+			}
+			
+			var ws = [];
+			for (var i=0;i<fotos.length;i++){
+				ws[ws.length] = new NS.ElementImage50Widget(this.gel('fotolist'), fotos[i]);
+			}
+			for (var i=0;i<ws.length;i++){
+				ws[i].render();
+			}
+			this.wsFotos = ws;
 		},
 		onClick: function(el, tp){
 			switch(el.id){

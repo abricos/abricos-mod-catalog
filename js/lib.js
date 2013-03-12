@@ -126,13 +126,22 @@ Component.entryPoint = function(NS){
 	
 	var ElementDetail = function(d){
 		d = L.merge({
-			'imgs': []
+			'imgs': [],
+			'mtl': '',
+			'mdsc': '',
+			'mks': '',
+			'optb': {}
 		}, d || {});
 		ElementDetail.superclass.constructor.call(this, d);
 	};
 	YAHOO.extend(ElementDetail, SysNS.Item, {
 		update: function(d){
-			this.images = d['imgs'];
+			this.fotos = d['imgs'];
+			
+			this.metaTitle = d['mtl'];
+			this.metaKeys = d['mks'];
+			this.metaDesc = d['mdsc'];
+			this.optionsBase = d['optb'];
 		}
 	});
 	NS.ElementDetail = ElementDetail;
@@ -240,7 +249,6 @@ Component.entryPoint = function(NS){
 				'do': 'element',
 				'elementid': elementid
 			}, function(d){
-				Brick.console(d);
 				if (d && d['element'] && d['element']['dtl']){
 					if (L.isNull(element)){
 						element = new NS.Element(d);

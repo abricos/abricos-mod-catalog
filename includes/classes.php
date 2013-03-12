@@ -45,7 +45,7 @@ class Catalog {
 		$this->childs = new CatalogList();
 	}
 	
-	public function ToAJAX(){
+	public function ToAJAX(CatalogModuleManager $man){
 		$ret = new stdClass();
 		$ret->id	= $this->id;
 		$ret->pid	= $this->parentid;
@@ -55,11 +55,11 @@ class Catalog {
 		
 		$ret->dtl	= null;
 		if (!empty($this->detail)){
-			$ret->dtl = $this->detail->ToAJAX();
+			$ret->dtl = $this->detail->ToAJAX($man);
 		}
 		
 		if ($this->childs->Count()>0){
-			$ret->childs = $this->childs->ToAJAX();
+			$ret->childs = $this->childs->ToAJAX($man);
 		}
 		return $ret;
 	}
@@ -82,12 +82,14 @@ class CatalogDetail {
 		$this->metaDescript	= strval($d['mdsc']);
 	}
 	
-	public function ToAJAX(){
+	public function ToAJAX(CatalogModuleManager $man){
 		$ret = new stdClass();
 		$ret->dsc	= $this->descript;
-		$ret->mtl	= $this->metaTitle;
-		$ret->mks	= $this->metaKeys;
-		$ret->mdsc	= $this->metaDescript;
+		if ($man->IsAdminRole()){
+			$ret->mtl	= $this->metaTitle;
+			$ret->mks	= $this->metaKeys;
+			$ret->mdsc	= $this->metaDescript;
+		}
 		return $ret;
 	}
 }
@@ -148,10 +150,10 @@ class CatalogList {
 		return null;
 	}
 	
-	public function ToAJAX(){
+	public function ToAJAX(CatalogModuleManager $man){
 		$ret = array();
 		for ($i=0; $i<$this->Count(); $i++){
-			array_push($ret, $this->GetByIndex($i)->ToAJAX());
+			array_push($ret, $this->GetByIndex($i)->ToAJAX($man));
 		}
 		return $ret;
 	}
@@ -179,14 +181,14 @@ class CatalogElementType {
 		$this->tableName = "element";
 	}
 	
-	public function ToAJAX(){
+	public function ToAJAX(CatalogModuleManager $man){
 		$ret = new stdClass();
 		$ret->id	= $this->id;
 		$ret->tl	= $this->title;
 		$ret->nm	= $this->name;
 	
 		if ($this->options->Count()>0){
-			$ret->options = $this->options->ToAJAX();
+			$ret->options = $this->options->ToAJAX($man);
 		}
 		return $ret;
 	}
@@ -228,10 +230,10 @@ class CatalogElementTypeList {
 		return $this->_list[$index];
 	}
 
-	public function ToAJAX(){
+	public function ToAJAX(CatalogModuleManager $man){
 		$ret = array();
 		for ($i=0; $i<$this->Count(); $i++){
-			array_push($ret, $this->GetByIndex($i)->ToAJAX());
+			array_push($ret, $this->GetByIndex($i)->ToAJAX($man));
 		}
 		return $ret;
 	}
@@ -252,7 +254,7 @@ class CatalogElementTypeOption {
 		$this->name		= $d['nm'];
 	}
 	
-	public function ToAJAX(){
+	public function ToAJAX(CatalogModuleManager $man){
 		$ret = new stdClass();
 		$ret->id		= $this->id;
 		$ret->eltpid	= $this->elTypeId;
@@ -299,10 +301,10 @@ class CatalogElementTypeOptionList {
 		return $this->_list[$index];
 	}
 
-	public function ToAJAX(){
+	public function ToAJAX(CatalogModuleManager $man){
 		$ret = array();
 		for ($i=0; $i<$this->Count(); $i++){
-			array_push($ret, $this->GetByIndex($i)->ToAJAX());
+			array_push($ret, $this->GetByIndex($i)->ToAJAX($man));
 		}
 		return $ret;
 	}
@@ -329,7 +331,7 @@ class CatalogElement {
 		$this->name		= strval($d['nm']);
 	}
 	
-	public function ToAJAX(){
+	public function ToAJAX(CatalogModuleManager $man){
 		$ret = new stdClass();
 		$ret->id		= $this->id;
 		$ret->catid		= $this->catalogid;
@@ -339,7 +341,7 @@ class CatalogElement {
 		
 		$ret->dtl	= null;
 		if (!empty($this->detail)){
-			$ret->dtl = $this->detail->ToAJAX();
+			$ret->dtl = $this->detail->ToAJAX($man);
 		}
 		
 		return $ret;
@@ -351,19 +353,35 @@ class CatalogElement {
  * Подробная информация по элементу
  */
 class CatalogElementDetail {
+	
+	public $metaTitle;
+	public $metaKeys;
+	public $metaDesc;
 
 	public $optionsBase = array();
 	public $optionsExt = array();
 	public $images = array();
 
-	public function __construct($optionsBase){
-		$this->optionsBase = $optionsBase;
+	public function __construct($d, $dOptBase, $images){
+		$this->metaTitle = strval($d['mtl']);
+		$this->metaKeys = strval($d['mks']);
+		$this->metaDesc = strval($d['mdsc']);
+		$this->optionsBase = $dOptBase;
+		
+		$this->images = $images;
 	}
 
-	public function ToAJAX(){
+	public function ToAJAX(CatalogModuleManager $man){
 		$ret = new stdClass();
 		$ret->imgs	= $this->images;
 		$ret->optb = $this->optionsBase;
+		
+		if ($man->IsAdminRole()){
+			$ret->mtl = $this->metaTitle;
+			$ret->mks = $this->metaKeys;
+			$ret->mdsc = $this->metaDesc;
+		}
+		
 		return $ret;
 	}
 }
@@ -412,11 +430,11 @@ class CatalogElementList {
 		return $this->_list[$index];
 	}
 
-	public function ToAJAX(){
+	public function ToAJAX(CatalogModuleManager $man){
 		$list = array();
 		$count = $this->Count();
 		for ($i=0; $i<$count; $i++){
-			array_push($list, $this->GetByIndex($i)->ToAJAX());
+			array_push($list, $this->GetByIndex($i)->ToAJAX($man));
 		}
 		
 		$ret = new stdClass();
@@ -448,7 +466,7 @@ class CatalogModuleManager {
 		$this->pfx = $this->db->prefix."ctg_".$dbPrefix."_";
 	}
 	
-	public function IsAdminole(){ return false; }
+	public function IsAdminRole(){ return false; }
 	public function IsWriteRole(){ return false; }
 	public function IsViewRole(){ return false; }
 	
@@ -529,7 +547,7 @@ class CatalogModuleManager {
 		if (empty($list)){ return null; }
 		
 		$ret = new stdClass();
-		$ret->catalogs = $list->ToAJAX();
+		$ret->catalogs = $list->ToAJAX($this);
 		return $ret;
 	}
 
@@ -555,7 +573,7 @@ class CatalogModuleManager {
 		if (empty($cat)){ return null; }
 		
 		$ret = new stdClass();
-		$ret->catalog = $cat->ToAJAX();
+		$ret->catalog = $cat->ToAJAX($this);
 		
 		if ($isElementList){
 			$retEls = $this->ElementListToAJAX($catid);
@@ -583,27 +601,32 @@ class CatalogModuleManager {
 		if (empty($list)){ return null; }
 		
 		$ret = new stdClass();
-		$ret->elements = $list->ToAJAX();
+		$ret->elements = $list->ToAJAX($this);
 		return $ret;
 	}
 	
 	public function Element($elementid){
 		if (!$this->IsViewRole()){ return false; }
 		
-		$d = CatalogDbQuery::Element($this->db, $this->pfx, $elementid);
-		if (empty($d)){ return null; }
+		$dbEl = CatalogDbQuery::Element($this->db, $this->pfx, $elementid);
+		if (empty($dbEl)){ return null; }
 		
 		
-		$element = new CatalogElement($d);
-		
+		$element = new CatalogElement($dbEl);
 		
 		$elTypeList = $this->ElementTypeList();
 		
 		$elTypeBase = $elTypeList->Get(0);
-		$d = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $elementid, $elTypeBase);
-		$detail = new CatalogElementDetail($d);
+		$dElType = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $elementid, $elTypeBase);
 		
-		// $elType = $elTypeList->Get($element->elTypeId);
+		$rows = CatalogDbQuery::ElementFotoList($this->db, $this->pfx, $elementid);
+		$images = array();
+		while (($row = $this->db->fetch_array($rows))){
+			array_push($images, $row['f']);
+		}
+		
+		$detail = new CatalogElementDetail($dbEl, $dElType, $images);
+		
 		$element->detail = $detail;
 		
 		return $element;
@@ -614,7 +637,7 @@ class CatalogModuleManager {
 		if (empty($element)){ return null; }
 		
 		$ret = new stdClass();
-		$ret->element = $element->ToAJAX();
+		$ret->element = $element->ToAJAX($this);
 		
 		return $ret;
 	}
@@ -660,7 +683,7 @@ class CatalogModuleManager {
 		if (empty($list)){ return null; }
 		
 		$ret = new stdClass();
-		$ret->eltypes = $list->ToAJAX();
+		$ret->eltypes = $list->ToAJAX($this);
 		return $ret;
 	}
 	

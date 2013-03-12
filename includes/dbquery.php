@@ -187,6 +187,17 @@ class CatalogDbQuery {
 		";
 		$db->query_write($sql);
 	}
+	
+	public static function ElementFotoList(Ab_Database $db, $pfx, $elementid){
+		$sql = "
+			SELECT
+				f.fileid as f
+			FROM ".$pfx."foto f
+			WHERE f.elementid=".bkint($elementid)."
+			ORDER BY f.ord
+		";
+		return $db->query_read($sql);		
+	}
 }
 
 /*
