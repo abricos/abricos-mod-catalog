@@ -13,6 +13,18 @@ require_once 'dbquery.php';
  */
 class Catalog {
 	
+	const TP_BOOLEAN = 0;
+	const TP_NUMBER = 1;
+	const TP_DOUBLE = 2;
+	const TP_STRING = 3;
+	const TP_LIST = 4;
+	const TP_TABLE = 5;
+	const TP_MULTI = 6;
+	const TP_TEXT = 7;
+	const TP_DICT = 8;
+	const TP_CHILDELEMENT = 9;
+	
+	
 	public $id;
 	public $parentid;
 	
@@ -173,8 +185,8 @@ class CatalogElementType {
 	
 	public function __construct($d = array()){
 		$this->id		= intval($d['id']);
-		$this->title	= $d['tl']; 
-		$this->name		= $d['nm'];
+		$this->title	= strval($d['tl']); 
+		$this->name		= strval($d['nm']);
 
 		$this->options = new CatalogElementTypeOptionList();
 		
@@ -194,7 +206,9 @@ class CatalogElementType {
 	}
 }
 
-
+/**
+ * Тип элемента
+ */
 class CatalogElementTypeList {
 	private $_list = array();
 	private $_map = array();
@@ -239,7 +253,11 @@ class CatalogElementTypeList {
 	}
 }
 
+/**
+ * Опция элемента
+ */
 class CatalogElementTypeOption {
+	
 	public $id;
 	public $elTypeId;
 	public $type;
@@ -257,10 +275,28 @@ class CatalogElementTypeOption {
 	public function ToAJAX(CatalogModuleManager $man){
 		$ret = new stdClass();
 		$ret->id		= $this->id;
-		$ret->tpid	= $this->elTypeId;
+		$ret->tpid		= $this->elTypeId;
 		$ret->tp		= $this->type;
 		$ret->tl		= $this->title;
 		$ret->nm		= $this->name;
+		return $ret;
+	}
+}
+
+/**
+ * Опция - тип поля таблица
+ */
+class CatalogElementTypeOptionTable extends CatalogElementTypeOption {
+	
+	public $values = array();
+	
+	public function __construct($d){
+		parent::__construct($d);
+	}
+	
+	public function ToAJAX($man){
+		$ret = parent::ToAJAX($man);
+		$ret->values = $this->values;
 		return $ret;
 	}
 }
@@ -613,7 +649,6 @@ class CatalogModuleManager {
 		$dbEl = CatalogDbQuery::Element($this->db, $this->pfx, $elementid);
 		if (empty($dbEl)){ return null; }
 		
-		
 		$element = new CatalogElement($dbEl);
 		
 		$elTypeList = $this->ElementTypeList();
@@ -683,11 +718,21 @@ class CatalogModuleManager {
 		
 		$rows = CatalogDbQuery::ElementTypeOptionList($this->db, $this->pfx);
 		while (($d = $this->db->fetch_array($rows))){
-			
-			$option = new CatalogElementTypeOption($d);
-			if (empty($curType) || $curType->id != $option->elTypeId){
-				$curType = $list->Get($option->elTypeId);
+
+			if (empty($curType) || $curType->id != $d['tpid']){
+				$curType = $list->Get($d['tpid']);
 			}
+
+			if ($d['tp'] == Catalog::TP_TABLE){
+				
+				$option = new CatalogElementTypeOptionTable($d);
+				
+				$rtbs = CatalogDbQuery::OptionTableValueList($this->db, $this->pfx, $curType->name, $option->name);
+				$option->values = CatalogManager::$instance->ToArrayId($rtbs);
+			}else{
+				$option = new CatalogElementTypeOption($d);
+			}
+			
 			if (empty($curType)){ 
 				continue; // гипотетически такое невозможно
 			}

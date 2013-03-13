@@ -179,6 +179,18 @@ class CatalogDbQuery {
 		return $db->query_read($sql);
 	}
 	
+	public static function OptionTableValueList(Ab_Database $db, $pfx, $tpName, $optName){
+		$tbl = $pfx."eltbl_".$tpName."_fld_".$optName;
+		$sql = "
+			SELECT
+				".$optName."id as id,
+				title as tl
+			FROM ".$tbl."
+			ORDER BY title
+		";
+		return $db->query_read($sql);
+	}
+	
 	public static function FotoAddToBuffer(Ab_Database $db, $pfx, $fhash){
 		$sql = "
 			INSERT INTO ".$pfx."foto (fileid) VALUES (

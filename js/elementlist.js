@@ -425,6 +425,9 @@ Component.entryPoint = function(NS){
 				case NS.FTYPE['STRING']:
 					ws[ws.length] = new NS.ElementEditStringWidget(div, toption, value);
 					break;
+				case NS.FTYPE['TABLE']:
+					
+					break;
 				}
 			});
 			this.wsOptions = ws;
