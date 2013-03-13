@@ -157,7 +157,9 @@ Component.entryPoint = function(NS){
 	
 	var ElementImage80Widget = function(container, fh, cfg){
 		cfg = L.merge({
-			'onRemoveClick': null
+			'onRemoveClick': null,
+			'onMoveLeftClick': null,
+			'onMoveRightClick': null
 		}, cfg || {});
 		ElementImage80Widget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'foto', 'isRowWidget': true 
@@ -175,10 +177,18 @@ Component.entryPoint = function(NS){
 			var tp = this._TId['foto'];
 			switch(el.id){
 			case tp['bremove']: this.onRemoveClick(); return true;
+			case tp['bleft']: this.onMoveLeftClick(); return true;
+			case tp['bright']: this.onMoveRightClick(); return true;
 			}
 		},
 		onRemoveClick: function(){
 			NS.life(this.cfg['onRemoveClick'], this);
+		},
+		onMoveLeftClick: function(){
+			NS.life(this.cfg['onMoveLeftClick'], this);
+		},
+		onMoveRightClick: function(){
+			NS.life(this.cfg['onMoveRightClick'], this);
 		}
 	});
 	NS.ElementImage80Widget = ElementImage80Widget;
@@ -243,6 +253,12 @@ Component.entryPoint = function(NS){
 				ws[ws.length] = new NS.ElementImage80Widget(this.gel('fotolist'), fotos[i], {
 					'onRemoveClick': function(wFoto){
 						__self.fotoRemove(wFoto.fhash);
+					},
+					'onMoveLeftClick': function(wFoto){
+						__self.fotoMoveLeft(wFoto.fhash);
+					},
+					'onMoveRightClick': function(wFoto){
+						__self.fotoMoveRight(wFoto.fhash);
 					}
 				});
 			}
@@ -291,6 +307,40 @@ Component.entryPoint = function(NS){
 			}			
 			for (var i=0;i<nfotos.length;i++){
 				arr[arr.length] = nfotos[i];
+			}
+			this.fotos = arr;
+			this.renderFotos();
+		},
+		fotoMoveLeft: function(fhash){
+			var arr = [];
+			for (var i=0;i<this.fotos.length;i++){
+				var f = this.fotos[i];
+				if (f == fhash){
+					if (i == 0){ return; } // он и так первый
+					var flast = arr[arr.length-1];
+					arr[arr.length-1] = f;
+					arr[arr.length] = flast;
+				}else{
+					arr[arr.length] = f;
+				}
+			}
+			this.fotos = arr;
+			this.renderFotos();
+		},
+		fotoMoveRight: function(fhash){
+			var arr = [];
+			for (var i=0;i<this.fotos.length;i++){
+				var f = this.fotos[i];
+				if (f == fhash){
+					if (i == this.fotos.length-1){ return; } // он и так последний
+					
+					var fnext = this.fotos[i+1];
+					arr[arr.length] = fnext;
+					arr[arr.length] = f;
+					i++;
+				}else{
+					arr[arr.length] = f;
+				}
 			}
 			this.fotos = arr;
 			this.renderFotos();
