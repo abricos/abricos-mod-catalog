@@ -360,20 +360,20 @@ class CatalogElementDetail {
 
 	public $optionsBase = array();
 	public $optionsExt = array();
-	public $images = array();
+	public $fotos = array();
 
-	public function __construct($d, $dOptBase, $images){
+	public function __construct($d, $dOptBase, $fotos){
 		$this->metaTitle = strval($d['mtl']);
 		$this->metaKeys = strval($d['mks']);
 		$this->metaDesc = strval($d['mdsc']);
 		$this->optionsBase = $dOptBase;
 		
-		$this->images = $images;
+		$this->fotos = $fotos;
 	}
 
 	public function ToAJAX(CatalogModuleManager $man){
 		$ret = new stdClass();
-		$ret->imgs	= $this->images;
+		$ret->fotos	= $this->fotos;
 		$ret->optb = $this->optionsBase;
 		
 		if ($man->IsAdminRole()){
@@ -485,6 +485,8 @@ class CatalogModuleManager {
 				return $this->ElementListToAJAX($d->catid);
 			case "element":
 				return $this->ElementToAJAX($d->elementid);
+			case "elementsave":
+				return $this->ElementSave($d->elementid, $d->savedata);
 			case "elementtypelist":
 				return $this->ElementTypeList();
 		}
@@ -620,12 +622,12 @@ class CatalogModuleManager {
 		$dElType = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $elementid, $elTypeBase);
 		
 		$rows = CatalogDbQuery::ElementFotoList($this->db, $this->pfx, $elementid);
-		$images = array();
+		$fotos = array();
 		while (($row = $this->db->fetch_array($rows))){
-			array_push($images, $row['f']);
+			array_push($fotos, $row['f']);
 		}
 		
-		$detail = new CatalogElementDetail($dbEl, $dElType, $images);
+		$detail = new CatalogElementDetail($dbEl, $dElType, $fotos);
 		
 		$element->detail = $detail;
 		
@@ -640,6 +642,23 @@ class CatalogModuleManager {
 		$ret->element = $element->ToAJAX($this);
 		
 		return $ret;
+	}
+	
+	public function ElementSave($elementid, $sd){
+		if (!$this->IsAdminRole()){ return null; }
+		
+		$elementid = intval($elementid);
+		
+		if ($elementid == 0){ // добавление нового
+			return null;
+		}else{ // сохранение текущего
+			
+		}
+		
+		// обновление фоток
+		CatalogDbQuery::ElementFotoUpdate($this->db, $this->pfx, $elementid, $sd->fotos);
+		
+		return $this->ElementToAJAX($elementid);
 	}
 	
 	private $_cacheElementTypeList;

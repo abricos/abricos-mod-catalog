@@ -10,6 +10,9 @@
 	.mod-catalog .upload h2 {
 		font-size: 18px;
 	}
+	.mod-catalog  .upload #inputs {
+		min-height: 300px;
+	}
 	.mod-catalog  .upload .errortext {
 		color: red;
 	}
@@ -19,6 +22,9 @@
 	.mod-catalog  .upload .btns {
 		text-align: right;
 		margin-top: 10px;
+	}
+	.mod-catalog  .upload .bmore {
+		text-align: right;
 	}
 </style>
 
@@ -36,15 +42,18 @@
 			</div>
 		</fieldset>
 
-		<fieldset>
+		<fieldset id="filespanel">
 			<legend>Загрузить изображение с вашего компьютера</legend>
 			<div id="btnsUpload">
-				<input type="file" name="image0" class="image" size="60" />
-				
-				<div id="morefiles"></div>
-				
-				<a href="#" onclick="moreFile(); return false;">+ выбрать еще файл</a>
-			
+				<div id="inputs">
+					<input type="file" name="image0" class="image" size="60" />
+					
+					<div id="morefiles"></div>
+					
+					<div class="bmore">
+						<a href="#" onclick="moreFile(); return false;">+ выбрать еще файл</a>
+					</div>
+				</div>
 				<div class="btns">
 					<input type="submit" value="Загрузить" />
 				</div>				
@@ -102,7 +111,7 @@
 		}
 		
 		try{
-			aiList.imageAdd[imgs];
+			aiList.fotoAdd(imgs);
 		}catch(e){}
 		
 		if (!iserr){
@@ -114,7 +123,9 @@
 	var fileCounter = 1;
 	var moreFile = function(){
 		var el = document.getElementById('morefiles');
-		el.innerHTML += '<input type="file" name="image'+fileCounter+'" class="image" size="60" />'
+		var div = document.createElement('div');
+		el.appendChild(div);
+		div.innerHTML += '<input type="file" name="image'+fileCounter+'" class="image" size="60" />'
 		fileCounter++;
 	};
 	

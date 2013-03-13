@@ -140,9 +140,6 @@ Component.entryPoint = function(NS){
 			var __self = this;
 			this.editorWidget = 
 				new NS.ElementEasyEditRowWidget(this.gel('easyeditor'), this.manager, this.element, {
-					'onSaveClick': function(wEditor, saveData){
-						__self.onEditorSaveClick(wEditor, saveData);
-					},
 					'onCancelClick': function(wEditor){ __self.editorClose(); }
 				});
 			
@@ -158,24 +155,36 @@ Component.entryPoint = function(NS){
 	});
 	NS.ElementRowWidget = ElementRowWidget;	
 	
-	var ElementImage50Widget = function(container, fh, cfg){
+	var ElementImage80Widget = function(container, fh, cfg){
 		cfg = L.merge({
 			'onRemoveClick': null
 		}, cfg || {});
-		ElementImage50Widget.superclass.constructor.call(this, container, {
+		ElementImage80Widget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'foto', 'isRowWidget': true 
 		}, fh, cfg);
 	};
-	YAHOO.extend(ElementImage50Widget, BW, {
-		buildTData: function(fh){
+	YAHOO.extend(ElementImage80Widget, BW, {
+		buildTData: function(fh, cfg){
 			return {'fh': fh};
+		},
+		init: function(fhash, cfg){
+			this.fhash = fhash;
+			this.cfg = cfg;
+		},
+		onClick: function(el){
+			var tp = this._TId['foto'];
+			switch(el.id){
+			case tp['bremove']: this.onRemoveClick(); return true;
+			}
+		},
+		onRemoveClick: function(){
+			NS.life(this.cfg['onRemoveClick'], this);
 		}
 	});
-	NS.ElementImage50Widget = ElementImage50Widget;
+	NS.ElementImage80Widget = ElementImage80Widget;
 	
 	var ElementEasyEditRowWidget = function(container, manager, element, cfg){
 		cfg = L.merge({
-			'onSaveClick': null,
 			'onCancelClick': null
 		}, cfg || {});
 		ElementEasyEditRowWidget.superclass.constructor.call(this, container, {
@@ -189,6 +198,7 @@ Component.entryPoint = function(NS){
 			this.cfg = cfg;
 			this.uploadWindow = null;
 			this.wsFotos = [];
+			this.fotos = [];
 		},
 		onLoad: function(manager, element){
 			if (!L.isNull(element.detail)){
@@ -203,10 +213,12 @@ Component.entryPoint = function(NS){
 		_onLoadElement: function(element){
 			this.elHide('loading');
 			this.elShow('view');
+			
 			this.elSetValue({
 				'tl': element.title
 			});
 			
+			this.fotos = this.element.detail.fotos
 			this.renderFotos();
 		},
 		clearFotos: function(){
@@ -219,16 +231,20 @@ Component.entryPoint = function(NS){
 		renderFotos: function(){
 			this.clearFotos();
 			
-			var fotos = this.element.detail.fotos;
+			var fotos = this.fotos;
 			if (fotos.length == 0){
 				this.elSetHTML('fotolist', this._TM.replace('nofoto'));
 			}else{
 				this.elSetHTML('fotolist', '');
 			}
 			
-			var ws = [];
+			var ws = [], __self = this;
 			for (var i=0;i<fotos.length;i++){
-				ws[ws.length] = new NS.ElementImage50Widget(this.gel('fotolist'), fotos[i]);
+				ws[ws.length] = new NS.ElementImage80Widget(this.gel('fotolist'), fotos[i], {
+					'onRemoveClick': function(wFoto){
+						__self.fotoRemove(wFoto.fhash);
+					}
+				});
 			}
 			for (var i=0;i<ws.length;i++){
 				ws[i].render();
@@ -236,21 +252,23 @@ Component.entryPoint = function(NS){
 			this.wsFotos = ws;
 		},
 		onClick: function(el, tp){
+			
+			var ws = this.wsFotos;
+			for (var i=0;i<ws.length;i++){
+				ws[i].onClick(el);
+			}
+
 			switch(el.id){
-			case tp['baddfotos']: this.imageUploadShow(); return true;
-			case tp['bsave']: this.onSaveClick(); return true;
+			case tp['baddfotos']: this.fotoUploadShow(); return true;
+			case tp['bsave']: this.save(); return true;
 			case tp['bcancel']: this.onCancelClick(); return true;
 			}
 			return false;
 		},
-		onSaveClick: function(){
-			NS.life(this.cfg['onSaveClick'], this);
-		},
 		onCancelClick: function(){
 			NS.life(this.cfg['onCancelClick'], this);
 		},
-		imageUploadShow: function(wEditor){
-			
+		fotoUploadShow: function(wEditor){
 			NS.uploadActiveImageList = this;
 			
 			var man = this.manager;
@@ -266,8 +284,42 @@ Component.entryPoint = function(NS){
 			);
 			NS.activeImageList = this;
 		},
-		imageAdd: function(imgs){
-			Brick.console(imgs);
+		fotoAdd: function(nfotos){
+			var arr = [];
+			for (var i=0;i<this.fotos.length;i++){
+				arr[arr.length] = this.fotos[i];
+			}			
+			for (var i=0;i<nfotos.length;i++){
+				arr[arr.length] = nfotos[i];
+			}
+			this.fotos = arr;
+			this.renderFotos();
+		},
+		fotoRemove: function(fhash){
+			var arr = [];
+			for (var i=0;i<this.fotos.length;i++){
+				if (this.fotos[i] != fhash){
+					arr[arr.length] = this.fotos[i];
+				}
+			}
+			this.fotos = arr;
+			this.renderFotos();
+		},
+		save: function(){
+			
+			var sd = {
+				'tl': this.gel('tl').value,
+				'fotos': this.fotos
+			};
+
+			this.elHide('btnsc');
+			this.elShow('btnpc');
+
+			var __self = this;
+			this.manager.elementSave(this.element.id, sd, function(element){
+				__self.elShow('btnsc');
+				__self.elHide('btnpc');
+			}, this.element);
 		}
 	});
 	NS.ElementEasyEditRowWidget = ElementEasyEditRowWidget;

@@ -99,6 +99,30 @@
 	display: none;
 }
 
-.aw-catalog .elrow .easyeditor .fotolist {
+/* * * Fotos * * */
+.aw-catalog .easyeditor .fotolist {
 	font-style: italic;
 }
+.aw-catalog .easyeditor .fotolist .foto {
+	position: relative;
+	float: left;
+	border: 1px solid #D1D3DC;
+	margin: 0 5px 3px 0;
+}
+.aw-catalog .easyeditor .fotolist .bremove {
+	display: none;
+	position: absolute; top: 0;	right: 0;
+	width: 16px;
+	height: 16px;
+	background: url("/modules/catalog/images/remove.gif") no-repeat 0px 2px;
+	border: 1px solid #D1D3DC;
+	cursor: pointer;
+	background-color: #FFF0C6; 
+}
+.aw-catalog .easyeditor .fotolist .bremove:hover {
+	background-color: #000;
+}
+.aw-catalog .easyeditor .fotolist .foto:hover .bremove {
+	display: block;
+}
+

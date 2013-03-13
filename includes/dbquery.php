@@ -198,6 +198,50 @@ class CatalogDbQuery {
 		";
 		return $db->query_read($sql);		
 	}
+	
+	public static function ElementFotoUpdate(Ab_Database $db, $pfx, $elementid, $fotos){
+
+		// пометить все текущие фотки элемента на потенциальную зачистку (удаление)
+		$sql = "
+			UPDATE ".$pfx."foto
+			SET elementid=0
+			WHERE elementid=".bkint($elementid)."
+		";
+		$db->query_write($sql);
+		
+		// добавить новые/существующие фотки
+		$vals = array();
+		for ($i=0;$i<count($fotos);$i++){
+			array_push($vals, "(".bkint($elementid).", '".bkstr($fotos[$i])."', ".$i.")");
+		}
+		
+		if (count($vals) == 0){ return; }
+		
+		$sql = "
+			INSERT INTO ".$pfx."foto (elementid, fileid, ord) VALUES
+			".implode(", ", $vals)."
+		";
+		$db->query_write($sql);
+		
+		// отменить зачистку по существующим
+		$sql = "
+			SELECT 
+				fileid as f, 
+				count(*) as cnt
+			FROM ".$pfx."foto
+			GROUP BY fileid
+		";
+		$rows = $db->query_read($sql);
+		while (($row = $db->fetch_array($rows))){
+			if ($row['cnt'] > 1){
+				$sql = "
+					DELETE FROM ".$pfx."foto
+					WHERE elementid=0 AND fileid='".$row['f']."'
+				";
+				$db->query_write($sql);
+			}
+		}
+	}
 }
 
 /*

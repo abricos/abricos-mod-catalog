@@ -136,7 +136,7 @@ Component.entryPoint = function(NS){
 	};
 	YAHOO.extend(ElementDetail, SysNS.Item, {
 		update: function(d){
-			this.fotos = d['imgs'];
+			this.fotos = d['fotos'];
 			
 			this.metaTitle = d['mtl'];
 			this.metaKeys = d['mks'];
@@ -243,19 +243,36 @@ Component.entryPoint = function(NS){
 				NS.life(callback, list);
 			});
 		},
-		elementLoad: function(elementid, callback, element){
+		
+		_elementUpdateData: function(element, d){
 			element = element || null;
+
+			if (d && d['element'] && d['element']['dtl']){
+				if (L.isNull(element)){
+					element = new NS.Element(d);
+				}
+				element.detail = new NS.ElementDetail(d['element']['dtl']);
+			}
+			return element;
+		},
+		elementLoad: function(elementid, callback, element){
+			var __self = this;
 			this.ajax({
 				'do': 'element',
 				'elementid': elementid
 			}, function(d){
-				if (d && d['element'] && d['element']['dtl']){
-					if (L.isNull(element)){
-						element = new NS.Element(d);
-					}
-					element.detail = new NS.ElementDetail(d['element']['dtl']);
-				}
-				
+				element = __self._elementUpdateData(element, d);
+				NS.life(callback, element);
+			});
+		},
+		elementSave: function(elementid, sd, callback, element){
+			var __self = this;
+			this.ajax({
+				'do': 'elementsave',
+				'elementid': elementid,
+				'savedata': sd
+			}, function(d){
+				element = __self._elementUpdateData(element, d);
 				NS.life(callback, element);
 			});
 		}
