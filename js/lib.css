@@ -35,10 +35,6 @@
 }
 
 /* * * * Editor Form * * * */
-.aw-catalog .editform {
-	padding: 10px 0;
-	background-color: #F9F5DF;
-}
 .aw-catalog .editform .dsc,
 .aw-catalog .viewform .dsc {
 	color: #555555;

@@ -248,7 +248,7 @@ class CatalogElementTypeOption {
 	
 	public function __construct($d){
 		$this->id		= intval($d['id']);
-		$this->elTypeId = intval($d['eltpid']);
+		$this->elTypeId = intval($d['tpid']);
 		$this->type		= intval($d['tp']);
 		$this->title	= $d['tl'];
 		$this->name		= $d['nm'];
@@ -257,8 +257,8 @@ class CatalogElementTypeOption {
 	public function ToAJAX(CatalogModuleManager $man){
 		$ret = new stdClass();
 		$ret->id		= $this->id;
-		$ret->eltpid	= $this->elTypeId;
-		$ret->tp		= $this->tp;
+		$ret->tpid	= $this->elTypeId;
+		$ret->tp		= $this->type;
 		$ret->tl		= $this->title;
 		$ret->nm		= $this->name;
 		return $ret;
@@ -326,7 +326,7 @@ class CatalogElement {
 	public function __construct($d){
 		$this->id		= intval($d['id']);
 		$this->catalogid = intval($d['catid']);
-		$this->elTypeId = intval($d['eltpid']);
+		$this->elTypeId = intval($d['tpid']);
 		$this->title	= strval($d['tl']);
 		$this->name		= strval($d['nm']);
 	}
@@ -335,7 +335,7 @@ class CatalogElement {
 		$ret = new stdClass();
 		$ret->id		= $this->id;
 		$ret->catid		= $this->catalogid;
-		$ret->eltpid	= $this->elTypeId;
+		$ret->tpid	= $this->elTypeId;
 		$ret->tl		= $this->title;
 		$ret->nm		= $this->name;
 		

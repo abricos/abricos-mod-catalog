@@ -99,7 +99,7 @@ class CatalogDbQuery {
 			SELECT
 				e.elementid as id,
 				e.catalogid as catid,
-				e.eltypeid as eltpid,
+				e.eltypeid as tpid,
 				e.title as tl,
 				e.name as nm
 			FROM ".$pfx."element e
@@ -115,7 +115,7 @@ class CatalogDbQuery {
 			SELECT
 				e.elementid as id,
 				e.catalogid as catid,
-				e.eltypeid as eltpid,
+				e.eltypeid as tpid,
 				e.title as tl,
 				e.name as nm
 			FROM ".$pfx."element e
@@ -131,7 +131,7 @@ class CatalogDbQuery {
 		$fields = array();
 		for ($i=0; $i<$options->Count(); $i++){
 			$option = $options->GetByIndex($i);
-			array_push($fields, "e.fld_".$option->name);
+			array_push($fields, "e.fld_".$option->name." as `".$option->name."`");
 		}
 		$sql = "
 			SELECT
@@ -161,7 +161,7 @@ class CatalogDbQuery {
 		$sql = "
 			SELECT
 				eloptionid as id,
-				eltypeid as eltpid,
+				eltypeid as tpid,
 				fieldtype as tp,
 				name as nm,
 				title as tl,
@@ -174,7 +174,7 @@ class CatalogDbQuery {
 				disable as dsb
 			FROM ".$pfx."eloption
 			WHERE deldate=0
-			ORDER BY eltpid, eloptgroupid, ord
+			ORDER BY tpid, eloptgroupid, ord
 		";
 		return $db->query_read($sql);
 	}

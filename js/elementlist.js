@@ -328,6 +328,50 @@ Component.entryPoint = function(NS){
 	NS.ElementFotosEditWidget = ElementFotosEditWidget;
 	
 	
+	var ElementEditNumberWidget = function(container, option, value, cfg){
+		cfg = L.merge({
+		}, cfg || {});
+		ElementEditNumberWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'optnumber' // , 'isRowWidget': true 
+		}, option, value, cfg);
+	};
+	YAHOO.extend(ElementEditNumberWidget, BW, {
+		buildTData: function(option, value, cfg){
+			return {'tl': option.title};
+		},
+		init: function(option, value, cfg){
+			this.option = option;
+			this.value = value;
+			this.cfg = cfg;
+		},
+		onLoad: function(option, value, cfg){
+			this.elSetValue('val', value);
+		}
+	});
+	NS.ElementEditNumberWidget = ElementEditNumberWidget;	
+
+	var ElementEditStringWidget = function(container, option, value, cfg){
+		cfg = L.merge({
+		}, cfg || {});
+		ElementEditStringWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'optstring' // , 'isRowWidget': true 
+		}, option, value, cfg);
+	};
+	YAHOO.extend(ElementEditStringWidget, BW, {
+		buildTData: function(option, value, cfg){
+			return {'tl': option.title};
+		},
+		init: function(option, value, cfg){
+			this.option = option;
+			this.value = value;
+			this.cfg = cfg;
+		},
+		onLoad: function(option, value, cfg){
+			this.elSetValue('val', value);
+		}
+	});
+	NS.ElementEditStringWidget = ElementEditStringWidget;	
+
 	var ElementEasyEditRowWidget = function(container, manager, element, cfg){
 		cfg = L.merge({
 			'onCancelClick': null
@@ -342,6 +386,7 @@ Component.entryPoint = function(NS){
 			this.element = element;
 			this.cfg = cfg;
 			this.fotosWidget = null;
+			this.wsOptions = [];
 		},
 		onLoad: function(manager, element){
 			if (!L.isNull(element.detail)){
@@ -362,6 +407,27 @@ Component.entryPoint = function(NS){
 			});
 			
 			this.fotosWidget = new NS.ElementFotosEditWidget(this.gel('fotos'), this.manager, this.element.detail.fotos);
+			
+			var typeList = this.manager.typeList,
+				tbase = typeList.get(0);
+			
+			var ws = [], elList = this.gel('optlist');
+			tbase.options.foreach(function(toption){
+				var div = document.createElement('div'),
+					value = element.detail.getValue(toption);
+
+				elList.appendChild(div);
+				
+				switch(toption.type){
+				case NS.FTYPE['NUMBER']:
+					ws[ws.length] = new NS.ElementEditNumberWidget(div, toption, value);
+					break;
+				case NS.FTYPE['STRING']:
+					ws[ws.length] = new NS.ElementEditStringWidget(div, toption, value);
+					break;
+				}
+			});
+			this.wsOptions = ws;
 		},
 		onClick: function(el, tp){
 			switch(el.id){

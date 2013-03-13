@@ -104,7 +104,7 @@ Component.entryPoint = function(NS){
 	var Element = function(d){
 		d = L.merge({
 			'catid': 0, 
-			'eltpid': 0, 
+			'tpid': 0, 
 			'tl': '', 
 			'nm': '' 
 		}, d || {});
@@ -117,7 +117,7 @@ Component.entryPoint = function(NS){
 		},
 		update: function(d){
 			this.catid		= d['catid']*1;
-			this.typeid		= d['eltpid']*1;
+			this.typeid		= d['tpid']*1;
 			this.title		= d['tl'];
 			this.name		= d['nm'];
 		}
@@ -141,17 +141,83 @@ Component.entryPoint = function(NS){
 			this.metaTitle = d['mtl'];
 			this.metaKeys = d['mks'];
 			this.metaDesc = d['mdsc'];
+			
 			this.optionsBase = d['optb'];
+		},
+		getValue: function(option){
+			var vals = option.elTypeId == 0 ? this.optionsBase : {};
+			
+			return vals[option.name];
 		}
 	});
 	NS.ElementDetail = ElementDetail;
 	
+	NS.FTYPE = {
+		'BOOLEAN':	0,
+		'NUMBER':	1,
+		'DOUBLE':	2,
+		'STRING':	3,
+		'LIST':		4,
+		'TABLE':	5,
+		'TEXT':		7
+	};
 	
 	var ElementList = function(d){
 		ElementList.superclass.constructor.call(this, d, Element);
 	};
 	YAHOO.extend(ElementList, SysNS.ItemList, {});
 	NS.ElementList = ElementList;
+	
+	var ElementOption = function(d){
+		d = L.merge({
+			'tl':	'',
+			'nm':	'',
+			'tpid':	0,
+			'tp':	0
+		}, d || {});
+		ElementType.superclass.constructor.call(this, d);
+	};
+	YAHOO.extend(ElementOption, SysNS.Item, {
+		update: function(d){
+			this.title		= d['tl'];
+			this.name		= d['nm'];
+			this.elTypeId	= d['tpid']*1;
+			this.type		= d['tp']*1;
+		}
+	});
+	NS.ElementOption = ElementOption;
+	
+	var ElementOptionList = function(d){
+		ElementOptionList.superclass.constructor.call(this, d, ElementOption);
+	};
+	YAHOO.extend(ElementOptionList, SysNS.ItemList, {});
+	NS.ElementOptionList = ElementOptionList;
+	
+	
+	var ElementType = function(d){
+		d = L.merge({
+			'tl': '',
+			'nm': '',
+			'options': []
+		}, d || {});
+		ElementType.superclass.constructor.call(this, d);
+	};
+	YAHOO.extend(ElementType, SysNS.Item, {
+		update: function(d){
+			this.title = d['tl'];
+			this.name = d['nm'];
+			
+			this.options = new NS.ElementOptionList(d['options']);
+		}
+	});
+	NS.ElementType = ElementType;
+	
+	var ElementTypeList = function(d){
+		ElementTypeList.superclass.constructor.call(this, d, ElementType);
+	};
+	YAHOO.extend(ElementTypeList, SysNS.ItemList, {});
+	NS.ElementTypeList = ElementTypeList;
+	
 	
 	
 	NS.managers = {};
@@ -164,6 +230,8 @@ Component.entryPoint = function(NS){
 	Manager.prototype = {
 		init: function(modname, callback){
 			this.modname = modname;
+			
+			this.typeList = null;
 			
 			var __self = this;
 			this.ajax({
@@ -185,6 +253,10 @@ Component.entryPoint = function(NS){
 		},
 		_initDataUpdate: function(d){
 			this.catalogList = this._catalogListUpdate(d);
+			
+			if (!L.isNull(d) && !L.isNull(d['eltypes'])){
+				this.typeList = new NS.ElementTypeList(d['eltypes']);
+			}
 		},
 		_catalogListUpdate: function(d){
 			var list = null;
