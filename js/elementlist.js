@@ -193,43 +193,20 @@ Component.entryPoint = function(NS){
 	});
 	NS.ElementImage80Widget = ElementImage80Widget;
 	
-	var ElementEasyEditRowWidget = function(container, manager, element, cfg){
-		cfg = L.merge({
-			'onCancelClick': null
-		}, cfg || {});
-		ElementEasyEditRowWidget.superclass.constructor.call(this, container, {
-			'buildTemplate': buildTemplate, 'tnames': 'easyeditor,nofoto' 
-		}, manager, element, cfg);
+	var ElementFotosEditWidget = function(container, manager, fotos, cfg){
+		fotos = fotos || [];
+		cfg = L.merge({}, cfg || {});
+		ElementFotosEditWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'fotos,nofoto' 
+		}, manager, fotos, cfg);
 	};
-	YAHOO.extend(ElementEasyEditRowWidget, BW, {
-		init: function(manager, element, cfg){
+	YAHOO.extend(ElementFotosEditWidget, BW, {
+		init: function(manager, fotos, cfg){
 			this.manager = manager;
-			this.element = element;
+			this.fotos = fotos;
 			this.cfg = cfg;
-			this.uploadWindow = null;
 			this.wsFotos = [];
-			this.fotos = [];
-		},
-		onLoad: function(manager, element){
-			if (!L.isNull(element.detail)){
-				this._onLoadElement(element);
-			}else{
-				var __self = this;
-				manager.elementLoad(element.id, function(element){
-					__self._onLoadElement(element);
-				}, element);
-			}
-		},
-		_onLoadElement: function(element){
-			this.elHide('loading');
-			this.elShow('view');
-			
-			this.elSetValue({
-				'tl': element.title
-			});
-			
-			this.fotos = this.element.detail.fotos
-			this.renderFotos();
+			this.uploadWindow = null;
 		},
 		clearFotos: function(){
 			var ws = this.wsFotos;
@@ -238,7 +215,7 @@ Component.entryPoint = function(NS){
 			}
 			this.wsFotos = [];
 		},
-		renderFotos: function(){
+		render: function(){
 			this.clearFotos();
 			
 			var fotos = this.fotos;
@@ -268,21 +245,13 @@ Component.entryPoint = function(NS){
 			this.wsFotos = ws;
 		},
 		onClick: function(el, tp){
-			
 			var ws = this.wsFotos;
-			for (var i=0;i<ws.length;i++){
-				ws[i].onClick(el);
-			}
+			for (var i=0;i<ws.length;i++){ ws[i].onClick(el); }
 
 			switch(el.id){
 			case tp['baddfotos']: this.fotoUploadShow(); return true;
-			case tp['bsave']: this.save(); return true;
-			case tp['bcancel']: this.onCancelClick(); return true;
 			}
 			return false;
-		},
-		onCancelClick: function(){
-			NS.life(this.cfg['onCancelClick'], this);
 		},
 		fotoUploadShow: function(wEditor){
 			NS.uploadActiveImageList = this;
@@ -309,7 +278,7 @@ Component.entryPoint = function(NS){
 				arr[arr.length] = nfotos[i];
 			}
 			this.fotos = arr;
-			this.renderFotos();
+			this.render();
 		},
 		fotoMoveLeft: function(fhash){
 			var arr = [];
@@ -325,7 +294,7 @@ Component.entryPoint = function(NS){
 				}
 			}
 			this.fotos = arr;
-			this.renderFotos();
+			this.render();
 		},
 		fotoMoveRight: function(fhash){
 			var arr = [];
@@ -343,7 +312,7 @@ Component.entryPoint = function(NS){
 				}
 			}
 			this.fotos = arr;
-			this.renderFotos();
+			this.render();
 		},
 		fotoRemove: function(fhash){
 			var arr = [];
@@ -353,13 +322,61 @@ Component.entryPoint = function(NS){
 				}
 			}
 			this.fotos = arr;
-			this.renderFotos();
+			this.render();
+		}
+	});
+	NS.ElementFotosEditWidget = ElementFotosEditWidget;
+	
+	
+	var ElementEasyEditRowWidget = function(container, manager, element, cfg){
+		cfg = L.merge({
+			'onCancelClick': null
+		}, cfg || {});
+		ElementEasyEditRowWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'easyeditor,nofoto' 
+		}, manager, element, cfg);
+	};
+	YAHOO.extend(ElementEasyEditRowWidget, BW, {
+		init: function(manager, element, cfg){
+			this.manager = manager;
+			this.element = element;
+			this.cfg = cfg;
+			this.fotosWidget = null;
+		},
+		onLoad: function(manager, element){
+			if (!L.isNull(element.detail)){
+				this._onLoadElement(element);
+			}else{
+				var __self = this;
+				manager.elementLoad(element.id, function(element){
+					__self._onLoadElement(element);
+				}, element);
+			}
+		},
+		_onLoadElement: function(element){
+			this.elHide('loading');
+			this.elShow('view');
+			
+			this.elSetValue({
+				'tl': element.title
+			});
+			
+			this.fotosWidget = new NS.ElementFotosEditWidget(this.gel('fotos'), this.manager, this.element.detail.fotos);
+		},
+		onClick: function(el, tp){
+			switch(el.id){
+			case tp['bsave']: this.save(); return true;
+			case tp['bcancel']: this.onCancelClick(); return true;
+			}
+			return false;
+		},
+		onCancelClick: function(){
+			NS.life(this.cfg['onCancelClick'], this);
 		},
 		save: function(){
-			
 			var sd = {
 				'tl': this.gel('tl').value,
-				'fotos': this.fotos
+				'fotos': this.fotosWidget.fotos
 			};
 
 			this.elHide('btnsc');
