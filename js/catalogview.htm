@@ -1,6 +1,75 @@
 <!--{widget}-->
 <div id="{i#id}" class="aw-catalog">
 	<div class="catalogview">
+		
+		<div id="{i#cattl}" class="cattl"></div>
+		
+		<div id="{i#view}">
+			<div class="catinfo">
+				{v#lngelementcount}: <span id="{i#elcount}">0</span>
+			</div>
+			
+			<div id="{i#mangroup}" class="mangroup center" style="display: none">
+				<a id="{i#baddel}" href="#" class="habtn">{v#lngelementbuttonadd}</a>
+				<a id="{i#beditcat}" href="#" class="habtn">Редактировать раздел</a>
+				<a id="{i#baddcat}" href="#" class="habtn">Добавить подраздел</a>
+				<a id="{i#bremcat}" href="#" class="habtn warn">Удалить раздел</a>
+			</div>
+		</div>
+		<div id="{i#editor}"></div>
+	</div>
+</div>
 
+
+<!--{editor}-->
+<div id="{i#id}" class="catalogeditor">
+	<div class="r">
+		<input id="{i#tl}" class="fldtl" type="text" />
+	</div>
+	
+	<div class="r" id="{i#fotos}"></div>
+	
+	<div class="r mext">
+		<input id="{i#nm}" class="fldtl" type="text" />
+	</div>
+	
+	<div id="{i#more}" class="editform">
+	
+		<div id="{i#optlist}"></div>
+	
+		<div id="{i#seo}">
+			<div class="rtl">Мета-теги</div>
+			
+			<dl>
+				<dt>Тег Title</dt>
+				<dd>
+					<input id="{i#mtl}" type="text" class="inp"/>
+				</dd>
+			</dl>
+			<dl>
+				<dt>Тег Keywords</dt>
+				<dd>
+					<input id="{i#mks}" type="text" class="inp"/>
+				</dd>
+			</dl>
+			<dl>
+				<dt>Тег Description</dt>
+				<dd>
+					<input id="{i#mdsc}" type="text" class="inp"/>
+				</dd>
+			</dl>
+		</div>
+	</div>
+	
+	<div class="btns right r">
+		<a id="{i#bshow}" href="#" class="habtn fl">Развернуть редактор</a>
+		<span id="{i#btnsc}">
+			<a id="{i#bsave}" href="#" class="habtn">Сохранить</a>
+			<a id="{i#bcancel}" href="#" class="habtn">Отмена</a>
+		</span>
+		<span id="{i#btnpc}" style="display: none">
+			<img src="/images/loading.gif" /> Сохранение...
+		</span>
+		<div class="clear"></div>
 	</div>
 </div>

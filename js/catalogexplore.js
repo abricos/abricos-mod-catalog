@@ -17,15 +17,7 @@ Component.entryPoint = function(NS){
 		BW = Brick.mod.widget.Widget;
 	
 	var CatalogTreeWidget = function(container, list, cfg){
-		cfg = L.merge({
-			'rootItem': null
-		}, cfg || {});
-		
-		if (!L.isNull(cfg['rootItem'])){
-			cfg['rootItem'] = L.merge({
-				'title': 'Catalog'
-			}, cfg['rootItem'] || {});
-		}
+		cfg = L.merge({ }, cfg || {});
 		
 		CatalogTreeWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'widget,table,row' 
@@ -68,7 +60,7 @@ Component.entryPoint = function(NS){
 		},
 		buildRow: function(cat, level, first, islast){
 			var sChild = cat.childs.count() > 0 ? this.buildRows(cat, cat.childs, level+1) : '';
-
+			
 			return this._TM.replace('row', {
 				'id': cat.id,
 				'tl': cat.title,

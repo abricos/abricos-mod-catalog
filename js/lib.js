@@ -14,6 +14,7 @@ Component.entryPoint = function(NS){
 	var L = YAHOO.lang;
 	
 	var SysNS = Brick.mod.sys;
+	var LNG = this.language;
 
 	var buildTemplate = this.buildTemplate;
 	buildTemplate({},'');
@@ -30,6 +31,7 @@ Component.entryPoint = function(NS){
 			'pid': 0,
 			'tl':'', // заголовок
 			'nm': '', // имя (URL)
+			'ecnt': 0,
 			'childs': []
 		}, d || {});
 		CatalogItem.superclass.constructor.call(this, d);
@@ -40,9 +42,11 @@ Component.entryPoint = function(NS){
 			CatalogItem.superclass.init.call(this, d);
 		},
 		update: function(d){
-			this.parentid	= d['pid']*1;
+			this.parentid	= d['pid']|0;
 			this.title		= d['tl'];
 			this.name		= d['nm'];
+			
+			this.elementCount = d['ecnt']|0;
 			
 			this.parent		= null;
 			this.childs		= new CatalogList(d['childs']);
@@ -62,7 +66,7 @@ Component.entryPoint = function(NS){
 	var CatalogDetail = function(d){
 		d = L.merge({
 			'dsc': '',
-			'mtl': '', 
+			'mtl': '',
 			'mks': '', 
 			'mdsc': '' 
 		}, d || {});
@@ -219,17 +223,22 @@ Component.entryPoint = function(NS){
 	NS.ElementTypeList = ElementTypeList;
 	
 	
-	
 	NS.managers = {};
 	
-	var Manager = function(modname, callback){
+	var Manager = function(modname, callback, cfg){
+		
+		cfg = L.merge({
+			'language': null
+		}, cfg || {});
+		
 		NS.managers[modname] = this;
 		
-		this.init(modname, callback);
+		this.init(modname, callback, cfg);
 	};
 	Manager.prototype = {
-		init: function(modname, callback){
+		init: function(modname, callback, cfg){
 			this.modname = modname;
+			this.cfg = cfg;
 			
 			this.typeList = null;
 			
@@ -240,6 +249,14 @@ Component.entryPoint = function(NS){
 				__self._initDataUpdate(d);
 				NS.life(callback, __self);
 			});
+		},
+		getLang: function(path){
+			var lng = this.cfg['language'];
+			if (!L.isNull(lng) && L.isFunction(lng.get)){
+				var res = lng.get(path);
+				if (res != path){ return res;}
+			}
+			return LNG.get(path);
 		},
 		ajax: function(data, callback){
 			data = data || {};
@@ -262,6 +279,11 @@ Component.entryPoint = function(NS){
 			var list = null;
 			if (!L.isNull(d) && !L.isNull(d['catalogs'])){
 				list = new NS.CatalogList(d['catalogs']);
+				
+				var rootItem = list.find(0);
+				if (!L.isNull(rootItem)){
+					rootItem.title = this.getLang('catalog.title');
+				}
 			}
 			return list;
 		},
@@ -351,12 +373,12 @@ Component.entryPoint = function(NS){
 	};
 	NS.Manager = Manager;
 	
-	NS.initManager = function(modname, callback){
+	NS.initManager = function(modname, callback, cfg){
 		if (!NS.managers[modname]){
 			if (Brick.mod[modname] && Brick.mod[modname]['Manager']){
-				new Brick.mod[modname]['Manager'](modname, callback);
+				new Brick.mod[modname]['Manager'](modname, callback, cfg);
 			}else{
-				new NS.Manager(modname, callback);
+				new NS.Manager(modname, callback, cfg);
 			}
 		}else{
 			NS.life(callback, NS.managers[modname]);

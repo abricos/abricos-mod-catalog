@@ -16,134 +16,166 @@ Component.entryPoint = function(NS){
 		buildTemplate = this.buildTemplate,
 		BW = Brick.mod.widget.Widget;
 	
-	var CatalogViewWidget = function(container, modname, cfg){
+	var CatalogViewWidget = function(container, manager, cat, cfg){
 		cfg = L.merge({
+			'addElementClick': null,
+			'addCatalogClick': null
 		}, cfg || {});
 		
 		CatalogViewWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'widget' 
-		}, cat, cfg);
+		}, manager, cat, cfg);
 	};
 	YAHOO.extend(CatalogViewWidget, BW, {
-		init: function(cat, cfg){
+		init: function(manager, cat, cfg){
+			this.manager = manager;
 			this.cat = cat;
-			this.config = cfg;
-		},
-		render: function(){
-			this.elSetHTML('table', this.buildRows(null, this.list, 0));
-			this._selectPath(this.selectedItem);
-		},
-		buildRows: function(pcat, list, level){
-			var __self = this, lst = "", i = 0;
-			list.foreach(function(cat){
-				lst += __self.buildRow(cat, level, i==0, i==list.count()-1);
-				i++;
-			});
+			this.cfg = cfg;
 			
-			if (lst == ""){ return ""; }
-			
-			var sRow = {
-				'pid': 0,
-				'clshide': '',
-				'rows': lst
+			this.editorWidget = null;
+		},
+		buildTData: function(manager, cat, cfg){
+			return {
+				'lngelementcount': manager.getLang('element.count'),
+				'lngelementbuttonadd': manager.getLang('element.button.add')
 			};
-			if (!L.isNull(pcat)){
-				sRow['pid'] = pcat.id;
-				sRow['clshide'] = pcat.expanded ? '' : 'hide';
-			}
-			
-			return this._TM.replace('table', sRow);
 		},
-		buildRow: function(cat, level, first, islast){
-			var sChild = cat.childs.count() > 0 ? this.buildRows(cat, cat.childs, level+1) : '';
-
-			return this._TM.replace('row', {
-				'id': cat.id,
-				'tl': cat.title,
-				'child': sChild,
-				'clst': islast ? 'ln' : 'tn',
-				'chdicoview': cat.childs.count() == 0 ? 'hide' : 'none',
-				'chdicon': cat.expanded ? 'chdcls' : 'chdexpd'
+		onLoad: function(manager, cat, cfg){
+			this.setCatalog(cat);
+		},
+		setCatalog: function(cat){
+			this.cat = cat;
+			
+			this.elSetHTML({
+				'cattl': cat.title,
+				'elcount': cat.elementCount
 			});
-		},
-		onClick: function(el){
-			var TId = this._TId,
-				prefix = el.id.replace(/([0-9]+$)/, ''),
-				numid = el.id.replace(prefix, "");
 			
-			var tp = TId['row'];
-			
-			switch(prefix){
-			case (tp['badd']+'-'): 
-			case (tp['baddc']+'-'):
-				this.onAddChildClick(numid);
-				return true;
-				
-			case (tp['bedit']+'-'): 
-			case (tp['beditc']+'-'):
-				this.onEditClick(numid);
-				return true;
-				
-			case (tp['title']+'-'): 
-			case (tp['atitle']+'-'):
-				this.selectItem(numid);
-				return true;
-				
-			case (tp['bclsexpd']+'-'): 
-				this.shChilds(numid); 
-				return true;
+			if (cat.id == 0){
+				this.elHide('beditcat,bremcat');
+			}else{
+				this.elShow('beditcat,bremcat');
 			}
 			
-			return false;
+			this.elShow('mangroup');
 		},
-		onEditClick: function(id){
-			this.editClickEvent.fire(id);
+		onAddElementClick: function(){
+			NS.life(this.cfg['addElementClick'], this.cat);
 		},
-		onAddChildClick: function(id){
-			this.addChildClickEvent.fire(id);
+		onAddCatalogClick: function(){
+			NS.life(this.cfg['addCatalogClick'], this.cat);
 		},
-		onSelectedItem: function(id){
-			this.selectedItemEvent.fire(id);
-		},
-		shChilds: function(catid){
-			var cat = this.list.find(catid);
-			if (L.isNull(cat)){ return; }
+		showEditor: function(){
 			
-			cat.expanded = !cat.expanded;
-			this.render();
-		},
-		selectItem: function(id){
-			var cat = this.list.find(id);
-
-			this._selectPath(cat);
-			this.onSelectedItem(cat);
-		},
-		_unSelectPathMethod: function(list){
-			var TId = this._TId, gel = function(n, id){ return Dom.get(TId[n]['title']+'-'+id); };
+			this.elHide('view');
 			var __self = this;
-			list.foreach(function(cat){
-				Dom.removeClass(gel('row', cat.id), 'select');
-				__self._unSelectPathMethod(cat.childs);
+			this.editorWidget = new NS.CatalogEditorWidget(this.gel('editor'), this.manager, this.cat, {
+				'onCancelClick': function(){
+					__self.elHide('view');
+				},
+				'onSaveCallback': function(cat){
+					__self.elHide('view');
+					__self.setCatalog(cat);
+				}
 			});
 		},
-		_selectPath: function(cat){
-			this.selectedItem = cat;
-			this._unSelectPathMethod(this.list);
-			this._selectPathMethod(cat);
-		},
-		_selectPathMethod: function(cat){
-			if (L.isNull(cat)){ return; }
-			var TId = this._TId, gel = function(n, id){ return Dom.get(TId[n]['title']+'-'+id); };
-			
-			Dom.addClass(gel('row', cat.id), 'select');
-			
-			if ((L.isNull(cat.parent) && cat.parentTaskId > 0) || (cat.parentTaskId == 0 && cat.userid != UID)){
-				Dom.addClass(gel('rowuser', cat.userid), 'select');
+		onRemoveCatalogClick: function(){},
+		onClick: function(el, tp){
+			switch(el.id){
+			case tp['baddel']:
+				
+				return true;
 			}
-
-			this._selectPathMethod(cat.parent);
 		}
 	});
 	NS.CatalogViewWidget = CatalogViewWidget;
 	
+	
+	var CatalogEditorWidget = function(container, manager, cat, cfg){
+		cfg = L.merge({
+			'onCancelClick': null
+		}, cfg || {});
+		CatalogEditorWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'editor' 
+		}, manager, cat, cfg);
+	};
+	YAHOO.extend(CatalogEditorWidget, BW, {
+		init: function(manager, cat, cfg){
+			this.manager = manager;
+			this.cat = cat;
+			this.cfg = cfg;
+			this.fotosWidget = null;
+			this.wsOptions = [];
+		},
+		onLoad: function(manager, cat){
+			if (!L.isNull(cat.detail)){
+				this._onLoadElement(cat);
+			}else{
+				var __self = this;
+				manager.catLoad(cat.id, function(cat){
+					__self._onLoadElement(cat);
+				}, cat);
+			}
+		},
+		_onLoadElement: function(cat){
+			this.elHide('loading');
+			this.elShow('view');
+			
+			this.elSetValue({
+				'tl': cat.title
+			});
+			
+			this.fotosWidget = new NS.ElementFotosEditWidget(this.gel('fotos'), this.manager, this.cat.detail.fotos);
+			
+			var typeList = this.manager.typeList,
+				tbase = typeList.get(0);
+			
+			var ws = [], elList = this.gel('optlist');
+			tbase.options.foreach(function(toption){
+				var div = document.createElement('div'),
+					value = cat.detail.getValue(toption);
+
+				elList.appendChild(div);
+				
+				switch(toption.type){
+				case NS.FTYPE['NUMBER']:
+					ws[ws.length] = new NS.ElementEditNumberWidget(div, toption, value);
+					break;
+				case NS.FTYPE['STRING']:
+					ws[ws.length] = new NS.ElementEditStringWidget(div, toption, value);
+					break;
+				case NS.FTYPE['TABLE']:
+					
+					break;
+				}
+			});
+			this.wsOptions = ws;
+		},
+		onClick: function(el, tp){
+			switch(el.id){
+			case tp['bsave']: this.save(); return true;
+			case tp['bcancel']: this.onCancelClick(); return true;
+			}
+			return false;
+		},
+		onCancelClick: function(){
+			NS.life(this.cfg['onCancelClick'], this);
+		},
+		save: function(){
+			var sd = {
+				'tl': this.gel('tl').value,
+				'fotos': this.fotosWidget.fotos
+			};
+
+			this.elHide('btnsc');
+			this.elShow('btnpc');
+
+			var __self = this;
+			this.manager.catSave(this.cat.id, sd, function(cat){
+				__self.elShow('btnsc');
+				__self.elHide('btnpc');
+			}, this.cat);
+		}
+	});
+	NS.CatalogEditorWidget = CatalogEditorWidget;	
 };
