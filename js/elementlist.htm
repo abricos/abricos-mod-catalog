@@ -1,7 +1,10 @@
 <!--{widget}-->
 <div id="{i#id}" class="aw-catalog">
 	<div class="elementlist">
-	<div id="{i#list}"></div>	
+	
+		<div id="{i#neweditor}" class="elneweditor"></div>
+			
+		<div id="{i#list}"></div>	
 	</div>
 </div>
 
@@ -12,7 +15,7 @@
 			<a id="{i#tl}" href="#"></a>
 		</div>
 		
-		<div class="elrmenu">
+		<div id="{i#menu}" class="elrmenu">
 			<div id="{i#bedit}" class="b" title="Редактировать">
 				<div id="{i#beditc}" class="bedit bc"></div>
 			</div>
@@ -32,18 +35,18 @@
 			<img src="/images/loading.gif" />
 		</div>
 	</div>
-	<div id="{i#view}" style="display: none">
+	<div id="{i#view}" class="editform" style="display: none">
 		<div class="r">
-			<input id="{i#tl}" class="fldtl" type="text" />
+			<input id="{i#tl}" class="inp fldtl" type="text" />
 		</div>
 		
 		<div class="r" id="{i#fotos}"></div>
 		
 		<div class="r mext">
-			<input id="{i#nm}" class="fldtl" type="text" />
+			<input id="{i#nm}" class="inp fldtl" type="text" />
 		</div>
 		
-		<div id="{i#more}" class="editform">
+		<div id="{i#more}">
 		
 			<div id="{i#optlist}"></div>
 		

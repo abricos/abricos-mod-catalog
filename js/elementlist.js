@@ -31,6 +31,8 @@ Component.entryPoint = function(NS){
 			this.list = list;
 			this.config = cfg;
 			this.wsList = [];
+			
+			this.newEditorWidget = null;
 		},
 		destroy: function(){
 			this.clearList();
@@ -70,7 +72,8 @@ Component.entryPoint = function(NS){
 				if (f(ws[i])){ return; }
 			}
 		},
-		allEasyEditorClose: function(wExclude){
+		allEditorClose: function(wExclude){
+			this.newEditorClose();
 			this.foreach(function(w){
 				if (w != wExclude){
 					w.editorClose();
@@ -78,14 +81,30 @@ Component.entryPoint = function(NS){
 			});
 		},
 		onElementEditClick: function(w){
-			this.allEasyEditorClose(w);
+			this.allEditorClose(w);
 			w.editorShow();
 		},
 		onElementRemoveClick: function(w){
 		},
 		onElementSelectClick: function(w){
-			this.allEasyEditorClose(w);
+			this.allEditorClose(w);
 			w.editorShow();
+		},
+		showNewEditor: function(){
+			if (!L.isNull(this.newEditorWidget)){ return; }
+			
+			this.allEditorClose();
+			
+			var element = new NS.Element({'catid': this.list.catid});
+			this.newEditorWidget = 
+				new NS.ElementEasyEditRowWidget(this.gel('neweditor'), this.manager, element, {
+					'onCancelClick': function(wEditor){ __self.newEditorClose(); }
+				});
+		},
+		newEditorClose: function(){
+			if (L.isNull(this.newEditorWidget)){ return; }
+			this.newEditorWidget.destroy();
+			this.newEditorWidget = null;
 		}
 	});
 	NS.ElementListWidget = ElementListWidget;
@@ -144,11 +163,16 @@ Component.entryPoint = function(NS){
 				});
 			
 			Dom.addClass(this.gel('wrap'), 'rborder');
+			Dom.addClass(this.gel('id'), 'rowselect');
+			this.elHide('menu');
 		},
 		editorClose: function(){
 			if (L.isNull(this.editorWidget)){ return; }
 
 			Dom.removeClass(this.gel('wrap'), 'rborder');
+			Dom.removeClass(this.gel('id'), 'rowselect');
+			this.elShow('menu');
+
 			this.editorWidget.destroy();
 			this.editorWidget = null;
 		}

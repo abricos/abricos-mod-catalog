@@ -166,7 +166,8 @@ Component.entryPoint = function(NS){
 		'TEXT':		7
 	};
 	
-	var ElementList = function(d){
+	var ElementList = function(d, catid){
+		this.catid = catid;
 		ElementList.superclass.constructor.call(this, d, Element);
 	};
 	YAHOO.extend(ElementList, SysNS.ItemList, {});
@@ -321,10 +322,10 @@ Component.entryPoint = function(NS){
 				NS.life(callback, cat, list);
 			});
 		},
-		_elementListUpdate: function(d){
+		_elementListUpdate: function(d, catid){
 			var list = null;
 			if (!L.isNull(d) && !L.isNull(d['elements'])){
-				list = new NS.ElementList(d['elements']['list']);
+				list = new NS.ElementList(d['elements']['list'], catid);
 			}
 			return list;
 		},
@@ -333,7 +334,7 @@ Component.entryPoint = function(NS){
 			this.ajax({
 				'do': 'elementlist'
 			}, function(d){
-				var list = __self._elementListUpdate(d);
+				var list = __self._elementListUpdate(d, catid);
 				NS.life(callback, list);
 			});
 		},
@@ -350,6 +351,16 @@ Component.entryPoint = function(NS){
 			return element;
 		},
 		elementLoad: function(elementid, callback, element){
+			
+			if (elementid == 0){
+				if (L.isNull(element)){
+					element = new NS.Element(d);
+				}
+				element.detail = new NS.ElementDetail();
+				NS.life(callback, element);
+				return;
+			}
+			
 			var __self = this;
 			this.ajax({
 				'do': 'element',

@@ -66,7 +66,6 @@ Component.entryPoint = function(NS){
 			NS.life(this.cfg['addCatalogClick'], this.cat);
 		},
 		showEditor: function(){
-			
 			this.elHide('view');
 			var __self = this;
 			this.editorWidget = new NS.CatalogEditorWidget(this.gel('editor'), this.manager, this.cat, {
@@ -82,9 +81,8 @@ Component.entryPoint = function(NS){
 		onRemoveCatalogClick: function(){},
 		onClick: function(el, tp){
 			switch(el.id){
-			case tp['baddel']:
-				
-				return true;
+			case tp['baddel']: this.onAddElementClick(); return true;
+			case tp['baddcat']: this.onAddCatalogClick(); return true;
 			}
 		}
 	});
@@ -104,52 +102,12 @@ Component.entryPoint = function(NS){
 			this.manager = manager;
 			this.cat = cat;
 			this.cfg = cfg;
-			this.fotosWidget = null;
-			this.wsOptions = [];
 		},
-		onLoad: function(manager, cat){
-			if (!L.isNull(cat.detail)){
-				this._onLoadElement(cat);
-			}else{
-				var __self = this;
-				manager.catLoad(cat.id, function(cat){
-					__self._onLoadElement(cat);
-				}, cat);
-			}
-		},
-		_onLoadElement: function(cat){
-			this.elHide('loading');
-			this.elShow('view');
+		onLoad: function(manager, cat, cfg){
 			
 			this.elSetValue({
 				'tl': cat.title
 			});
-			
-			this.fotosWidget = new NS.ElementFotosEditWidget(this.gel('fotos'), this.manager, this.cat.detail.fotos);
-			
-			var typeList = this.manager.typeList,
-				tbase = typeList.get(0);
-			
-			var ws = [], elList = this.gel('optlist');
-			tbase.options.foreach(function(toption){
-				var div = document.createElement('div'),
-					value = cat.detail.getValue(toption);
-
-				elList.appendChild(div);
-				
-				switch(toption.type){
-				case NS.FTYPE['NUMBER']:
-					ws[ws.length] = new NS.ElementEditNumberWidget(div, toption, value);
-					break;
-				case NS.FTYPE['STRING']:
-					ws[ws.length] = new NS.ElementEditStringWidget(div, toption, value);
-					break;
-				case NS.FTYPE['TABLE']:
-					
-					break;
-				}
-			});
-			this.wsOptions = ws;
 		},
 		onClick: function(el, tp){
 			switch(el.id){
