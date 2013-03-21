@@ -643,10 +643,10 @@ class CatalogModuleManager {
 		return $ret;
 	}
 	
-	public function Element($elementid){
+	public function Element($elid){
 		if (!$this->IsViewRole()){ return false; }
 		
-		$dbEl = CatalogDbQuery::Element($this->db, $this->pfx, $elementid);
+		$dbEl = CatalogDbQuery::Element($this->db, $this->pfx, $elid);
 		if (empty($dbEl)){ return null; }
 		
 		$element = new CatalogElement($dbEl);
@@ -654,9 +654,9 @@ class CatalogModuleManager {
 		$elTypeList = $this->ElementTypeList();
 		
 		$elTypeBase = $elTypeList->Get(0);
-		$dElType = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $elementid, $elTypeBase);
+		$dElType = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $elid, $elTypeBase);
 		
-		$rows = CatalogDbQuery::ElementFotoList($this->db, $this->pfx, $elementid);
+		$rows = CatalogDbQuery::ElementFotoList($this->db, $this->pfx, $elid);
 		$fotos = array();
 		while (($row = $this->db->fetch_array($rows))){
 			array_push($fotos, $row['f']);
@@ -669,8 +669,8 @@ class CatalogModuleManager {
 		return $element;
 	}
 	
-	public function ElementToAJAX($elementid){
-		$element = $this->Element($elementid);
+	public function ElementToAJAX($elid){
+		$element = $this->Element($elid);
 		if (empty($element)){ return null; }
 		
 		$ret = new stdClass();
@@ -679,21 +679,32 @@ class CatalogModuleManager {
 		return $ret;
 	}
 	
-	public function ElementSave($elementid, $sd){
+	public function ElementSave($elid, $d){
 		if (!$this->IsAdminRole()){ return null; }
 		
-		$elementid = intval($elementid);
+		$utm = Abricos::TextParser();
+		$utmf = Abricos::TextParser(true);
 		
-		if ($elementid == 0){ // добавление нового
-			return null;
-		}else{ // сохранение текущего
+		$elid		= intval($elid);
+		$d->catid	= intval($d->catid);
+		$d->tpid	= intval($d->tpid);
+		$d->tl		= $utmf->Parser($d->tl);
+		$d->nm		= translateruen($d->tl);
+		$d->ord		= intval($d->ord);
+		
+		if ($elid == 0){ // добавление нового
 			
+			$elid = CatalogDbQuery::ElementAppend($this->db, $this->pfx, $d);
+			if (empty($elid)){ return null; }
+			
+		}else{ // сохранение текущего
+			CatalogDbQuery::ElementUpdate($this->db, $this->pfx, $elid, $d);
 		}
 		
 		// обновление фоток
-		CatalogDbQuery::ElementFotoUpdate($this->db, $this->pfx, $elementid, $sd->fotos);
+		CatalogDbQuery::ElementFotoUpdate($this->db, $this->pfx, $elid, $d->fotos);
 		
-		return $this->ElementToAJAX($elementid);
+		return $this->ElementToAJAX($elid);
 	}
 	
 	private $_cacheElementTypeList;

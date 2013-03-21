@@ -541,6 +541,11 @@ class CatalogManager extends Ab_ModuleManager {
 		CatalogQuery::ElementOptionRemove($this->db, $optionid);
 	}
 
+	public function ElementOptionRemoveByName($elTypeId, $name){
+		if (!$this->IsAdminRole()){ return; }
+		CatalogQuery::ElementOptionRemoveByName($this->db, $elTypeId, $name);
+	}
+
 	/**
 	 * Восстановить тип элемента из корзины 
 	 * 

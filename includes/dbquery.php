@@ -103,10 +103,18 @@ class CatalogDbQuery {
 				e.title as tl,
 				e.name as nm
 			FROM ".$pfx."element e
-			INNER JOIN ".$pfx."catalog cat ON cat.catalogid=e.catalogid
-			WHERE e.deldate=0 AND e.catalogid=".bkint($catid)." AND cat.deldate=0
-			LIMIT 500
 		";
+		
+		if ($catid > 0){
+			$sql .= "
+				INNER JOIN ".$pfx."catalog cat ON cat.catalogid=e.catalogid
+				WHERE e.deldate=0 AND e.catalogid=".bkint($catid)." AND cat.deldate=0
+			";
+		}else{
+			$sql .= " WHERE e.deldate=0 AND e.catalogid=0 ";
+		}
+		
+		$sql .= " LIMIT 500 ";
 		return $db->query_read($sql);
 	}
 	
@@ -142,6 +150,34 @@ class CatalogDbQuery {
 			LIMIT 1
 		";
 		return $db->query_first($sql);
+	}
+	
+	public static function ElementAppend(Ab_Database $db, $pfx, $d){
+		$sql = "
+			INSERT INTO ".$pfx."element
+			(catalogid, eltypeid, title, name, dateline) VALUES (
+				".bkint($d->catid).",
+				".bkint($d->tpid).",
+				'".bkstr($d->tl)."',
+				'".bkstr($d->nm)."',
+				".TIMENOW."
+			)
+		";
+		$db->query_write($sql);
+		return $db->insert_id();
+	}
+	
+	public static function ElementUpdate(Ab_Database $db, $pfx, $elid, $d){
+		$sql = "
+			UPDATE ".$pfx."element
+			SET 
+				catalogid=".bkint($d->catid).", 
+				title='".bkstr($d->tl)."', 
+				name='".bkstr($d->nm)."'
+			WHERE elementid=".bkint($elid)."
+			LIMIT 1 
+		";
+		$db->query_write($sql);
 	}
 	
 	public static function ElementTypeList(Ab_Database $db, $pfx){
@@ -1070,6 +1106,16 @@ class CatalogQuery {
 			SET 
 				deldate=".TIMENOW."
 			WHERE eloptionid=".bkint($id)."
+		";
+		$db->query_write($sql);
+	}
+
+	public static function ElementOptionRemoveByName(Ab_Database $db, $elTypeId, $name){
+		$sql = "
+			UPDATE ".CatalogQuery::$PFX."eloption
+			SET 
+				deldate=".TIMENOW."
+			WHERE eltypeid=".bkint($elTypeId)." AND name='".bkstr($name)."'
 		";
 		$db->query_write($sql);
 	}
