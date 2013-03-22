@@ -654,7 +654,7 @@ class CatalogModuleManager {
 		$elTypeList = $this->ElementTypeList();
 		
 		$elTypeBase = $elTypeList->Get(0);
-		$dElType = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $elid, $elTypeBase);
+		$dbOptionsBase = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $elid, $elTypeBase);
 		
 		$rows = CatalogDbQuery::ElementFotoList($this->db, $this->pfx, $elid);
 		$fotos = array();
@@ -662,7 +662,7 @@ class CatalogModuleManager {
 			array_push($fotos, $row['f']);
 		}
 		
-		$detail = new CatalogElementDetail($dbEl, $dElType, $fotos);
+		$detail = new CatalogElementDetail($dbEl, $dbOptionsBase, $fotos);
 		
 		$element->detail = $detail;
 		

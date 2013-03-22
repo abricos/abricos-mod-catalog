@@ -401,7 +401,7 @@ Component.entryPoint = function(NS){
 			'onCancelClick': null
 		}, cfg || {});
 		ElementEasyEditRowWidget.superclass.constructor.call(this, container, {
-			'buildTemplate': buildTemplate, 'tnames': 'easyeditor,nofoto' 
+			'buildTemplate': buildTemplate, 'tnames': 'easyeditor,tpwidget,tplist,tprow,optnumber,nofoto' 
 		}, manager, element, cfg);
 	};
 	YAHOO.extend(ElementEasyEditRowWidget, BW, {
@@ -411,6 +411,33 @@ Component.entryPoint = function(NS){
 			this.cfg = cfg;
 			this.fotosWidget = null;
 			this.wsOptions = [];
+		},
+		buildTData: function(manager, element, cfg){
+			var sTypeList = "", TM = this._TM;
+			
+			var tpList = manager.typeList;
+			
+			if (tpList.count() > 1){
+			
+				if (element.id == 0){
+					var lst = "";
+					tpList.foreach(function(tp){
+						lst += TM.replace('tprow', {
+							'id': tp.id, 'tl': tp.title
+						});
+					});
+					sTypeList = TM.replace('tpwidget', {'tplist': TM.replace('tplist', {'rows': lst})}); 
+				}else{
+					var tp = tpList.get(element.typeid);
+					if (!L.isNull(tp)){
+						sTypeList = TM.replace('tpwidget', {'tplist': tp.title}); 
+					}
+				}
+			}
+			
+			return {
+				'typelist': sTypeList
+			};
 		},
 		onLoad: function(manager, element){
 			if (!L.isNull(element.detail)){
@@ -467,6 +494,7 @@ Component.entryPoint = function(NS){
 			NS.life(this.cfg['onCancelClick'], this);
 		},
 		save: function(){
+			
 			var sd = {
 				'tl': this.gel('tl').value,
 				'fotos': this.fotosWidget.fotos

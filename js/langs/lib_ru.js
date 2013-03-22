@@ -9,6 +9,9 @@ Brick.util.Language.add('ru',{'mod': {'{C#MODNAME}':{
 		'count': 'Количество элементов',
 		'button': {
 			'add': 'Добавить элемент'
+		},
+		'type': {
+			'base': 'Базовый'
 		}
 	}
 }}});

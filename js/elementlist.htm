@@ -36,11 +36,20 @@
 		</div>
 	</div>
 	<div id="{i#view}" class="editform" style="display: none">
+		{v#typelist}
+		
 		<div class="r">
-			<input id="{i#tl}" class="inp fldtl" type="text" placeholder="Введите название" />
+			<dl>
+				<dt>Название</dt>
+				<dd>
+					<input id="{i#tl}" class="inp" type="text" placeholder="Введите название" />
+				</dd>
+			</dl>
 		</div>
 		
 		<div class="r" id="{i#fotos}"></div>
+		
+		<div class="rtl"></div>
 		
 		<div class="r mext">
 			<input id="{i#nm}" class="inp fldtl" type="text" />
@@ -87,6 +96,22 @@
 		</div>
 	</div>
 </div>
+
+<!--{tpwidget}-->
+<div class="r">
+	<dl>
+		<dt>Тип</dt>
+		<dd>
+			{v#tplist}
+		</dd>
+	</dl>
+</div>
+
+<!--{tplist}-->
+<select id="{i#id}" class="inp">{v#rows}</select>
+
+<!--{tprow}-->
+<option value="{v#id}">{v#tl}</option>
 
 <!--{optnumber}-->
 <div id="{i#id}" class="r">

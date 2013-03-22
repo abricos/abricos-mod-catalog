@@ -271,10 +271,19 @@ Component.entryPoint = function(NS){
 		},
 		_initDataUpdate: function(d){
 			this.catalogList = this._catalogListUpdate(d);
-			
+			this.typeList = this._typeListUpdate(d);
+		},
+		_typeListUpdate: function(d){
+			var list = null;
 			if (!L.isNull(d) && !L.isNull(d['eltypes'])){
-				this.typeList = new NS.ElementTypeList(d['eltypes']);
+				list = new NS.ElementTypeList(d['eltypes']);
+				
+				var btype = list.get(0);
+				if (!L.isNull(btype)){
+					btype.title = this.getLang('element.type.base');
+				}
 			}
+			return list;
 		},
 		_catalogListUpdate: function(d){
 			var list = null;

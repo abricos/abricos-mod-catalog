@@ -79,7 +79,7 @@
 .aw-catalog .editform dt,
 .aw-catalog .viewform dt {
     float: left;
-    padding: 0.5em 0 0.5em 0;
+    padding: 3px 0;
     width: 200px;
 }
 .aw-catalog .viewform dt {
@@ -91,7 +91,7 @@
 .aw-catalog .viewform dd  {
     float: none;
     margin-left: 220px;
-    padding: 0.5em 0;
+    padding: 3px 0;
 }
 .aw-catalog .editform p {
 	margin: 5px 0 7px;
