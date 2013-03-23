@@ -63,16 +63,3 @@
 .aw-catalog .elementlist .elrow .elrmenu .bremove {
 	background: url("/modules/catalog/images/icons.png") no-repeat scroll -42px -24px transparent;
 }
-
-/* * * Editor * * */
-.aw-catalog .elrow .easyeditor {
-	margin: 5px;
-	padding: 0 5px;
-}
-.aw-catalog .elementlist .elneweditor .easyeditor {
-	border: 1px solid #D1D3DC;
-	border-radius: 5px;
-	background-color: #FFF0C6;
-	padding: 8px 8px 0px 8px;
-}
-

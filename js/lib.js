@@ -128,18 +128,22 @@ Component.entryPoint = function(NS){
 	});		
 	NS.Element = Element;
 	
-	var ElementDetail = function(d){
+	var ElementDetail = function(manager, owner, d){
 		d = L.merge({
 			'imgs': [],
 			'mtl': '',
 			'mdsc': '',
 			'mks': '',
-			'optb': {}
+			'optb': {},
+			'optp': {}
 		}, d || {});
-		ElementDetail.superclass.constructor.call(this, d);
+		this.init(manager, owner, d);
 	};
-	YAHOO.extend(ElementDetail, SysNS.Item, {
-		update: function(d){
+	ElementDetail.prototype = {
+		init: function(manager, owner, d){
+			this.manager = manager;
+			this.owner = owner;
+
 			this.fotos = d['fotos'];
 			
 			this.metaTitle = d['mtl'];
@@ -147,13 +151,25 @@ Component.entryPoint = function(NS){
 			this.metaDesc = d['mdsc'];
 			
 			this.optionsBase = d['optb'];
+			this.optionsPers = d['optp'];
 		},
-		getValue: function(option){
-			var vals = option.elTypeId == 0 ? this.optionsBase : {};
+		foreach: function(f){
+			var man = this.manager;
+			var fore = function(tpid, opts){
+				var tp = man.typeList.get(tpid);
+				if (L.isNull(tp)){ return; }
+				tp.options.foreach(function(option){
+					var value = opts[option.name] || '';
+					NS.life(f, option, value);
+				});
+			};
+			fore(0, this.optionsBase);
 			
-			return vals[option.name];
+			if (this.owner.typeid > 0){
+				fore(this.owner.typeid, this.optionsPers);
+			}
 		}
-	});
+	};
 	NS.ElementDetail = ElementDetail;
 	
 	NS.FTYPE = {
@@ -197,7 +213,6 @@ Component.entryPoint = function(NS){
 	};
 	YAHOO.extend(ElementOptionList, SysNS.ItemList, {});
 	NS.ElementOptionList = ElementOptionList;
-	
 	
 	var ElementType = function(d){
 		d = L.merge({
@@ -355,7 +370,7 @@ Component.entryPoint = function(NS){
 				if (L.isNull(element)){
 					element = new NS.Element(d);
 				}
-				element.detail = new NS.ElementDetail(d['element']['dtl']);
+				element.detail = new NS.ElementDetail(this, element, d['element']['dtl']);
 			}
 			return element;
 		},
@@ -365,7 +380,7 @@ Component.entryPoint = function(NS){
 				if (L.isNull(element)){
 					element = new NS.Element(d);
 				}
-				element.detail = new NS.ElementDetail();
+				element.detail = new NS.ElementDetail(this, element);
 				NS.life(callback, element);
 				return;
 			}
