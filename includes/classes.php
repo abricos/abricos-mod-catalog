@@ -17,12 +17,12 @@ class Catalog {
 	const TP_NUMBER = 1;
 	const TP_DOUBLE = 2;
 	const TP_STRING = 3;
-	const TP_LIST = 4;
+	// const TP_LIST = 4;
 	const TP_TABLE = 5;
-	const TP_MULTI = 6;
+	// const TP_MULTI = 6;
 	const TP_TEXT = 7;
-	const TP_DICT = 8;
-	const TP_CHILDELEMENT = 9;
+	// const TP_DICT = 8;
+	// const TP_CHILDELEMENT = 9;
 	
 	
 	public $id;
@@ -653,8 +653,8 @@ class CatalogModuleManager {
 		
 		$elTypeList = $this->ElementTypeList();
 		
-		$elTypeBase = $elTypeList->Get(0);
-		$dbOptionsBase = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $elid, $elTypeBase);
+		$tpBase = $elTypeList->Get(0);
+		$dbOptionsBase = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $elid, $tpBase);
 		
 		$rows = CatalogDbQuery::ElementFotoList($this->db, $this->pfx, $elid);
 		$fotos = array();
@@ -690,16 +690,31 @@ class CatalogModuleManager {
 		$d->tpid	= intval($d->tpid);
 		$d->tl		= $utmf->Parser($d->tl);
 		$d->nm		= translateruen($d->tl);
+		
+		$d->mtl		= $utmf->Parser($d->mtl);
+		$d->mks		= $utmf->Parser($d->mks);
+		$d->mdsc	= $utmf->Parser($d->mdsc);
+		
 		$d->ord		= intval($d->ord);
 		
+		$isNew = false;
 		if ($elid == 0){ // добавление нового
 			
+			$isNew = true;
 			$elid = CatalogDbQuery::ElementAppend($this->db, $this->pfx, $d);
 			if (empty($elid)){ return null; }
 			
 		}else{ // сохранение текущего
 			CatalogDbQuery::ElementUpdate($this->db, $this->pfx, $elid, $d);
 		}
+		
+		$elTypeList = $this->ElementTypeList();
+		
+		foreach($d->values as $tpid => $opts){
+			$elType = $elTypeList->Get($tpid);
+			CatalogDbQuery::ElementDetailUpdate($this->db, $this->pfx, $elid, $elType, $opts);
+		}
+		
 		
 		// обновление фоток
 		CatalogDbQuery::ElementFotoUpdate($this->db, $this->pfx, $elid, $d->fotos);

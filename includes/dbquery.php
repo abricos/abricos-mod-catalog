@@ -127,14 +127,13 @@ class CatalogDbQuery {
 				e.title as tl,
 				e.name as nm
 			FROM ".$pfx."element e
-			INNER JOIN ".$pfx."catalog cat ON cat.catalogid=e.catalogid
-			WHERE e.deldate=0 AND e.elementid=".bkint($elementid)." AND cat.deldate=0
+			WHERE e.elementid=".bkint($elementid)."
 			LIMIT 1
 		";
 		return $db->query_first($sql);
 	}
 	
-	public static function ElementDetail(Ab_Database $db, $pfx, $elementid, CatalogElementType $elType){
+	public static function ElementDetail(Ab_Database $db, $pfx, $elid, CatalogElementType $elType){
 		$options = $elType->options;
 		$fields = array();
 		for ($i=0; $i<$options->Count(); $i++){
@@ -146,7 +145,7 @@ class CatalogDbQuery {
 				e.elementid as id
 				".(count($fields)>0?",".implode(",", $fields):"")."
 			FROM ".$pfx.$elType->tableName." e
-			WHERE e.elementid=".bkint($elementid)."
+			WHERE e.elementid=".bkint($elid)."
 			LIMIT 1
 		";
 		return $db->query_first($sql);
@@ -155,16 +154,73 @@ class CatalogDbQuery {
 	public static function ElementAppend(Ab_Database $db, $pfx, $d){
 		$sql = "
 			INSERT INTO ".$pfx."element
-			(catalogid, eltypeid, title, name, dateline) VALUES (
+			(catalogid, eltypeid, title, name, metatitle, metakeys, metadesc, dateline) VALUES (
 				".bkint($d->catid).",
 				".bkint($d->tpid).",
 				'".bkstr($d->tl)."',
 				'".bkstr($d->nm)."',
+				'".bkstr($d->mtl)."',
+				'".bkstr($d->mks)."',
+				'".bkstr($d->mdsc)."',
 				".TIMENOW."
 			)
 		";
 		$db->query_write($sql);
 		return $db->insert_id();
+	}
+	
+	public static function ElementDetailUpdate(Ab_Database $db, $pfx, $elid, CatalogElementType $elType, $d){
+		$options = $elType->options;
+		if ($options->Count() == 0){ return; }
+		
+		$insfld = array(); $insval = array(); $upd = array();
+		
+		$utm = Abricos::TextParser();
+		$utmf = Abricos::TextParser(true);
+		
+		for ($i=0; $i<$options->Count(); $i++){
+			$option = $options->GetByIndex($i);
+			$name = $option->name;
+			
+			$val = $d->$name;
+			
+			switch($option->type){
+				case Catalog::TP_BOOLEAN:
+					$val = empty($val) ? 0 : 1;
+					break;
+				case Catalog::TP_NUMBER:
+					$val = bkint($val);
+					break;
+				case Catalog::TP_DOUBLE:
+					$val = doubleval($val);
+					break;
+				case Catalog::TP_STRING:
+					$val = "'".bkstr($utmf->Parser($val))."'";
+					break;
+				case Catalog::TP_TABLE:
+					$val = bkint($val);
+					break;
+				case Catalog::TP_TEXT:
+					$val = "'".bkstr($utm->Parser($val))."'";
+					break;
+				default: 
+					$val = bkstr($val);
+					 break;
+			}
+			array_push($insfld, "fld_".$name);
+			array_push($insval, $val);
+			array_push($upd, "fld_".$name."=". $val);
+		}
+		
+		$sql = "
+			INSERT INTO ".$pfx."element
+			(elementid, ".implode(", ", $insfld).") VALUES (
+				".bkint($elid).",
+				".implode(", ", $insval)."
+			)ON DUPLICATE KEY UPDATE
+				".implode(", ", $upd)."
+		";
+		$db->query_write($sql);
 	}
 	
 	public static function ElementUpdate(Ab_Database $db, $pfx, $elid, $d){

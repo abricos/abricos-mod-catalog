@@ -6,6 +6,7 @@
 var Component = new Brick.Component();
 Component.requires = {
 	mod:[
+		{name: 'sys', files: ['editor.js']},
 		{name: '{C#MODNAME}', files: ['lib.js']}
 	]
 };
@@ -188,13 +189,38 @@ Component.entryPoint = function(NS){
 	});
 	NS.ElementFotosEditWidget = ElementFotosEditWidget;
 	
-	
+	var ElementEditBooleanWidget = function(container, option, value, cfg){
+		cfg = L.merge({
+		}, cfg || {});
+		ElementEditBooleanWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'optboolean' 
+		}, option, value|0, cfg);
+	};
+	YAHOO.extend(ElementEditBooleanWidget, BW, {
+		buildTData: function(option, value, cfg){
+			return {'tl': option.title};
+		},
+		init: function(option, value, cfg){
+			this.option = option;
+			this.value = value;
+			this.cfg = cfg;
+		},
+		onLoad: function(option, value, cfg){
+			this.gel('val').checked = value>0 ? 'checked' : '';
+		},
+		getValue: function(){
+			return this.gel('val').checked == 'checked' ? 1 : 0;
+		}
+	});
+	NS.ElementEditBooleanWidget = ElementEditBooleanWidget;
+
+
 	var ElementEditNumberWidget = function(container, option, value, cfg){
 		cfg = L.merge({
 		}, cfg || {});
 		ElementEditNumberWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'optnumber' // , 'isRowWidget': true 
-		}, option, value, cfg);
+		}, option, value|0, cfg);
 	};
 	YAHOO.extend(ElementEditNumberWidget, BW, {
 		buildTData: function(option, value, cfg){
@@ -207,9 +233,13 @@ Component.entryPoint = function(NS){
 		},
 		onLoad: function(option, value, cfg){
 			this.elSetValue('val', value);
+		},
+		getValue: function(){
+			return this.gel('val').value;
 		}
 	});
-	NS.ElementEditNumberWidget = ElementEditNumberWidget;	
+	NS.ElementEditNumberWidget = ElementEditNumberWidget;
+	
 
 	var ElementEditStringWidget = function(container, option, value, cfg){
 		cfg = L.merge({
@@ -229,9 +259,118 @@ Component.entryPoint = function(NS){
 		},
 		onLoad: function(option, value, cfg){
 			this.elSetValue('val', value);
+		},
+		getValue: function(){
+			return this.gel('val').value;
 		}
 	});
-	NS.ElementEditStringWidget = ElementEditStringWidget;	
+	NS.ElementEditStringWidget = ElementEditStringWidget;
+
+
+	var ElementEditDoubleWidget = function(container, option, value, cfg){
+		cfg = L.merge({
+		}, cfg || {});
+		ElementEditDoubleWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'optdouble'  
+		}, option, value, cfg);
+	};
+	YAHOO.extend(ElementEditDoubleWidget, BW, {
+		buildTData: function(option, value, cfg){
+			return {'tl': option.title};
+		},
+		init: function(option, value, cfg){
+			this.option = option;
+			this.value = value;
+			this.cfg = cfg;
+		},
+		onLoad: function(option, value, cfg){
+			this.elSetValue('val', value);
+		},
+		getValue: function(){
+			return this.gel('val').value;
+		}
+	});
+	NS.ElementEditDoubleWidget = ElementEditDoubleWidget;
+	
+
+	var ElementEditTableWidget = function(container, option, value, cfg){
+		cfg = L.merge({
+		}, cfg || {});
+		ElementEditTableWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'opttable,opttablelist,opttablerow'  
+		}, option, value, cfg);
+	};
+	YAHOO.extend(ElementEditTableWidget, BW, {
+		buildTData: function(option, value, cfg){
+			return {'tl': option.title};
+		},
+		init: function(option, value, cfg){
+			this.option = option;
+			this.value = value;
+			this.cfg = cfg;
+		},
+		onLoad: function(option, value, cfg){
+			var TM = this._TM,
+				lst = TM.replace('opttablerow', {'id': 0, 'tl': ""});
+
+			option.values.foreach(function(dict){
+				lst += TM.replace('opttablerow', {
+					'id': dict.id,
+					'tl': dict.title
+				});
+			});
+			
+			this.elSetHTML({
+				'table': TM.replace('opttablelist', {'rows': lst})
+			});
+			
+			this.elSetValue('opttablelist.id', value);
+		},
+		getValue: function(){
+			return this.gel('opttablelist.id').value;
+		}
+	});
+	NS.ElementEditTableWidget = ElementEditTableWidget;
+	
+	var ElementEditTextWidget = function(container, option, value, cfg){
+		cfg = L.merge({
+		}, cfg || {});
+		ElementEditTextWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'opttext'  
+		}, option, value, cfg);
+	};
+	YAHOO.extend(ElementEditTextWidget, BW, {
+		buildTData: function(option, value, cfg){
+			return {'tl': option.title};
+		},
+		init: function(option, value, cfg){
+			this.option = option;
+			this.value = value;
+			this.cfg = cfg;
+		},
+		destroy: function(){
+			this.editorWidget.destroy();
+			ElementEditTextWidget.superclass.destroy.call(this);
+		},
+		onLoad: function(option, value, cfg){
+			
+			var Editor = Brick.widget.Editor;
+			this.editorWidget = new Editor(this.gel('text'), {
+				'toolbar': Editor.TOOLBAR_STANDART,
+				// 'mode': Editor.MODE_VISUAL,
+				'toolbarExpert': false,
+				'separateIntro': false
+			});
+			
+			this.editorWidget.setContent(value);
+		},
+		getValue: function(){
+			return this.editorWidget.getContent();
+		}
+	});
+	NS.ElementEditTextWidget = ElementEditTextWidget;
+
+	
 
 	var ElementEditorWidget = function(container, manager, element, cfg){
 		cfg = L.merge({
@@ -316,14 +455,23 @@ Component.entryPoint = function(NS){
 				elList.appendChild(div);
 				
 				switch(option.type){
+				case NS.FTYPE['BOOLEAN']:
+					ws[ws.length] = new NS.ElementEditBooleanWidget(div, option, value);
+					break;
 				case NS.FTYPE['NUMBER']:
 					ws[ws.length] = new NS.ElementEditNumberWidget(div, option, value);
 					break;
 				case NS.FTYPE['STRING']:
 					ws[ws.length] = new NS.ElementEditStringWidget(div, option, value);
 					break;
+				case NS.FTYPE['DOUBLE']:
+					ws[ws.length] = new NS.ElementEditDoubleWidget(div, option, value);
+					break;
 				case NS.FTYPE['TABLE']:
-					
+					ws[ws.length] = new NS.ElementEditTableWidget(div, option, value);
+					break;
+				case NS.FTYPE['TEXT']:
+					ws[ws.length] = new NS.ElementEditTextWidget(div, option, value);
 					break;
 				}
 			});
@@ -349,19 +497,36 @@ Component.entryPoint = function(NS){
 		},
 		save: function(){
 			
+			var vals = {};
+			var ws = this.wsOptions;
+			for (var i=0;i<ws.length;i++){
+				var w = ws[i];
+				var tpid = w.option.typeid;
+				
+				vals[tpid] = vals[tpid] || {};
+				vals[tpid][w.option.name] = w.getValue();
+			}
+
+			var element = this.element;
 			var sd = {
+				'catid': element.catid,
+				'tpid': element.typeid,
 				'tl': this.gel('tl').value,
-				'fotos': this.fotosWidget.fotos
+				'fotos': this.fotosWidget.fotos,
+				'values': vals,
+				'mtl': this.gel('mtl').value,
+				'mks': this.gel('mks').value,
+				'mdsc': this.gel('mdsc').value
 			};
 
 			this.elHide('btnsc');
 			this.elShow('btnpc');
 
 			var __self = this;
-			this.manager.elementSave(this.element.id, sd, function(element){
+			this.manager.elementSave(element.id, sd, function(element){
 				__self.elShow('btnsc');
 				__self.elHide('btnpc');
-			}, this.element);
+			}, element);
 		}
 	});
 	NS.ElementEditorWidget = ElementEditorWidget;

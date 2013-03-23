@@ -83,6 +83,16 @@
 <!--{tprow}-->
 <option value="{v#id}">{v#tl}</option>
 
+<!--{optboolean}-->
+<div id="{i#id}" class="r">
+	<dl>
+		<dt>{v#tl}</dt>
+		<dd>
+			<input id="{i#val}" type="checkbox" />
+		</dd>
+	</dl>
+</div>
+
 <!--{optnumber}-->
 <div id="{i#id}" class="r">
 	<dl>
@@ -102,6 +112,44 @@
 		</dd>
 	</dl>
 </div>
+
+<!--{optdouble}-->
+<div id="{i#id}" class="r">
+	<dl>
+		<dt>{v#tl}</dt>
+		<dd>
+			<input id="{i#val}" type="text" class="inp" />
+		</dd>
+	</dl>
+</div>
+
+<!--{opttable}-->
+<div id="{i#id}" class="r opttable">
+	<dl>
+		<dt>{v#tl}</dt>
+		<dd>
+			<div id="{i#table}"></div>
+		</dd>
+	</dl>
+</div>
+
+<!--{opttablelist}-->
+<select id="{i#id}" class="inp">{v#rows}</select>
+
+<!--{opttablerow}-->
+<option value="{v#id}">{v#tl}</option>
+
+<!--{opttext}-->
+<div id="{i#id}" class="r opttable">
+	<dl>
+		<dt>{v#tl}</dt>
+		<dd>
+			<textarea id="{i#text}" class="fldtext" style="width: 300px; height: 200px;"></textarea>
+		</dd>
+	</dl>
+</div>
+
+			
 
 <!--{fotos}-->
 <div id="{i#id}" class="fotos">

@@ -26,6 +26,25 @@ Component.entryPoint = function(NS){
 	NS.Item = SysNS.Item;
 	NS.ItemList = SysNS.ItemList;
 	
+	var Dict = function(d){
+		d = L.merge({
+			'tl':''
+		}, d || {});
+		Dict.superclass.constructor.call(this, d);
+	};
+	YAHOO.extend(Dict, SysNS.Item, {
+		update: function(d){
+			this.title		= d['tl'];
+		}
+	});		
+	NS.Dict = Dict;	
+	
+	var DictList = function(d){
+		DictList.superclass.constructor.call(this, d, Dict);
+	};
+	YAHOO.extend(DictList, SysNS.ItemList, { });
+	NS.DictList = DictList;
+	
 	var CatalogItem = function(d){
 		d = L.merge({
 			'pid': 0,
@@ -120,8 +139,8 @@ Component.entryPoint = function(NS){
 			Element.superclass.init.call(this, d);
 		},
 		update: function(d){
-			this.catid		= d['catid']*1;
-			this.typeid		= d['tpid']*1;
+			this.catid		= d['catid']|0;
+			this.typeid		= d['tpid']|0;
 			this.title		= d['tl'];
 			this.name		= d['nm'];
 		}
@@ -177,7 +196,7 @@ Component.entryPoint = function(NS){
 		'NUMBER':	1,
 		'DOUBLE':	2,
 		'STRING':	3,
-		'LIST':		4,
+		// 'LIST':		4,
 		'TABLE':	5,
 		'TEXT':		7
 	};
@@ -202,16 +221,48 @@ Component.entryPoint = function(NS){
 		update: function(d){
 			this.title		= d['tl'];
 			this.name		= d['nm'];
-			this.elTypeId	= d['tpid']*1;
-			this.type		= d['tp']*1;
+			this.typeid	= d['tpid']|0;
+			this.type		= d['tp']|0;
 		}
 	});
 	NS.ElementOption = ElementOption;
 	
+	var ElementOptionTable = function(d){
+		d = L.merge({
+			'values': {}
+		}, d || {});
+		ElementOptionTable.superclass.constructor.call(this, d);
+	};
+	YAHOO.extend(ElementOptionTable, ElementOption, {
+		update: function(d){
+			ElementOptionTable.superclass.update.call(this, d);
+			var vals = d['values'] || {};
+			var arr = [];
+			for (var n in vals){
+				arr[arr.length] = vals[n];
+			}
+			arr = arr.sort(function(d1, d2){
+				if (d1['tl'] > d2['tl']){ return 1; }
+				if (d1['tl'] < d2['tl']){ return -1; }
+				return 0;
+			});
+			this.values = new NS.DictList(arr);
+		}
+	});
+	NS.ElementOptionTable = ElementOptionTable;
+	
 	var ElementOptionList = function(d){
 		ElementOptionList.superclass.constructor.call(this, d, ElementOption);
 	};
-	YAHOO.extend(ElementOptionList, SysNS.ItemList, {});
+	YAHOO.extend(ElementOptionList, SysNS.ItemList, {
+		createItem: function(di){
+			if (di['tp'] == NS.FTYPE['TABLE']){
+				var opt = new ElementOptionTable(di);
+				return opt;
+			}
+			return ElementOptionList.superclass.createItem.call(this, di);
+		}
+	});
 	NS.ElementOptionList = ElementOptionList;
 	
 	var ElementType = function(d){
@@ -390,6 +441,7 @@ Component.entryPoint = function(NS){
 				'do': 'element',
 				'elementid': elementid
 			}, function(d){
+				Brick.console(d);
 				element = __self._elementUpdateData(element, d);
 				NS.life(callback, element);
 			});
