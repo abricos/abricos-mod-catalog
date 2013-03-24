@@ -374,7 +374,8 @@ Component.entryPoint = function(NS){
 
 	var ElementEditorWidget = function(container, manager, element, cfg){
 		cfg = L.merge({
-			'onCancelClick': null
+			'onCancelClick': null,
+			'onSaveElement': null
 		}, cfg || {});
 		ElementEditorWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'widget,tpwidget,tplist,tprow,optnumber,nofoto' 
@@ -390,11 +391,9 @@ Component.entryPoint = function(NS){
 		},
 		buildTData: function(manager, element, cfg){
 			var sTypeList = "", TM = this._TM;
-			
 			var tpList = manager.typeList;
 			
 			if (tpList.count() > 1){
-			
 				if (element.id == 0){
 					var lst = "";
 					tpList.foreach(function(tp){
@@ -410,10 +409,7 @@ Component.entryPoint = function(NS){
 					}
 				}
 			}
-			
-			return {
-				'typelist': sTypeList
-			};
+			return {'typelist': sTypeList};
 		},
 		destroy: function(){
 			if (YAHOO.util.DragDropMgr){
@@ -500,8 +496,12 @@ Component.entryPoint = function(NS){
 		},
 		onClick: function(el, tp){
 			switch(el.id){
-			case tp['bsave']: this.save(); return true;
-			case tp['bcancel']: this.onCancelClick(); return true;
+			case tp['bsave']: 
+			case tp['bsavec']: 
+				this.save(); return true;
+			case tp['bcancel']: 
+			case tp['bcancelc']: 
+				this.onCancelClick(); return true;
 			case this._TId['tplist']['id']: 
 				this.elementTypeChange(); return true;
 			}
@@ -511,7 +511,7 @@ Component.entryPoint = function(NS){
 			NS.life(this.cfg['onCancelClick'], this);
 		},
 		save: function(){
-			
+			var cfg = this.cfg;
 			var vals = {};
 			var ws = this.wsOptions;
 			for (var i=0;i<ws.length;i++){
@@ -535,13 +535,14 @@ Component.entryPoint = function(NS){
 				'mdsc': this.gel('mdsc').value
 			};
 
-			this.elHide('btnsc');
-			this.elShow('btnpc');
+			this.elHide('btnsc,btnscc');
+			this.elShow('btnpc,btnpcc');
 
 			var __self = this;
 			this.manager.elementSave(element.id, sd, function(element){
-				__self.elShow('btnsc');
-				__self.elHide('btnpc');
+				__self.elShow('btnsc,btnscc');
+				__self.elHide('btnpc,btnpcc');
+				NS.life(cfg['onSaveElement'], __self);
 			}, element);
 		}
 	});

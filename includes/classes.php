@@ -529,6 +529,8 @@ class CatalogModuleManager {
 				return $this->ElementToAJAX($d->elementid);
 			case "elementsave":
 				return $this->ElementSave($d->elementid, $d->savedata);
+			case "elementremove":
+				return $this->ElementRemove($d->elementid);
 			case "elementtypelist":
 				return $this->ElementTypeList();
 		}
@@ -741,6 +743,14 @@ class CatalogModuleManager {
 		CatalogDbQuery::ElementFotoUpdate($this->db, $this->pfx, $elid, $d->fotos);
 		
 		return $this->ElementToAJAX($elid);
+	}
+	
+	public function ElementRemove($elid){
+		if (!$this->IsAdminRole()){ return null; }
+		
+		CatalogDbQuery::ElementRemove($this->db, $this->pfx, $elid);
+		
+		return true;
 	}
 	
 	private $_cacheElementTypeList;

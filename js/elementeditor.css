@@ -2,6 +2,7 @@
 .aw-catalog .elrow .easyeditor {
 	margin: 5px;
 	padding: 0 5px;
+	position: relative;
 }
 .aw-catalog .elementlist .elneweditor .easyeditor {
 	border: 1px solid #D1D3DC;
@@ -9,4 +10,13 @@
 	background-color: #FFF0C6;
 	padding: 8px 8px 0px 8px;
 }
-
+.aw-catalog .elrow .easyeditor .editform {
+	border-top: 1px solid #D1D3DC;
+}
+.aw-catalog .elrow .easyeditor .btnsc {
+	position: absolute;
+	right: 0px; top: 0px;
+}
+.aw-catalog .elrow .easyeditor .btnsc {
+	top: -22px;
+}

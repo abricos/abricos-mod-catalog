@@ -6,6 +6,18 @@
 		</div>
 	</div>
 	<div id="{i#view}" class="editform" style="display: none">
+	
+		<div class="btnsc">
+			<span id="{i#btnscc}">
+				<a id="{i#bsavec}" href="#" class="habtn">Сохранить</a>
+				<a id="{i#bcancelc}" href="#" class="habtn">Отмена</a>
+			</span>
+			<span id="{i#btnpcc}" style="display: none">
+				<img src="/images/loading.gif" /> Сохранение...
+			</span>
+			<div class="clear"></div>
+		</div>
+	
 		{v#typelist}
 		
 		<div class="r">
@@ -62,7 +74,6 @@
 		</div>
 		
 		<div class="btns right r">
-			<a id="{i#bshow}" href="#" class="habtn fl">Развернуть редактор</a>
 			<span id="{i#btnsc}">
 				<a id="{i#bsave}" href="#" class="habtn">Сохранить</a>
 				<a id="{i#bcancel}" href="#" class="habtn">Отмена</a>
@@ -157,8 +168,6 @@
 	</dl>
 </div>
 
-			
-
 <!--{fotos}-->
 <div id="{i#id}" class="fotos">
 	<div class="rtl">
@@ -173,7 +182,7 @@
 <!--{foto}-->
 <div id="{i#id}" class="foto tmb tmb80">
 	<span class="tmbpre">
-		<img id="{i#img}" src="/filemanager/i/{v#fh}/w_80-h_80/" />
+		<img id="{i#img}" src="/filemanager/i/{v#fh}/w_80-h_80/image" />
 	</span>
 	<div id="{i#bremove}" class="ba bremove" title="Удалить изображение"></div>
 	<div id="{i#bleft}" class="ba bleft" title="Переместить влево"></div>

@@ -452,6 +452,8 @@ Component.entryPoint = function(NS){
 			if (d && d['element'] && d['element']['dtl']){
 				if (L.isNull(element)){
 					element = new NS.Element(d);
+				}else{
+					element.update(d['element']);
 				}
 				element.detail = new NS.ElementDetail(this, element, d['element']['dtl']);
 			}
@@ -486,6 +488,14 @@ Component.entryPoint = function(NS){
 			}, function(d){
 				element = __self._elementUpdateData(element, d);
 				NS.life(callback, element);
+			});
+		},
+		elementRemove: function(elementid, callback){
+			this.ajax({
+				'do': 'elementremove',
+				'elementid': elementid
+			}, function(d){
+				NS.life(callback);
 			});
 		}
 	};

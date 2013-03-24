@@ -192,6 +192,16 @@ class CatalogDbQuery {
 		$db->query_write($sql);
 	}
 	
+	public static function ElementRemove(Ab_Database $db, $pfx, $elid){
+		$sql = "
+			UPDATE ".$pfx."element
+			SET deldate=".TIMENOW."
+			WHERE elementid=".bkint($elid)."
+			LIMIT 1
+		";
+		$db->query_write($sql);
+	}
+	
 	public static function ElementDetailUpdate(Ab_Database $db, $pfx, $elid, CatalogElementType $elType, $d){
 		$options = $elType->options;
 		if ($options->Count() == 0){ return; }
