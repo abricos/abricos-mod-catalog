@@ -415,6 +415,12 @@ Component.entryPoint = function(NS){
 				'typelist': sTypeList
 			};
 		},
+		destroy: function(){
+			if (YAHOO.util.DragDropMgr){
+				YAHOO.util.DragDropMgr.unlock();
+			} 
+			ElementEditorWidget.superclass.destroy.call(this);
+		},
 		onLoad: function(manager, element){
 			if (!L.isNull(element.detail)){
 				this._onLoadElement(element);
@@ -424,6 +430,9 @@ Component.entryPoint = function(NS){
 					__self._onLoadElement(element);
 				}, element);
 			}
+			if (YAHOO.util.DragDropMgr){
+				YAHOO.util.DragDropMgr.lock();
+			} 
 		},
 		_onLoadElement: function(element){
 			this.element = element;
@@ -431,8 +440,14 @@ Component.entryPoint = function(NS){
 			this.elHide('loading');
 			this.elShow('view');
 			
+			var dtl = element.detail;
+			
 			this.elSetValue({
-				'tl': element.title
+				'tl': element.title,
+				'ord': element.order,
+				'mtl': dtl.metaTitle,
+				'mks': dtl.metaKeys,
+				'mdsc': dtl.metaDesc
 			});
 			
 			this.fotosWidget = new NS.ElementFotosEditWidget(this.gel('fotos'), this.manager, this.element.detail.fotos);
@@ -514,6 +529,7 @@ Component.entryPoint = function(NS){
 				'tl': this.gel('tl').value,
 				'fotos': this.fotosWidget.fotos,
 				'values': vals,
+				'ord': this.gel('ord').value,
 				'mtl': this.gel('mtl').value,
 				'mks': this.gel('mks').value,
 				'mdsc': this.gel('mdsc').value

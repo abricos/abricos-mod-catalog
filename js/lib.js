@@ -129,7 +129,8 @@ Component.entryPoint = function(NS){
 			'catid': 0, 
 			'tpid': 0, 
 			'tl': '', 
-			'nm': '' 
+			'nm': '',
+			'ord': 0
 		}, d || {});
 		Element.superclass.constructor.call(this, d);
 	};
@@ -143,6 +144,7 @@ Component.entryPoint = function(NS){
 			this.typeid		= d['tpid']|0;
 			this.title		= d['tl'];
 			this.name		= d['nm'];
+			this.order		= d['ord']|0;
 		}
 	});		
 	NS.Element = Element;
@@ -205,7 +207,25 @@ Component.entryPoint = function(NS){
 		this.catid = catid;
 		ElementList.superclass.constructor.call(this, d, Element);
 	};
-	YAHOO.extend(ElementList, SysNS.ItemList, {});
+	YAHOO.extend(ElementList, SysNS.ItemList, {
+		foreach: function(f, orderBy, orderDesc){
+			if (!L.isString(orderBy)){
+				ElementList.superclass.foreach.call(this, f);
+				return;
+			}
+			
+			var list = this.list.sort(function(el1, el2){
+				
+				if (el1[orderBy] > el2[orderBy]){ return orderDesc ? -1 : 1; }
+				if (el1[orderBy] < el2[orderBy]){ return orderDesc ? 1 : -1; }
+				
+				return 0;
+			});
+			for (var i=0;i<list.length;i++){
+				if (NS.life(f, list[i])){ return; }
+			}
+		}
+	});
 	NS.ElementList = ElementList;
 	
 	var ElementOption = function(d){
@@ -414,6 +434,18 @@ Component.entryPoint = function(NS){
 			});
 		},
 		
+		elementListOrderSave: function(catid, orders, callback){
+			var __self = this;
+			this.ajax({
+				'do': 'elementlistordersave',
+				'catid': catid|0,
+				'orders': orders
+			}, function(d){
+				var list = __self._elementListUpdate(d, catid);
+				NS.life(callback, list);
+			});
+		},
+		
 		_elementUpdateData: function(element, d){
 			element = element || null;
 
@@ -441,7 +473,6 @@ Component.entryPoint = function(NS){
 				'do': 'element',
 				'elementid': elementid
 			}, function(d){
-				Brick.console(d);
 				element = __self._elementUpdateData(element, d);
 				NS.life(callback, element);
 			});

@@ -5,6 +5,7 @@
 
 var Component = new Brick.Component();
 Component.requires = {
+	yahoo: ['animation', 'dragdrop'],
 	mod:[
 		{name: '{C#MODNAME}', files: ['elementeditor.js']}
 	]
@@ -12,9 +13,12 @@ Component.requires = {
 Component.entryPoint = function(NS){
 	
 	var Dom = YAHOO.util.Dom,
+		E = YAHOO.util.Event,
 		L = YAHOO.lang,
 		buildTemplate = this.buildTemplate,
 		BW = Brick.mod.widget.Widget;
+	
+	var DDM = YAHOO.util.DragDropMgr; 
 	
 	var ElementListWidget = function(container, manager, list, cfg){
 		
@@ -53,17 +57,43 @@ Component.entryPoint = function(NS){
 			this.clearList();
 			
 			var elList = this.gel('list'), ws = this.wsList, 
-				__self = this;
+				__self = this, man = this.manager;
+			
+			var list = this.list;
 
-			this.list.foreach(function(element){
+			list.foreach(function(element){
 				var div = document.createElement('div');
+				div['catalogElement'] = element;
+				
 				elList.appendChild(div);
-				ws[ws.length] = new NS.ElementRowWidget(div, __self.manager, element, {
+				var w = new NS.ElementRowWidget(div, __self.manager, element, {
 					'onEditClick': function(w){__self.onElementEditClick(w);},
 					'onRemoveClick': function(w){__self.onElementRemoveClick(w);},
 					'onSelectClick': function(w){__self.onElementSelectClick(w);}
 				});
-			});
+				
+				
+				var dd = new NS.ElementRowDragItem(div, {
+					'endDragCallback': function(dgi, elDiv){
+						var chs = elList.childNodes, ordb = list.count();
+						var orders = {};
+						for (var i=0;i<chs.length;i++){
+							var catel = chs[i]['catalogElement'];
+							if (catel){
+								catel.order = ordb;
+								orders[catel.id] = ordb;
+								ordb--;
+							}
+						}
+						man.elementListOrderSave(list.catid, orders);
+						__self.render();
+					}
+				});
+		
+				ws[ws.length] = w;
+			}, 'order', true);
+			
+			new YAHOO.util.DDTarget(elList);
 		},
 		foreach: function(f){
 			if (!L.isFunction(f)){ return; }
@@ -88,7 +118,7 @@ Component.entryPoint = function(NS){
 		},
 		onElementSelectClick: function(w){
 			this.allEditorClose(w);
-			w.editorShow();
+			// w.editorShow();
 		},
 		showNewEditor: function(){
 			if (!L.isNull(this.newEditorWidget)){ return; }
@@ -108,6 +138,93 @@ Component.entryPoint = function(NS){
 		}
 	});
 	NS.ElementListWidget = ElementListWidget;
+	
+	var ElementRowDragItem = function(id, cfg){
+		ElementRowDragItem.superclass.constructor.call(this, id, '', cfg);
+		
+		var el = Dom.get(id);
+		Dom.addClass(el, 'dragitem');
+		
+		this.goingUp = false; 
+		this.lastY = 0; 
+	};
+	YAHOO.extend(ElementRowDragItem, YAHOO.util.DDProxy, { 
+		startDrag: function(x, y){
+			var dragEl = this.getDragEl(); 
+			var clickEl = this.getEl(); 
+			dragEl.innerHTML = clickEl.innerHTML; 
+			
+			Dom.setStyle(clickEl, "visibility", "hidden");
+			Dom.setStyle(dragEl, "backgroundColor", "#FFF");
+		},
+		onDrag: function(e){
+	        var y = E.getPageY(e);
+
+	        if (y < this.lastY) {
+	            this.goingUp = true;
+	        } else if (y > this.lastY) {
+	            this.goingUp = false;
+	        }
+
+	        this.lastY = y;					
+		},
+		onDragOver: function(e, id) {
+	        var srcEl = this.getEl();
+	        var destEl = Dom.get(id);
+
+	        if (Dom.hasClass(destEl, 'dragitem')) {
+	            var p = destEl.parentNode;
+
+	            if (this.goingUp) {
+	                p.insertBefore(srcEl, destEl); // insert above
+	            } else {
+	                p.insertBefore(srcEl, destEl.nextSibling); // insert below
+	            }
+	            DDM.refreshCache();
+	        }
+	    },
+	    endDrag: function(e) {
+			
+	        var srcEl = this.getEl();
+	        var proxy = this.getDragEl();
+
+	        // Show the proxy element and animate it to the src element's location
+	        Dom.setStyle(proxy, "visibility", "");
+	        var a = new YAHOO.util.Motion( 
+	            proxy, {
+	                points: {
+	                    to: Dom.getXY(srcEl)
+	                }
+	            },
+	            0.2,
+	            YAHOO.util.Easing.easeOut
+	        );
+	        var proxyid = proxy.id;
+	        var thisid = this.id;
+
+	        a.onComplete.subscribe(function() {
+			    Dom.setStyle(proxyid, "visibility", "hidden");
+			    Dom.setStyle(thisid, "visibility", "");
+			});
+	        a.animate();
+	        
+	        NS.life(this.config['endDragCallback'], this, srcEl);
+	    },
+	    onDragDrop: function(e, id){
+			 if (DDM.interactionInfo.drop.length === 1) { 
+				 var pt = DDM.interactionInfo.point;
+				 var region = DDM.interactionInfo.sourceRegion;  
+				 if (!region.intersect(pt)) { 
+					var destEl = Dom.get(id); 
+					var destDD = DDM.getDDById(id); 
+					destEl.appendChild(this.getEl()); 
+					destDD.isEmpty = false; 
+					DDM.refreshCache(); 
+				 }
+			}
+		}
+	});
+	NS.ElementRowDragItem = ElementRowDragItem;
 	
 	var ElementRowWidget = function(container, manager, element, cfg){
 		cfg = L.merge({

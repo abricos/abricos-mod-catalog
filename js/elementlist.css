@@ -43,6 +43,10 @@
 	float: left;
 	border-right: 1px solid #dadada;
 }
+.aw-catalog .elementlist .elrow .elrmenu .bm {
+	padding-left: 1px !important;
+	padding-top: 1px !important;
+}
 .aw-catalog .elementlist .elrow .elrmenu .b:hover {
 	background-color: #FFF0C6; 
 }
@@ -53,7 +57,11 @@
 .aw-catalog .elementlist .elrow .elrmenu .bgo {
 	background: url("/modules/catalog/images/icons.png") no-repeat scroll -20px -39px transparent;
 }
-
+.aw-catalog .elementlist .elrow .elrmenu .border {
+	background: url("/modules/catalog/images/icons.png?b=0.1") no-repeat scroll -47px -38px transparent;
+	width: 16px;
+	height: 17px;
+}
 .aw-catalog .elementlist .elrow .elrmenu .badd {
 	background: url("/modules/catalog/images/icons.png") no-repeat scroll -57px -24px transparent;
 }

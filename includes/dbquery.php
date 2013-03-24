@@ -101,7 +101,8 @@ class CatalogDbQuery {
 				e.catalogid as catid,
 				e.eltypeid as tpid,
 				e.title as tl,
-				e.name as nm
+				e.name as nm,
+				e.ord as ord
 			FROM ".$pfx."element e
 		";
 		
@@ -114,7 +115,10 @@ class CatalogDbQuery {
 			$sql .= " WHERE e.deldate=0 AND e.catalogid=0 ";
 		}
 		
-		$sql .= " LIMIT 500 ";
+		$sql .= "
+		 	ORDER BY ord DESC, e.dateline
+			LIMIT 500 
+		";
 		return $db->query_read($sql);
 	}
 	
@@ -125,7 +129,8 @@ class CatalogDbQuery {
 				e.catalogid as catid,
 				e.eltypeid as tpid,
 				e.title as tl,
-				e.name as nm
+				e.name as nm,
+				e.ord as ord
 			FROM ".$pfx."element e
 			WHERE e.elementid=".bkint($elementid)."
 			LIMIT 1
@@ -154,7 +159,7 @@ class CatalogDbQuery {
 	public static function ElementAppend(Ab_Database $db, $pfx, $d){
 		$sql = "
 			INSERT INTO ".$pfx."element
-			(catalogid, eltypeid, title, name, metatitle, metakeys, metadesc, dateline) VALUES (
+			(catalogid, eltypeid, title, name, metatitle, metakeys, metadesc, ord, dateline) VALUES (
 				".bkint($d->catid).",
 				".bkint($d->tpid).",
 				'".bkstr($d->tl)."',
@@ -162,11 +167,29 @@ class CatalogDbQuery {
 				'".bkstr($d->mtl)."',
 				'".bkstr($d->mks)."',
 				'".bkstr($d->mdsc)."',
+				".bkint($d->ord).",
 				".TIMENOW."
 			)
 		";
 		$db->query_write($sql);
 		return $db->insert_id();
+	}
+	
+	public static function ElementUpdate(Ab_Database $db, $pfx, $elid, $d){
+		$sql = "
+			UPDATE ".$pfx."element
+			SET
+				catalogid=".bkint($d->catid).",
+				title='".bkstr($d->tl)."',
+				name='".bkstr($d->nm)."',
+				metatitle='".bkstr($d->mtl)."',
+				metakeys='".bkstr($d->mks)."',
+				metadesc='".bkstr($d->mdsc)."',
+				ord=".bkint($d->ord)."
+			WHERE elementid=".bkint($elid)."
+			LIMIT 1
+		";
+		$db->query_write($sql);
 	}
 	
 	public static function ElementDetailUpdate(Ab_Database $db, $pfx, $elid, CatalogElementType $elType, $d){
@@ -222,18 +245,16 @@ class CatalogDbQuery {
 		";
 		$db->query_write($sql);
 	}
-	
-	public static function ElementUpdate(Ab_Database $db, $pfx, $elid, $d){
+
+	public static function ElementOrderUpdate(Ab_Database $db, $pfx, $elid, $order){
 		$sql = "
 			UPDATE ".$pfx."element
-			SET 
-				catalogid=".bkint($d->catid).", 
-				title='".bkstr($d->tl)."', 
-				name='".bkstr($d->nm)."'
+			SET ord=".bkint($order)."
 			WHERE elementid=".bkint($elid)."
-			LIMIT 1 
+			LIMIT 1
 		";
 		$db->query_write($sql);
+		
 	}
 	
 	public static function ElementTypeList(Ab_Database $db, $pfx){

@@ -354,6 +354,8 @@ class CatalogElement {
 	public $title;
 	public $name;
 	
+	public $order;
+	
 	/**
 	 * @var CatalogElementDetail
 	 */
@@ -365,6 +367,7 @@ class CatalogElement {
 		$this->elTypeId = intval($d['tpid']);
 		$this->title	= strval($d['tl']);
 		$this->name		= strval($d['nm']);
+		$this->order	= intval($d['ord']);
 	}
 	
 	public function ToAJAX(CatalogModuleManager $man){
@@ -374,6 +377,7 @@ class CatalogElement {
 		$ret->tpid	= $this->elTypeId;
 		$ret->tl		= $this->title;
 		$ret->nm		= $this->name;
+		$ret->ord		= $this->order;
 		
 		$ret->dtl	= null;
 		if (!empty($this->detail)){
@@ -519,6 +523,8 @@ class CatalogModuleManager {
 				return $this->CatalogToAJAX($d->catid, $d->elementlist);
 			case "elementlist":
 				return $this->ElementListToAJAX($d->catid);
+			case "elementlistordersave":
+				return $this->ElementListOrderSave($d->catid, $d->orders);
 			case "element":
 				return $this->ElementToAJAX($d->elementid);
 			case "elementsave":
@@ -643,6 +649,22 @@ class CatalogModuleManager {
 		return $ret;
 	}
 	
+	public function ElementListOrderSave($catid, $orders){
+		if (!$this->IsAdminRole()){ return null; }
+		
+		$list = $this->ElementList($catid);
+		
+		for ($i=0;$i<$list->Count();$i++){
+			$el = $list->GetByIndex($i);
+			$elid = $el->id;
+			$order = $orders->$elid;
+			
+			CatalogDbQuery::ElementOrderUpdate($this->db, $this->pfx, $el->id, $order);
+		}
+		
+		return $this->ElementListToAJAX($catid);
+	}
+	
 	public function Element($elid){
 		if (!$this->IsViewRole()){ return false; }
 		
@@ -714,7 +736,6 @@ class CatalogModuleManager {
 			$elType = $elTypeList->Get($tpid);
 			CatalogDbQuery::ElementDetailUpdate($this->db, $this->pfx, $elid, $elType, $opts);
 		}
-		
 		
 		// обновление фоток
 		CatalogDbQuery::ElementFotoUpdate($this->db, $this->pfx, $elid, $d->fotos);
