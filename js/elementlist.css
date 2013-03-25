@@ -17,12 +17,13 @@
 	border: 1px solid #D1D3DC;
 	border-radius: 5px;
 }
+.aw-catalog .elementlist .elneweditor .easyeditor {
+	padding-top: 26px !important;
+}
+
 /* * * Menu * * */
 .aw-catalog .elementlist .elrow .elrmenu {
 	position: absolute;
-	background-color: #fff;
-	border: 1px solid #dadada;
-	border-right: none;
     display: none;
     right: 0px;
     top: -1px;
@@ -30,44 +31,6 @@
 .aw-catalog .elementlist .elrow:hover .elrmenu {
 	display: block;
 }
-
 .aw-catalog .elementlist .elrow .itemline:hover .elrmenu {
 	display: block;
-}
-.aw-catalog .elementlist .elrow .elrmenu .b {
-	cursor: pointer;
-	padding-left: 5px;
-	padding-top: 4px;
-	width: 18px;
-	height: 18px;
-	float: left;
-	border-right: 1px solid #dadada;
-}
-.aw-catalog .elementlist .elrow .elrmenu .bm {
-	padding-left: 1px !important;
-	padding-top: 1px !important;
-}
-.aw-catalog .elementlist .elrow .elrmenu .b:hover {
-	background-color: #FFF0C6; 
-}
-.aw-catalog .elementlist .elrow .elrmenu .bc {
-	width: 12px;
-	height: 14px;
-}
-.aw-catalog .elementlist .elrow .elrmenu .bgo {
-	background: url("/modules/catalog/images/icons.png") no-repeat scroll -20px -39px transparent;
-}
-.aw-catalog .elementlist .elrow .elrmenu .border {
-	background: url("/modules/catalog/images/icons.png?b=0.1") no-repeat scroll -47px -38px transparent;
-	width: 16px;
-	height: 17px;
-}
-.aw-catalog .elementlist .elrow .elrmenu .badd {
-	background: url("/modules/catalog/images/icons.png") no-repeat scroll -57px -24px transparent;
-}
-.aw-catalog .elementlist .elrow .elrmenu .bedit {
-	background: url("/modules/catalog/images/icons.png") no-repeat scroll -29px -24px transparent;
-}
-.aw-catalog .elementlist .elrow .elrmenu .bremove {
-	background: url("/modules/catalog/images/icons.png") no-repeat scroll -42px -24px transparent;
 }

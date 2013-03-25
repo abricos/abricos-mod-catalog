@@ -129,7 +129,7 @@ Component.entryPoint = function(NS){
 			if (!L.isNull(this.newEditorWidget)){ return; }
 			
 			this.allEditorClose();
-			
+			var __self = this;
 			var catel = new NS.Element({'catid': this.list.catid});
 			this.newEditorWidget = 
 				new NS.ElementEditorWidget(this.gel('neweditor'), this.manager, catel, {

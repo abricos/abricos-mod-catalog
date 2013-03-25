@@ -324,10 +324,31 @@ Component.entryPoint = function(NS){
 				'table': TM.replace('opttablelist', {'rows': lst})
 			});
 			
-			this.elSetValue('opttablelist.id', value);
+			this.setValue(value);
+		},
+		render: function(){
+			var val = this.getValue();
+			
+			if (val == 0){
+				this.elHide('opttablelist.bedit,bremove');
+			}else{
+				this.elShow('opttablelist.bedit,bremove');
+			}
 		},
 		getValue: function(){
 			return this.gel('opttablelist.id').value;
+		},
+		setValue: function(value){
+			this.elSetValue('opttablelist.id', value);
+			this.render();
+		},
+		onClick: function(el, tp){
+			var TId = this._TId;
+			switch(el.id){
+			case TId['opttablelist']['id']:
+				this.render();
+				return false;
+			}
 		}
 	});
 	NS.ElementEditTableWidget = ElementEditTableWidget;
