@@ -43,7 +43,12 @@
 .aw-catalog .easyeditor .opttable dd:hover .boxbutton {
 	display: block;
 }
-
 .aw-catalog .easyeditor .opttable input.inp {
 	width: 230px;
+}
+.aw-catalog .easyeditor .opttable .rempanel {
+	color: #DA4242;
+}
+.aw-catalog .easyeditor .opttable .remtl {
+	font-weight: bold;
 }

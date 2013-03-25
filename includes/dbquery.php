@@ -336,6 +336,16 @@ class CatalogDbQuery {
 		$db->query_write($sql);
 	}
 	
+	public static function OptionTableValueRemove(Ab_Database $db, $pfx, $tpName, $optName, $valueid){
+		$tbl = $pfx."eltbl_".$tpName."_fld_".$optName;
+		$sql = "
+			DELETE FROM ".$tbl."
+			WHERE ".$optName."id=".bkint($valueid)."
+			LIMIT 1
+		";
+		$db->query_write($sql);
+	}
+	
 	public static function FotoAddToBuffer(Ab_Database $db, $pfx, $fhash){
 		$sql = "
 			INSERT INTO ".$pfx."foto (fileid) VALUES (

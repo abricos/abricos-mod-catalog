@@ -502,12 +502,12 @@ Component.entryPoint = function(NS){
 				NS.life(callback);
 			});
 		},
-		optionTableValueSave: function(typeid, optid, valid, value, callback){
+		optionTableValueSave: function(typeid, optid, valueid, value, callback){
 			this.ajax({
 				'do': 'optiontablevaluesave',
 				'eltypeid': typeid,
 				'optionid': optid,
-				'valueid': valid,
+				'valueid': valueid,
 				'value': value
 			}, function(d){
 				var values = null, valueid = 0;
@@ -516,6 +516,20 @@ Component.entryPoint = function(NS){
 					valueid = d['valueid'];
 				}
 				NS.life(callback, values, valueid);
+			});
+		},
+		optionTableValueRemove: function(typeid, optid, valueid, callback){
+			this.ajax({
+				'do': 'optiontablevalueremove',
+				'eltypeid': typeid,
+				'optionid': optid,
+				'valueid': valueid
+			}, function(d){
+				var values = null;
+				if (!L.isNull(d)){
+					values = d['values'];
+				}
+				NS.life(callback, values);
 			});
 		}
 	};

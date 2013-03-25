@@ -535,6 +535,8 @@ class CatalogModuleManager {
 				return $this->ElementTypeList();
 			case "optiontablevaluesave":
 				return $this->OptionTableValueSave($d->eltypeid, $d->optionid, $d->valueid, $d->value);
+			case "optiontablevalueremove":
+				return $this->OptionTableValueRemove($d->eltypeid, $d->optionid, $d->valueid);
 		}
 		return null;
 	}
@@ -845,6 +847,30 @@ class CatalogModuleManager {
 		$ret->values = $option->values;
 		$ret->valueid = $valueid;
 		
+		return $ret;
+	}
+
+	public function OptionTableValueRemove($eltypeid, $optionid, $valueid){
+		if (!$this->IsAdminRole()){ return null; }
+	
+		$elTypeList = $this->ElementTypeList();
+		$elType = $elTypeList->Get($eltypeid);
+	
+		if (empty($elType)){ return null; }
+	
+		$option = $elType->options->Get($optionid);
+		if (empty($option)){ return null; }
+	
+		if ($option->type != Catalog::TP_TABLE){ return null; }
+	
+		CatalogDbQuery::OptionTableValueRemove($this->db, $this->pfx, $elType->name, $option->name, $valueid);
+	
+		$rtbs = CatalogDbQuery::OptionTableValueList($this->db, $this->pfx, $elType->name, $option->name);
+		$option->values = CatalogManager::$instance->ToArrayId($rtbs);
+	
+		$ret = new stdClass();
+		$ret->values = $option->values;
+	
 		return $ret;
 	}
 	

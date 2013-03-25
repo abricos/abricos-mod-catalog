@@ -371,12 +371,57 @@ Component.entryPoint = function(NS){
 				this.showEditor(this.getValue());
 				return true;
 			case tpb['bremove']: case tpb['bremovec']:
+				this.showRemove();
 				return true;
+			case tpb['bremcancel']: this.closeRemove(); return true;
+			case tpb['bremok']: this.remove(); return true;
 			case tpb['bedadd']: case tpb['bedsave']:
 				this.save();
 				return true;
 			case tpb['bedcancel']: this.closeEditor(); return true;
 			}
+		},
+		showRemove: function(){
+			var valueid = this.getValue();
+			if (valueid == 0){ return; }
+			
+			var value = this.option.values.get(valueid);
+			if (L.isNull(value)){ return; }
+			
+			var tl = value.title, sblen = 25;
+			if (tl.length > sblen){
+				tl = tl.substring(0, sblen)+"...";
+			}
+			
+			this.elSetHTML('remtl', tl);
+			
+			this.elHide('view');
+			this.elShow('remove');
+		},
+		closeRemove: function(){
+			this.elShow('view');
+			this.elHide('remove');
+		},
+		remove: function(){
+			var valueid = this.getValue();
+			if (valueid == 0){ return; }
+
+			var __self = this;
+			this.elHide('rembtns');
+			this.elShow('remprocess');
+			
+			var option = this.option;
+			
+			this.manager.optionTableValueRemove(option.typeid, option.id, valueid, function(values){
+				__self.elHide('remprocess');
+				__self.elShow('rembtns');
+				__self.closeRemove();
+				
+				option.updateValues(values, true);
+				
+				__self.renderList();
+				__self.setValue(0);
+			});
 		},
 		showEditor: function(valueid){
 			valueid = valueid || 0;
