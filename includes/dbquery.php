@@ -314,6 +314,28 @@ class CatalogDbQuery {
 		return $db->query_read($sql);
 	}
 	
+	public static function OptionTableValueAppend(Ab_Database $db, $pfx, $tpName, $optName, $value){
+		$tbl = $pfx."eltbl_".$tpName."_fld_".$optName;
+		$sql = "
+			INSERT INTO ".$tbl." (title) VALUES (
+				'".bkstr($value)."'
+			)
+		";
+		$db->query_write($sql);
+		return $db->insert_id();
+	}
+	
+	public static function OptionTableValueUpdate(Ab_Database $db, $pfx, $tpName, $optName, $valueid, $value){
+		$tbl = $pfx."eltbl_".$tpName."_fld_".$optName;
+		$sql = "
+			UPDATE ".$tbl." 
+			SET title='".bkstr($value)."'
+			WHERE ".$optName."id=".bkint($valueid)."
+			LIMIT 1
+		";
+		$db->query_write($sql);
+	}
+	
 	public static function FotoAddToBuffer(Ab_Database $db, $pfx, $fhash){
 		$sql = "
 			INSERT INTO ".$pfx."foto (fileid) VALUES (

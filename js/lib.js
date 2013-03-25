@@ -256,7 +256,11 @@ Component.entryPoint = function(NS){
 	YAHOO.extend(ElementOptionTable, ElementOption, {
 		update: function(d){
 			ElementOptionTable.superclass.update.call(this, d);
-			var vals = d['values'] || {};
+			
+			this.updateValues(d['values']);
+		},
+		updateValues: function(vals){
+			vals = vals || {};
 			var arr = [];
 			for (var n in vals){
 				arr[arr.length] = vals[n];
@@ -496,6 +500,22 @@ Component.entryPoint = function(NS){
 				'elementid': elementid
 			}, function(d){
 				NS.life(callback);
+			});
+		},
+		optionTableValueSave: function(typeid, optid, valid, value, callback){
+			this.ajax({
+				'do': 'optiontablevaluesave',
+				'eltypeid': typeid,
+				'optionid': optid,
+				'valueid': valid,
+				'value': value
+			}, function(d){
+				var values = null, valueid = 0;
+				if (!L.isNull(d)){
+					values = d['values'];
+					valueid = d['valueid'];
+				}
+				NS.life(callback, values, valueid);
 			});
 		}
 	};

@@ -72,14 +72,14 @@
 }
 .aw-catalog .editform dl,
 .aw-catalog .viewform dl {
-	margin: 0 0 0.3em;
-    padding: 0;
-    clear: both;
+	display: block;
+	min-height: 30px;
 }
 .aw-catalog .editform dt,
 .aw-catalog .viewform dt {
+	clear: left;
     float: left;
-    padding: 3px 0;
+    padding-top: 3px;
     width: 200px;
 }
 .aw-catalog .viewform dt {
@@ -91,7 +91,7 @@
 .aw-catalog .viewform dd  {
     float: none;
     margin-left: 220px;
-    padding: 3px 0;
+    padding-top: 3px;
 }
 .aw-catalog .editform p {
 	margin: 5px 0 7px;
@@ -107,6 +107,7 @@
 }
 .aw-catalog .editform select.inp {
 	width: 407px;
+	min-height: 24px;
 }
 .aw-catalog .editform textarea.inp {
 	height: 100px;

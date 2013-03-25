@@ -13,6 +13,7 @@ Component.requires = {
 Component.entryPoint = function(NS){
 	
 	var Dom = YAHOO.util.Dom,
+		E = YAHOO.util.Event,
 		L = YAHOO.lang,
 		buildTemplate = this.buildTemplate,
 		BW = Brick.mod.widget.Widget;
@@ -293,27 +294,42 @@ Component.entryPoint = function(NS){
 	NS.ElementEditDoubleWidget = ElementEditDoubleWidget;
 	
 
-	var ElementEditTableWidget = function(container, option, value, cfg){
+	var ElementEditTableWidget = function(container, manager, option, value, cfg){
 		cfg = L.merge({
 		}, cfg || {});
 		ElementEditTableWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'opttable,opttablelist,opttablerow'  
-		}, option, value, cfg);
+		}, manager, option, value, cfg);
 	};
 	YAHOO.extend(ElementEditTableWidget, BW, {
-		buildTData: function(option, value, cfg){
+		buildTData: function(manager, option, value, cfg){
 			return {'tl': option.title};
 		},
-		init: function(option, value, cfg){
+		init: function(manager, option, value, cfg){
+			this.manager = manager;
 			this.option = option;
 			this.value = value;
 			this.cfg = cfg;
+			
+			this.editValId = 0;
 		},
-		onLoad: function(option, value, cfg){
+		onLoad: function(manager, option, value, cfg){
+			this.renderList();
+			this.setValue(value);
+			
+			var __self = this;
+			E.on(this.gel('input'), 'keypress', function(e){
+				if (e.keyCode != 13){ return false; }
+				__self.save();
+				return true;
+			});
+
+		},
+		renderList: function(){
 			var TM = this._TM,
 				lst = TM.replace('opttablerow', {'id': 0, 'tl': ""});
-
-			option.values.foreach(function(dict){
+	
+			this.option.values.foreach(function(dict){
 				lst += TM.replace('opttablerow', {
 					'id': dict.id,
 					'tl': dict.title
@@ -324,15 +340,18 @@ Component.entryPoint = function(NS){
 				'table': TM.replace('opttablelist', {'rows': lst})
 			});
 			
-			this.setValue(value);
+			var __self = this;
+			E.on(this.gel('opttablelist.id'), 'change', function(e){
+				__self.render(); 
+			});
 		},
 		render: function(){
 			var val = this.getValue();
 			
 			if (val == 0){
-				this.elHide('opttablelist.bedit,bremove');
+				this.elHide('bedit,bremove');
 			}else{
-				this.elShow('opttablelist.bedit,bremove');
+				this.elShow('bedit,bremove');
 			}
 		},
 		getValue: function(){
@@ -343,12 +362,72 @@ Component.entryPoint = function(NS){
 			this.render();
 		},
 		onClick: function(el, tp){
-			var TId = this._TId;
+			var TId = this._TId, tpb = TId['opttable'];
 			switch(el.id){
-			case TId['opttablelist']['id']:
-				this.render();
-				return false;
+			case tpb['badd']: case tpb['baddc']:
+				this.showEditor(0);
+				return true;
+			case tpb['bedit']: case tpb['beditc']:
+				this.showEditor(this.getValue());
+				return true;
+			case tpb['bremove']: case tpb['bremovec']:
+				return true;
+			case tpb['bedadd']: case tpb['bedsave']:
+				this.save();
+				return true;
+			case tpb['bedcancel']: this.closeEditor(); return true;
 			}
+		},
+		showEditor: function(valueid){
+			valueid = valueid || 0;
+			
+			this.editValId = valueid;
+			var value = "";
+			
+			if (valueid == 0){
+				this.elHide('bedsave');
+				this.elShow('bedadd');
+				this.elSetValue('input', "");
+			}else{
+				this.elHide('bedadd');
+				this.elShow('bedsave');
+				value = this.option.values.get(valueid);
+				this.elSetValue('input', value.title);
+			}
+			
+			this.elHide('view');
+			this.elShow('editor');
+			
+			try {
+				this.gel('input').focus();
+			}catch(e){}
+		},
+		closeEditor: function(){
+			this.elShow('view');
+			this.elHide('editor');
+		},
+		save: function(){
+			var value = L.trim(this.gel('input').value);
+			if (value.length == 0){ return; }
+			
+			var valueid = this.editValId;
+
+			var __self = this;
+			this.elHide('edbtns');
+			this.elShow('process');
+			
+			var option = this.option;
+			
+			this.manager.optionTableValueSave(option.typeid, option.id, valueid, value, function(values, newid){
+				__self.elHide('process');
+				__self.elShow('edbtns');
+				__self.closeEditor();
+				
+				option.updateValues(values);
+				
+				__self.renderList();
+				__self.setValue(newid);
+			});
 		}
 	});
 	NS.ElementEditTableWidget = ElementEditTableWidget;
@@ -457,6 +536,7 @@ Component.entryPoint = function(NS){
 			this.elHide('loading');
 			this.elShow('view');
 			
+			var __self = this;
 			var dtl = element.detail;
 			
 			this.elSetValue({
@@ -470,6 +550,10 @@ Component.entryPoint = function(NS){
 			this.fotosWidget = new NS.ElementFotosEditWidget(this.gel('fotos'), this.manager, this.element.detail.fotos);
 			
 			this.renderOptions();
+
+			E.on(this.gel('tplist.id'), 'change', function(e){
+				__self.elementTypeChange(); 
+			});
 		},
 		_wsClear: function(){
 			var ws = this.wsOptions;
@@ -481,6 +565,7 @@ Component.entryPoint = function(NS){
 		renderOptions: function(){
 			this._wsClear();
 			var ws = [], elList = this.gel('optlist');
+			var man = this.manager;
 			
 			this.element.detail.foreach(function(option, value){
 				var div = document.createElement('div');
@@ -500,7 +585,7 @@ Component.entryPoint = function(NS){
 					ws[ws.length] = new NS.ElementEditDoubleWidget(div, option, value);
 					break;
 				case NS.FTYPE['TABLE']:
-					ws[ws.length] = new NS.ElementEditTableWidget(div, option, value);
+					ws[ws.length] = new NS.ElementEditTableWidget(div, man, option, value);
 					break;
 				case NS.FTYPE['TEXT']:
 					ws[ws.length] = new NS.ElementEditTextWidget(div, option, value);
@@ -511,11 +596,13 @@ Component.entryPoint = function(NS){
 		},
 		elementTypeChange: function(){
 			var tpid = this.gel('tplist.id').value|0;
-			this.element.typeid = tpid;
+			if (this.element.typeid == tpid){ return; }
 			
+			this.element.typeid = tpid;
 			this.renderOptions();
 		},
 		onClick: function(el, tp){
+			var TId = this._TId;
 			switch(el.id){
 			case tp['bsave']: 
 			case tp['bsavec']: 
@@ -523,8 +610,10 @@ Component.entryPoint = function(NS){
 			case tp['bcancel']: 
 			case tp['bcancelc']: 
 				this.onCancelClick(); return true;
-			case this._TId['tplist']['id']: 
-				this.elementTypeChange(); return true;
+				/*
+			case TId['tplist']['id']: 
+				this.elementTypeChange(); return false;
+				/**/
 			}
 			return false;
 		},

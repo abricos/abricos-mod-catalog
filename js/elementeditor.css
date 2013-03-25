@@ -14,6 +14,7 @@
 }
 .aw-catalog .easyeditor .editform {
 	border-top: 1px solid #D1D3DC;
+	padding-top: 10px;
 }
 .aw-catalog .easyeditor .btnsc {
 	position: absolute;
@@ -23,19 +24,26 @@
 	top: -22px;
 }
 
+.aw-catalog .easyeditor dl:hover {
+	background-color: #FFE9AD;
+}
+
 /* * * * * Option Table * * * */
 .aw-catalog .easyeditor .opttable select {
 	width: 328px;
 }
-
 .aw-catalog .easyeditor .opttable select,
 .aw-catalog .easyeditor .opttable .boxbutton {
 	float: left;
 }
 .aw-catalog .easyeditor .opttable .boxbutton {
 	display: none;
-	margin: 3px 0 0 5px;
+	margin: 0 0 0 5px;
 }
 .aw-catalog .easyeditor .opttable dd:hover .boxbutton {
 	display: block;
+}
+
+.aw-catalog .easyeditor .opttable input.inp {
+	width: 230px;
 }

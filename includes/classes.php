@@ -533,6 +533,8 @@ class CatalogModuleManager {
 				return $this->ElementRemove($d->elementid);
 			case "elementtypelist":
 				return $this->ElementTypeList();
+			case "optiontablevaluesave":
+				return $this->OptionTableValueSave($d->eltypeid, $d->optionid, $d->valueid, $d->value);
 		}
 		return null;
 	}
@@ -812,6 +814,38 @@ class CatalogModuleManager {
 		if (!$this->IsWriteRole()){ return false; }
 		
 		CatalogDbQuery::FotoAddToBuffer($this->db, $this->pfx, $fhash);
+	}
+	
+	public function OptionTableValueSave($eltypeid, $optionid, $valueid, $value){
+		if (!$this->IsAdminRole()){ return null; }
+		
+		$elTypeList = $this->ElementTypeList();
+		$elType = $elTypeList->Get($eltypeid);
+		
+		if (empty($elType)){ return null; }
+		
+		$option = $elType->options->Get($optionid);
+		if (empty($option)){ return null; }
+
+		if ($option->type != Catalog::TP_TABLE){ return null; }
+		
+		$utmf = Abricos::TextParser(true);
+		$value = $utmf->Parser($value);
+		
+		if ($valueid == 0){
+			$valueid = CatalogDbQuery::OptionTableValueAppend($this->db, $this->pfx, $elType->name, $option->name, $value);
+		}else{
+			CatalogDbQuery::OptionTableValueUpdate($this->db, $this->pfx, $elType->name, $option->name, $valueid, $value);
+		}
+		
+		$rtbs = CatalogDbQuery::OptionTableValueList($this->db, $this->pfx, $elType->name, $option->name);
+		$option->values = CatalogManager::$instance->ToArrayId($rtbs);
+		
+		$ret = new stdClass();
+		$ret->values = $option->values;
+		$ret->valueid = $valueid;
+		
+		return $ret;
 	}
 	
 }
