@@ -51,6 +51,7 @@ Component.entryPoint = function(NS){
 			'tl':'', // заголовок
 			'nm': '', // имя (URL)
 			'ecnt': 0,
+			'foto': '',
 			'childs': []
 		}, d || {});
 		CatalogItem.superclass.constructor.call(this, d);
@@ -64,6 +65,7 @@ Component.entryPoint = function(NS){
 			this.parentid	= d['pid']|0;
 			this.title		= d['tl'];
 			this.name		= d['nm'];
+			this.foto		= d['foto'];
 			
 			this.elementCount = d['ecnt']|0;
 			

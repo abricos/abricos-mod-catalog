@@ -24,10 +24,6 @@
 	top: -22px;
 }
 
-.aw-catalog .easyeditor dl:hover {
-	background-color: #FFE9AD;
-}
-
 /* * * * * Option Table * * * */
 .aw-catalog .easyeditor .opttable select {
 	width: 328px;

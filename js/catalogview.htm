@@ -1,41 +1,57 @@
 <!--{widget}-->
-<div id="{i#id}" class="aw-catalog">
-	<div class="catalogview">
-		
-		<div id="{i#cattl}" class="cattl"></div>
-		
-		<div id="{i#view}">
-			<div class="catinfo">
-				{v#lngelementcount}: <span id="{i#elcount}">0</span>
-			</div>
-			
-			<div id="{i#mangroup}" class="mangroup center" style="display: none">
-				<a id="{i#baddel}" href="#" class="habtn">{v#lngelementbuttonadd}</a>
-				<a id="{i#beditcat}" href="#" class="habtn">Редактировать раздел</a>
-				<a id="{i#baddcat}" href="#" class="habtn">Добавить подраздел</a>
-				<a id="{i#bremcat}" href="#" class="habtn warn">Удалить раздел</a>
-			</div>
+<div id="{i#id}" class="catalogview">
+	<div id="{i#loading}">
+		<div id="{i#loading}" class="loading">
+			<img src="/images/loading.gif" />
 		</div>
-		<div id="{i#editor}"></div>
 	</div>
+	
+	<div id="{i#view}" style="display: none">
+		<div id="{i#cattl}" class="cattl"></div>
+	
+		<div class="catinfo">
+			{v#lngelementcount}: <span id="{i#elcount}">0</span>
+		</div>
+		
+		<div id="{i#mangroup}" class="mangroup center" style="display: none">
+			<a id="{i#baddel}" href="#" class="habtn">{v#lngelementbuttonadd}</a>
+			<a id="{i#beditcat}" href="#" class="habtn">Редактировать раздел</a>
+			<a id="{i#baddcat}" href="#" class="habtn">Добавить подраздел</a>
+			<a id="{i#bremcat}" href="#" class="habtn warn">Удалить раздел</a>
+		</div>
+	</div>
+	<div id="{i#editor}"></div>
 </div>
 
 
 <!--{editor}-->
 <div id="{i#id}" class="catalogeditor easyeditor">
-	<div class="r">
-		<input id="{i#tl}" class="fldtl" type="text" />
-	</div>
 	
-	<div class="r mext">
-		<input id="{i#nm}" class="fldtl" type="text" />
-	</div>
+	<div class="editform">
+
+		<div class="r">
+			<dl>
+				<dt>Название</dt>
+				<dd>
+					<input id="{i#tl}" class="inp" type="text" placeholder="Введите название" onclick="this.select();" />
+				</dd>
+			</dl>
+		</div>
 	
-	<div id="{i#more}" class="editform">
-	
-		<div id="{i#optlist}"></div>
+		<div class="r" id="{i#fotos}"></div>
+		
+		<div class="rtl"></div>
 	
 		<div id="{i#seo}">
+		
+			<dl>
+				<dt>Сортировка</dt>
+				<dd>
+					<input id="{i#ord}" type="text" class="inp"/>
+					<div class="dsc">Чем больше значение, тем выше позиция</div>
+				</dd>
+			</dl>
+		
 			<div class="rtl">Мета-теги</div>
 			
 			<dl>

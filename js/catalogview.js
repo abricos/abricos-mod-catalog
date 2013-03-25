@@ -6,7 +6,7 @@
 var Component = new Brick.Component();
 Component.requires = {
 	mod:[
-		{name: '{C#MODNAME}', files: ['lib.js']}
+		{name: '{C#MODNAME}', files: ['fotoeditor.js', 'lib.js']}
 	]
 };
 Component.entryPoint = function(NS){
@@ -44,7 +44,20 @@ Component.entryPoint = function(NS){
 			this.setCatalog(cat);
 		},
 		setCatalog: function(cat){
+			if (!L.isNull(cat.detail)){
+				this._onLoadCatalog(cat);
+			}else{
+				var __self = this;
+				manager.catalogLoad(cat.id, function(cat){
+					__self._onLoadCatalog(cat);
+				});
+			}
+		},
+		_onLoadCatalog: function(cat){
 			this.cat = cat;
+			
+			this.elHide('loading');
+			this.elShow('view');
 			
 			this.elSetHTML({
 				'cattl': cat.title,
@@ -108,6 +121,8 @@ Component.entryPoint = function(NS){
 			this.elSetValue({
 				'tl': cat.title
 			});
+			
+			this.fotosWidget = new NS.FotoListEditWidget(this.gel('fotos'), this.manager, [this.cat.foto]);
 		},
 		onClick: function(el, tp){
 			switch(el.id){
@@ -119,6 +134,22 @@ Component.entryPoint = function(NS){
 		onCancelClick: function(){
 			NS.life(this.cfg['onCancelClick'], this);
 		},
+		fotoUploadShow: function(wEditor){
+			NS.uploadActiveImageList = this;
+			
+			var man = this.manager;
+			
+			if (!L.isNull(this.uploadWindow) && !this.uploadWindow.closed){
+				this.uploadWindow.focus();
+				return;
+			}
+			var url = '/catalogbase/uploadcatimg/'+man.modname+'/';
+			this.uploadWindow = window.open(
+				url, 'catalogimage',	
+				'statusbar=no,menubar=no,toolbar=no,scrollbars=yes,resizable=yes,width=550,height=500' 
+			);
+			NS.activeImageList = this;
+		},		
 		save: function(){
 			var sd = {
 				'tl': this.gel('tl').value,
