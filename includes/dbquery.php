@@ -19,7 +19,7 @@ class CatalogDbQuery {
 				0 as dl,
 				0 as lvl,
 				0 as ord,
-				'' as img,
+				'' as foto,
 				(
 					SELECT count(*) as cnt
 					FROM ".$pfx."element e
@@ -41,7 +41,7 @@ class CatalogDbQuery {
 				cat.dateline as dl,
 				cat.level as lvl,
 				cat.ord as ord,
-				cat.imageid as img,
+				cat.imageid as foto,
 				(
 					SELECT count(*) as cnt
 					FROM ".$pfx."element e
@@ -92,6 +92,55 @@ class CatalogDbQuery {
 			";
 		}
 		return $db->query_first($sql);
+	}
+	
+	public static function CatalogAppend(Ab_Database $db, $pfx, $d){
+		$sql = "
+			INSERT INTO ".$pfx."catalog
+				(parentcatalogid, title, name, imageid, descript, metatitle, metakeys, metadesc, ord, dateline) VALUES (
+				".bkint($d->pid).",
+				'".bkstr($d->tl)."',
+				'".bkstr($d->nm)."',
+				'".bkstr($d->foto)."',
+				'".bkstr($d->dsc)."',
+				'".bkstr($d->mtl)."',
+				'".bkstr($d->mks)."',
+				'".bkstr($d->mdsc)."',
+				".bkint($d->ord).",
+				".TIMENOW."
+			)
+		";
+		$db->query_write($sql);
+		return $db->insert_id();
+	}
+	
+	public static function CatalogUpdate(Ab_Database $db, $pfx, $catid, $d){
+		$sql = "
+			UPDATE ".$pfx."catalog
+			SET
+				parentcatalogid=".bkint($d->pid).",
+				title='".bkstr($d->tl)."',
+				name='".bkstr($d->nm)."',
+				imageid='".bkstr($d->foto)."',
+				descript='".bkstr($d->dsc)."',
+				metatitle='".bkstr($d->mtl)."',
+				metakeys='".bkstr($d->mks)."',
+				metadesc='".bkstr($d->mdsc)."',
+				ord=".bkint($d->ord)."
+			WHERE catalogid=".bkint($catid)."
+			LIMIT 1
+		";
+		$db->query_write($sql);
+	}
+	
+	public static function CatalogRemove(Ab_Database $db, $pfx, $catid){
+		$sql = "
+			UPDATE ".$pfx."catalog
+			SET deldate=".TIMENOW."
+			WHERE catalogid=".bkint($catid)."
+			LIMIT 1
+		";
+		$db->query_write($sql);
 	}
 	
 	public static function ElementList(Ab_Database $db, $pfx, $catid){
@@ -364,6 +413,13 @@ class CatalogDbQuery {
 			ORDER BY f.ord
 		";
 		return $db->query_read($sql);		
+	}
+	
+	public static function FotoRemoveFromBuffer(Ab_Database $db, $pfx, $foto){
+		$sql = "
+			DELETE FROM ".$pfx."foto WHERE fileid='".$foto."'
+		";
+		$db->query_write($sql);
 	}
 	
 	public static function ElementFotoUpdate(Ab_Database $db, $pfx, $elementid, $fotos){

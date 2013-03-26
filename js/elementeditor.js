@@ -473,7 +473,6 @@ Component.entryPoint = function(NS){
 			this.renderOptions();
 		},
 		onClick: function(el, tp){
-			var TId = this._TId;
 			switch(el.id){
 			case tp['bsave']: 
 			case tp['bsavec']: 
@@ -481,10 +480,6 @@ Component.entryPoint = function(NS){
 			case tp['bcancel']: 
 			case tp['bcancelc']: 
 				this.onCancelClick(); return true;
-				/*
-			case TId['tplist']['id']: 
-				this.elementTypeChange(); return false;
-				/**/
 			}
 			return false;
 		},

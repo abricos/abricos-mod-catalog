@@ -56,8 +56,14 @@ Component.entryPoint = function(NS){
 	NS.Foto80Widget = Foto80Widget;
 	
 	var FotoListEditWidget = function(container, manager, fotos, cfg){
-		fotos = fotos || [];
-		cfg = L.merge({}, cfg || {});
+		if (L.isString(fotos) && fotos.length >= 8){
+			fotos = [fotos];
+		}else{
+			fotos = fotos || [];
+		}
+		cfg = L.merge({
+			'limit': 0
+		}, cfg || {});
 		FotoListEditWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'fotos,nofoto' 
 		}, manager, fotos, cfg);
@@ -80,7 +86,7 @@ Component.entryPoint = function(NS){
 		render: function(){
 			this.clearFotos();
 			
-			var fotos = this.fotos;
+			var fotos = this.fotos, cfg = this.cfg;
 			if (fotos.length == 0){
 				this.elSetHTML('fotolist', this._TM.replace('nofoto'));
 			}else{

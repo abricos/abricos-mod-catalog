@@ -44,10 +44,19 @@
 	
 		<div id="{i#seo}">
 		
+			<div id="{i#id}" class="r opttext">
+				<dl>
+					<dt>Описание</dt>
+					<dd>
+						<textarea id="{i#text}" class="fldtext" style="width: 370px; height: 200px;"></textarea>
+					</dd>
+				</dl>
+			</div>
+		
 			<dl>
 				<dt>Сортировка</dt>
 				<dd>
-					<input id="{i#ord}" type="text" class="inp"/>
+					<input id="{i#ord}" type="text" class="inp" onclick="this.select();"/>
 					<div class="dsc">Чем больше значение, тем выше позиция</div>
 				</dd>
 			</dl>
@@ -57,19 +66,19 @@
 			<dl>
 				<dt>Тег Title</dt>
 				<dd>
-					<input id="{i#mtl}" type="text" class="inp"/>
+					<input id="{i#mtl}" type="text" class="inp" onclick="this.select();"/>
 				</dd>
 			</dl>
 			<dl>
 				<dt>Тег Keywords</dt>
 				<dd>
-					<input id="{i#mks}" type="text" class="inp"/>
+					<input id="{i#mks}" type="text" class="inp" onclick="this.select();"/>
 				</dd>
 			</dl>
 			<dl>
 				<dt>Тег Description</dt>
 				<dd>
-					<input id="{i#mdsc}" type="text" class="inp"/>
+					<input id="{i#mdsc}" type="text" class="inp" onclick="this.select();"/>
 				</dd>
 			</dl>
 		</div>

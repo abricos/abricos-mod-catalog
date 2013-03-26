@@ -31,7 +31,7 @@ class Catalog {
 	public $title;
 	public $name;
 	public $order;
-	public $imageid;
+	public $foto;
 	
 	public $dateline;
 	
@@ -52,6 +52,8 @@ class Catalog {
 		$this->parentid	= intval($d['pid']); 
 		$this->title	= strval($d['tl']);
 		$this->name		= strval($d['nm']);
+		$this->foto		= strval($d['foto']);
+		$this->order	= intval($d['ord']);
 		$this->elementCount = intval($d['ecnt']);
 		 
 		$this->childs = new CatalogList();
@@ -63,6 +65,8 @@ class Catalog {
 		$ret->pid	= $this->parentid;
 		$ret->tl	= $this->title;
 		$ret->nm	= $this->name;
+		$ret->foto	= $this->foto;
+		$re->ord	= $this->order;
 		$ret->ecnt	= $this->elementCount;
 		
 		$ret->dtl	= null;
@@ -631,6 +635,41 @@ class CatalogModuleManager {
 		}
 		return $ret;
 	}
+	
+	public function CatalogSave($catid, $d){
+		if (!$this->IsAdminRole()){ return null; }
+	
+		$utm = Abricos::TextParser();
+		$utmf = Abricos::TextParser(true);
+	
+		$catid		= intval($catid);
+		$d->pid		= intval($d->pid);
+		$d->tl		= $utmf->Parser($d->tl);
+		$d->nm		= translateruen($d->tl);
+		$d->dsc		= $utm->Parser($d->dsc);
+		
+		$d->mtl		= $utmf->Parser($d->mtl);
+		$d->mks		= $utmf->Parser($d->mks);
+		$d->mdsc	= $utmf->Parser($d->mdsc);
+	
+		$d->ord		= intval($d->ord);
+	
+		$isNew = false;
+		if ($catid == 0){ // добавление нового
+				
+			$isNew = true;
+			$catid = CatalogDbQuery::CatalogAppend($this->db, $this->pfx, $d);
+			if (empty($catid)){ return null; }
+				
+		}else{ // сохранение текущего
+			CatalogDbQuery::CatalogUpdate($this->db, $this->pfx, $catid, $d);
+		}
+	
+		CatalogDbQuery::FotoRemoveFromBuffer($this->db, $this->pfx, $d->foto);
+	
+		return $this->CatalogToAJAX($catid);
+	}
+	
 	
 	public function ElementList($catid){
 		if (!$this->IsViewRole()){ return false; }

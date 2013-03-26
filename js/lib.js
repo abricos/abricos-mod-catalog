@@ -50,6 +50,7 @@ Component.entryPoint = function(NS){
 			'pid': 0,
 			'tl':'', // заголовок
 			'nm': '', // имя (URL)
+			'ord': 0,
 			'ecnt': 0,
 			'foto': '',
 			'childs': []
@@ -66,6 +67,7 @@ Component.entryPoint = function(NS){
 			this.title		= d['tl'];
 			this.name		= d['nm'];
 			this.foto		= d['foto'];
+			this.order		= d['ord']|0;
 			
 			this.elementCount = d['ecnt']|0;
 			
@@ -398,13 +400,24 @@ Component.entryPoint = function(NS){
 				NS.life(callback, list);
 			});
 		},
+		_catalogUpdate: function(catid, d){
+			var cat = this.catalogList.find(catid);
+			
+			if (d && d['catalog'] && d['catalog']['dtl']){
+				if (L.isNull(cat)){
+					cat = new NS.Catalog(d);
+				}
+				cat.detail = new NS.CatalogDetail(d['catalog']['dtl']);
+			}
+
+			return cat;
+		},
 		// вся информация по каталогу включая его элементы
 		catalogLoad: function(catid, callback, cfg){
 			cfg = L.merge({
 				'elementlist': false
 			}, cfg||{});
 			
-			var cat = this.catalogList.find(catid);
 
 			var __self = this;
 			this.ajax({
@@ -412,15 +425,28 @@ Component.entryPoint = function(NS){
 				'catid': catid,
 				'elementlist': cfg['elementlist']
 			}, function(d){
-				if (d && d['catalog'] && d['catalog']['dtl']){
-					if (L.isNull(cat)){
-						cat = new NS.Catalog(d);
-					}
-					cat.detail = new NS.CatalogDetail(d['catalog']['dtl']);
-				}
-				
+				var cat = __self._catalogUpdate(catid, d);
 				var list = __self._elementListUpdate(d);
 				NS.life(callback, cat, list);
+			});
+		},
+		catalogSave: function(catid, sd, callback){
+			var __self = this;
+			this.ajax({
+				'do': 'catalogsave',
+				'catid': catid,
+				'savedata': sd
+			}, function(d){
+				var cat = __self._catalogUpdate(catid, d);
+				NS.life(callback, cat);
+			});
+		},
+		catalogRemove: function(catid, callback){
+			this.ajax({
+				'do': 'catremove',
+				'catid': catid
+			}, function(d){
+				NS.life(callback);
 			});
 		},
 		_elementListUpdate: function(d, catid){

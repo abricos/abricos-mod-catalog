@@ -6,6 +6,7 @@
 var Component = new Brick.Component();
 Component.requires = {
 	mod:[
+		{name: 'sys', files: ['editor.js']},
 		{name: '{C#MODNAME}', files: ['fotoeditor.js', 'lib.js']}
 	]
 };
@@ -80,22 +81,27 @@ Component.entryPoint = function(NS){
 		},
 		showEditor: function(){
 			this.elHide('view');
+			
 			var __self = this;
 			this.editorWidget = new NS.CatalogEditorWidget(this.gel('editor'), this.manager, this.cat, {
 				'onCancelClick': function(){
-					__self.elHide('view');
+					__self.closeEditor();
 				},
 				'onSaveCallback': function(cat){
-					__self.elHide('view');
+					__self.closeEditor();
 					__self.setCatalog(cat);
 				}
 			});
+		},
+		closeEditor: function(){
+			this.elShow('view');
 		},
 		onRemoveCatalogClick: function(){},
 		onClick: function(el, tp){
 			switch(el.id){
 			case tp['baddel']: this.onAddElementClick(); return true;
 			case tp['baddcat']: this.onAddCatalogClick(); return true;
+			case tp['beditcat']: this.showEditor(); return true;
 			}
 		}
 	});
@@ -115,14 +121,35 @@ Component.entryPoint = function(NS){
 			this.manager = manager;
 			this.cat = cat;
 			this.cfg = cfg;
+			
+			if (cat.id == 0){
+				cat.detail = new NS.CatalogDetail();
+			}
 		},
 		onLoad: function(manager, cat, cfg){
+			var dtl = cat.detail;
 			
 			this.elSetValue({
-				'tl': cat.title
+				'tl': cat.title,
+				'ord': cat.order,
+				'mtl': dtl.metaTitle,
+				'mks': dtl.metaKeys,
+				'mdsc': dtl.metaDesc
 			});
 			
-			this.fotosWidget = new NS.FotoListEditWidget(this.gel('fotos'), this.manager, [this.cat.foto]);
+			this.fotosWidget = new NS.FotoListEditWidget(this.gel('fotos'), this.manager, this.cat.foto, {
+				'limit': 1
+			});
+			
+			var Editor = Brick.widget.Editor;
+			this.editorWidget = new Editor(this.gel('text'), {
+				'toolbar': Editor.TOOLBAR_STANDART,
+				// 'mode': Editor.MODE_VISUAL,
+				'toolbarExpert': false,
+				'separateIntro': false
+			});
+			
+			this.editorWidget.setContent(dtl.descript);
 		},
 		onClick: function(el, tp){
 			switch(el.id){
@@ -134,26 +161,23 @@ Component.entryPoint = function(NS){
 		onCancelClick: function(){
 			NS.life(this.cfg['onCancelClick'], this);
 		},
-		fotoUploadShow: function(wEditor){
-			NS.uploadActiveImageList = this;
-			
-			var man = this.manager;
-			
-			if (!L.isNull(this.uploadWindow) && !this.uploadWindow.closed){
-				this.uploadWindow.focus();
-				return;
-			}
-			var url = '/catalogbase/uploadcatimg/'+man.modname+'/';
-			this.uploadWindow = window.open(
-				url, 'catalogimage',	
-				'statusbar=no,menubar=no,toolbar=no,scrollbars=yes,resizable=yes,width=550,height=500' 
-			);
-			NS.activeImageList = this;
-		},		
 		save: function(){
+			
+			var foto = '';
+			var fotos = this.fotosWidget.fotos;
+			if (fotos.length > 0){
+				foto = fotos[fotos.length-1];
+			}
+			
 			var sd = {
+				'pid': this.cat.parentid, 
 				'tl': this.gel('tl').value,
-				'fotos': this.fotosWidget.fotos
+				'dsc': this.editorWidget.getContent(),
+				'foto': foto,
+				'ord': this.gel('ord').value,
+				'mtl': this.gel('mtl').value,
+				'mks': this.gel('mks').value,
+				'mdsc': this.gel('mdsc').value
 			};
 
 			this.elHide('btnsc');
