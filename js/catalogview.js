@@ -19,8 +19,7 @@ Component.entryPoint = function(NS){
 	
 	var CatalogViewWidget = function(container, manager, cat, cfg){
 		cfg = L.merge({
-			'addElementClick': null,
-			'addCatalogClick': null
+			'addElementClick': null
 		}, cfg || {});
 		
 		CatalogViewWidget.superclass.constructor.call(this, container, {
@@ -72,35 +71,49 @@ Component.entryPoint = function(NS){
 			}
 			
 			this.elShow('mangroup');
+			this.closeEditor();
 		},
 		onAddElementClick: function(){
 			NS.life(this.cfg['addElementClick'], this.cat);
 		},
-		onAddCatalogClick: function(){
-			NS.life(this.cfg['addCatalogClick'], this.cat);
-		},
-		showEditor: function(){
-			this.elHide('view');
+		showEditor: function(isnew){
+			if (!L.isNull(this.editorWidget)){ return; }
+			
+			var cat = this.cat;
+			
+			if (isnew){
+				cat = new NS.CatalogItem({'pid': cat.id});
+			}else{
+				this.elHide('view');
+			}
+			this.elHide('mangroup');
 			
 			var __self = this;
-			this.editorWidget = new NS.CatalogEditorWidget(this.gel('editor'), this.manager, this.cat, {
+			this.editorWidget = new NS.CatalogEditorWidget(this.gel('editor'), this.manager, cat, {
 				'onCancelClick': function(){
 					__self.closeEditor();
 				},
 				'onSaveCallback': function(cat){
 					__self.closeEditor();
-					__self.setCatalog(cat);
+					if (!L.isNull(cat)){
+						__self.setCatalog(cat);
+					}
 				}
 			});
 		},
 		closeEditor: function(){
-			this.elShow('view');
+			if (L.isNull(this.editorWidget)){ return; }
+
+			this.elShow('view,mangroup');
+			
+			this.editorWidget.destroy();
+			this.editorWidget = null;
 		},
 		onRemoveCatalogClick: function(){},
 		onClick: function(el, tp){
 			switch(el.id){
 			case tp['baddel']: this.onAddElementClick(); return true;
-			case tp['baddcat']: this.onAddCatalogClick(); return true;
+			case tp['baddcat']: this.showEditor(true); return true;
 			case tp['beditcat']: this.showEditor(); return true;
 			}
 		}
@@ -110,6 +123,7 @@ Component.entryPoint = function(NS){
 	
 	var CatalogEditorWidget = function(container, manager, cat, cfg){
 		cfg = L.merge({
+			'onSaveCallback': null,
 			'onCancelClick': null
 		}, cfg || {});
 		CatalogEditorWidget.superclass.constructor.call(this, container, {
@@ -128,6 +142,13 @@ Component.entryPoint = function(NS){
 		},
 		onLoad: function(manager, cat, cfg){
 			var dtl = cat.detail;
+			
+			if (cat.id == 0){
+				Dom.addClass(this.gel('wrap'), 'catisnew');
+			}else{
+				Dom.addClass(this.gel('wrap'), 'catisedit');
+			}
+			this.elShow('wrap');
 			
 			this.elSetValue({
 				'tl': cat.title,
@@ -153,13 +174,16 @@ Component.entryPoint = function(NS){
 		},
 		onClick: function(el, tp){
 			switch(el.id){
-			case tp['bsave']: this.save(); return true;
-			case tp['bcancel']: this.onCancelClick(); return true;
+			case tp['badd']: case tp['baddc']: 
+			case tp['bsave']: case tp['bsavec']: 
+				this.save(); return true;
+			case tp['bcancel']: case tp['bcancelc']:
+				this.onCancelClick(); return true;
 			}
 			return false;
 		},
 		onCancelClick: function(){
-			NS.life(this.cfg['onCancelClick'], this);
+			NS.life(this.cfg['onCancelClick']);
 		},
 		save: function(){
 			
@@ -183,10 +207,12 @@ Component.entryPoint = function(NS){
 			this.elHide('btnsc');
 			this.elShow('btnpc');
 
-			var __self = this;
-			this.manager.catSave(this.cat.id, sd, function(cat){
+			var __self = this, cfg = this.cfg;
+			this.manager.catalogSave(this.cat.id, sd, function(cat){
 				__self.elShow('btnsc');
 				__self.elHide('btnpc');
+				
+				NS.life(cfg['onSaveCallback'], cat);
 			}, this.cat);
 		}
 	});

@@ -525,6 +525,8 @@ class CatalogModuleManager {
 				return $this->CatalogListToAJAX();
 			case "catalog":
 				return $this->CatalogToAJAX($d->catid, $d->elementlist);
+			case "catalogsave":
+				return $this->CatalogSave($d->catid, $d->savedata);
 			case "elementlist":
 				return $this->ElementListToAJAX($d->catid);
 			case "elementlistordersave":

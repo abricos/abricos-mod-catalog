@@ -1,7 +1,4 @@
 /* * * Editor * * */
-.aw-catalog .easyeditor {
-	position: relative;
-}
 .aw-catalog .elrow .easyeditor {
 	margin: 5px;
 	padding: 0 5px;
@@ -11,14 +8,6 @@
 	border-radius: 5px;
 	background-color: #FFF0C6;
 	padding: 8px 8px 0px 8px;
-}
-.aw-catalog .easyeditor .editform {
-	border-top: 1px solid #D1D3DC;
-	padding-top: 10px;
-}
-.aw-catalog .easyeditor .btnsc {
-	position: absolute;
-	right: 3px; top: 4px;
 }
 .aw-catalog .elrow .easyeditor .btnsc {
 	top: -22px;

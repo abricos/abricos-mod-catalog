@@ -8,41 +8,25 @@
 
 /* * * Editor * * */
 .aw-catalog .catalogeditor {
-	margin: 5px;
-	padding: 0 5px;
-}
-.aw-catalog .catalogeditor {
 	border: 1px solid #D1D3DC;
 	border-radius: 5px;
 	background-color: #FFF0C6;
 	padding: 8px 8px 0px 8px;
 }
-.aw-catalog .catalogeditor .r {
-	margin-bottom: 7px;
+.aw-catalog .catalogeditor .catedtl {
+	position: absolute; left: 10px; top: 5px;
+	font-size: 16px;
 }
-.aw-catalog .catalogeditor .rtl {
-	margin-bottom: 7px;
-	padding-bottom: 3px;
-	border-bottom: 1px solid #D1D3DC;
-	position: relative;
+.aw-catalog .catalogeditor .btnsc {
+	top: 7px;
 }
-.aw-catalog .catalogeditor .rtl .habtn {
-	position: absolute;
-	top: 0px; right: 0px;
-	border-bottom: none;
+.aw-catalog .catalogeditor .editform {
+	margin-top: 25px;
 }
-.aw-catalog .catalogeditor .fl {
-	float: left;
+.aw-catalog .catalogview .catalogeditor {
+	margin-top: 10px;
 }
-.aw-catalog .catalogeditor .fldtl {
-	padding: 3px;
-	width: 99%;
-}
-.aw-catalog .catalogeditor .btns {
-	border-top: 1px solid #D1D3DC;
-	padding-top: 10px;
-	margin-bottom: 10px;
-}
-.aw-catalog .catalogeditor .mext {
+.aw-catalog .catalogeditor .catisnew .catisedit,
+.aw-catalog .catalogeditor .catisedit .catisnew {
 	display: none;
 }

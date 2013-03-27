@@ -126,6 +126,17 @@
 }
 
 /* * * EasyEditor * * */
+.aw-catalog .easyeditor {
+	position: relative;
+}
+.aw-catalog .easyeditor .editform {
+	border-top: 1px solid #D1D3DC;
+	padding-top: 10px;
+}
+.aw-catalog .easyeditor .btnsc {
+	position: absolute;
+	right: 3px; top: 4px;
+}
 .aw-catalog .easyeditor .r {
 	margin-bottom: 7px;
 }

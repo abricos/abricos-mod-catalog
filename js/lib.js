@@ -11,7 +11,8 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-	var L = YAHOO.lang;
+	var L = YAHOO.lang,
+		CE = YAHOO.util.CustomEvent;
 	
 	var SysNS = Brick.mod.sys;
 	var LNG = this.language;
@@ -321,7 +322,6 @@ Component.entryPoint = function(NS){
 	NS.managers = {};
 	
 	var Manager = function(modname, callback, cfg){
-		
 		cfg = L.merge({
 			'language': null
 		}, cfg || {});
@@ -337,6 +337,10 @@ Component.entryPoint = function(NS){
 			
 			this.typeList = null;
 			
+			this.catalogChangedEvent = new CE('catalogChangedEvent');
+			this.catalogCraetedEvent = new CE('catalogCraetedEvent');
+			this.catalogRemovedEvent = new CE('catalogRemovedEvent');
+			
 			var __self = this;
 			this.ajax({
 				'do': 'cataloginitdata'
@@ -344,6 +348,16 @@ Component.entryPoint = function(NS){
 				__self._initDataUpdate(d);
 				NS.life(callback, __self);
 			});
+		},
+		onCatalogChanged: function(catid){
+			Brick.console(catid);
+			this.catalogChangedEvent.fire(catid);
+		},
+		onCatalogCreated: function(catid){
+			this.catalogCraetedEvent.fire(catid);
+		},
+		onCatalogRemoved: function(catid){
+			this.catalogRemovedEvent.fire(catid);
 		},
 		getLang: function(path){
 			var lng = this.cfg['language'];
@@ -417,7 +431,6 @@ Component.entryPoint = function(NS){
 			cfg = L.merge({
 				'elementlist': false
 			}, cfg||{});
-			
 
 			var __self = this;
 			this.ajax({
@@ -438,14 +451,23 @@ Component.entryPoint = function(NS){
 				'savedata': sd
 			}, function(d){
 				var cat = __self._catalogUpdate(catid, d);
+				if (!L.isNull(cat)){
+					if (catid == 0){
+						__self.onCatalogCreated(cat.id);
+					}else{
+						__self.onCatalogChanged(cat.id);
+					}
+				}
 				NS.life(callback, cat);
 			});
 		},
 		catalogRemove: function(catid, callback){
+			var __self = this;
 			this.ajax({
 				'do': 'catremove',
 				'catid': catid
 			}, function(d){
+				__self.onCatalogRemoved(catid);
 				NS.life(callback);
 			});
 		},

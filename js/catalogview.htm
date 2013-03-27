@@ -27,7 +27,22 @@
 <!--{editor}-->
 <div id="{i#id}" class="catalogeditor easyeditor">
 	
-	<div class="editform">
+	<div id="{i#wrap}" class="editform" style="display: none">
+	
+		<div class="catedtl catisnew">Добавление</div>
+		<div class="catedtl catisedit">Редактирование</div>
+	
+		<div class="btnsc">
+			<span id="{i#btnscc}">
+				<a id="{i#baddc}" href="#" class="habtn catisnew">Добавить</a>
+				<a id="{i#bsavec}" href="#" class="habtn catisedit">Сохранить</a>
+				<a id="{i#bcancelc}" href="#" class="habtn">Отмена</a>
+			</span>
+			<span id="{i#btnpcc}" style="display: none">
+				<img src="/images/loading.gif" /> Сохранение...
+			</span>
+			<div class="clear"></div>
+		</div>
 
 		<div class="r">
 			<dl>
@@ -82,16 +97,17 @@
 				</dd>
 			</dl>
 		</div>
-	</div>
-	
-	<div class="btns right r">
-		<span id="{i#btnsc}">
-			<a id="{i#bsave}" href="#" class="habtn">Сохранить</a>
-			<a id="{i#bcancel}" href="#" class="habtn">Отмена</a>
-		</span>
-		<span id="{i#btnpc}" style="display: none">
-			<img src="/images/loading.gif" /> Сохранение...
-		</span>
-		<div class="clear"></div>
+		
+		<div class="btns right r">
+			<span id="{i#btnsc}">
+				<a id="{i#badd}" href="#" class="habtn catisnew">Добавить</a>
+				<a id="{i#bsave}" href="#" class="habtn catisedit">Сохранить</a>
+				<a id="{i#bcancel}" href="#" class="habtn">Отмена</a>
+			</span>
+			<span id="{i#btnpc}" style="display: none">
+				<img src="/images/loading.gif" /> Сохранение...
+			</span>
+			<div class="clear"></div>
+		</div>		
 	</div>
 </div>
