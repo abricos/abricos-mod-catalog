@@ -187,6 +187,9 @@ class CatalogDbQuery {
 				e.eltypeid as tpid,
 				e.title as tl,
 				e.name as nm,
+				e.metatitle as mtl,
+				e.metakeys as mks,
+				e.metadesc as mdsc,
 				e.ord as ord
 			FROM ".$pfx."element e
 			WHERE e.elementid=".bkint($elementid)."
@@ -555,7 +558,12 @@ class CatalogQuery {
 				a.elementid as id,
 				a.elementid as elid,
 				a.catalogid as catid,
-				a.eltypeid as eltid
+				a.eltypeid as eltid,
+				a.title as tl,
+				a.name as nm,
+				a.metatitle as mtl,
+				a.metakeys as mks,
+				a.metadesc as mdsc
 				".$sfields.",
 				'".implode(",", $fotoIds)."' as fids
 			FROM ".CatalogQuery::$PFX."element a

@@ -209,6 +209,15 @@
 .aw-catalog .boxbutton .bedit {
 	background: url("/modules/catalog/images/icons.png") no-repeat scroll -29px -24px transparent;
 }
+.aw-catalog .boxbutton .bcp {
+	padding-left: 4px !important;
+	padding-top: 3px !important;
+}
+.aw-catalog .boxbutton .bcopy {
+	background: url("/modules/catalog/images/icons.png") no-repeat scroll -66px -39px transparent;
+	width: 14px;
+	height: 15px;
+}
 .aw-catalog .boxbutton .bremove {
 	background: url("/modules/catalog/images/icons.png") no-repeat scroll -42px -24px transparent;
 }

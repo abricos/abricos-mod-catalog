@@ -38,7 +38,7 @@ Component.entryPoint = function(NS){
 			this.gel('val').checked = value>0 ? 'checked' : '';
 		},
 		getValue: function(){
-			return this.gel('val').checked == 'checked' ? 1 : 0;
+			return this.gel('val').checked ? 1 : 0;
 		}
 	});
 	NS.ElementEditBooleanWidget = ElementEditBooleanWidget;
@@ -344,6 +344,7 @@ Component.entryPoint = function(NS){
 
 	var ElementEditorWidget = function(container, manager, element, cfg){
 		cfg = L.merge({
+			'fromElement': null,
 			'onCancelClick': null,
 			'onSaveElement': null
 		}, cfg || {});
@@ -388,13 +389,25 @@ Component.entryPoint = function(NS){
 			ElementEditorWidget.superclass.destroy.call(this);
 		},
 		onLoad: function(manager, element){
-			if (!L.isNull(element.detail)){
-				this._onLoadElement(element);
+			var cfg = this.cfg, fel = cfg['fromElement'];
+			if (!L.isNull(fel)){
+				if (!L.isNull(fel.detail)){
+					this._onLoadElement(fel.copy());
+				}else{
+					var __self = this;
+					manager.elementLoad(fel.id, function(fel){
+						__self._onLoadElement(fel.copy());
+					}, fel);
+				}
 			}else{
-				var __self = this;
-				manager.elementLoad(element.id, function(element){
-					__self._onLoadElement(element);
-				}, element);
+				if (!L.isNull(element.detail)){
+					this._onLoadElement(element);
+				}else{
+					var __self = this;
+					manager.elementLoad(element.id, function(element){
+						__self._onLoadElement(element);
+					}, element);
+				}
 			}
 			if (YAHOO.util.DragDropMgr){
 				YAHOO.util.DragDropMgr.lock();

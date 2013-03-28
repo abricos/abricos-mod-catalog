@@ -69,6 +69,7 @@ Component.entryPoint = function(NS){
 				elList.appendChild(div);
 				var w = new NS.ElementRowWidget(div, __self.manager, catel, {
 					'onEditClick': function(w){__self.onElementEditClick(w);},
+					'onCopyClick': function(w){__self.onElementCopyClick(w);},
 					'onRemoveClick': function(w){__self.onElementRemoveClick(w);},
 					'onSelectClick': function(w){__self.onElementSelectClick(w);},
 					'onSaveElement': function(w){ __self.render(); }
@@ -115,6 +116,9 @@ Component.entryPoint = function(NS){
 			this.allEditorClose(w);
 			w.editorShow();
 		},
+		onElementCopyClick: function(w){
+			this.showNewEditor(w.catel);
+		},
 		onElementRemoveClick: function(w){
 			var __self = this;
 			new ElementRemovePanel(this.manager, w.catel, function(list){
@@ -126,7 +130,7 @@ Component.entryPoint = function(NS){
 			this.allEditorClose(w);
 			// w.editorShow();
 		},
-		showNewEditor: function(){
+		showNewEditor: function(fel){
 			if (!L.isNull(this.newEditorWidget)){ return; }
 			
 			this.allEditorClose();
@@ -135,6 +139,7 @@ Component.entryPoint = function(NS){
 
 			this.newEditorWidget = 
 				new NS.ElementEditorWidget(this.gel('neweditor'), this.manager, catel, {
+					'fromElement': fel || null,
 					'onCancelClick': function(wEditor){ __self.newEditorClose(); },
 					'onSaveElement': function(wEditor, element){
 						if (!L.isNull(element)){
@@ -242,6 +247,7 @@ Component.entryPoint = function(NS){
 	var ElementRowWidget = function(container, manager, catel, cfg){
 		cfg = L.merge({
 			'onEditClick': null,
+			'onCopyClick': null,
 			'onRemoveClick': null,
 			'onSelectClick': null,
 			'onSaveElement': null
@@ -267,6 +273,9 @@ Component.entryPoint = function(NS){
 			case tp['bedit']: case tp['beditc']:
 				this.onEditClick();
 				return true;
+			case tp['bcopy']: case tp['bcopyc']:
+				this.onCopyClick();
+				return true;
 			case tp['bremove']: case tp['bremovec']:
 				this.onRemoveClick();
 				return true;
@@ -278,6 +287,9 @@ Component.entryPoint = function(NS){
 		},
 		onEditClick: function(){
 			NS.life(this.cfg['onEditClick'], this);
+		},
+		onCopyClick: function(){
+			NS.life(this.cfg['onCopyClick'], this);
 		},
 		onRemoveClick: function(){
 			NS.life(this.cfg['onRemoveClick'], this);

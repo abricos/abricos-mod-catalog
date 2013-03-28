@@ -150,13 +150,28 @@ Component.entryPoint = function(NS){
 			this.title		= d['tl'];
 			this.name		= d['nm'];
 			this.order		= d['ord']|0;
+		},
+		copy: function(){
+			var el = new NS.Element({
+				'catid': this.catid,
+				'tpid': this.typeid,
+				'tl': "Copy " + this.title,
+				'nm': this.name,
+				'ord': this.order
+			});
+			
+			if (!L.isNull(this.detail)){
+				el.detail = this.detail.copy(el);
+			}
+
+			return el;
 		}
-	});		
+	});
 	NS.Element = Element;
 	
 	var ElementDetail = function(manager, owner, d){
 		d = L.merge({
-			'imgs': [],
+			'fotos': [],
 			'mtl': '',
 			'mdsc': '',
 			'mks': '',
@@ -194,6 +209,28 @@ Component.entryPoint = function(NS){
 			if (this.owner.typeid > 0){
 				fore(this.owner.typeid, this.optionsPers);
 			}
+		},
+		copy: function(owner){
+			
+			var optb = {};
+			for (var n in this.optionsBase){
+				optb[n] = this.optionsBase[n];
+			}
+			
+			var optp = {};
+			for (var n in this.optionsPers){
+				optp[n] = this.optionsPers[n];
+			}
+
+			var dtl = new ElementDetail(this.manager, owner, {
+				'fotos': this.fotos,
+				'mtl': this.metaTitle,
+				'mks': this.metaKeys,
+				'mdsc': this.metaDesc,
+				'optb': optb,
+				'optp': optp
+			});
+			return dtl;
 		}
 	};
 	NS.ElementDetail = ElementDetail;
