@@ -51,6 +51,7 @@ Component.entryPoint = function(NS){
 		},
 		setList: function(list){
 			this.list = list;
+			this.allEditorClose();
 			this.render();
 		},
 		render: function(){
@@ -131,6 +132,7 @@ Component.entryPoint = function(NS){
 			this.allEditorClose();
 			var __self = this;
 			var catel = new NS.Element({'catid': this.list.catid});
+
 			this.newEditorWidget = 
 				new NS.ElementEditorWidget(this.gel('neweditor'), this.manager, catel, {
 					'onCancelClick': function(wEditor){ __self.newEditorClose(); },

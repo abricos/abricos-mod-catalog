@@ -406,8 +406,7 @@ Component.entryPoint = function(NS){
 			this.elHide('loading');
 			this.elShow('view');
 			
-			var __self = this;
-			var dtl = element.detail;
+			var __self = this, dtl = element.detail;
 			
 			this.elSetValue({
 				'tl': element.title,
@@ -424,6 +423,15 @@ Component.entryPoint = function(NS){
 			E.on(this.gel('tplist.id'), 'change', function(e){
 				__self.elementTypeChange(); 
 			});
+			
+			var keypress = function(e){
+				if (e.keyCode != 13){ return false; }
+				__self.save(); return true; 
+			};
+			E.on(this.gel('tl'), 'keypress', keypress);
+			
+			var elTitle = this.gel('tl');
+			setTimeout(function(){try{elTitle.focus();}catch(e){}}, 100);
 		},
 		_wsClear: function(){
 			var ws = this.wsOptions;

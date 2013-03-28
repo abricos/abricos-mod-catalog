@@ -81,7 +81,7 @@ class CatalogDbQuery {
 					cat.dateline as dl,
 					cat.level as lvl,
 					cat.ord as ord,
-					cat.imageid as img,
+					cat.imageid as foto,
 					(
 						SELECT count(*) as cnt
 						FROM ".$pfx."element e

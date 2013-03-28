@@ -452,7 +452,7 @@ Component.entryPoint = function(NS){
 				'elementlist': cfg['elementlist']
 			}, function(d){
 				var cat = __self._catalogUpdate(d);
-				var list = __self._elementListUpdate(d);
+				var list = __self._elementListUpdate(d, catid);
 				NS.life(callback, cat, list);
 			});
 		},
@@ -503,7 +503,8 @@ Component.entryPoint = function(NS){
 		elementListLoad: function(catid, callback){
 			var __self = this;
 			this.ajax({
-				'do': 'elementlist'
+				'do': 'elementlist',
+				'catid': catid
 			}, function(d){
 				var list = __self._elementListUpdate(d, catid);
 				NS.life(callback, list);
