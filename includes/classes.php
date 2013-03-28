@@ -527,6 +527,8 @@ class CatalogModuleManager {
 				return $this->CatalogToAJAX($d->catid, $d->elementlist);
 			case "catalogsave":
 				return $this->CatalogSave($d->catid, $d->savedata);
+			case "catalogremove":
+				return $this->CatalogRemove($d->catid);
 			case "elementlist":
 				return $this->ElementListToAJAX($d->catid);
 			case "elementlistordersave":
@@ -562,8 +564,12 @@ class CatalogModuleManager {
 	}
 	
 	private $_cacheCatalogList;
-	public function CatalogList (){
+	public function CatalogList ($clearCache = false){
 		if (!$this->IsViewRole()){ return false; }
+		
+		if ($clearCache){
+			$this->_cacheCatalogList = null;
+		}
 		
 		if (!empty($this->_cacheCatalogList)){
 			return $this->_cacheCatalogList;
@@ -573,6 +579,15 @@ class CatalogModuleManager {
 		$rows = CatalogDbQuery::CatalogList($this->db, $this->pfx);
 		while (($d = $this->db->fetch_array($rows))){
 			array_push($list, new Catalog($d));
+		}
+		
+		if (count($list) == 0){
+			array_push($list, new Catalog(array(
+				"id" => 0,
+				"pid" => -1,
+				"nm" => "root",
+				"tl" => "Root"
+			)));
 		}
 		
 		$catList = new CatalogList();
@@ -670,6 +685,24 @@ class CatalogModuleManager {
 		CatalogDbQuery::FotoRemoveFromBuffer($this->db, $this->pfx, $d->foto);
 	
 		return $this->CatalogToAJAX($catid);
+	}
+	
+	public function CatalogRemove($catid){
+		if (!$this->IsAdminRole()){ return null; }
+		
+		$cat = $this->Catalog($catid);
+		
+		$count = $cat->childs->Count();
+		for ($i=0;$i<$count;$i++){
+			$ccat = $cat->childs->GetByIndex($i);
+			
+			$this->CatalogRemove($ccat->id);
+		}
+		
+		CatalogDbQuery::ElementListRemoveByCatId($this->db, $this->pfx, $catid);
+		CatalogDbQuery::CatalogRemove($this->db, $this->pfx, $catid);
+		
+		return true;
 	}
 	
 	

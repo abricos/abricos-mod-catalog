@@ -14,8 +14,8 @@ class CatalogDbQuery {
 			(SELECT
 				0 as id,
 				-1 as pid,
-				'root' as nm,
-				'Root' as tl,
+				'' as nm,
+				'' as tl,
 				0 as dl,
 				0 as lvl,
 				0 as ord,
@@ -59,7 +59,15 @@ class CatalogDbQuery {
 	public static function Catalog(Ab_Database $db, $pfx, $catid){
 		if ($catid == 0){
 			$sql = "
-				SELECT count(*) as ecnt
+				SELECT
+					0 as id,
+					-1 as pid,
+					'' as nm,
+					'' as tl,
+					0 as dl,
+					0 as lvl,
+					0 as ord, 
+					count(*) as ecnt
 				FROM ".$pfx."element e
 				WHERE e.catalogid=0 AND e.deldate=0
 			";
@@ -247,6 +255,15 @@ class CatalogDbQuery {
 			SET deldate=".TIMENOW."
 			WHERE elementid=".bkint($elid)."
 			LIMIT 1
+		";
+		$db->query_write($sql);
+	}
+
+	public static function ElementListRemoveByCatId(Ab_Database $db, $pfx, $catid){
+		$sql = "
+			UPDATE ".$pfx."element
+			SET deldate=".TIMENOW."
+			WHERE catalogid=".bkint($catid)."
 		";
 		$db->query_write($sql);
 	}

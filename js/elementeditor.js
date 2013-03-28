@@ -151,7 +151,6 @@ Component.entryPoint = function(NS){
 				__self.save();
 				return true;
 			});
-
 		},
 		renderList: function(){
 			var TM = this._TM,
@@ -518,7 +517,7 @@ Component.entryPoint = function(NS){
 			this.manager.elementSave(element.id, sd, function(element){
 				__self.elShow('btnsc,btnscc');
 				__self.elHide('btnpc,btnpcc');
-				NS.life(cfg['onSaveElement'], __self);
+				NS.life(cfg['onSaveElement'], __self, element);
 			}, element);
 		}
 	});

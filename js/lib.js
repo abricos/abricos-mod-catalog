@@ -60,7 +60,16 @@ Component.entryPoint = function(NS){
 	};
 	YAHOO.extend(CatalogItem, SysNS.Item, {
 		init: function(d){
-			this.detail = null;
+			this.detail		= null;
+			this.parent		= null;
+			this.childs		= new CatalogList(d['childs']);
+			
+			var __self = this;
+			this.childs.foreach(function(cat){
+				cat.parent = __self;
+			});
+			this.expanded = d['id'] == 0;
+			
 			CatalogItem.superclass.init.call(this, d);
 		},
 		update: function(d){
@@ -71,15 +80,6 @@ Component.entryPoint = function(NS){
 			this.order		= d['ord']|0;
 			
 			this.elementCount = d['ecnt']|0;
-			
-			this.parent		= null;
-			this.childs		= new CatalogList(d['childs']);
-			
-			var __self = this;
-			this.childs.foreach(function(cat){
-				cat.parent = __self;
-			});
-			this.expanded = d['id'] == 0;
 		},
 		url: function(){
 			// return NS.navigator.category.view(this.id);
@@ -338,7 +338,7 @@ Component.entryPoint = function(NS){
 			this.typeList = null;
 			
 			this.catalogChangedEvent = new CE('catalogChangedEvent');
-			this.catalogCraetedEvent = new CE('catalogCraetedEvent');
+			this.catalogCreatedEvent = new CE('catalogCraetedEvent');
 			this.catalogRemovedEvent = new CE('catalogRemovedEvent');
 			
 			var __self = this;
@@ -350,11 +350,10 @@ Component.entryPoint = function(NS){
 			});
 		},
 		onCatalogChanged: function(catid){
-			Brick.console(catid);
 			this.catalogChangedEvent.fire(catid);
 		},
 		onCatalogCreated: function(catid){
-			this.catalogCraetedEvent.fire(catid);
+			this.catalogCreatedEvent.fire(catid);
 		},
 		onCatalogRemoved: function(catid){
 			this.catalogRemovedEvent.fire(catid);
@@ -414,15 +413,29 @@ Component.entryPoint = function(NS){
 				NS.life(callback, list);
 			});
 		},
-		_catalogUpdate: function(catid, d){
-			var cat = this.catalogList.find(catid);
-			
-			if (d && d['catalog'] && d['catalog']['dtl']){
-				if (L.isNull(cat)){
-					cat = new NS.Catalog(d);
-				}
-				cat.detail = new NS.CatalogDetail(d['catalog']['dtl']);
+		_catalogUpdate: function(d){
+			if (!(d && d['catalog'] && d['catalog']['dtl'])){
+				return null;
 			}
+			
+			var dcat = d['catalog'],  catid = dcat['id'];
+			if (catid == 0){
+				dcat['tl'] = this.getLang('catalog.title');
+			}
+				
+			var cat = this.catalogList.find(catid);
+				
+			if (L.isNull(cat)){
+				cat = new NS.CatalogItem(d['catalog']);
+				
+				var pcat = this.catalogList.find(cat.parentid);
+				if (!L.isNull(pcat)){
+					pcat.childs.add(cat);
+				}
+			}
+			
+			cat.update(d['catalog']);
+			cat.detail = new NS.CatalogDetail(d['catalog']['dtl']);
 
 			return cat;
 		},
@@ -438,7 +451,7 @@ Component.entryPoint = function(NS){
 				'catid': catid,
 				'elementlist': cfg['elementlist']
 			}, function(d){
-				var cat = __self._catalogUpdate(catid, d);
+				var cat = __self._catalogUpdate(d);
 				var list = __self._elementListUpdate(d);
 				NS.life(callback, cat, list);
 			});
@@ -450,7 +463,7 @@ Component.entryPoint = function(NS){
 				'catid': catid,
 				'savedata': sd
 			}, function(d){
-				var cat = __self._catalogUpdate(catid, d);
+				var cat = __self._catalogUpdate(d);
 				if (!L.isNull(cat)){
 					if (catid == 0){
 						__self.onCatalogCreated(cat.id);
@@ -462,11 +475,20 @@ Component.entryPoint = function(NS){
 			});
 		},
 		catalogRemove: function(catid, callback){
+			var cat = this.catalogList.find(catid),
+				pcat = null;
+			
+			if (!L.isNull(cat)){
+				pcat = this.catalogList.find(cat.parentid);
+			}
 			var __self = this;
 			this.ajax({
-				'do': 'catremove',
+				'do': 'catalogremove',
 				'catid': catid
 			}, function(d){
+				if (!L.isNull(pcat)){
+					pcat.childs.remove(catid);
+				}
 				__self.onCatalogRemoved(catid);
 				NS.life(callback);
 			});
@@ -501,16 +523,19 @@ Component.entryPoint = function(NS){
 		},
 		
 		_elementUpdateData: function(element, d){
-			element = element || null;
-
-			if (d && d['element'] && d['element']['dtl']){
-				if (L.isNull(element)){
-					element = new NS.Element(d);
-				}else{
-					element.update(d['element']);
-				}
-				element.detail = new NS.ElementDetail(this, element, d['element']['dtl']);
+			if (!(d && d['element'] && d['element']['dtl'])){
+				return null;
 			}
+			element = element || null;
+			
+			if (!L.isNull(element) && element.id == 0){ element = null; }
+			
+			if (L.isNull(element)){
+				element = new NS.Element(d['element']);
+			}else{
+				element.update(d['element']);
+			}
+			element.detail = new NS.ElementDetail(this, element, d['element']['dtl']);
 			return element;
 		},
 		elementLoad: function(elementid, callback, element){

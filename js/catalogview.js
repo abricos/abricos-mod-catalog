@@ -13,6 +13,7 @@ Component.requires = {
 Component.entryPoint = function(NS){
 	
 	var Dom = YAHOO.util.Dom,
+		E = YAHOO.util.Event,
 		L = YAHOO.lang,
 		buildTemplate = this.buildTemplate,
 		BW = Brick.mod.widget.Widget;
@@ -109,12 +110,16 @@ Component.entryPoint = function(NS){
 			this.editorWidget.destroy();
 			this.editorWidget = null;
 		},
-		onRemoveCatalogClick: function(){},
+		showRemovePanel: function(){
+			new CatalogRemovePanel(this.manager, this.cat, function(){
+			});
+		},
 		onClick: function(el, tp){
 			switch(el.id){
 			case tp['baddel']: this.onAddElementClick(); return true;
 			case tp['baddcat']: this.showEditor(true); return true;
 			case tp['beditcat']: this.showEditor(); return true;
+			case tp['bremcat']: this.showRemovePanel(); return true;
 			}
 		}
 	});
@@ -171,6 +176,19 @@ Component.entryPoint = function(NS){
 			});
 			
 			this.editorWidget.setContent(dtl.descript);
+			
+			var __self = this, keypress = function(e){
+				if (e.keyCode != 13){ return false; }
+				__self.save(); return true; 
+			};
+			E.on(this.gel('tl'), 'keypress', keypress);
+			E.on(this.gel('ord'), 'keypress', keypress);
+			E.on(this.gel('mtl'), 'keypress', keypress);
+			E.on(this.gel('mks'), 'keypress', keypress);
+			E.on(this.gel('mdsc'), 'keypress', keypress);
+			
+			var elTitle = this.gel('tl');
+			setTimeout(function(){try{elTitle.focus();}catch(e){}}, 100);
 		},
 		onClick: function(el, tp){
 			switch(el.id){
@@ -216,5 +234,37 @@ Component.entryPoint = function(NS){
 			}, this.cat);
 		}
 	});
-	NS.CatalogEditorWidget = CatalogEditorWidget;	
+	NS.CatalogEditorWidget = CatalogEditorWidget;
+	
+	var CatalogRemovePanel = function(manager, cat, callback){
+		this.manager = manager;
+		this.cat = cat;
+		this.callback = callback;
+		CatalogRemovePanel.superclass.constructor.call(this, {fixedcenter: true});
+	};
+	YAHOO.extend(CatalogRemovePanel, Brick.widget.Dialog, {
+		initTemplate: function(){
+			return buildTemplate(this, 'removepanel').replace('removepanel');
+		},
+		onClick: function(el){
+			var tp = this._TId['removepanel'];
+			switch(el.id){
+			case tp['bcancel']: this.close(); return true;
+			case tp['bremove']: this.remove(); return true;
+			}
+			return false;
+		},
+		remove: function(){
+			var TM = this._TM, gel = function(n){ return  TM.getEl('removepanel.'+n); },
+				__self = this;
+			Dom.setStyle(gel('btns'), 'display', 'none');
+			Dom.setStyle(gel('bloading'), 'display', '');
+			this.manager.catalogRemove(this.cat.id, function(){
+				__self.close();
+				NS.life(__self.callback);
+			});
+		}
+	});
+	NS.CatalogRemovePanel = CatalogRemovePanel;
+
 };

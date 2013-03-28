@@ -48,7 +48,7 @@
 			<dl>
 				<dt>Название</dt>
 				<dd>
-					<input id="{i#tl}" class="inp" type="text" placeholder="Введите название" onclick="this.select();" />
+					<input id="{i#tl}" class="inp" type="text" placeholder="Введите название" onfocus="this.select();" tabindex=1 />
 				</dd>
 			</dl>
 		</div>
@@ -63,7 +63,7 @@
 				<dl>
 					<dt>Описание</dt>
 					<dd>
-						<textarea id="{i#text}" class="fldtext" style="width: 370px; height: 200px;"></textarea>
+						<textarea id="{i#text}" class="fldtext" style="width: 370px; height: 200px;" tabindex=2></textarea>
 					</dd>
 				</dl>
 			</div>
@@ -71,7 +71,7 @@
 			<dl>
 				<dt>Сортировка</dt>
 				<dd>
-					<input id="{i#ord}" type="text" class="inp" onclick="this.select();"/>
+					<input id="{i#ord}" type="text" class="inp" onfocus="this.select();" tabindex=3/>
 					<div class="dsc">Чем больше значение, тем выше позиция</div>
 				</dd>
 			</dl>
@@ -81,33 +81,52 @@
 			<dl>
 				<dt>Тег Title</dt>
 				<dd>
-					<input id="{i#mtl}" type="text" class="inp" onclick="this.select();"/>
+					<input id="{i#mtl}" type="text" class="inp" onfocus="this.select();" tabindex=4/>
 				</dd>
 			</dl>
 			<dl>
 				<dt>Тег Keywords</dt>
 				<dd>
-					<input id="{i#mks}" type="text" class="inp" onclick="this.select();"/>
+					<input id="{i#mks}" type="text" class="inp" onfocus="this.select();" tabindex=5/>
 				</dd>
 			</dl>
 			<dl>
 				<dt>Тег Description</dt>
 				<dd>
-					<input id="{i#mdsc}" type="text" class="inp" onclick="this.select();"/>
+					<input id="{i#mdsc}" type="text" class="inp" onfocus="this.select();" tabindex=6/>
 				</dd>
 			</dl>
 		</div>
 		
 		<div class="btns right r">
 			<span id="{i#btnsc}">
-				<a id="{i#badd}" href="#" class="habtn catisnew">Добавить</a>
-				<a id="{i#bsave}" href="#" class="habtn catisedit">Сохранить</a>
-				<a id="{i#bcancel}" href="#" class="habtn">Отмена</a>
+				<a id="{i#badd}" href="#" class="habtn catisnew" tabindex=7>Добавить</a>
+				<a id="{i#bsave}" href="#" class="habtn catisedit" tabindex=8>Сохранить</a>
+				<a id="{i#bcancel}" href="#" class="habtn" tabindex=9>Отмена</a>
 			</span>
 			<span id="{i#btnpc}" style="display: none">
 				<img src="/images/loading.gif" /> Сохранение...
 			</span>
 			<div class="clear"></div>
 		</div>		
+	</div>
+</div>
+
+<!--{removepanel}-->
+<div class='hd'>Удаление</div>
+<div class='bd aw-company'>
+	<div id="{i#dialogremove}" class="field">
+		<p>
+			Вы действительно хотите удалить раздел каталога со всем его содержимым?
+		</p>
+		<div class="buttons right">
+			<span id="{i#btns}">
+				<input id="{i#bremove}" value="Удалить" type="button" />
+				<input id="{i#bcancel}" value="Отмена" type="button" />
+			</span>
+			<span id="{i#bloading}" style="display: none">
+				<img src="/images/loading.gif" /> Удаление...
+			</span>
+		</div>
 	</div>
 </div>

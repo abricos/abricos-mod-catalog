@@ -1,4 +1,5 @@
 Brick.util.Language.add('ru',{'mod': {'{C#MODNAME}':{
+	'nottitle': '',
 	'catalog': {
 		'title': 'Каталог',
 		'button': {

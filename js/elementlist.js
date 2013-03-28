@@ -133,7 +133,14 @@ Component.entryPoint = function(NS){
 			var catel = new NS.Element({'catid': this.list.catid});
 			this.newEditorWidget = 
 				new NS.ElementEditorWidget(this.gel('neweditor'), this.manager, catel, {
-					'onCancelClick': function(wEditor){ __self.newEditorClose(); }
+					'onCancelClick': function(wEditor){ __self.newEditorClose(); },
+					'onSaveElement': function(wEditor, element){
+						if (!L.isNull(element)){
+							__self.list.add(element);
+						}
+						__self.newEditorClose(); 
+						__self.render();
+					}
 				});
 		},
 		newEditorClose: function(){
@@ -288,7 +295,7 @@ Component.entryPoint = function(NS){
 					'onSaveElement': function(wEditor){ 
 						__self.editorClose(); 
 						__self.onSaveElement();
-					},
+					}
 				});
 			
 			Dom.addClass(this.gel('wrap'), 'rborder');
