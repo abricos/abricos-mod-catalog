@@ -315,7 +315,7 @@ class CatalogDbQuery {
 		}
 		
 		$sql = "
-			INSERT INTO ".$pfx."element
+			INSERT INTO ".$pfx.$elType->tableName."
 			(elementid, ".implode(", ", $insfld).") VALUES (
 				".bkint($elid).",
 				".implode(", ", $insval)."

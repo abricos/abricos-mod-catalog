@@ -195,6 +195,9 @@ class CatalogElementType {
 		$this->options = new CatalogElementTypeOptionList();
 		
 		$this->tableName = "element";
+		if ($this->id > 0){
+			$this->tableName = "eltbl_".$this->name;
+		}
 	}
 	
 	public function ToAJAX(CatalogModuleManager $man){
@@ -403,14 +406,15 @@ class CatalogElementDetail {
 	public $metaDesc;
 
 	public $optionsBase = array();
-	public $optionsExt = array();
+	public $optionsPers = array();
 	public $fotos = array();
 
-	public function __construct($d, $dOptBase, $fotos){
+	public function __construct($d, $dOptBase, $dOptPers, $fotos){
 		$this->metaTitle = strval($d['mtl']);
 		$this->metaKeys = strval($d['mks']);
 		$this->metaDesc = strval($d['mdsc']);
 		$this->optionsBase = $dOptBase;
+		$this->optionsPers = $dOptPers;
 		
 		$this->fotos = $fotos;
 	}
@@ -419,12 +423,13 @@ class CatalogElementDetail {
 		$ret = new stdClass();
 		$ret->fotos	= $this->fotos;
 		$ret->optb = $this->optionsBase;
+		$ret->optp = $this->optionsPers;
 		
-		if ($man->IsAdminRole()){
+		// if ($man->IsAdminRole()){
 			$ret->mtl = $this->metaTitle;
 			$ret->mks = $this->metaKeys;
 			$ret->mdsc = $this->metaDesc;
-		}
+		// }
 		
 		return $ret;
 	}
@@ -757,6 +762,14 @@ class CatalogModuleManager {
 		
 		$tpBase = $elTypeList->Get(0);
 		$dbOptionsBase = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $elid, $tpBase);
+
+		$dbOptionsPers = array();
+		if ($element->elTypeId > 0){
+			$tpPers = $elTypeList->Get($element->elTypeId);
+			if (!empty($tpPers)){
+				$dbOptionsPers = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $elid, $tpPers);
+			}
+		}
 		
 		$rows = CatalogDbQuery::ElementFotoList($this->db, $this->pfx, $elid);
 		$fotos = array();
@@ -764,7 +777,7 @@ class CatalogModuleManager {
 			array_push($fotos, $row['f']);
 		}
 		
-		$detail = new CatalogElementDetail($dbEl, $dbOptionsBase, $fotos);
+		$detail = new CatalogElementDetail($dbEl, $dbOptionsBase, $dbOptionsPers, $fotos);
 		
 		$element->detail = $detail;
 		
