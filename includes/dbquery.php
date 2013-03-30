@@ -506,6 +506,7 @@ class CatalogQuery {
 			SELECT
 				".CatalogQuery::FIELD_CATALOGLIST." 
 			FROM ".CatalogQuery::$PFX."catalog
+			WHERE deldate=0
 			ORDER BY ord DESC, title
 		";
 		return $db->query_read($sql);
@@ -521,7 +522,7 @@ class CatalogQuery {
 			$sql = "
 				SELECT eltypeid as eltid
 				FROM ".CatalogQuery::$PFX."element
-				WHERE elementid=".bkint($elementId)."
+				WHERE deldate=0 AND elementid=".bkint($elementId)."
 				LIMIT 1
 			";
 			$row = $db->query_first($sql);
@@ -574,7 +575,7 @@ class CatalogQuery {
 			";
 		}
 		$sql .= "
-			WHERE a.elementid=".bkint($elementId)."
+			WHERE a.deldate=0 AND a.elementid=".bkint($elementId)."
 			LIMIT 1
 		";
 		if ($retarray){
@@ -620,7 +621,7 @@ class CatalogQuery {
 				deldate as dd
 				".(!empty($overFields) ? ", ".$overFields : "")."
 			FROM ".CatalogQuery::$PFX."element 
-			WHERE ".bkstr(empty($custWhere) ? implode(" OR ", $arr) : $custWhere)."
+			WHERE deldate=0 AND ".bkstr(empty($custWhere) ? implode(" OR ", $arr) : $custWhere)."
 			ORDER BY ".bkstr(empty($custOrder) ? "dateline DESC" : $custOrder)."
 			LIMIT ".$from.",".bkint($limit)."
 		";
