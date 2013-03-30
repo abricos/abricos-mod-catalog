@@ -115,53 +115,23 @@
 .aw-catalog .explore .row .itemline {
 	position: relative;
 }
-.aw-catalog .explore .tkmenu {
+.aw-catalog .explore .boxbutton {
 	position: absolute;
 	background-color: #fff;
 	border: 1px solid #dadada;
 	border-right: none;
 }
-.aw-catalog .explore .head .tkmenu {
+.aw-catalog .explore .head .boxbutton {
 	top: 1px;
 	right: 3px;
 }
-.aw-catalog .explore .row .tkmenu {
+.aw-catalog .explore .row .boxbutton {
 	display: none;
 	top: -3px;
 	right: -4px;
 }
-
-.aw-catalog .explore .itemline:hover .tkmenu {
+.aw-catalog .explore .itemline:hover .boxbutton {
 	display: block;
-}
-.aw-catalog .explore .tkmenu .b {
-	cursor: pointer;
-	padding-left: 5px;
-	padding-top: 4px;
-	width: 18px;
-	height: 18px;
-	float: left;
-	border-right: 1px solid #dadada;
-}
-.aw-catalog .explore .tkmenu .b:hover {
-	background-color: #FFF0C6; 
-}
-.aw-catalog .explore .tkmenu .bc {
-	width: 12px;
-	height: 14px;
-}
-.aw-catalog .explore .tkmenu .bgo {
-	background: url("/modules/catalog/images/icons.png") no-repeat scroll -20px -39px transparent;
-}
-
-.aw-catalog .explore .tkmenu .badd {
-	background: url("/modules/catalog/images/icons.png") no-repeat scroll -57px -24px transparent;
-}
-.aw-catalog .explore .tkmenu .bedit {
-	background: url("/modules/catalog/images/icons.png") no-repeat scroll -29px -24px transparent;
-}
-.aw-catalog .explore .tkmenu .bremove {
-	background: url("/modules/catalog/images/icons.png") no-repeat scroll -42px -24px transparent;
 }
 
 /* * * * * * Status * * * * * */

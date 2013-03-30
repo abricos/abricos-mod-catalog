@@ -203,6 +203,9 @@
 	width: 16px;
 	height: 17px;
 }
+.aw-catalog .boxbutton .bgopage {
+	background: url("/modules/catalog/images/icons.png") no-repeat scroll -20px -39px transparent;
+}
 .aw-catalog .boxbutton .badd {
 	background: url("/modules/catalog/images/icons.png") no-repeat scroll -57px -24px transparent;
 }

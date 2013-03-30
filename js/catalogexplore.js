@@ -61,13 +61,16 @@ Component.entryPoint = function(NS){
 		buildRow: function(cat, level, first, islast){
 			var sChild = cat.childs.count() > 0 ? this.buildRows(cat, cat.childs, level+1) : '';
 			
+			var goPageURL = cat.url();
+			
 			return this._TM.replace('row', {
 				'id': cat.id,
 				'tl': cat.title,
 				'child': sChild,
 				'clst': islast ? 'ln' : 'tn',
 				'chdicoview': cat.childs.count() == 0 ? 'hide' : 'none',
-				'chdicon': cat.expanded ? 'chdcls' : 'chdexpd'
+				'chdicon': cat.expanded ? 'chdcls' : 'chdexpd',
+				'showgopage': L.isNull(goPageURL) ? 'none' : ''
 			});
 		},
 		onClick: function(el){
@@ -78,6 +81,11 @@ Component.entryPoint = function(NS){
 			var tp = TId['row'];
 			
 			switch(prefix){
+			case (tp['bgopage']+'-'): 
+			case (tp['bgopagec']+'-'):
+				this.goPage(numid);
+				return true;
+				
 			case (tp['badd']+'-'): 
 			case (tp['baddc']+'-'):
 				this.onAddChildClick(this.list.find(numid));
@@ -117,6 +125,12 @@ Component.entryPoint = function(NS){
 			
 			cat.expanded = !cat.expanded;
 			this.render();
+		},
+		goPage: function(catid){
+			var cat = this.list.find(catid);
+			this._selectPath(cat);
+			var url = cat.url();
+			window.open(url);
 		},
 		selectItem: function(id){
 			var cat = this.list.find(id);

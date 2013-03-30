@@ -80,17 +80,17 @@ Component.entryPoint = function(NS){
 		showEditor: function(isnew){
 			if (!L.isNull(this.editorWidget)){ return; }
 			
-			var cat = this.cat;
+			var cat = this.cat, man = this.manager;
 			
 			if (isnew){
-				cat = new NS.CatalogItem({'pid': cat.id});
+				cat = man.newCatalogItem({'pid': cat.id});
 			}else{
 				this.elHide('view');
 			}
 			this.elHide('mangroup');
 			
 			var __self = this;
-			this.editorWidget = new NS.CatalogEditorWidget(this.gel('editor'), this.manager, cat, {
+			this.editorWidget = new NS.CatalogEditorWidget(this.gel('editor'), man, cat, {
 				'onCancelClick': function(){
 					__self.closeEditor();
 				},

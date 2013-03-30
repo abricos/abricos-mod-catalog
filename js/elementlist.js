@@ -21,7 +21,6 @@ Component.entryPoint = function(NS){
 	var DDM = YAHOO.util.DragDropMgr; 
 	
 	var ElementListWidget = function(container, manager, list, cfg){
-		
 		cfg = L.merge({
 		}, cfg || {});
 		
@@ -134,11 +133,11 @@ Component.entryPoint = function(NS){
 			if (!L.isNull(this.newEditorWidget)){ return; }
 			
 			this.allEditorClose();
-			var __self = this;
-			var catel = new NS.Element({'catid': this.list.catid});
+			var man = this.manager, __self = this;
+			var catel = man.newElement({'catid': this.list.catid});
 
 			this.newEditorWidget = 
-				new NS.ElementEditorWidget(this.gel('neweditor'), this.manager, catel, {
+				new NS.ElementEditorWidget(this.gel('neweditor'), man, catel, {
 					'fromElement': fel || null,
 					'onCancelClick': function(wEditor){ __self.newEditorClose(); },
 					'onSaveElement': function(wEditor, element){
@@ -267,9 +266,15 @@ Component.entryPoint = function(NS){
 			this.elSetHTML({
 				'tl': catel.title
 			});
+			if (L.isNull(catel.url())){
+				this.elHide('bgopage');
+			}
 		},
 		onClick: function(el, tp){
 			switch(el.id){
+			case tp['bgopage']: case tp['bgopagec']:
+				this.goPage();
+				return true;
 			case tp['bedit']: case tp['beditc']:
 				this.onEditClick();
 				return true;
@@ -284,6 +289,10 @@ Component.entryPoint = function(NS){
 				return true;
 			}
 			return false;
+		},
+		goPage: function(catid){
+			var url = this.catel.url();
+			window.open(url);
 		},
 		onEditClick: function(){
 			NS.life(this.cfg['onEditClick'], this);

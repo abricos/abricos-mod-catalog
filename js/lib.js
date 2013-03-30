@@ -46,7 +46,8 @@ Component.entryPoint = function(NS){
 	YAHOO.extend(DictList, SysNS.ItemList, { });
 	NS.DictList = DictList;
 	
-	var CatalogItem = function(d){
+	var CatalogItem = function(manager, d){
+		this.manager = manager;
 		d = L.merge({
 			'pid': 0,
 			'tl':'', // заголовок
@@ -62,7 +63,7 @@ Component.entryPoint = function(NS){
 		init: function(d){
 			this.detail		= null;
 			this.parent		= null;
-			this.childs		= new CatalogList(d['childs']);
+			this.childs		= this.manager.newCatalogList(d['childs']);
 			
 			var __self = this;
 			this.childs.foreach(function(cat){
@@ -81,9 +82,16 @@ Component.entryPoint = function(NS){
 			
 			this.elementCount = d['ecnt']|0;
 		},
-		url: function(){
-			// return NS.navigator.category.view(this.id);
-		}
+		getPathLine: function(){
+			var line = [this];
+			if (!L.isNull(this.parent)){
+				var pline = this.parent.getPathLine();
+				pline[pline.length] = this;
+				line = pline;
+			}
+			return line;
+		},
+		url: function(){ return null; }
 	});		
 	NS.CatalogItem = CatalogItem;
 	
@@ -106,12 +114,17 @@ Component.entryPoint = function(NS){
 	});		
 	NS.CatalogDetail = CatalogDetail;
 
-	var CatalogList = function(d){
-		CatalogList.superclass.constructor.call(this, d, CatalogItem, {
+	var CatalogList = function(manager, d, catalogItemClass, cfg){
+		this.manager = manager;
+		cfg = L.merge({
 			'order': '!order,title'
-		});
+		}, cfg || {});
+		CatalogList.superclass.constructor.call(this, d, catalogItemClass, cfg);
 	};
 	YAHOO.extend(CatalogList, SysNS.ItemList, {
+		createItem: function(di){
+			return this.manager.newCatalogItem(di);
+		},
 		find: function(catid){
 			var fcat = null;
 			this.foreach(function(cat){
@@ -131,7 +144,9 @@ Component.entryPoint = function(NS){
 	NS.CatalogList = CatalogList;
 	
 
-	var Element = function(d){
+	var Element = function(manager, d){
+		this.manager = manager;
+		
 		d = L.merge({
 			'catid': 0, 
 			'tpid': 0, 
@@ -154,7 +169,7 @@ Component.entryPoint = function(NS){
 			this.order		= d['ord']|0;
 		},
 		copy: function(){
-			var el = new NS.Element({
+			var el = this.manager.newElement({
 				'catid': this.catid,
 				'tpid': this.typeid,
 				'tl': "Copy " + this.title,
@@ -167,7 +182,8 @@ Component.entryPoint = function(NS){
 			}
 
 			return el;
-		}
+		},
+		url: function(){ return null; }
 	});
 	NS.Element = Element;
 	
@@ -247,11 +263,15 @@ Component.entryPoint = function(NS){
 		'TEXT':		7
 	};
 	
-	var ElementList = function(d, catid){
+	var ElementList = function(manager, d, catid, elementClass, cfg){
+		this.manager = manager;
 		this.catid = catid;
-		ElementList.superclass.constructor.call(this, d, Element);
+		ElementList.superclass.constructor.call(this, d, elementClass, cfg);
 	};
 	YAHOO.extend(ElementList, SysNS.ItemList, {
+		createItem: function(di){
+			return this.manager.newElement(di);
+		},
 		foreach: function(f, orderBy, orderDesc){
 			if (!L.isString(orderBy)){
 				ElementList.superclass.foreach.call(this, f);
@@ -362,6 +382,10 @@ Component.entryPoint = function(NS){
 	
 	var Manager = function(modname, callback, cfg){
 		cfg = L.merge({
+			'CatalogItemClass': NS.CatalogItem,
+			'CatalogListClass': NS.CatalogList,
+			'ElementClass': NS.Element,
+			'ElementListClass': NS.ElementList,
 			'language': null
 		}, cfg || {});
 		
@@ -373,6 +397,11 @@ Component.entryPoint = function(NS){
 		init: function(modname, callback, cfg){
 			this.modname = modname;
 			this.cfg = cfg;
+
+			this.CatalogItemClass	= cfg['CatalogItemClass'];
+			this.CatalogListClass	= cfg['CatalogListClass'];
+			this.ElementClass		= cfg['ElementClass'];
+			this.ElementListClass	= cfg['ElementListClass'];
 			
 			this.typeList = null;
 			
@@ -387,6 +416,18 @@ Component.entryPoint = function(NS){
 				__self._initDataUpdate(d);
 				NS.life(callback, __self);
 			});
+		},
+		newCatalogItem: function(d){
+			return new this.CatalogItemClass(this, d);
+		},
+		newCatalogList: function(d){
+			return new this.CatalogListClass(this, d);
+		},
+		newElement: function(d){
+			return new this.ElementClass(this, d);
+		},
+		newElementList: function(d, catid, cfg){
+			return new this.ElementListClass(this, d, catid, this.ElementClass, cfg);
 		},
 		onCatalogChanged: function(catid){
 			this.catalogChangedEvent.fire(catid);
@@ -434,7 +475,7 @@ Component.entryPoint = function(NS){
 		_catalogListUpdate: function(d){
 			var list = null;
 			if (!L.isNull(d) && !L.isNull(d['catalogs'])){
-				list = new NS.CatalogList(d['catalogs']);
+				list = this.newCatalogList(d['catalogs']);
 				
 				var rootItem = list.find(0);
 				if (!L.isNull(rootItem)){
@@ -465,7 +506,7 @@ Component.entryPoint = function(NS){
 			var cat = this.catalogList.find(catid);
 				
 			if (L.isNull(cat)){
-				cat = new NS.CatalogItem(d['catalog']);
+				cat = this.newCatalogItem(d['catalog']);
 				
 				var pcat = this.catalogList.find(cat.parentid);
 				if (!L.isNull(pcat)){
@@ -535,7 +576,7 @@ Component.entryPoint = function(NS){
 		_elementListUpdate: function(d, catid){
 			var list = null;
 			if (!L.isNull(d) && !L.isNull(d['elements'])){
-				list = new NS.ElementList(d['elements']['list'], catid);
+				list = this.newElementList(d['elements']['list'], catid);
 			}
 			return list;
 		},
@@ -571,7 +612,7 @@ Component.entryPoint = function(NS){
 			if (!L.isNull(element) && element.id == 0){ element = null; }
 			
 			if (L.isNull(element)){
-				element = new NS.Element(d['element']);
+				element = this.newElement(d['element']);
 			}else{
 				element.update(d['element']);
 			}
@@ -582,7 +623,7 @@ Component.entryPoint = function(NS){
 			
 			if (elementid == 0){
 				if (L.isNull(element)){
-					element = new NS.Element(d);
+					element = this.newElement(d);
 				}
 				element.detail = new NS.ElementDetail(this, element);
 				NS.life(callback, element);
