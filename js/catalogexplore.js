@@ -80,12 +80,12 @@ Component.entryPoint = function(NS){
 			switch(prefix){
 			case (tp['badd']+'-'): 
 			case (tp['baddc']+'-'):
-				this.onAddChildClick(numid);
+				this.onAddChildClick(this.list.find(numid));
 				return true;
 				
 			case (tp['bedit']+'-'): 
 			case (tp['beditc']+'-'):
-				this.onEditClick(numid);
+				this.onEditClick(this.list.find(numid));
 				return true;
 				
 			case (tp['title']+'-'): 
@@ -100,14 +100,16 @@ Component.entryPoint = function(NS){
 			
 			return false;
 		},
-		onEditClick: function(id){
-			this.editClickEvent.fire(id);
+		onEditClick: function(cat){
+			this._selectPath(cat);
+			this.editClickEvent.fire(cat);
 		},
-		onAddChildClick: function(id){
-			this.addChildClickEvent.fire(id);
+		onAddChildClick: function(cat){
+			this._selectPath(cat);
+			this.addChildClickEvent.fire(cat);
 		},
-		onSelectedItem: function(id){
-			this.selectedItemEvent.fire(id);
+		onSelectedItem: function(cat){
+			this.selectedItemEvent.fire(cat);
 		},
 		shChilds: function(catid){
 			var cat = this.list.find(catid);
@@ -118,6 +120,7 @@ Component.entryPoint = function(NS){
 		},
 		selectItem: function(id){
 			var cat = this.list.find(id);
+			if (this.selectedItem == cat){ return; }
 
 			this._selectPath(cat);
 			this.onSelectedItem(cat);
