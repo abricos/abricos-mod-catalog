@@ -107,7 +107,9 @@ Component.entryPoint = function(NS){
 	NS.CatalogDetail = CatalogDetail;
 
 	var CatalogList = function(d){
-		CatalogList.superclass.constructor.call(this, d, CatalogItem);
+		CatalogList.superclass.constructor.call(this, d, CatalogItem, {
+			'order': '!order,title'
+		});
 	};
 	YAHOO.extend(CatalogList, SysNS.ItemList, {
 		find: function(catid){

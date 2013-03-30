@@ -66,7 +66,7 @@ class Catalog {
 		$ret->tl	= $this->title;
 		$ret->nm	= $this->name;
 		$ret->foto	= $this->foto;
-		$re->ord	= $this->order;
+		$ret->ord	= $this->order;
 		$ret->ecnt	= $this->elementCount;
 		
 		$ret->dtl	= null;
