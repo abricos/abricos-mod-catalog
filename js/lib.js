@@ -6,7 +6,9 @@
 var Component = new Brick.Component();
 Component.requires = { 
 	mod:[
-        {name: 'widget', files: ['notice.js']}
+        {name: 'sys', files: ['item.js','container.js']},
+        {name: 'widget', files: ['notice.js']},
+        {name: '{C#MODNAME}', files: ['roles.js']}
 	]		
 };
 Component.entryPoint = function(NS){
@@ -14,6 +16,7 @@ Component.entryPoint = function(NS){
 	var L = YAHOO.lang,
 		CE = YAHOO.util.CustomEvent;
 	
+	var R = NS.roles;
 	var SysNS = Brick.mod.sys;
 	var LNG = this.language;
 
@@ -410,11 +413,13 @@ Component.entryPoint = function(NS){
 			this.catalogRemovedEvent = new CE('catalogRemovedEvent');
 			
 			var __self = this;
-			this.ajax({
-				'do': 'cataloginitdata'
-			}, function(d){
-				__self._initDataUpdate(d);
-				NS.life(callback, __self);
+			R.load(function(){
+				__self.ajax({
+					'do': 'cataloginitdata'
+				}, function(d){
+					__self._initDataUpdate(d);
+					NS.life(callback, __self);
+				});
 			});
 		},
 		newCatalogItem: function(d){
@@ -575,7 +580,7 @@ Component.entryPoint = function(NS){
 		},
 		_elementListUpdate: function(d, catid){
 			var list = null;
-			if (!L.isNull(d) && !L.isNull(d['elements'])){
+			if (d && d['elements'] && !L.isNull(d['elements'])){
 				list = this.newElementList(d['elements']['list'], catid);
 			}
 			return list;

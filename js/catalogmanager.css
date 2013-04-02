@@ -1,18 +1,18 @@
-.aw-eshop .board .brdtable {
+.aw-catalog .catalogman .brdtable {
 	width: 100%;
 }
-.aw-eshop .board .brdtable .brdlcol {
+.aw-catalog .catalogman .brdtable .brdlcol {
 	width: 300px;
 	border-right: 1px solid #D1D3DC;
 }
-.aw-eshop .board .brdtable .brdlcol .explore {
+.aw-catalog .catalogman .brdtable .brdlcol .explore {
 	width: 300px;
 }
-.aw-eshop .board .brdtable .brdrcol {
+.aw-catalog .catalogman .brdtable .brdrcol {
 	padding-left: 5px;
 }
 
-.aw-eshop .board .aw-catalog .elementlist {
+.aw-catalog .catalogman .aw-catalog .elementlist {
 	border-top: 1px solid #D1D3DC;
 	margin-top: 10px;
 	padding-top: 3px;

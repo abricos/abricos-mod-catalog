@@ -17,14 +17,19 @@ Component.entryPoint = function(NS){
 		LNG = this.language,
 		buildTemplate = this.buildTemplate;
 	
-	var CatalogManagerWidget = function(container, manager){
+	var CatalogManagerWidget = function(container, manager, cfg){
+		cfg = L.merge({
+			'catid': 0
+		}, cfg || {});
 		CatalogManagerWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'widget' 
-		}, manager);
+		}, manager, cfg);
 	};
 	YAHOO.extend(CatalogManagerWidget, Brick.mod.widget.Widget, {
-		init: function(manager){
+		init: function(manager, cfg){
 			this.manager = manager;
+			this.cfg = cfg;
+			
 			this.treeWidget = null;
 			this.catViewWidget = null;
 			this.elementListWidget = null;
@@ -47,15 +52,15 @@ Component.entryPoint = function(NS){
 			
 			CatalogManagerWidget.superclass.destroy.call(this);
 		},
-		onLoad: function(man){
+		onLoad: function(man, cfg){
 			this.elHide('loading');
 			this.treeWidget = new NS.CatalogTreeWidget(this.gel('explore'), man.catalogList);
 			this.treeWidget.selectedItemEvent.subscribe(this.onSelectedCatalogItem, this, true);
 			this.treeWidget.addChildClickEvent.subscribe(this.onAddChildClickCatalogItem, this, true);
 			this.treeWidget.editClickEvent.subscribe(this.onEditClickCatalogItem, this, true);
 			
-			this.showCatalogViewWidget(0);
-			
+			this.showCatalogViewWidget(cfg['catid']);
+
 			man.catalogChangedEvent.subscribe(this.onCatalogChanged, this, true);
 			man.catalogCreatedEvent.subscribe(this.onCatalogCreated, this, true);
 			man.catalogRemovedEvent.subscribe(this.onCatalogRemoved, this, true);
