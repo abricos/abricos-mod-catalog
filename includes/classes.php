@@ -154,6 +154,7 @@ class CatalogList {
 	 * @return Catalog
 	 */
 	public function Find($id){
+		$id=intval($id);
 		$item = $this->Get($id);
 		if (!empty($item)){ return $item; }
 		
