@@ -168,6 +168,14 @@
 .aw-catalog .easyeditor dl:hover {
 	background-color: #FFE9AD;
 }
+/* * * * * Visual Editor * * * */
+.aw-catalog .easyeditor .visualeditor dt {
+	float: none;
+}
+.aw-catalog .easyeditor .visualeditor dd {
+    margin-left: 0px;
+    padding-bottom: 3px;
+}
 
 /* * * Box Buttons * * */
 .aw-catalog .boxbutton {
