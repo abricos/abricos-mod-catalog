@@ -17,6 +17,27 @@ Component.entryPoint = function(NS){
 		buildTemplate = this.buildTemplate,
 		BW = Brick.mod.widget.Widget;
 	
+	var FotoAddButtonWidget = function(container, cfg){
+		cfg = L.merge({'onClick': null}, cfg || {});
+		FotoAddButtonWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'addbutton', 'isRowWidget': true 
+		}, cfg);
+	};
+	YAHOO.extend(FotoAddButtonWidget, BW, {
+		init: function(cfg){
+			this.cfg = cfg;
+		},
+		onClick: function(el){
+			var tp = this._TId['addbutton'];
+			switch(el.id){
+			case tp['id']: case tp['idc']:
+				NS.life(this.cfg['onClick'], this);
+				return;
+			}
+		}
+	});
+	NS.FotoAddButtonWidget = FotoAddButtonWidget;
+	
 	var Foto80Widget = function(container, fh, cfg){
 		cfg = L.merge({
 			'onRemoveClick': null,
@@ -86,9 +107,9 @@ Component.entryPoint = function(NS){
 		render: function(){
 			this.clearFotos();
 			
-			var fotos = this.fotos, cfg = this.cfg;
+			var fotos = this.fotos;
 			if (fotos.length == 0){
-				this.elSetHTML('fotolist', this._TM.replace('nofoto'));
+				// this.elSetHTML('fotolist', this._TM.replace('nofoto'));
 			}else{
 				this.elSetHTML('fotolist', '');
 			}
@@ -107,6 +128,9 @@ Component.entryPoint = function(NS){
 					}
 				});
 			}
+			ws[ws.length] = new NS.FotoAddButtonWidget(this.gel('fotolist'), {
+				'onClick': function(w){ __self.fotoUploadShow(w); }
+			});
 			for (var i=0;i<ws.length;i++){
 				ws[i].render();
 			}

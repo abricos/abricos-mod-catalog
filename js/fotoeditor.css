@@ -38,3 +38,16 @@
 .aw-catalog .easyeditor .fotolist .foto:hover .ba {
 	display: block;
 }
+/* * * Upload Button * * */
+.aw-catalog .easyeditor .fotolist .bupload {
+	cursor: pointer;
+}
+.aw-catalog .easyeditor .fotolist .bupload:hover {
+	background-color: #fff;
+}
+.aw-catalog .easyeditor .fotolist .bupimg {
+	background: url("/modules/catalog/images/icons.png") no-repeat scroll -57px -24px transparent;
+	width: 12px;
+	height: 14px;
+	margin: 40% auto 0 auto;
+}
