@@ -40,7 +40,7 @@ class CatalogDbQuery {
 				cat.title as tl,
 				cat.dateline as dl,
 				cat.level as lvl,
-				cat.ord as ord,
+				cat.ord,
 				cat.imageid as foto,
 				(
 					SELECT count(*) as cnt
@@ -49,8 +49,8 @@ class CatalogDbQuery {
 					GROUP BY e.catalogid
 				) as ecnt
 			FROM ".$pfx."catalog cat
-			WHERE cat.deldate=0
-			ORDER BY cat.ord DESC, cat.title)
+			WHERE cat.deldate=0)
+			ORDER BY ord DESC, tl
 		";
 		return $db->query_read($sql);
 	}
@@ -80,7 +80,7 @@ class CatalogDbQuery {
 					cat.title as tl,
 					cat.dateline as dl,
 					cat.level as lvl,
-					cat.ord as ord,
+					cat.ord,
 					cat.imageid as foto,
 					(
 						SELECT count(*) as cnt
