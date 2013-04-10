@@ -20,6 +20,7 @@ class CatalogDbQuery {
 				0 as lvl,
 				0 as ord,
 				'' as foto,
+				'' as fext,
 				(
 					SELECT count(*) as cnt
 					FROM ".$pfx."element e
@@ -42,6 +43,7 @@ class CatalogDbQuery {
 				cat.level as lvl,
 				cat.ord,
 				cat.imageid as foto,
+				IF (ISNULL(f.filehash), '', f.extension) as fext,
 				(
 					SELECT count(*) as cnt
 					FROM ".$pfx."element e
@@ -49,6 +51,7 @@ class CatalogDbQuery {
 					GROUP BY e.catalogid
 				) as ecnt
 			FROM ".$pfx."catalog cat
+			LEFT JOIN ".$db->prefix."fm_file f ON cat.imageid=f.filehash 
 			WHERE cat.deldate=0)
 			ORDER BY ord DESC, tl
 		";
