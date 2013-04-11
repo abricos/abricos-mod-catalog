@@ -212,8 +212,8 @@ class CatalogList extends CatalogItemList {
 	}
 }
 
-class CatalogElementType {
-	public $id;
+class CatalogElementType extends CatalogItem {
+
 	public $title;
 	public $name;
 	
@@ -225,7 +225,8 @@ class CatalogElementType {
 	public $options;
 	
 	public function __construct($d = array()){
-		$this->id		= intval($d['id']);
+		parent::__construct($d);
+
 		$this->title	= strval($d['tl']); 
 		$this->name		= strval($d['nm']);
 
@@ -253,22 +254,10 @@ class CatalogElementType {
 /**
  * Тип элемента
  */
-class CatalogElementTypeList {
-	private $_list = array();
-	private $_map = array();
-
-	public function __construct(){
-		$this->_list = array();
-	}
+class CatalogElementTypeList extends CatalogItemList {
 
 	public function Add(CatalogElementType $item){
-		$index = count($this->_list);
-		$this->_list[$index] = $item;
-		$this->_map[$item->id] = $index;
-	}
-
-	public function Count(){
-		return count($this->_list);
+		parent::Add($item);
 	}
 
 	/**
@@ -276,7 +265,7 @@ class CatalogElementTypeList {
 	 * @return CatalogElementType
 	 */
 	public function GetByIndex($index){
-		return $this->_list[$index];
+		return parent::GetByIndex($index);
 	}
 
 	/**
@@ -284,8 +273,7 @@ class CatalogElementTypeList {
 	 * @return CatalogElementType
 	 */
 	public function Get($id){
-		$index = $this->_map[$id];
-		return $this->_list[$index];
+		return parent::Get($id);
 	}
 
 	public function ToAJAX(CatalogModuleManager $man){
@@ -300,16 +288,15 @@ class CatalogElementTypeList {
 /**
  * Опция элемента
  */
-class CatalogElementTypeOption {
+class CatalogElementTypeOption extends CatalogItem {
 	
-	public $id;
 	public $elTypeId;
 	public $type;
 	public $title;
 	public $name;
 	
 	public function __construct($d){
-		$this->id		= intval($d['id']);
+		parent::__construct($d);
 		$this->elTypeId = intval($d['tpid']);
 		$this->type		= intval($d['tp']);
 		$this->title	= $d['tl'];
@@ -346,30 +333,18 @@ class CatalogElementTypeOptionTable extends CatalogElementTypeOption {
 }
 
 
-class CatalogElementTypeOptionList {
-	private $_list = array();
-	private $_map = array();
+class CatalogElementTypeOptionList extends CatalogItemList {
 
-	public function __construct(){
-		$this->_list = array();
-	}
-
-	public function Add(CatalogElementTypeOption $item){
-		$index = count($this->_list);
-		$this->_list[$index] = $item;
-		$this->_map[$item->id] = $index;
-	}
-
-	public function Count(){
-		return count($this->_list);
+	public function Add(CatalogElementTypeOption $item = null){
+		parent::Add($item);
 	}
 
 	/**
 	 * @param integer $id
 	 * @return CatalogElementTypeOption
 	 */
-	public function GetByIndex($index){
-		return $this->_list[$index];
+	public function GetByIndex($i){
+		return parent::GetByIndex($i);
 	}
 
 	/**
@@ -377,8 +352,20 @@ class CatalogElementTypeOptionList {
 	 * @return CatalogElementTypeOption
 	 */
 	public function Get($id){
-		$index = $this->_map[$id];
-		return $this->_list[$index];
+		return parent::Get($id);
+	}
+	
+	/**
+	 * @param CatalogElementTypeOption $name
+	 */
+	public function GetByName($name){
+		
+		$cnt = $this->Count();
+		for ($i=0; $i<$cnt; $i++){
+			$item = $this->GetByIndex($i);
+			if ($name == $item->name){ return $item; }
+		}
+		return null;
 	}
 
 	public function ToAJAX(CatalogModuleManager $man){
@@ -390,9 +377,9 @@ class CatalogElementTypeOptionList {
 	}
 }
 
-class CatalogElement {
-	public $id;
-	public $catalogid;
+class CatalogElement extends CatalogItem {
+
+	public $catid;
 	public $elTypeId;
 	
 	public $title;
@@ -400,24 +387,35 @@ class CatalogElement {
 	
 	public $order;
 	
+	public $ext = array();
+	
 	/**
 	 * @var CatalogElementDetail
 	 */
 	public $detail = null;
 	
+	/**
+	 * @param array $d
+	 * @param CatalogElementTypeOptionList $extFields
+	 */
 	public function __construct($d){
-		$this->id		= intval($d['id']);
-		$this->catalogid = intval($d['catid']);
+		parent::__construct($d);
+		
+		$this->catid = intval($d['catid']);
 		$this->elTypeId = intval($d['tpid']);
 		$this->title	= strval($d['tl']);
 		$this->name		= strval($d['nm']);
 		$this->order	= intval($d['ord']);
+		
+		if (is_array($d['ext'])){
+			$this->ext = $d['ext'];
+		}
 	}
 	
 	public function ToAJAX(CatalogModuleManager $man){
 		$ret = new stdClass();
 		$ret->id		= $this->id;
-		$ret->catid		= $this->catalogid;
+		$ret->catid		= $this->catid;
 		$ret->tpid	= $this->elTypeId;
 		$ret->tl		= $this->title;
 		$ret->nm		= $this->name;
@@ -426,6 +424,10 @@ class CatalogElement {
 		$ret->dtl	= null;
 		if (!empty($this->detail)){
 			$ret->dtl = $this->detail->ToAJAX($man);
+		}
+		
+		if (count($this->ext)>0){
+			$ret->ext = $this->ext;
 		}
 		
 		return $ret;
@@ -472,11 +474,7 @@ class CatalogElementDetail {
 	}
 }
 
-
-class CatalogElementList {
-
-	private $_list = array();
-	private $_map = array();
+class CatalogElementList extends CatalogItemList {
 
 	/**
 	 * Всего таких записей в базе
@@ -484,27 +482,16 @@ class CatalogElementList {
 	 */
 	public $total;
 	
-	public function __construct(){
-		$this->_list = array();
-		$this->_map = array();
-	}
-	
 	public function Add(CatalogElement $item){
-		$index = count($this->_list);
-		$this->_list[$index] = $item;
-		$this->_map[$item->id] = $index;
-	}
-
-	public function Count(){
-		return count($this->_list);
+		parent::Add($item);
 	}
 
 	/**
-	 * @param integer $index
+	 * @param integer $i
 	 * @return CatalogElement
 	 */
-	public function GetByIndex($index){
-		return $this->_list[$index];
+	public function GetByIndex($i){
+		return parent::GetByIndex($i);
 	}
 	
 	/**
@@ -512,8 +499,7 @@ class CatalogElementList {
 	 * @return CatalogElement
 	 */
 	public function Get($id){
-		$index = $this->_map[$id];
-		return $this->_list[$index];
+		return parent::Get($id);
 	}
 
 	public function ToAJAX(CatalogModuleManager $man){
@@ -531,6 +517,102 @@ class CatalogElementList {
 	}
 }
 
+/**
+ * Параметры списка
+ */
+class CatalogElementListConfig {
+	
+	/**
+	 * Количество на странице. 0 - все элементы
+	 * @var integer
+	 */
+	public $limit = 0;
+	
+	/**
+	 * Страница
+	 * @var integer
+	 */
+	public $page = 1;
+	
+	/**
+	 * Сортировать список
+	 * 
+	 * @var CatalogElementOrderOptionList
+	 */
+	public $orders;
+	
+	/**
+	 * Дополнительные поля в списке
+	 * 
+	 * @var CatalogElementTypeOptionList
+	 */
+	public $extFields;
+	
+	/**
+	 * Идентификаторы каталогов
+	 * @var array
+	 */
+	public $catids;
+	
+	/**
+	 * @var CatalogElementTypeList
+	 */
+	public $typeList;
+	
+	public function __construct($catids){
+		if (!is_array($catids)){
+			$catids = array($catids);
+		}
+		$this->catids = $catids;
+		
+		$this->orders = new CatalogElementOrderOptionList();
+		$this->extFields = new CatalogElementTypeOptionList();
+	}
+	
+}
+
+class CatalogElementOrderOption extends CatalogItem {
+	
+	/**
+	 * @var CatalogElementTypeOption
+	 */
+	public $option;
+
+	/**
+	 * Сортировка по убыванию
+	 * @var boolean
+	 */
+	public $isDesc = false;
+	 
+	public function __construct(CatalogElementTypeOption $option, $isDesc = false){
+		$this->id = $option->id;
+		$this->option = $option;
+		$this->isDesc = $isDesc;
+	}
+}
+
+class CatalogElementOrderOptionList extends CatalogItemList {
+	
+	public function Add(CatalogElementOrderOption $item){
+		parent::Add($item);
+	}
+	
+	/**
+	 * @param CatalogElementTypeOption $option
+	 * @param boolean $isDesc
+	 */
+	public function AddByOption($option, $isDesc = false){
+		if (empty($option)){ return; }
+		parent::Add(new CatalogElementOrderOption($option, $isDesc));
+	}
+	
+	/**
+	 * @return CatalogElementOrderOption
+	 */
+	public function GetByIndex($i){
+		return parent::GetByIndex($i);
+	}
+}
 
 class CatalogItem {
 	public $id;
@@ -555,7 +637,9 @@ class CatalogItemList {
 		$this->_map = array();
 	}
 
-	public function Add(CatalogItem $item){
+	public function Add(CatalogItem $item = null){
+		if (empty($item)){ return; }
+		
 		$index = count($this->_list);
 		$this->_list[$index] = $item;
 		$this->_map[$item->id] = $index;
@@ -819,15 +903,35 @@ class CatalogModuleManager {
 	}
 	
 	
-	public function ElementList($catid){
+	public function ElementList($param){
 		if (!$this->IsViewRole()){ return false; }
+
+		$cfg = null; $catid = 0;
+		if (is_object($param)){
+			$cfg = $param;
+		}else {
+			$cfg = new CatalogElementListConfig($param);
+		}
+		
+		$cfg->typeList = $this->ElementTypeList();
 		
 		$list = new CatalogElementList();
 		
-		$rows = CatalogDbQuery::ElementList($this->db, $this->pfx, $catid);
+		$rows = CatalogDbQuery::ElementList($this->db, $this->pfx, $cfg);
 		while (($d = $this->db->fetch_array($rows))){
+			
+			$cnt = $cfg->extFields->Count();
+			if ($cnt > 0){
+				$d['ext'] = array();
+				for ($i=0; $i<$cnt; $i++){
+					$opt = $cfg->extFields->GetByIndex($i);
+					$d['ext'][$opt->name] = $d['fld_'.$opt->name];
+				}
+			}
+			
 			$list->Add(new CatalogElement($d));
 		}
+		$list->total = CatalogDbQuery::ElementListCount($this->db, $this->pfx, $cfg);
 		
 		return $list;
 	}

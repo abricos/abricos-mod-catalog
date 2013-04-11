@@ -154,7 +154,35 @@ class CatalogDbQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function ElementList(Ab_Database $db, $pfx, $catid){
+	public static function ElementList(Ab_Database $db, $pfx, CatalogElementListConfig $cfg){
+		
+		$wCats = array();
+		foreach ($cfg->catids as $catid){
+			array_push($wCats, "e.catalogid=".bkint($catid));
+		}
+		if (count($wCats) == 0){ return null; }
+
+		$orders = "";
+		$cnt = $cfg->orders->Count();
+		for ($i=0; $i<$cnt; $i++){
+			$ord = $cfg->orders->GetByIndex($i);
+			if ($ord->option->elTypeId > 0){ continue; }
+
+			$orders .= ", fld_".$ord->option->name;
+			if ($ord->isDesc){
+				$orders .= " DESC";
+			}
+			// TODO: добавить сортировку по типу поля - таблица	
+		}
+		$extFields = "";
+		$cnt = $cfg->extFields->Count();
+		for ($i=0; $i<$cnt; $i++){
+			$option = $cfg->extFields->GetByIndex($i);
+			if ($option->elTypeId > 0){ continue; }
+
+			$extFields .= ", e.fld_".$option->name;
+		}
+		
 		$sql = "
 			SELECT
 				e.elementid as id,
@@ -163,23 +191,35 @@ class CatalogDbQuery {
 				e.title as tl,
 				e.name as nm,
 				e.ord as ord
+				".$extFields."
 			FROM ".$pfx."element e
+			WHERE e.deldate=0 AND (".implode(" OR ", $wCats).")
+		 	ORDER BY ord DESC".$orders.", e.dateline
 		";
 		
-		if ($catid > 0){
+		if ($cfg->limit > 0){
+			$from = $cfg->limit * (max(1, $cfg->page) - 1);
 			$sql .= "
-				INNER JOIN ".$pfx."catalog cat ON cat.catalogid=e.catalogid
-				WHERE e.deldate=0 AND e.catalogid=".bkint($catid)." AND cat.deldate=0
-			";
-		}else{
-			$sql .= " WHERE e.deldate=0 AND e.catalogid=0 ";
+				LIMIT ".$from.", ".$cfg->limit."
+			";			
 		}
-		
-		$sql .= "
-		 	ORDER BY ord DESC, e.dateline
-			LIMIT 500 
-		";
 		return $db->query_read($sql);
+	}
+	
+	public static function ElementListCount(Ab_Database $db, $pfx, CatalogElementListConfig $cfg){
+		$wCats = array();
+		foreach ($cfg->catids as $catid){
+			array_push($wCats, "e.catalogid=".bkint($catid));
+		}
+		if (count($wCats) == 0){ return 0; }
+		
+		$sql = "
+			SELECT count(*) as cnt
+			FROM ".$pfx."element e
+			WHERE e.deldate=0 AND (".implode(" OR ", $wCats).")
+		";
+		$row = $db->query_first($sql);
+		return intval($row['cnt']);
 	}
 	
 	public static function Element(Ab_Database $db, $pfx, $elementid){
