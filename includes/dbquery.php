@@ -190,7 +190,14 @@ class CatalogDbQuery {
 				e.eltypeid as tpid,
 				e.title as tl,
 				e.name as nm,
-				e.ord as ord
+				e.ord as ord,
+				(
+					SELECT f.fileid
+					FROM ".$pfx."foto f
+					WHERE f.elementid=e.elementid
+					ORDER BY ord
+					LIMIT 1
+				) as foto
 				".$extFields."
 			FROM ".$pfx."element e
 			WHERE e.deldate=0 AND (".implode(" OR ", $wCats).")

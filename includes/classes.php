@@ -334,6 +334,11 @@ class CatalogElementTypeOptionTable extends CatalogElementTypeOption {
 
 
 class CatalogElementTypeOptionList extends CatalogItemList {
+	
+	public function __construct(){
+		parent::__construct();
+		$this->isCheckDouble = true;
+	}
 
 	public function Add(CatalogElementTypeOption $item = null){
 		parent::Add($item);
@@ -387,6 +392,8 @@ class CatalogElement extends CatalogItem {
 	
 	public $order;
 	
+	public $foto;
+	
 	public $ext = array();
 	
 	/**
@@ -406,20 +413,41 @@ class CatalogElement extends CatalogItem {
 		$this->title	= strval($d['tl']);
 		$this->name		= strval($d['nm']);
 		$this->order	= intval($d['ord']);
+		$this->foto		= strval($d['foto']);
 		
 		if (is_array($d['ext'])){
 			$this->ext = $d['ext'];
 		}
 	}
 	
+	public function FotoSrc($w=0, $h=0){
+	
+		if (empty($this->foto)){
+			return "/images/empty.gif";
+		}
+	
+		$arr = array();
+		if ($w > 0) array_push($arr, "w_".$w);
+		if ($h > 0) array_push($arr, "h_".$h);
+	
+		$ret = "/filemanager/i/".$this->foto."/";
+		if (count($arr)>0){
+			$ret = $ret.implode("-", $arr)."/";
+		}
+		$ret .= $this->name; // .".".$this->fotoExt;
+	
+		return $ret;
+	}
+	
 	public function ToAJAX(CatalogModuleManager $man){
 		$ret = new stdClass();
 		$ret->id		= $this->id;
 		$ret->catid		= $this->catid;
-		$ret->tpid	= $this->elTypeId;
+		$ret->tpid		= $this->elTypeId;
 		$ret->tl		= $this->title;
 		$ret->nm		= $this->name;
 		$ret->ord		= $this->order;
+		$ret->foto		= $this->foto;
 		
 		$ret->dtl	= null;
 		if (!empty($this->detail)){
@@ -431,7 +459,9 @@ class CatalogElement extends CatalogItem {
 		}
 		
 		return $ret;
-	}	
+	}
+	
+	public function URI(){ return ""; }
 }
 
 
@@ -559,8 +589,10 @@ class CatalogElementListConfig {
 	 */
 	public $typeList;
 	
-	public function __construct($catids){
-		if (!is_array($catids)){
+	public function __construct($catids = null){
+		if (is_null($catids)){
+			$catids = array();
+		}else if (!is_array($catids)){
 			$catids = array($catids);
 		}
 		$this->catids = $catids;
@@ -592,6 +624,11 @@ class CatalogElementOrderOption extends CatalogItem {
 }
 
 class CatalogElementOrderOptionList extends CatalogItemList {
+	
+	public function __construct(){
+		parent::__construct();
+		$this->isCheckDouble = true;
+	}
 	
 	public function Add(CatalogElementOrderOption $item){
 		parent::Add($item);
@@ -629,8 +666,11 @@ class CatalogItem {
 }
 
 class CatalogItemList {
+
 	protected $_list = array();
 	protected $_map = array();
+	
+	protected $isCheckDouble = false;
 
 	public function __construct(){
 		$this->_list = array();
@@ -639,6 +679,11 @@ class CatalogItemList {
 
 	public function Add(CatalogItem $item = null){
 		if (empty($item)){ return; }
+		
+		if ($this->isCheckDouble){
+			$checkItem = $this->Get($item->id);
+			if (!empty($checkItem)){ return; }
+		}
 		
 		$index = count($this->_list);
 		$this->_list[$index] = $item;
@@ -699,7 +744,7 @@ class CatalogModuleManager {
 	public $CatalogClass			= Catalog;
 	public $CatalogListClass		= CatalogList;
 	
-	public $CatalogElement			= CatalogElement;
+	public $CatalogElementClass		= CatalogElement;
 	public $CatalogElementListClass = CatalogElementList;
 
 	public function __construct($dbPrefix){
@@ -929,7 +974,7 @@ class CatalogModuleManager {
 				}
 			}
 			
-			$list->Add(new CatalogElement($d));
+			$list->Add(new $this->CatalogElementClass($d));
 		}
 		$list->total = CatalogDbQuery::ElementListCount($this->db, $this->pfx, $cfg);
 		
@@ -968,7 +1013,7 @@ class CatalogModuleManager {
 		$dbEl = CatalogDbQuery::Element($this->db, $this->pfx, $elid);
 		if (empty($dbEl)){ return null; }
 		
-		$element = new CatalogElement($dbEl);
+		$element = new $this->CatalogElementClass($dbEl);
 		
 		$elTypeList = $this->ElementTypeList();
 		
