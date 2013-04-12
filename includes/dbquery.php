@@ -167,10 +167,17 @@ class CatalogDbQuery {
 			$ord = $cfg->orders->GetByIndex($i);
 			if ($ord->option->elTypeId > 0){ continue; }
 
-			$orders .= ", fld_".$ord->option->name;
-			if ($ord->isDesc){
-				$orders .= " DESC";
+			if ($ord->zeroDesc){
+				$fld = "fld_".$ord->option->name;
+				$orders .= ", IF(".$fld.">0, 0, 1), ".$fld;
+				
+			}else{
+				$orders .= ", fld_".$ord->option->name;
+				if ($ord->isDesc){
+					$orders .= " DESC";
+				}
 			}
+			
 			// TODO: добавить сортировку по типу поля - таблица	
 		}
 		
@@ -189,7 +196,7 @@ class CatalogDbQuery {
 			$ord = $cfg->where->GetByIndex($i);
 			
 			if ($ord->option->elTypeId > 0){ continue; }
-
+			
 			array_push($wExt, "e.fld_".$ord->option->name."".$ord->exp);
 		}
 		

@@ -507,6 +507,11 @@ class CatalogElementDetail {
 class CatalogElementList extends CatalogItemList {
 
 	/**
+	 * @var CatalogElementListConfig
+	 */
+	public $cfg = null;
+	
+	/**
 	 * Всего таких записей в базе
 	 * @var integer
 	 */
@@ -669,6 +674,12 @@ class CatalogElementOrderOption extends CatalogItem {
 	 * @var boolean
 	 */
 	public $isDesc = false;
+	
+	/**
+	 * Пустые значения убирать в конец списка
+	 * @var boolean
+	 */
+	public $zeroDesc = false;
 	 
 	public function __construct(CatalogElementTypeOption $option, $isDesc = false){
 		$this->id = $option->id;
@@ -691,10 +702,15 @@ class CatalogElementOrderOptionList extends CatalogItemList {
 	/**
 	 * @param CatalogElementTypeOption $option
 	 * @param boolean $isDesc
+	 * 
+	 * @return CatalogElementOrderOption
 	 */
 	public function AddByOption($option, $isDesc = false){
 		if (empty($option)){ return; }
-		parent::Add(new CatalogElementOrderOption($option, $isDesc));
+		$order = new CatalogElementOrderOption($option, $isDesc);
+		parent::Add($order);
+		
+		return $order;
 	}
 	
 	/**
@@ -928,7 +944,9 @@ class CatalogModuleManager {
 		$d = CatalogDbQuery::Catalog($this->db, $this->pfx, $catid);
 		if (empty($d)){ return null; }
 		
-		$cat = new $this->CatalogClass($d);
+		$catList = $this->CatalogList();
+		$cat = $catList->Find($catid);
+		// $cat = new $this->CatalogClass($d);
 		$cat->detail = new CatalogDetail($d);
 		
 		return $cat;
@@ -1015,6 +1033,7 @@ class CatalogModuleManager {
 		$cfg->typeList = $this->ElementTypeList();
 		
 		$list = new CatalogElementList();
+		$list->cfg = $cfg;
 		
 		$rows = CatalogDbQuery::ElementList($this->db, $this->pfx, $cfg);
 		while (($d = $this->db->fetch_array($rows))){
