@@ -160,7 +160,6 @@ class CatalogDbQuery {
 		foreach ($cfg->catids as $catid){
 			array_push($wCats, "e.catalogid=".bkint($catid));
 		}
-		if (count($wCats) == 0){ return null; }
 
 		$orders = "";
 		$cnt = $cfg->orders->Count();
@@ -174,6 +173,7 @@ class CatalogDbQuery {
 			}
 			// TODO: добавить сортировку по типу поля - таблица	
 		}
+		
 		$extFields = "";
 		$cnt = $cfg->extFields->Count();
 		for ($i=0; $i<$cnt; $i++){
@@ -181,6 +181,16 @@ class CatalogDbQuery {
 			if ($option->elTypeId > 0){ continue; }
 
 			$extFields .= ", e.fld_".$option->name;
+		}
+		
+		$wExt = array();
+		$cnt = $cfg->where->Count();
+		for ($i=0; $i<$cnt; $i++){
+			$ord = $cfg->where->GetByIndex($i);
+			
+			if ($ord->option->elTypeId > 0){ continue; }
+
+			array_push($wExt, "e.fld_".$ord->option->name."".$ord->exp);
 		}
 		
 		$sql = "
@@ -200,7 +210,26 @@ class CatalogDbQuery {
 				) as foto
 				".$extFields."
 			FROM ".$pfx."element e
-			WHERE e.deldate=0 AND (".implode(" OR ", $wCats).")
+			WHERE e.deldate=0 
+		";
+		
+		$isWhere = false;
+		if (count($wCats) > 0){
+			$sql .= "
+				AND (".implode(" OR ", $wCats).")
+			";
+			$isWhere = true;
+		}
+		if (count($wExt) > 0){
+			$sql .= "
+				AND (".implode(" OR ", $wExt).")
+			";
+			$isWhere = true;
+		}
+		
+		if (!$isWhere){ return null; }
+		
+		$sql .= "
 		 	ORDER BY ord DESC".$orders.", e.dateline
 		";
 		
@@ -208,7 +237,7 @@ class CatalogDbQuery {
 			$from = $cfg->limit * (max(1, $cfg->page) - 1);
 			$sql .= "
 				LIMIT ".$from.", ".$cfg->limit."
-			";			
+			";
 		}
 		return $db->query_read($sql);
 	}

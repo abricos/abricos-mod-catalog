@@ -578,6 +578,8 @@ class CatalogElementListConfig {
 	 */
 	public $extFields;
 	
+	public $where;
+	
 	/**
 	 * Идентификаторы каталогов
 	 * @var array
@@ -599,8 +601,60 @@ class CatalogElementListConfig {
 		
 		$this->orders = new CatalogElementOrderOptionList();
 		$this->extFields = new CatalogElementTypeOptionList();
+		$this->where = new CatalogElementWhereOptionList();
 	}
 	
+}
+
+class CatalogElementWhereOption extends CatalogItem {
+
+	/**
+	 * @var CatalogElementTypeOption
+	 */
+	public $option;
+
+	/**
+	 * Условие (напрмер '>0')
+	 * @var string
+	 */
+	public $exp = "";
+
+	public function __construct(CatalogElementTypeOption $option, $exp){
+		$this->id = $option->id;
+		$this->option = $option;
+		$this->exp = $exp;
+	}
+}
+
+class CatalogElementWhereOptionList extends CatalogItemList {
+
+	public function __construct(){
+		parent::__construct();
+		$this->isCheckDouble = true;
+	}
+
+	/**
+	 * @param CatalogElementWhereOption $option
+	 */
+	public function Add($item){
+		parent::Add($item);
+	}
+
+	/**
+	 * @param CatalogElementTypeOption $option
+	 * @param boolean $isDesc
+	 */
+	public function AddByOption($option, $isDesc = false){
+		if (empty($option)){ return; }
+		parent::Add(new CatalogElementWhereOption($option, $isDesc));
+	}
+
+	/**
+	 * @return CatalogElementWhereOption
+	 */
+	public function GetByIndex($i){
+		return parent::GetByIndex($i);
+	}
 }
 
 class CatalogElementOrderOption extends CatalogItem {
