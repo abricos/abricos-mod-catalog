@@ -1080,6 +1080,10 @@ class CatalogModuleManager {
 		return $this->ElementListToAJAX($catid);
 	}
 	
+	/**
+	 * @param integer $elid
+	 * @return CatalogElement
+	 */
 	public function Element($elid){
 		if (!$this->IsViewRole()){ return false; }
 		

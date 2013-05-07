@@ -276,7 +276,14 @@ class CatalogDbQuery {
 				e.metatitle as mtl,
 				e.metakeys as mks,
 				e.metadesc as mdsc,
-				e.ord as ord
+				e.ord as ord,
+				(
+					SELECT f.fileid
+					FROM ".$pfx."foto f
+					WHERE f.elementid=e.elementid
+					ORDER BY ord
+					LIMIT 1
+				) as foto
 			FROM ".$pfx."element e
 			WHERE e.elementid=".bkint($elementid)."
 			LIMIT 1
