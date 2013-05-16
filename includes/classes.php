@@ -838,7 +838,7 @@ class CatalogModuleManager {
 			case "catalog":
 				return $this->CatalogToAJAX($d->catid, $d->elementlist);
 			case "catalogsave":
-				return $this->CatalogSave($d->catid, $d->savedata);
+				return $this->CatalogSaveToAJAX($d->catid, $d->savedata);
 			case "catalogremove":
 				return $this->CatalogRemove($d->catid);
 			case "elementlist":
@@ -848,7 +848,7 @@ class CatalogModuleManager {
 			case "element":
 				return $this->ElementToAJAX($d->elementid);
 			case "elementsave":
-				return $this->ElementSave($d->elementid, $d->savedata);
+				return $this->ElementSaveToAJAX($d->elementid, $d->savedata);
 			case "elementremove":
 				return $this->ElementRemove($d->elementid);
 			case "elementtypelist":
@@ -991,13 +991,22 @@ class CatalogModuleManager {
 			$isNew = true;
 			$catid = CatalogDbQuery::CatalogAppend($this->db, $this->pfx, $d);
 			if (empty($catid)){ return null; }
-				
+			
+			$this->_cacheCatalogList = null;
 		}else{ // сохранение текущего
 			CatalogDbQuery::CatalogUpdate($this->db, $this->pfx, $catid, $d);
 		}
 	
 		CatalogDbQuery::FotoRemoveFromBuffer($this->db, $this->pfx, $d->foto);
 	
+		return $catid;
+	}
+	
+	public function CatalogSaveToAJAX($catid, $d){
+		$catid = $this->CatalogSave($catid, $d);
+		
+		if (empty($catid)){ return null; }
+		
 		return $this->CatalogToAJAX($catid);
 	}
 	
@@ -1159,13 +1168,23 @@ class CatalogModuleManager {
 		
 		$elTypeList = $this->ElementTypeList();
 		
-		foreach($d->values as $tpid => $opts){
-			$elType = $elTypeList->Get($tpid);
-			CatalogDbQuery::ElementDetailUpdate($this->db, $this->pfx, $elid, $elType, $opts);
+		if (!empty($d->values)){
+			foreach($d->values as $tpid => $opts){
+				$elType = $elTypeList->Get($tpid);
+				CatalogDbQuery::ElementDetailUpdate($this->db, $this->pfx, $elid, $elType, $opts);
+			}
 		}
 		
 		// обновление фоток
 		CatalogDbQuery::ElementFotoUpdate($this->db, $this->pfx, $elid, $d->fotos);
+
+		return $elid;
+	}
+	
+	public function ElementSaveToAJAX($elid, $d){
+		$elid = $this->ElementSave($elid, $d);
+		
+		if (empty($elid)){ return null; }
 		
 		return $this->ElementToAJAX($elid);
 	}
