@@ -421,6 +421,10 @@ Component.entryPoint = function(NS){
 			
 			var __self = this, dtl = element.detail;
 			
+			this.catSelectWidget = new NS.CatalogSelectWidget(this.gel('catalog'), this.manager, {
+				'value': element.catid
+			});
+			
 			this.elSetValue({
 				'tl': element.title,
 				'ord': element.order,
@@ -520,7 +524,7 @@ Component.entryPoint = function(NS){
 
 			var element = this.element;
 			var sd = {
-				'catid': element.catid,
+				'catid': this.catSelectWidget.getValue(),
 				'tpid': element.typeid,
 				'tl': this.gel('tl').value,
 				'fotos': this.fotosWidget.fotos,

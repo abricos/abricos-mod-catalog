@@ -62,6 +62,8 @@ Component.entryPoint = function(NS){
 			var list = this.list;
 
 			list.foreach(function(catel){
+				if (list.catid != catel.catid){ return; }
+				
 				var div = document.createElement('div');
 				div['catalogElement'] = catel;
 				
