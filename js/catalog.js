@@ -193,7 +193,7 @@ Component.entryPoint = function(NS){
 			this.imageid = o['img'];
 			this.setImage(this.imageid);
 			
-			this.catalogWidget = new NS.CatalogSelectWidget(TM.getEl('editor.catalog'), this.mmPrefix);
+			this.catalogWidget = new NS.old_CatalogSelectWidget(TM.getEl('editor.catalog'), this.mmPrefix);
 			this.catalogWidget.removeItem(o['id']);
 			this.catalogWidget.setValue(o['pid']);
 			
@@ -294,10 +294,10 @@ Component.entryPoint = function(NS){
 	};
 
 	
-	var CatalogSelectWidget = function(container, mmPrefix){
+	var old_CatalogSelectWidget = function(container, mmPrefix){
 		this.init(container, mmPrefix);
 	};
-	CatalogSelectWidget.prototype = {
+	old_CatalogSelectWidget.prototype = {
 		init: function(container, mmPrefix){
 			this.container = container;
 			this.mmPrefix = mmPrefix;
@@ -364,6 +364,6 @@ Component.entryPoint = function(NS){
 			this.render();
 		}
 	};
-	NS.CatalogSelectWidget = CatalogSelectWidget;
+	NS.old_CatalogSelectWidget = old_CatalogSelectWidget;
 	
 };

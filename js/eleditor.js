@@ -484,7 +484,7 @@ Component.entryPoint = function(){
 
 			this.fotoRender();
 			
-			this.catalogWidget = new NS.CatalogSelectWidget(this._TM.getEl('editor.catalog'), this.mmPrefix);
+			this.catalogWidget = new NS.old_CatalogSelectWidget(this._TM.getEl('editor.catalog'), this.mmPrefix);
 			this.catalogWidget.setValue(element.cell['catid']);
 			NS.data[this.mmPrefix].request();
 		},

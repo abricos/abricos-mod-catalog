@@ -508,19 +508,32 @@ Component.entryPoint = function(NS){
 				dcat['tl'] = this.getLang('catalog.title');
 			}
 				
-			var cat = this.catalogList.find(catid);
+			var cat = this.catalogList.find(catid), isNew = L.isNull(cat);
 				
 			if (L.isNull(cat)){
 				cat = this.newCatalogItem(d['catalog']);
 				
 				var pcat = this.catalogList.find(cat.parentid);
-				if (!L.isNull(pcat)){
+				if (L.isValue(pcat)){
 					pcat.childs.add(cat);
 				}
 			}
 			
+			var parentid = cat.parentid;
+			
 			cat.update(d['catalog']);
 			cat.detail = new NS.CatalogDetail(d['catalog']['dtl']);
+			
+			if (!isNew && cat.parentid != parentid){ // был сменен родитель
+				var oldParent = this.catalogList.find(parentid);
+				if (L.isValue(oldParent)){
+					oldParent.childs.remove(cat.id);
+				}
+				var pcat = this.catalogList.find(cat.parentid);
+				if (L.isValue(pcat)){
+					pcat.childs.add(cat);
+				}
+			}
 
 			return cat;
 		},

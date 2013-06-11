@@ -7,6 +7,7 @@ var Component = new Brick.Component();
 Component.requires = {
 	mod:[
 		{name: 'sys', files: ['editor.js']},
+		{name: 'widget', files: ['select.js']},
 		{name: '{C#MODNAME}', files: ['fotoeditor.js', 'lib.js']}
 	]
 };
@@ -155,6 +156,10 @@ Component.entryPoint = function(NS){
 			}
 			this.elShow('wrap');
 			
+			this.parentWidget = new NS.CatalogSelectWidget(this.gel('parent'), manager, {
+				'cat': cat
+			});
+			
 			this.elSetValue({
 				'tl': cat.title,
 				'ord': cat.order,
@@ -212,7 +217,7 @@ Component.entryPoint = function(NS){
 			}
 			
 			var sd = {
-				'pid': this.cat.parentid, 
+				'pid': this.parentWidget.getValue(), 
 				'tl': this.gel('tl').value,
 				'dsc': this.editorWidget.getContent(),
 				'foto': foto,
@@ -235,6 +240,45 @@ Component.entryPoint = function(NS){
 		}
 	});
 	NS.CatalogEditorWidget = CatalogEditorWidget;
+	
+	var CatalogSelectWidget = function(container, manager, cfg){
+		cfg = L.merge({
+			'cat': null
+		}, cfg || {});
+		
+		if (L.isValue(cfg['cat'])){
+			cfg['value'] = cfg['cat'].parentid;
+		}
+		
+		var rootItem = manager.catalogList.get(0);
+		var list = new NS.DictList();
+		
+		var fetchList = function(catList, level){
+			catList.foreach(function(cat){
+				if (L.isValue(cfg['cat']) && cfg['cat'].id == cat.id){
+					return;
+				}
+				
+				var tl = cat.title;
+				
+				for (var i=0;i<level;i++){
+					tl = " - " + tl;
+				}
+				
+				list.add(new NS.Dict({
+					'id': cat.id,
+					'tl': tl
+				}));
+				
+				fetchList(cat.childs, level+1);
+			});
+		};
+		fetchList(rootItem.childs, 0);
+		
+		CatalogSelectWidget.superclass.constructor.call(this, container, list, cfg);
+	};
+	YAHOO.extend(CatalogSelectWidget, Brick.mod.widget.SelectWidget, {});
+	NS.CatalogSelectWidget = CatalogSelectWidget;	
 	
 	var CatalogRemovePanel = function(manager, cat, callback){
 		this.manager = manager;
