@@ -592,6 +592,12 @@ class CatalogElementListConfig {
 	public $catids;
 	
 	/**
+	 * Идентификаторы элементов
+	 * @var array
+	 */
+	public $elids;
+	
+	/**
 	 * @var CatalogElementTypeList
 	 */
 	public $typeList;
@@ -603,6 +609,7 @@ class CatalogElementListConfig {
 			$catids = array($catids);
 		}
 		$this->catids = $catids;
+		$this->elids = array();
 		
 		$this->orders = new CatalogElementOrderOptionList();
 		$this->extFields = new CatalogElementTypeOptionList();
@@ -1028,7 +1035,6 @@ class CatalogModuleManager {
 		return true;
 	}
 	
-	
 	public function ElementList($param){
 		if (!$this->IsViewRole()){ return false; }
 
@@ -1041,7 +1047,7 @@ class CatalogModuleManager {
 		
 		$cfg->typeList = $this->ElementTypeList();
 		
-		$list = new CatalogElementList();
+		$list = new $this->CatalogElementListClass();
 		$list->cfg = $cfg;
 		
 		$rows = CatalogDbQuery::ElementList($this->db, $this->pfx, $cfg);
@@ -1063,8 +1069,8 @@ class CatalogModuleManager {
 		return $list;
 	}
 	
-	public function ElementListToAJAX($catid){
-		$list = $this->ElementList($catid);
+	public function ElementListToAJAX($param){
+		$list = $this->ElementList($param);
 		
 		if (empty($list)){ return null; }
 		

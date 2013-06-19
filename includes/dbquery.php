@@ -161,6 +161,11 @@ class CatalogDbQuery {
 			array_push($wCats, "e.catalogid=".bkint($catid));
 		}
 
+		$wEls = array();
+		foreach ($cfg->elids as $elid){
+			array_push($wEls, "e.elementid=".bkint($elid));
+		}
+		
 		$orders = "";
 		$cnt = $cfg->orders->Count();
 		for ($i=0; $i<$cnt; $i++){
@@ -227,6 +232,12 @@ class CatalogDbQuery {
 			";
 			$isWhere = true;
 		}
+		if (count($wEls) > 0){
+			$sql .= "
+				AND (".implode(" OR ", $wEls).")
+			";
+			$isWhere = true;
+		}
 		if (count($wExt) > 0){
 			$sql .= "
 				AND (".implode(" OR ", $wExt).")
@@ -254,13 +265,34 @@ class CatalogDbQuery {
 		foreach ($cfg->catids as $catid){
 			array_push($wCats, "e.catalogid=".bkint($catid));
 		}
-		if (count($wCats) == 0){ return 0; }
+		$wEls = array();
+		foreach ($cfg->elids as $elid){
+			array_push($wEls, "e.elementid=".bkint($elid));
+		}
+		
+		if (count($wCats) == 0 && count($wEls) == 0){ return 0; }
 		
 		$sql = "
 			SELECT count(*) as cnt
 			FROM ".$pfx."element e
-			WHERE e.deldate=0 AND (".implode(" OR ", $wCats).")
+			WHERE e.deldate=0 
 		";
+		
+		$isWhere = false;
+		if (count($wCats) > 0){
+			$sql .= "
+				AND (".implode(" OR ", $wCats).")
+			";
+			$isWhere = true;
+		}
+		if (count($wEls) > 0){
+			$sql .= "
+				AND (".implode(" OR ", $wEls).")
+			";
+			$isWhere = true;
+		}
+		
+		
 		$row = $db->query_first($sql);
 		return intval($row['cnt']);
 	}
