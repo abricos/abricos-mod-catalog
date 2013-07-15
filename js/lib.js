@@ -149,13 +149,14 @@ Component.entryPoint = function(NS){
 
 	var Element = function(manager, d){
 		this.manager = manager;
-		
+
 		d = L.merge({
 			'catid': 0, 
 			'tpid': 0, 
 			'tl': '', 
 			'nm': '',
-			'ord': 0
+			'ord': 0,
+			'ext': {}
 		}, d || {});
 		Element.superclass.constructor.call(this, d);
 	};
@@ -170,6 +171,7 @@ Component.entryPoint = function(NS){
 			this.title		= d['tl'];
 			this.name		= d['nm'];
 			this.order		= d['ord']|0;
+			this.ext		= d['ext'] || {};
 		},
 		copy: function(){
 			var el = this.manager.newElement({
