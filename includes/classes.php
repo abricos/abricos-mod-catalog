@@ -477,8 +477,9 @@ class CatalogElementDetail {
 	public $optionsBase = array();
 	public $optionsPers = array();
 	public $fotos = array();
+	public $fotoDetail = array();
 
-	public function __construct($d, $dOptBase, $dOptPers, $fotos){
+	public function __construct($d, $dOptBase, $dOptPers, $fotos, $fotoDetail){
 		$this->metaTitle = strval($d['mtl']);
 		$this->metaKeys = strval($d['mks']);
 		$this->metaDesc = strval($d['mdsc']);
@@ -486,6 +487,7 @@ class CatalogElementDetail {
 		$this->optionsPers = $dOptPers;
 		
 		$this->fotos = $fotos;
+		$this->fotoDetail = $fotoDetail;
 	}
 
 	public function ToAJAX(CatalogModuleManager $man){
@@ -1122,11 +1124,13 @@ class CatalogModuleManager {
 		
 		$rows = CatalogDbQuery::ElementFotoList($this->db, $this->pfx, $elid);
 		$fotos = array();
+		$fotoDetail = array();
 		while (($row = $this->db->fetch_array($rows))){
 			array_push($fotos, $row['f']);
+			$fotoDetail[$row['f']] = $row;
 		}
 		
-		$detail = new CatalogElementDetail($dbEl, $dbOptionsBase, $dbOptionsPers, $fotos);
+		$detail = new CatalogElementDetail($dbEl, $dbOptionsBase, $dbOptionsPers, $fotos, $fotoDetail);
 		
 		$element->detail = $detail;
 		

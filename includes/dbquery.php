@@ -552,8 +552,15 @@ class CatalogDbQuery {
 	public static function ElementFotoList(Ab_Database $db, $pfx, $elementid){
 		$sql = "
 			SELECT
-				f.fileid as f
+				fm.filehash as id,
+				fm.filehash as f,
+				fm.filename as nm,
+				fm.extension as ext,
+				fm.filesize as sz,
+				fm.imgwidth as w,
+				fm.imgheight as h
 			FROM ".$pfx."foto f
+			INNER JOIN ".$db->prefix."fm_file fm ON f.fileid=fm.filehash
 			WHERE f.elementid=".bkint($elementid)."
 			ORDER BY f.ord
 		";
