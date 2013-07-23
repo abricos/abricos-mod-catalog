@@ -474,12 +474,22 @@ class CatalogElementDetail {
 	public $metaKeys;
 	public $metaDesc;
 
-	public $optionsBase = array();
-	public $optionsPers = array();
-	public $fotos = array();
-	public $fotoDetail = array();
+	public $optionsBase;
+	public $optionsPers;
+	
+	/**
+	 * Идентификаторы картинок
+	 * @var array
+	 */
+	public $fotos;
+	
+	/**
+	 * Список картинок - подробный
+	 * @var CatalogFotoList
+	 */
+	public $fotoList;
 
-	public function __construct($d, $dOptBase, $dOptPers, $fotos, $fotoDetail){
+	public function __construct($d, $dOptBase, $dOptPers, $fotos, CatalogFotoList $fotoList){
 		$this->metaTitle = strval($d['mtl']);
 		$this->metaKeys = strval($d['mks']);
 		$this->metaDesc = strval($d['mdsc']);
@@ -487,7 +497,7 @@ class CatalogElementDetail {
 		$this->optionsPers = $dOptPers;
 		
 		$this->fotos = $fotos;
-		$this->fotoDetail = $fotoDetail;
+		$this->fotoList = $fotoList;
 	}
 
 	public function ToAJAX(CatalogModuleManager $man){
@@ -552,6 +562,50 @@ class CatalogElementList extends CatalogItemList {
 	
 		return $ret;
 	}
+}
+
+/**
+ * Фото элемента каталога
+ */
+class CatalogFoto extends AbricosItem {
+	
+	public $filehash;
+	public $name;
+	public $extension;
+	public $filesize;
+	public $width;
+	public $height;
+	
+	public function __construct($d){
+		parent::__construct($d);
+		
+		$this->filehash = $d['f'];
+		$this->name = $d['nm'];
+		$this->extension = $d['ext'];
+		$this->filesize = $d['sz'];
+		$this->width = $d['w'];
+		$this->height = $d['h'];
+	}
+	
+	public function Link($w=0,$h=0){
+		$arr = array();
+		if ($w > 0) array_push($arr, "w_".$w);
+		if ($h > 0) array_push($arr, "h_".$h);
+		
+		$ret = "/filemanager/i/".$this->filehash."/";
+		if (count($arr)>0){
+			$ret = $ret.implode("-", $arr)."/";
+		}
+		return $ret.$this->name;
+	}
+}
+
+class CatalogFotoList extends AbricosList {
+	
+	/**
+	 * @return CatalogFoto
+	 */
+	public function GetByIndex($i){return parent::GetByIndex($i);}
 }
 
 /**
@@ -1124,13 +1178,13 @@ class CatalogModuleManager {
 		
 		$rows = CatalogDbQuery::ElementFotoList($this->db, $this->pfx, $elid);
 		$fotos = array();
-		$fotoDetail = array();
+		$fotoList = new CatalogFotoList();
 		while (($row = $this->db->fetch_array($rows))){
 			array_push($fotos, $row['f']);
-			$fotoDetail[$row['f']] = $row;
+			$fotoList->Add(new CatalogFoto($row));
 		}
 		
-		$detail = new CatalogElementDetail($dbEl, $dbOptionsBase, $dbOptionsPers, $fotos, $fotoDetail);
+		$detail = new CatalogElementDetail($dbEl, $dbOptionsBase, $dbOptionsPers, $fotos, $fotoList);
 		
 		$element->detail = $detail;
 		
