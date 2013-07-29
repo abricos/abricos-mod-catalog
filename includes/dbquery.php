@@ -365,6 +365,7 @@ class CatalogDbQuery {
 			UPDATE ".$pfx."element
 			SET
 				catalogid=".bkint($d->catid).",
+				eltypeid=".bkint($d->tpid).",
 				title='".bkstr($d->tl)."',
 				name='".bkstr($d->nm)."',
 				metatitle='".bkstr($d->mtl)."',

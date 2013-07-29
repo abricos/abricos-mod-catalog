@@ -1201,6 +1201,12 @@ class CatalogModuleManager {
 		return $ret;
 	}
 	
+	/**
+	 * Сохранение элемента каталога
+	 * 
+	 * @param integer $elid
+	 * @param object $d
+	 */
 	public function ElementSave($elid, $d){
 		if (!$this->IsAdminRole()){ return null; }
 		

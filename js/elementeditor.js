@@ -365,20 +365,13 @@ Component.entryPoint = function(NS){
 			var tpList = manager.typeList;
 			
 			if (tpList.count() > 1){
-				if (element.id == 0){
-					var lst = "";
-					tpList.foreach(function(tp){
-						lst += TM.replace('tprow', {
-							'id': tp.id, 'tl': tp.title
-						});
+				var lst = "";
+				tpList.foreach(function(tp){
+					lst += TM.replace('tprow', {
+						'id': tp.id, 'tl': tp.title
 					});
-					sTypeList = TM.replace('tpwidget', {'tplist': TM.replace('tplist', {'rows': lst})}); 
-				}else{
-					var tp = tpList.get(element.typeid);
-					if (!L.isNull(tp)){
-						sTypeList = TM.replace('tpwidget', {'tplist': tp.title}); 
-					}
-				}
+				});
+				sTypeList = TM.replace('tpwidget', {'tplist': TM.replace('tplist', {'rows': lst})}); 
 			}
 			return {'typelist': sTypeList};
 		},
@@ -436,6 +429,7 @@ Component.entryPoint = function(NS){
 			this.fotosWidget = new NS.FotoListEditWidget(this.gel('fotos'), this.manager, this.element.detail.fotos);
 			
 			this.renderOptions();
+			this.elSetValue('tplist.id', element.typeid);
 
 			E.on(this.gel('tplist.id'), 'change', function(e){
 				__self.elementTypeChange(); 
