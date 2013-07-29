@@ -1,0 +1,39 @@
+/* * * Editor * * */
+.aw-catalog .elrow .easyeditor {
+	margin: 5px;
+	padding: 0 5px;
+}
+.aw-catalog .elementlist .elneweditor .easyeditor {
+	border: 1px solid #D1D3DC;
+	border-radius: 5px;
+	background-color: #FFF0C6;
+	padding: 8px 8px 0px 8px;
+}
+.aw-catalog .elrow .easyeditor .btnsc {
+	top: -22px;
+}
+
+/* * * * * Option Table * * * */
+.aw-catalog .easyeditor .opttable select {
+	width: 328px;
+}
+.aw-catalog .easyeditor .opttable select,
+.aw-catalog .easyeditor .opttable .boxbutton {
+	float: left;
+}
+.aw-catalog .easyeditor .opttable .boxbutton {
+	display: none;
+	margin: 0 0 0 5px;
+}
+.aw-catalog .easyeditor .opttable dd:hover .boxbutton {
+	display: block;
+}
+.aw-catalog .easyeditor .opttable input.inp {
+	width: 230px;
+}
+.aw-catalog .easyeditor .opttable .rempanel {
+	color: #DA4242;
+}
+.aw-catalog .easyeditor .opttable .remtl {
+	font-weight: bold;
+}

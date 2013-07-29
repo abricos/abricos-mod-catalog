@@ -358,7 +358,9 @@ Component.entryPoint = function(NS){
 	});
 	NS.ElementOptionList = ElementOptionList;
 	
-	var ElementType = function(d){
+	var ElementType = function(manager, d){
+		this.manager = manager;
+		
 		d = L.merge({
 			'tl': '',
 			'nm': '',
@@ -376,10 +378,15 @@ Component.entryPoint = function(NS){
 	});
 	NS.ElementType = ElementType;
 	
-	var ElementTypeList = function(d){
-		ElementTypeList.superclass.constructor.call(this, d, ElementType);
+	var ElementTypeList = function(manager, d, elementTypeClass, cfg){
+		this.manager = manager;
+		ElementTypeList.superclass.constructor.call(this, d, elementTypeClass, cfg);
 	};
-	YAHOO.extend(ElementTypeList, SysNS.ItemList, {});
+	YAHOO.extend(ElementTypeList, SysNS.ItemList, {
+		createItem: function(di){
+			return this.manager.newElementType(di);
+		}
+	});
 	NS.ElementTypeList = ElementTypeList;
 	
 	
@@ -391,6 +398,8 @@ Component.entryPoint = function(NS){
 			'CatalogListClass': NS.CatalogList,
 			'ElementClass': NS.Element,
 			'ElementListClass': NS.ElementList,
+			'ElementTypeClass': NS.ElementType,
+			'ElementTypeListClass': NS.ElementTypeList,
 			'language': null
 		}, cfg || {});
 		
@@ -407,6 +416,8 @@ Component.entryPoint = function(NS){
 			this.CatalogListClass	= cfg['CatalogListClass'];
 			this.ElementClass		= cfg['ElementClass'];
 			this.ElementListClass	= cfg['ElementListClass'];
+			this.ElementTypeClass	= cfg['ElementTypeClass'];
+			this.ElementTypeListClass = cfg['ElementTypeListClass'];
 			
 			this.typeList = null;
 			
@@ -435,6 +446,12 @@ Component.entryPoint = function(NS){
 		},
 		newElementList: function(d, catid, cfg){
 			return new this.ElementListClass(this, d, catid, this.ElementClass, cfg);
+		},
+		newElementType: function(d){
+			return new this.ElementTypeClass(this, d);
+		},
+		newElementTypeList: function(d, cfg){
+			return new this.ElementTypeListClass(this, d, this.ElementTypeClass, cfg);
 		},
 		onCatalogChanged: function(catid){
 			this.catalogChangedEvent.fire(catid);
@@ -470,7 +487,7 @@ Component.entryPoint = function(NS){
 		_typeListUpdate: function(d){
 			var list = null;
 			if (!L.isNull(d) && !L.isNull(d['eltypes'])){
-				list = new NS.ElementTypeList(d['eltypes']);
+				list = this.newElementTypeList(d['eltypes']);
 				
 				var btype = list.get(0);
 				if (!L.isNull(btype)){

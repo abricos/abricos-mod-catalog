@@ -1,0 +1,56 @@
+.aw-catalog .typeman .brdtable {
+	width: 100%;
+}
+.aw-catalog .typeman .brdtable .brdlcol {
+	width: 300px;
+	border-right: 1px solid #D1D3DC;
+}
+.aw-catalog .typeman .brdtable .brdlcol .explore {
+	width: 300px;
+}
+.aw-catalog .typeman .brdtable .brdrcol {
+	padding-left: 5px;
+}
+
+.aw-catalog .typelist .mangroup {
+	border-bottom: 1px solid #DCDEE4;
+	padding: 5px 0;
+	text-align: right;
+}
+
+.aw-catalog .typelist .elrow {
+	min-height: 22px;
+	position: relative;
+}
+.aw-catalog .typelist .elrow:hover {
+	background-color: #FFF0C6;
+}
+.aw-catalog .typelist .elrow .tl {
+	cursor: pointer;
+    margin: 0 10px 0 5px;
+    overflow: hidden;
+    padding: 3px; 
+    position: relative;
+    white-space: nowrap;
+}
+.aw-catalog .typelist .elrow .rborder {
+	border: 1px solid #D1D3DC;
+	border-radius: 5px;
+}
+.aw-catalog .typelist .elneweditor .easyeditor {
+	padding-top: 26px !important;
+}
+
+/* * * Menu * * */
+.aw-catalog .typelist .elrow .elrmenu {
+	position: absolute;
+    display: none;
+    right: 0px;
+    top: -1px;
+}
+.aw-catalog .typelist .elrow:hover .elrmenu {
+	display: block;
+}
+.aw-catalog .typelist .elrow .itemline:hover .elrmenu {
+	display: block;
+}
