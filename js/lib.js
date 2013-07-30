@@ -222,7 +222,7 @@ Component.entryPoint = function(NS){
 			var fore = function(tpid, opts){
 				var tp = man.typeList.get(tpid);
 				if (L.isNull(tp)){ return; }
-				tp.options.foreach(function(option){
+				tp.optionList.foreach(function(option){
 					var value = opts[option.name] || '';
 					NS.life(f, option, value);
 				});
@@ -373,7 +373,7 @@ Component.entryPoint = function(NS){
 			this.title = d['tl'];
 			this.name = d['nm'];
 			
-			this.options = new NS.ElementOptionList(d['options']);
+			this.optionList = new NS.ElementOptionList(d['options']);
 		}
 	});
 	NS.ElementType = ElementType;

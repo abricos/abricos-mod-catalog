@@ -6,7 +6,7 @@
 var Component = new Brick.Component();
 Component.requires = {
 	mod:[
-		{name: '{C#MODNAME}', files: ['lib.js']}
+		{name: '{C#MODNAME}', files: ['optionlist.js']}
 	]
 };
 Component.entryPoint = function(NS){
@@ -27,13 +27,14 @@ Component.entryPoint = function(NS){
 	YAHOO.extend(TypeViewWidget, BW, {
 		init: function(manager, elType, cfg){
 			this.manager = manager;
-			this.elType = elType;
 			this.cfg = cfg;
-		},
-		onLoad: function(manager, elType, cfg){
+			this.elType = elType;
+			
+			this.optionListWidget = null;
 		},
 		setElType: function(elType){
 			this.elType = elType;
+			
 			this.render();
 		},
 		render: function(){
@@ -41,6 +42,11 @@ Component.entryPoint = function(NS){
 			this.elSetHTML({
 				'tl': elType.title
 			});
+			
+			if (L.isValue(this.optionListWidget)){
+				this.optionListWidget.destroy();
+			}
+			this.optionListWidget = new NS.OptionListWidget(this.gel('options'), this.manager, elType.optionList);
 		}
 	});
 	NS.TypeViewWidget = TypeViewWidget;

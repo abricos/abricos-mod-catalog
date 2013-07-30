@@ -1,0 +1,36 @@
+.aw-catalog .optionlist .elrow {
+	min-height: 22px;
+	position: relative;
+}
+.aw-catalog .optionlist .elrow:hover {
+	background-color: #FFF0C6;
+}
+.aw-catalog .optionlist .elrow .tl {
+	cursor: pointer;
+    margin: 0 10px 0 5px;
+    overflow: hidden;
+    padding: 3px; 
+    position: relative;
+    white-space: nowrap;
+}
+.aw-catalog .optionlist .elrow .rborder {
+	border: 1px solid #D1D3DC;
+	border-radius: 5px;
+}
+.aw-catalog .optionlist .elneweditor .easyeditor {
+	padding-top: 26px !important;
+}
+
+/* * * Menu * * */
+.aw-catalog .optionlist .elrow .elrmenu {
+	position: absolute;
+    display: none;
+    right: 0px;
+    top: -1px;
+}
+.aw-catalog .optionlist .elrow:hover .elrmenu {
+	display: block;
+}
+.aw-catalog .optionlist .elrow .itemline:hover .elrmenu {
+	display: block;
+}

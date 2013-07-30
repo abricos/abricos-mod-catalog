@@ -87,7 +87,7 @@ Component.entryPoint = function(NS){
 			var elType = this.manager.typeList.get(elTypeId);
 			
 			if (!L.isValue(this.elTypeViewer)){
-				this.elTypeViewer = new NS.TypeViewWidget(this.gel('eltypeviewer'), this.manager, elTypeId);
+				this.elTypeViewer = new NS.TypeViewWidget(this.gel('eltypeviewer'), this.manager, elType);
 			}else{
 				this.elTypeViewer.setElType(elType);
 			}
