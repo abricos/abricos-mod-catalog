@@ -35,7 +35,7 @@ class CatalogModule extends Ab_Module {
 	
 	
 	function __construct(){
-		$this->version = "0.2.5.1";
+		$this->version = "0.2.5.2";
 		$this->name = "catalog";
 		$this->takelink = "catalogbase";
 		

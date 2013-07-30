@@ -21,6 +21,18 @@
 				</dd>
 			</dl>
 			<dl>
+				<dt>Тип опции</dt>
+				<dd>
+					<div id="{i#ftypesel}"></div>
+				</dd>
+			</dl>
+			<dl id="{i#fsize}" style="display: none">
+				<dt>Размер</dt>
+				<dd>
+					<input id="{i#sz}" class="inp" type="text" onfocus="this.select();" />
+				</dd>
+			</dl>
+			<dl>
 				<dt>Сортировка</dt>
 				<dd>
 					<input id="{i#ord}" type="text" class="inp"/>
@@ -42,3 +54,15 @@
 		</div>
 	</div>
 </div>
+
+
+<!--{ftypeselect}-->
+<select id="{i#id}" class="inp">
+	<option value="0">Логический</option>
+	<option value="1">Целое число</option>
+	<option value="2">Дробное число</option>
+	<option value="3">Строковый</option>
+	<option value="4">Список</option>
+	<option value="5">Таблица</option>
+	<option value="7">Текст</option>
+</select>

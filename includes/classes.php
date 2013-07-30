@@ -292,6 +292,7 @@ class CatalogElementTypeOption extends CatalogItem {
 	
 	public $elTypeId;
 	public $type;
+	public $size;
 	public $title;
 	public $name;
 	
@@ -299,8 +300,9 @@ class CatalogElementTypeOption extends CatalogItem {
 		parent::__construct($d);
 		$this->elTypeId = intval($d['tpid']);
 		$this->type		= intval($d['tp']);
-		$this->title	= $d['tl'];
-		$this->name		= $d['nm'];
+		$this->size		= strval($d['sz']);
+		$this->title	= strval($d['tl']);
+		$this->name		= strval($d['nm']);
 	}
 	
 	public function ToAJAX(CatalogModuleManager $man){
@@ -308,6 +310,7 @@ class CatalogElementTypeOption extends CatalogItem {
 		$ret->id		= $this->id;
 		$ret->tpid		= $this->elTypeId;
 		$ret->tp		= $this->type;
+		$ret->sz		= $this->size;
 		$ret->tl		= $this->title;
 		$ret->nm		= $this->name;
 		return $ret;

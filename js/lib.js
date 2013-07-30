@@ -302,7 +302,9 @@ Component.entryPoint = function(NS){
 			'tl':	'',
 			'nm':	'',
 			'tpid':	0,
-			'tp':	0
+			'tp':	0,
+			'sz':	'',
+			'ord':	0
 		}, d || {});
 		ElementType.superclass.constructor.call(this, d);
 	};
@@ -310,8 +312,10 @@ Component.entryPoint = function(NS){
 		update: function(d){
 			this.title		= d['tl'];
 			this.name		= d['nm'];
-			this.typeid	= d['tpid']|0;
+			this.typeid		= d['tpid']|0;
 			this.type		= d['tp']|0;
+			this.size		= d['sz'];
+			this.order		= d['ord']|0;
 		}
 	});
 	NS.ElementOption = ElementOption;

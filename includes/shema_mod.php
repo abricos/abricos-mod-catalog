@@ -110,6 +110,7 @@ if ($updateManager->isInstall()){
 		  `eltypeid` int(5) unsigned NOT NULL default '0' COMMENT 'Тип элемента',
 		  `eloptgroupid` int(5) unsigned NOT NULL default '0' COMMENT 'Группа',
 		  `fieldtype` int(1) unsigned NOT NULL default '0' COMMENT 'Тип поля',
+		  `fieldsize` varchar(50) NOT NULL default '' COMMENT 'Размер поля',
 		  `param` text NOT NULL COMMENT 'Параметры опции в формате JSON',
 		  `name` varchar(50) NOT NULL default 'имя поля',
 		  `title` varchar(250) NOT NULL default '',
@@ -211,6 +212,25 @@ if ($updateManager->isUpdate('0.2.5.1') && !$updateManager->isInstall()){
 		ADD `issystem` tinyint(1) unsigned NOT NULL default '0' COMMENT '1-системная опция'
 	");
 	
+}
+
+if ($updateManager->isUpdate('0.2.5.2') && !$updateManager->isInstall()){
+	$db->query_write("
+		ALTER TABLE `".$pfx."eloption`
+		ADD `fieldsize` varchar(50) NOT NULL default '' COMMENT 'Размер поля'
+	");
+}
+if ($updateManager->isUpdate('0.2.5.2')){
+	$rows = $db->query_read("SELECT * FROM `".$pfx."eloption`");
+
+	while (($row = $db->fetch_array($rows))){
+		$d = json_decode($row['param']);
+		$db->query_write("
+			UPDATE `".$pfx."eloption`
+			SET fieldsize='".$d->size."'
+			WHERE eloptionid=".$row['eloptionid']."
+		");
+	}
 }
 
 

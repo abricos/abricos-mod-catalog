@@ -481,6 +481,7 @@ class CatalogDbQuery {
 				eloptionid as id,
 				eltypeid as tpid,
 				fieldtype as tp,
+				fieldsize as sz,
 				name as nm,
 				title as tl,
 				descript as dsc,

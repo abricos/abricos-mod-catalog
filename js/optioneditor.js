@@ -18,6 +18,35 @@ Component.entryPoint = function(NS){
 		buildTemplate = this.buildTemplate,
 		BW = Brick.mod.widget.Widget;
 	
+	var OptionFTypeSelectWidget = function(container, cfg){
+		cfg = L.merge({
+			'value': 0,
+			'onChange': null
+		}, cfg || {});
+		
+		OptionEditorWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'ftypeselect' 
+		}, cfg);
+	};
+	YAHOO.extend(OptionFTypeSelectWidget, BW, {
+		onLoad: function(cfg){
+
+			this.setValue(cfg['value']);
+
+			var __self = this;
+			E.on(this.gel('id'), 'change', function(e){
+				NS.life(cfg['onChange'], __self.getValue());
+			});
+		},
+		setValue: function(value){
+			this.elSetValue('id', value);
+		},
+		getValue: function(){
+			return this.gel('id').value;
+		}
+	});
+	NS.OptionFTypeSelectWidget = OptionFTypeSelectWidget;
+	
 	var OptionEditorWidget = function(container, manager, option, cfg){
 		cfg = L.merge({
 			'fromElement': null,
@@ -40,9 +69,18 @@ Component.entryPoint = function(NS){
 			OptionEditorWidget.superclass.destroy.call(this);
 		},
 		onLoad: function(manager, option){
-			
+			var __self = this;
 			this.elSetValue({
-				'tl': option.title
+				'tl': option.title,
+				'sz': option.size,
+				'ord': option.order
+			});
+
+			this.fTypeSelectWidget = new NS.OptionFTypeSelectWidget(this.gel('ftypesel'), {
+				'value': option.type,
+				'onChange': function(){
+					__self.refreshFType();
+				}
 			});
 			
 			var keypress = function(e){
@@ -53,6 +91,21 @@ Component.entryPoint = function(NS){
 			
 			var elTitle = this.gel('tl');
 			setTimeout(function(){try{elTitle.focus();}catch(e){}}, 100);
+			
+			this.refreshFType();
+		},
+		refreshFType: function(){
+			var fType = this.fTypeSelectWidget.getValue()|0;
+			switch(fType){
+			case NS.FTYPE['NUMBER']:
+			case NS.FTYPE['DOUBLE']:
+			case NS.FTYPE['STRING']:
+				this.elShow('fsize');
+				break;
+			default:
+				this.elHide('fsize');
+				break;
+			}
 		},
 		onClick: function(el, tp){
 			switch(el.id){
