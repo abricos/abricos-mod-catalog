@@ -27,10 +27,45 @@ Component.entryPoint = function(NS){
 	YAHOO.extend(TypeManagerWidget, BW, {
 		init: function(manager, cfg){
 			this.manager = manager;
-			this.config = cfg;
+			this.cfg = cfg;
+			this.elTypeEditor = null;
 		},
 		onLoad: function(manager, cfg){
-			this.typeListWidget = new NS.TypeListWidget(this.gel('list'), manager);
+			var __self = this;
+			this.typeListWidget = new NS.TypeListWidget(this.gel('list'), manager, {
+				'onRowEditClick': function(row){
+					__self.showElTypeEditor(row.elType.id);
+				}
+			});
+		},
+		onClick: function(el, tp){
+			switch (el.id){
+			case tp['baddeltype']:
+				this.showElTypeEditor(0);
+				return true;
+			}
+			return false;
+		},
+		showElTypeEditor: function(elTypeId){
+			if (!L.isNull(this.elTypeEditor)){ return; }
+			
+			// this.allEditorClose();
+			var man = this.manager, __self = this;
+			var elType = elTypeId == 0 ? man.newElementType() : man.typeList.get(elTypeId);
+			this.elTypeEditor = 
+				new NS.TypeEditorWidget(this.gel('eltypeeditor'), man, elType, {
+					// 'fromElement': fel || null,
+					'onCancelClick': function(wEditor){ __self.newEditorClose(); },
+					'onSaveElement': function(wEditor, element){
+						/*
+						if (!L.isNull(element)){
+							__self.list.add(element);
+						}
+						__self.newEditorClose(); 
+						__self.render();
+						/**/
+					}
+				});			
 		}
 	});
 	NS.TypeManagerWidget = TypeManagerWidget;
@@ -38,6 +73,10 @@ Component.entryPoint = function(NS){
 	
 	var TypeListWidget = function(container, manager, cfg){
 		cfg = L.merge({
+			'onRowEditClick': null,
+			'onRowCopyClick': null,
+			'onRowRemoveClick': null,
+			'onRowSelect': null
 		}, cfg || {});
 		
 		TypeListWidget.superclass.constructor.call(this, container, {
@@ -47,11 +86,8 @@ Component.entryPoint = function(NS){
 	YAHOO.extend(TypeListWidget, BW, {
 		init: function(manager, cfg){
 			this.manager = manager;
-			this.list = manager.typeList;
-			this.config = cfg;
+			this.cfg = cfg;
 			this.wsList = [];
-			
-			this.newEditorWidget = null;
 		},
 		destroy: function(){
 			this.clearList();
@@ -64,33 +100,40 @@ Component.entryPoint = function(NS){
 			}
 			this.elSetHTML('list', '');
 		},
-		setList: function(list){
-			this.list = list;
-			this.allEditorClose();
-			this.render();
-		},
 		render: function(){
 			this.clearList();
 			
 			var elList = this.gel('list'), ws = this.wsList, 
 				__self = this, man = this.manager;
 			
-			man.typeList.foreach(function(tp){
+			man.typeList.foreach(function(elType){
 				
 				var div = document.createElement('div');
-				div['elType'] = tp;
+				div['elType'] = elType;
 				
 				elList.appendChild(div);
-				var w = new NS.TypeRowWidget(div, __self.manager, tp, {
-					'onEditClick': function(w){__self.onElementEditClick(w);},
-					'onCopyClick': function(w){__self.onElementCopyClick(w);},
-					'onRemoveClick': function(w){__self.onElementRemoveClick(w);},
-					'onSelectClick': function(w){__self.onElementSelectClick(w);},
-					'onSaveElement': function(w){ __self.render(); }
+				var w = new NS.TypeRowWidget(div, __self.manager, elType, {
+					'onEditClick': function(w){__self.onRowEditClick(w);},
+					'onCopyClick': function(w){__self.onRowCopyClick(w);},
+					'onRemoveClick': function(w){__self.onRowRemoveClick(w);},
+					'onSelectClick': function(w){__self.onRowSelectClick(w);}
 				});
 				
 				ws[ws.length] = w;
 			});
+		},
+		onRowEditClick: function(w){
+			this._selectMethod(w.elType.id);
+			NS.life(this.cfg['onRowEditClick'], w);
+		},
+		onRowCopyClick: function(w){
+			NS.life(this.cfg['onRowCopyClick'], w);
+		},
+		onRowRemoveClick: function(w){
+			NS.life(this.cfg['onRowRemoveClick'], w);
+		},
+		onRowSelectClick: function(w){
+			this.select(w.elType.id);
 		},
 		foreach: function(f){
 			if (!L.isFunction(f)){ return; }
@@ -99,148 +142,83 @@ Component.entryPoint = function(NS){
 				if (f(ws[i])){ return; }
 			}
 		},
-		allEditorClose: function(wExclude){
-			this.newEditorClose();
+		select: function(elTypeId){
+			var w = this._selectMethod(elTypeId);
+			NS.life(this.cfg['onRowSelect'], w);
+		},
+		_selectMethod: function(elTypeId){
+			var row = null;
 			this.foreach(function(w){
-				if (w != wExclude){
-					w.editorClose();
+				if (w.elType.id == elTypeId){
+					row = w;
+					w.select();
+				}else{
+					w.unSelect();
 				}
 			});
-		},
-		onElementEditClick: function(w){
-			this.allEditorClose(w);
-			w.editorShow();
-		},
-		onElementCopyClick: function(w){
-			this.showNewEditor(w.tp);
-		},
-		onElementRemoveClick: function(w){
-			var __self = this;
-			new TypeRemovePanel(this.manager, w.tp, function(list){
-				__self.list.remove(w.tp.id);
-				__self.render();
-			});
-		},
-		onElementSelectClick: function(w){
-			this.allEditorClose(w);
-			// w.editorShow();
-		},
-		showNewEditor: function(fel){
-			if (!L.isNull(this.newEditorWidget)){ return; }
-			
-			this.allEditorClose();
-			var man = this.manager, __self = this;
-			var tp = man.newElement({'catid': this.list.catid});
-
-			this.newEditorWidget = 
-				new NS.TypeEditorWidget(this.gel('neweditor'), man, tp, {
-					'fromElement': fel || null,
-					'onCancelClick': function(wEditor){ __self.newEditorClose(); },
-					'onSaveElement': function(wEditor, element){
-						if (!L.isNull(element)){
-							__self.list.add(element);
-						}
-						__self.newEditorClose(); 
-						__self.render();
-					}
-				});
-		},
-		newEditorClose: function(){
-			if (L.isNull(this.newEditorWidget)){ return; }
-			this.newEditorWidget.destroy();
-			this.newEditorWidget = null;
+			return row;
 		}
 	});
 	NS.TypeListWidget = TypeListWidget;
 
-	var TypeRowWidget = function(container, manager, tp, cfg){
+	var TypeRowWidget = function(container, manager, elType, cfg){
 		cfg = L.merge({
 			'onEditClick': null,
 			'onCopyClick': null,
 			'onRemoveClick': null,
-			'onSelectClick': null,
-			'onSaveElement': null
+			'onSelectClick': null
 		}, cfg || {});
 		TypeRowWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'row' 
-		}, manager, tp, cfg);
+		}, manager, elType, cfg);
 	};
 	YAHOO.extend(TypeRowWidget, BW, {
-		init: function(manager, tp, cfg){
+		init: function(manager, elType, cfg){
 			this.manager = manager;
-			this.tp = tp;
+			this.elType = elType;
 			this.cfg = cfg;
 			this.editorWidget = null;
 		},
-		onLoad: function(manager, tp){
+		onLoad: function(manager, elType, cfg){
 			this.elSetHTML({
-				'tl': tp.title
+				'tl': elType.title
 			});
+			if (elType.id == 0){
+				this.elHide('menu');
+			}
 		},
 		onClick: function(el, tp){
 			switch(el.id){
 			case tp['bedit']: case tp['beditc']:
-				this.onEditClick();
+				NS.life(this.cfg['onEditClick'], this);
 				return true;
 			case tp['bcopy']: case tp['bcopyc']:
-				this.onCopyClick();
+				NS.life(this.cfg['onCopyClick'], this);
 				return true;
 			case tp['bremove']: case tp['bremovec']:
-				this.onRemoveClick();
+				NS.life(this.cfg['onRemoveClick'], this);
 				return true;
 			case tp['dtl']: case tp['tl']:
-				this.onSelectClick();
+				NS.life(this.cfg['onSelectClick'], this);
 				return true;
 			}
 			return false;
 		},
-		onEditClick: function(){
-			NS.life(this.cfg['onEditClick'], this);
+		select: function(){
+			Dom.addClass(this.gel('wrap'), 'selected');
 		},
-		onCopyClick: function(){
-			NS.life(this.cfg['onCopyClick'], this);
+		unSelect: function(){
+			Dom.removeClass(this.gel('wrap'), 'selected');
 		},
-		onRemoveClick: function(){
-			NS.life(this.cfg['onRemoveClick'], this);
-		},
-		onSelectClick: function(){
-			NS.life(this.cfg['onSelectClick'], this);
-		},
-		onSaveElement: function(){
-			NS.life(this.cfg['onSaveElement'], this);
-		},
-		editorShow: function(){
-			if (!L.isNull(this.editorWidget)){ return; }
-			var __self = this;
-			this.editorWidget = 
-				new NS.TypeEditorWidget(this.gel('easyeditor'), this.manager, this.tp, {
-					'onCancelClick': function(wEditor){ __self.editorClose(); },
-					'onSaveElement': function(wEditor){ 
-						__self.editorClose(); 
-						__self.onSaveElement();
-					}
-				});
-			
-			Dom.addClass(this.gel('wrap'), 'rborder');
-			Dom.addClass(this.gel('id'), 'rowselect');
-			this.elHide('menu');
-		},
-		editorClose: function(){
-			if (L.isNull(this.editorWidget)){ return; }
-
-			Dom.removeClass(this.gel('wrap'), 'rborder');
-			Dom.removeClass(this.gel('id'), 'rowselect');
-			this.elShow('menu');
-
-			this.editorWidget.destroy();
-			this.editorWidget = null;
+		isSelect: function(){
+			return Dom.hasClass(this.gel('wrap'), 'selected');
 		}
 	});
 	NS.TypeRowWidget = TypeRowWidget;	
 
-	var TypeRemovePanel = function(manager, tp, callback){
+	var TypeRemovePanel = function(manager, elType, callback){
 		this.manager = manager;
-		this.tp = tp;
+		this.elType = elType;
 		this.callback = callback;
 		TypeRemovePanel.superclass.constructor.call(this, {fixedcenter: true});
 	};
@@ -261,7 +239,7 @@ Component.entryPoint = function(NS){
 				__self = this;
 			Dom.setStyle(gel('btns'), 'display', 'none');
 			Dom.setStyle(gel('bloading'), 'display', '');
-			this.manager.elementRemove(this.tp.id, function(){
+			this.manager.elementRemove(this.elType.id, function(){
 				__self.close();
 				NS.life(__self.callback);
 			});

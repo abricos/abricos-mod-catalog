@@ -11,10 +11,12 @@
 .aw-catalog .typeman .brdtable .brdrcol {
 	padding-left: 5px;
 }
+/*
+/**/
 
-.aw-catalog .typelist .mangroup {
+.aw-catalog .typeman .brdlcol .mangroup {
 	border-bottom: 1px solid #DCDEE4;
-	padding: 5px 0;
+	padding: 10px 0;
 	text-align: right;
 }
 
@@ -37,9 +39,6 @@
 	border: 1px solid #D1D3DC;
 	border-radius: 5px;
 }
-.aw-catalog .typelist .elneweditor .easyeditor {
-	padding-top: 26px !important;
-}
 
 /* * * Menu * * */
 .aw-catalog .typelist .elrow .elrmenu {
@@ -53,4 +52,7 @@
 }
 .aw-catalog .typelist .elrow .itemline:hover .elrmenu {
 	display: block;
+}
+.aw-catalog .typelist .elrow .selected {
+	font-weight: bold;
 }
