@@ -6,7 +6,7 @@
 var Component = new Brick.Component();
 Component.requires = {
 	mod:[
-		{name: '{C#MODNAME}', files: ['typeeditor.js']}
+		{name: '{C#MODNAME}', files: ['typeview.js','typeeditor.js']}
 	]
 };
 Component.entryPoint = function(NS){
@@ -29,14 +29,19 @@ Component.entryPoint = function(NS){
 			this.manager = manager;
 			this.cfg = cfg;
 			this.elTypeEditor = null;
+			this.elTypeViewer = null;
 		},
 		onLoad: function(manager, cfg){
 			var __self = this;
 			this.typeListWidget = new NS.TypeListWidget(this.gel('list'), manager, {
-				'onRowEditClick': function(row){
-					__self.showElTypeEditor(row.elType.id);
+				'onRowEditClick': function(w){
+					__self.showElTypeEditor(w.elType.id);
+				},
+				'onRowSelect': function(w){
+					__self.showElTypeViewer(w.elType.id);
 				}
 			});
+			this.typeListWidget.select(0);
 		},
 		onClick: function(el, tp){
 			switch (el.id){
@@ -47,7 +52,7 @@ Component.entryPoint = function(NS){
 			return false;
 		},
 		showElTypeEditor: function(elTypeId){
-			if (!L.isNull(this.elTypeEditor)){ return; }
+			if (L.isValue(this.elTypeEditor)){ return; }
 			
 			// this.allEditorClose();
 			var man = this.manager, __self = this;
@@ -65,7 +70,30 @@ Component.entryPoint = function(NS){
 						__self.render();
 						/**/
 					}
-				});			
+				});
+			this.elHide('eltypeviewer');
+			this.elShow('eltypeeditor');
+		},
+		closeElTypeEditor: function(){
+			if (!L.isValue(this.elTypeEditor)){ return; }
+
+			this.elTypeEditor.destroy();
+			this.elTypeEditor = null;
+			
+			this.elShow('eltypeviewer');
+			this.elHide('eltypeeditor');
+		},
+		showElTypeViewer: function(elTypeId){
+			var elType = this.manager.typeList.get(elTypeId);
+			
+			if (!L.isValue(this.elTypeViewer)){
+				this.elTypeViewer = new NS.TypeViewWidget(this.gel('eltypeviewer'), this.manager, elTypeId);
+			}else{
+				this.elTypeViewer.setElType(elType);
+			}
+			
+			this.elShow('eltypeviewer');
+			this.elHide('eltypeeditor');
 		}
 	});
 	NS.TypeManagerWidget = TypeManagerWidget;
