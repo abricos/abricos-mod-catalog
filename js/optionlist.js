@@ -139,7 +139,7 @@ Component.entryPoint = function(NS){
 			var option = man.newElement({'catid': this.list.catid});
 
 			this.newEditorWidget = 
-				new NS.ElementEditorWidget(this.gel('neweditor'), man, option, {
+				new NS.OptionEditorWidget(this.gel('neweditor'), man, option, {
 					'fromElement': fel || null,
 					'onCancelClick': function(wEditor){ __self.newEditorClose(); },
 					'onSaveElement': function(wEditor, element){
@@ -219,7 +219,7 @@ Component.entryPoint = function(NS){
 			if (!L.isNull(this.editorWidget)){ return; }
 			var __self = this;
 			this.editorWidget = 
-				new NS.ElementEditorWidget(this.gel('easyeditor'), this.manager, this.option, {
+				new NS.OptionEditorWidget(this.gel('easyeditor'), this.manager, this.option, {
 					'onCancelClick': function(wEditor){ __self.editorClose(); },
 					'onSaveElement': function(wEditor){ 
 						__self.editorClose(); 
