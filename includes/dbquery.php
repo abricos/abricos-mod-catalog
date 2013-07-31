@@ -462,6 +462,36 @@ class CatalogDbQuery {
 		
 	}
 	
+	public static function TableList(Ab_Database $db){
+		$sql = "
+			SHOW TABLES FROM ".$db->database."
+		";
+		return $db->query_read($sql);
+	}
+	
+	public static function ElementTypeTableCreate(Ab_Database $db, $tableName){
+		$sql = "
+			CREATE TABLE IF NOT EXISTS `".$tableName."` (
+				`elementid` int(10) unsigned NOT NULL,
+				PRIMARY KEY  (`elementid`)
+			) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'
+		";
+		$db->query_write($sql);
+	}
+	
+	public static function ElementTypeAppend(Ab_Database $db, $d){
+		$sql = "
+			INSERT INTO ".CatalogQuery::$PFX."eltype
+				(name, title, descript) VALUES (
+				'".bkstr($d->nm)."',
+				'".bkstr($d->tl)."',
+				'".bkstr($d->dsc)."'
+			)
+		";
+		$db->query_write($sql);
+		return $db->insert_id();
+	}
+	
 	public static function ElementTypeList(Ab_Database $db, $pfx){
 		$sql = "
 			SELECT

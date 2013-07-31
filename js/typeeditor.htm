@@ -1,5 +1,5 @@
 <!--{widget}-->
-<div id="{i#id}" class="easyeditor">
+<div id="{i#id}" class="typeeditor easyeditor">
 	<div id="{i#loading}">
 		<div id="{i#loading}" class="loading">
 			<img src="/images/loading.gif" />
@@ -23,6 +23,15 @@
 				<dt>Название</dt>
 				<dd>
 					<input id="{i#tl}" class="inp" type="text" placeholder="Введите название" onfocus="this.select();" />
+				</dd>
+			</dl>
+			<dl>
+				<dt>Имя таблицы в БД</dt>
+				<dd>
+					<input id="{i#nm}" class="inp" type="text" placeholder="Введите имя таблицы в БД" onfocus="this.select();" />
+					<div class="dsc">
+						Вводится латиницей, допустимы символы [a-Z0-9_-]
+					</div>
 				</dd>
 			</dl>
 		</div>

@@ -47,6 +47,14 @@ Component.entryPoint = function(NS){
 				this.optionListWidget.destroy();
 			}
 			this.optionListWidget = new NS.OptionListWidget(this.gel('options'), this.manager, elType.optionList);
+		},
+		onClick: function(el, tp){
+			switch (el.id){
+			case tp['baddoption']: 
+				this.optionListWidget.showNewEditor();
+				break;
+			}
+			return false;
 		}
 	});
 	NS.TypeViewWidget = TypeViewWidget;

@@ -699,6 +699,28 @@ Component.entryPoint = function(NS){
 				NS.life(callback);
 			});
 		},
+		elementTypeSave: function(typeid, sd, callback){
+			var __self = this;
+			this.ajax({
+				'do': 'elementtypesave',
+				'typeid': typeid,
+				'savedata': sd
+			}, function(d){
+				__self.typeList = __self._typeListUpdate(d);
+				NS.life(callback);
+			});
+		},
+		optionSave: function(optionid, sd, callback){
+			var __self = this;
+			this.ajax({
+				'do': 'optionsave',
+				'optionid': optionid,
+				'savedata': sd
+			}, function(d){
+				__self.typeList = __self._typeListUpdate(d);
+				NS.life(callback);
+			});
+		},
 		optionTableValueSave: function(typeid, optid, valueid, value, callback){
 			this.ajax({
 				'do': 'optiontablevaluesave',

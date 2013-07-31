@@ -6,7 +6,7 @@
 var Component = new Brick.Component();
 Component.requires = {
 	mod:[
-		{name: 'sys', files: ['editor.js']},
+		{name: 'sys', files: ['form.js', 'editor.js']},
 		{name: '{C#MODNAME}', files: ['lib.js']}
 	]
 };
@@ -18,7 +18,7 @@ Component.entryPoint = function(NS){
 		buildTemplate = this.buildTemplate,
 		BW = Brick.mod.widget.Widget;
 
-	var TypeEditorWidget = function(container, manager, type, cfg){
+	var TypeEditorWidget = function(container, manager, elType, cfg){
 		cfg = L.merge({
 			'fromElement': null,
 			'onCancelClick': null,
@@ -26,15 +26,15 @@ Component.entryPoint = function(NS){
 		}, cfg || {});
 		TypeEditorWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'widget' 
-		}, manager, type, cfg);
+		}, manager, elType, cfg);
 	};
 	YAHOO.extend(TypeEditorWidget, BW, {
-		init: function(manager, type, cfg){
+		init: function(manager, elType, cfg){
 			this.manager = manager;
-			this.type = type;
+			this.elType = elType;
 			this.cfg = cfg;
 		},
-		onLoad: function(manager, type){
+		onLoad: function(manager, elType){
 			var cfg = this.cfg, fel = cfg['fromElement'];
 			if (!L.isNull(fel)){
 				/*
@@ -48,15 +48,15 @@ Component.entryPoint = function(NS){
 				}
 				/**/
 			}
-			this.type = type;
 			
 			this.elHide('loading');
 			this.elShow('view');
 			
-			var __self = this, dtl = type.detail;
+			var __self = this;
 			
 			this.elSetValue({
-				'tl': type.title
+				'tl': elType.title,
+				'nm': elType.name
 			});
 			
 			var keypress = function(e){
@@ -65,8 +65,23 @@ Component.entryPoint = function(NS){
 			};
 			E.on(this.gel('tl'), 'keypress', keypress);
 			
+			E.on(this.gel('nm'), 'focus', function(e){
+				__self.nameTranslate();
+			});
+			
 			var elTitle = this.gel('tl');
 			setTimeout(function(){try{elTitle.focus();}catch(e){}}, 100);
+		},
+		nameTranslate: function(){
+			var tl = L.trim(this.gel('tl').value),
+				nm = L.trim(this.gel('nm').value);
+			if (nm.length == 0){
+				nm = Brick.util.Translite.ruen(tl);
+			}
+			
+			this.elSetValue({
+				'nm': Brick.util.Translite.ruen(nm)
+			});
 		},
 		_wsClear: function(){
 			var ws = this.wsOptions;
@@ -77,11 +92,9 @@ Component.entryPoint = function(NS){
 		},
 		onClick: function(el, tp){
 			switch(el.id){
-			case tp['bsave']: 
-			case tp['bsavec']: 
+			case tp['bsave']: case tp['bsavec']: 
 				this.save(); return true;
-			case tp['bcancel']: 
-			case tp['bcancelc']: 
+			case tp['bcancel']: case tp['bcancelc']: 
 				this.onCancelClick(); return true;
 			}
 			return false;
@@ -90,41 +103,24 @@ Component.entryPoint = function(NS){
 			NS.life(this.cfg['onCancelClick'], this);
 		},
 		save: function(){
-			/*
-			var cfg = this.cfg;
-			var vals = {};
-			var ws = this.wsOptions;
-			for (var i=0;i<ws.length;i++){
-				var w = ws[i];
-				var tpid = w.option.typeid;
-				
-				vals[tpid] = vals[tpid] || {};
-				vals[tpid][w.option.name] = w.getValue();
-			}
-
-			var type = this.type;
+			this.nameTranslate();
+			
+			var cfg = this.cfg, elType = this.elType;
 			var sd = {
-				'catid': this.catSelectWidget.getValue(),
-				'tpid': type.typeid,
 				'tl': this.gel('tl').value,
-				'fotos': this.fotosWidget.fotos,
-				'values': vals,
-				'ord': this.gel('ord').value,
-				'mtl': this.gel('mtl').value,
-				'mks': this.gel('mks').value,
-				'mdsc': this.gel('mdsc').value
+				'nm': this.gel('nm').value,
+				'dsc': ''
 			};
 
 			this.elHide('btnsc,btnscc');
 			this.elShow('btnpc,btnpcc');
 
 			var __self = this;
-			this.manager.typeSave(type.id, sd, function(type){
+			this.manager.elementTypeSave(elType.id, sd, function(elType){
 				__self.elShow('btnsc,btnscc');
 				__self.elHide('btnpc,btnpcc');
-				NS.life(cfg['onSaveElement'], __self, type);
-			}, type);
-			/**/
+				NS.life(cfg['onSaveElement'], __self, elType);
+			}, elType);
 		}
 	});
 	NS.TypeEditorWidget = TypeEditorWidget;

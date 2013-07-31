@@ -6,7 +6,7 @@
 var Component = new Brick.Component();
 Component.requires = {
 	mod:[
-		{name: 'sys', files: ['editor.js']},
+		{name: 'sys', files: ['form.js', 'editor.js']},
 		{name: '{C#MODNAME}', files: ['fotoeditor.js', 'lib.js']}
 	]
 };
@@ -51,7 +51,7 @@ Component.entryPoint = function(NS){
 		cfg = L.merge({
 			'fromElement': null,
 			'onCancelClick': null,
-			'onSaveElement': null
+			'onSave': null
 		}, cfg || {});
 		OptionEditorWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'widget' 
@@ -72,6 +72,7 @@ Component.entryPoint = function(NS){
 			var __self = this;
 			this.elSetValue({
 				'tl': option.title,
+				'nm': option.name,
 				'sz': option.size,
 				'ord': option.order
 			});
@@ -93,6 +94,21 @@ Component.entryPoint = function(NS){
 			setTimeout(function(){try{elTitle.focus();}catch(e){}}, 100);
 			
 			this.refreshFType();
+			
+			E.on(this.gel('nm'), 'focus', function(e){
+				__self.nameTranslate();
+			});
+		},
+		nameTranslate: function(){
+			var tl = L.trim(this.gel('tl').value),
+				nm = L.trim(this.gel('nm').value);
+			if (nm.length == 0){
+				nm = Brick.util.Translite.ruen(tl);
+			}
+			
+			this.elSetValue({
+				'nm': Brick.util.Translite.ruen(nm)
+			});
 		},
 		refreshFType: function(){
 			var fType = this.fTypeSelectWidget.getValue()|0;
@@ -109,11 +125,9 @@ Component.entryPoint = function(NS){
 		},
 		onClick: function(el, tp){
 			switch(el.id){
-			case tp['bsave']: 
-			case tp['bsavec']: 
+			case tp['bsave']: case tp['bsavec']: 
 				this.save(); return true;
-			case tp['bcancel']: 
-			case tp['bcancelc']: 
+			case tp['bcancel']: case tp['bcancelc']: 
 				this.onCancelClick(); return true;
 			}
 			return false;
@@ -122,29 +136,14 @@ Component.entryPoint = function(NS){
 			NS.life(this.cfg['onCancelClick'], this);
 		},
 		save: function(){
-			/*
-			var cfg = this.cfg;
-			var vals = {};
-			var ws = this.wsOptions;
-			for (var i=0;i<ws.length;i++){
-				var w = ws[i];
-				var tpid = w.option.typeid;
-				
-				vals[tpid] = vals[tpid] || {};
-				vals[tpid][w.option.name] = w.getValue();
-			}
-
-			var option = this.option;
+			this.nameTranslate();
+			var cfg = this.cfg, option = this.option;
 			var sd = {
-				'catid': this.catSelectWidget.getValue(),
-				'tpid': option.typeid,
 				'tl': this.gel('tl').value,
-				'fotos': this.fotosWidget.fotos,
-				'values': vals,
+				'nm': this.gel('nm').value,
+				'sz': this.gel('sz').value,
 				'ord': this.gel('ord').value,
-				'mtl': this.gel('mtl').value,
-				'mks': this.gel('mks').value,
-				'mdsc': this.gel('mdsc').value
+				'tp': this.fTypeSelectWidget.getValue()
 			};
 
 			this.elHide('btnsc,btnscc');
@@ -154,9 +153,8 @@ Component.entryPoint = function(NS){
 			this.manager.optionSave(option.id, sd, function(option){
 				__self.elShow('btnsc,btnscc');
 				__self.elHide('btnpc,btnpcc');
-				NS.life(cfg['onSaveElement'], __self, option);
+				NS.life(cfg['onSave'], __self, option);
 			}, option);
-			/**/
 		}
 	});
 	NS.OptionEditorWidget = OptionEditorWidget;

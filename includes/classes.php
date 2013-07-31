@@ -264,8 +264,18 @@ class CatalogElementTypeList extends CatalogItemList {
 	 * @param integer $id
 	 * @return CatalogElementType
 	 */
-	public function GetByIndex($index){
-		return parent::GetByIndex($index);
+	public function GetByIndex($i){
+		return parent::GetByIndex($i);
+	}
+	
+	public function GetByName($name){
+		for ($i=0;$i<$this->Count();$i++){
+			$elType = $this->GetByIndex($i);
+			if ($elType->name == $name){
+				return $elType;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -917,6 +927,8 @@ class CatalogModuleManager {
 				return $this->ElementSaveToAJAX($d->elementid, $d->savedata);
 			case "elementremove":
 				return $this->ElementRemove($d->elementid);
+			case "elementtypesave":
+				return $this->ElementTypeSaveToAJAX($d->eltypeid, $d->savedata);
 			case "elementtypelist":
 				return $this->ElementTypeList();
 			case "optiontablevaluesave":
@@ -1268,6 +1280,64 @@ class CatalogModuleManager {
 		CatalogDbQuery::ElementRemove($this->db, $this->pfx, $elid);
 		
 		return true;
+	}
+	
+	private function TableCheck($tname){
+		$rows = CatalogDbQuery::TableList($this->db);
+		
+		while (($row = $this->db->fetch_array($rows, Ab_Database::DBARRAY_NUM))){
+			if ($row[0] == $tname){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public function ElementTypeTableName($name){
+		return $this->pfx."eltbl_".$name;
+	}
+	
+	public function ElementTypeSave($elTypeId, $d){
+		if (!$this->IsAdminRole()){ return null; }
+		
+		$utm = Abricos::TextParser();
+		$utmf = Abricos::TextParser(true);
+		
+		$eltTypeId = intval($elTypeId);
+		$d->tl		= $utmf->Parser($d->tl);
+		$d->nm		= translateruen($d->nm);
+		$d->dsc		= $utm->Parser($d->dsc);
+		
+		$tableName = $this->ElementTypeTableName($d->nm);
+		
+		if (empty($d->tl) || empty($d->nm)){ return null; }
+		
+		$typeList = $this->ElementTypeList();
+		
+		if ($eltTypeId == 0){
+			$checkElType = $typeList->GetByName($d->nm);
+
+			if (!empty($checkElType)){ return null; } // нельзя создать типы с одинаковыми именами
+
+			if ($this->TableCheck($tableName)){
+				return null; // уже есть такая таблица
+			}
+
+			CatalogDbQuery::ElementTypeTableCreate($this->db, $tableName);
+			$elTypeId = CatalogDbQuery::ElementTypeAppend($this->db, $d);
+		}else{
+			
+		}
+		
+		return $elTypeId;
+	}
+	
+	public function ElementTypeSaveToAJAX($elTypeId, $d){
+		$this->ElementTypeSave($elTypeId, $d);
+		
+		$this->_cacheElementTypeList = null;
+		
+		return $this->ElementTypeList();
 	}
 	
 	private $_cacheElementTypeList;
