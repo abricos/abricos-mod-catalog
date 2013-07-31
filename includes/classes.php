@@ -929,6 +929,8 @@ class CatalogModuleManager {
 				return $this->ElementRemove($d->elementid);
 			case "elementtypesave":
 				return $this->ElementTypeSaveToAJAX($d->eltypeid, $d->savedata);
+			case "elementoptionsave":
+				return $this->ElementOptionSaveToAJAX($d->optionid, $d->savedata);
 			case "elementtypelist":
 				return $this->ElementTypeList();
 			case "optiontablevaluesave":

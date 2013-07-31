@@ -136,7 +136,7 @@ Component.entryPoint = function(NS){
 			
 			this.allEditorClose();
 			var man = this.manager, __self = this;
-			var option = man.newElement({'catid': this.list.catid});
+			var option = man.newElementOption({'tpid': this.list.elTypeId});
 
 			this.newEditorWidget = 
 				new NS.OptionEditorWidget(this.gel('neweditor'), man, option, {

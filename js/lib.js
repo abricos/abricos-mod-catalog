@@ -297,7 +297,8 @@ Component.entryPoint = function(NS){
 	});
 	NS.ElementList = ElementList;
 	
-	var ElementOption = function(d){
+	var ElementOption = function(manager, d){
+		this.manager = manager;
 		d = L.merge({
 			'tl':	'',
 			'nm':	'',
@@ -320,11 +321,11 @@ Component.entryPoint = function(NS){
 	});
 	NS.ElementOption = ElementOption;
 	
-	var ElementOptionTable = function(d){
+	var ElementOptionTable = function(manager, d){
 		d = L.merge({
 			'values': {}
 		}, d || {});
-		ElementOptionTable.superclass.constructor.call(this, d);
+		ElementOptionTable.superclass.constructor.call(this, manager, d);
 	};
 	YAHOO.extend(ElementOptionTable, ElementOption, {
 		update: function(d){
@@ -348,16 +349,17 @@ Component.entryPoint = function(NS){
 	});
 	NS.ElementOptionTable = ElementOptionTable;
 	
-	var ElementOptionList = function(d){
+	var ElementOptionList = function(manager, d){
+		this.manager = manager;
 		ElementOptionList.superclass.constructor.call(this, d, ElementOption);
 	};
 	YAHOO.extend(ElementOptionList, SysNS.ItemList, {
 		createItem: function(di){
 			if (di['tp'] == NS.FTYPE['TABLE']){
-				var opt = new ElementOptionTable(di);
+				var opt = new ElementOptionTable(this.manager, di);
 				return opt;
 			}
-			return ElementOptionList.superclass.createItem.call(this, di);
+			return this.manager.newElementOption(di);
 		}
 	});
 	NS.ElementOptionList = ElementOptionList;
@@ -377,7 +379,8 @@ Component.entryPoint = function(NS){
 			this.title = d['tl'];
 			this.name = d['nm'];
 			
-			this.optionList = new NS.ElementOptionList(d['options']);
+			this.optionList = this.manager.newElementOptionList(d['options']);
+			this.optionList.elTypeId = d['id']|0;
 		}
 	});
 	NS.ElementType = ElementType;
@@ -403,10 +406,12 @@ Component.entryPoint = function(NS){
 			'ElementClass': NS.Element,
 			'ElementListClass': NS.ElementList,
 			'ElementTypeClass': NS.ElementType,
+			'ElementOptionClass': NS.ElementOption,
+			'ElementOptionListClass': NS.ElementOptionList,
 			'ElementTypeListClass': NS.ElementTypeList,
 			'language': null
 		}, cfg || {});
-		
+
 		NS.managers[modname] = this;
 		
 		this.init(modname, callback, cfg);
@@ -421,6 +426,8 @@ Component.entryPoint = function(NS){
 			this.ElementClass		= cfg['ElementClass'];
 			this.ElementListClass	= cfg['ElementListClass'];
 			this.ElementTypeClass	= cfg['ElementTypeClass'];
+			this.ElementOptionClass = cfg['ElementOptionClass'];
+			this.ElementOptionListClass = cfg['ElementOptionListClass'];
 			this.ElementTypeListClass = cfg['ElementTypeListClass'];
 			
 			this.typeList = null;
@@ -456,6 +463,12 @@ Component.entryPoint = function(NS){
 		},
 		newElementTypeList: function(d, cfg){
 			return new this.ElementTypeListClass(this, d, this.ElementTypeClass, cfg);
+		},
+		newElementOption: function(d){
+			return new this.ElementOptionClass(this, d);
+		},
+		newElementOptionList: function(d, cfg){
+			return new this.ElementOptionListClass(this, d, this.ElementOptionClass, cfg);
 		},
 		onCatalogChanged: function(catid){
 			this.catalogChangedEvent.fire(catid);
