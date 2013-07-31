@@ -1313,10 +1313,10 @@ class CatalogModuleManager {
 		if (empty($d->tl) || empty($d->nm)){ return null; }
 		
 		$typeList = $this->ElementTypeList();
+
+		$checkElType = $typeList->GetByName($d->nm);
 		
 		if ($eltTypeId == 0){
-			$checkElType = $typeList->GetByName($d->nm);
-
 			if (!empty($checkElType)){ return null; } // нельзя создать типы с одинаковыми именами
 
 			if ($this->TableCheck($tableName)){
@@ -1327,6 +1327,21 @@ class CatalogModuleManager {
 			$elTypeId = CatalogDbQuery::ElementTypeAppend($this->db, $d);
 		}else{
 			
+			$checkElType = $typeList->GetByName($d->nm);
+			if (!$this->TableCheck($tableName)){
+				return null; // такого быть не должно. hacker?
+			}
+			
+			if ($checkElType->name != $d->nm){ // попытка сменить имя таблицы
+				if ($this->TableCheck($tableName)){
+					return null; // уже есть такая таблица
+				}
+				
+				$oldTableName = $this->ElementTypeTableName($checkElType->name);
+				
+				CatalogDbQuery::ElementTypeTableChange($this->db, $oldTableName, $tableName);
+				CatalogDbQuery::ElementTypeUpdate($this->db, $elTypeId, $d);
+			}
 		}
 		
 		return $elTypeId;
@@ -1337,7 +1352,7 @@ class CatalogModuleManager {
 		
 		$this->_cacheElementTypeList = null;
 		
-		return $this->ElementTypeList();
+		return $this->ElementTypeListToAJAX();
 	}
 	
 	private $_cacheElementTypeList;

@@ -37,11 +37,19 @@ Component.entryPoint = function(NS){
 				'onRowEditClick': function(w){
 					__self.showElTypeEditor(w.elType.id);
 				},
+				'onRowRemoveClick': function(w){
+					__self.showRemoveElTypePanel(w.elType.id);
+				},
 				'onRowSelect': function(w){
 					__self.showElTypeViewer(w.elType.id);
 				}
 			});
 			this.typeListWidget.select(0);
+		},
+		render: function(){
+			this.closeElTypeEditor();
+			this.typeListWidget.render();
+			this.elTypeViewer.render();
 		},
 		onClick: function(el, tp){
 			switch (el.id){
@@ -51,24 +59,25 @@ Component.entryPoint = function(NS){
 			}
 			return false;
 		},
+		showRemoveElTypePanel: function(elTypeId){
+			var elType = this.manager.typeList.get(elTypeId);
+			if (!L.isValue(elType)){ return; }
+
+			new NS.TypeRemovePanel(this.manager, elType, function(){
+				
+			});
+		},
 		showElTypeEditor: function(elTypeId){
 			if (L.isValue(this.elTypeEditor)){ return; }
-			
-			// this.allEditorClose();
+
 			var man = this.manager, __self = this;
 			var elType = elTypeId == 0 ? man.newElementType() : man.typeList.get(elTypeId);
 			this.elTypeEditor = 
 				new NS.TypeEditorWidget(this.gel('eltypeeditor'), man, elType, {
 					// 'fromElement': fel || null,
-					'onCancelClick': function(wEditor){ __self.newEditorClose(); },
-					'onSaveElement': function(wEditor, element){
-						/*
-						if (!L.isNull(element)){
-							__self.list.add(element);
-						}
-						__self.newEditorClose(); 
+					'onCancelClick': function(wEditor){ __self.closeElTypeEditor(); },
+					'onSave': function(wEditor){
 						__self.render();
-						/**/
 					}
 				});
 			this.elHide('eltypeviewer');
@@ -84,6 +93,8 @@ Component.entryPoint = function(NS){
 			this.elHide('eltypeeditor');
 		},
 		showElTypeViewer: function(elTypeId){
+			this.closeElTypeEditor();
+			
 			var elType = this.manager.typeList.get(elTypeId);
 			
 			if (!L.isValue(this.elTypeViewer)){
@@ -116,6 +127,8 @@ Component.entryPoint = function(NS){
 			this.manager = manager;
 			this.cfg = cfg;
 			this.wsList = [];
+			
+			this._selectedid = 0;
 		},
 		destroy: function(){
 			this.clearList();
@@ -149,6 +162,8 @@ Component.entryPoint = function(NS){
 				
 				ws[ws.length] = w;
 			});
+			
+			this._selectMethod(this._selectedid);
 		},
 		onRowEditClick: function(w){
 			this._selectMethod(w.elType.id);
@@ -175,6 +190,7 @@ Component.entryPoint = function(NS){
 			NS.life(this.cfg['onRowSelect'], w);
 		},
 		_selectMethod: function(elTypeId){
+			this._selectedid = elTypeId;
 			var row = null;
 			this.foreach(function(w){
 				if (w.elType.id == elTypeId){
@@ -267,7 +283,7 @@ Component.entryPoint = function(NS){
 				__self = this;
 			Dom.setStyle(gel('btns'), 'display', 'none');
 			Dom.setStyle(gel('bloading'), 'display', '');
-			this.manager.elementRemove(this.elType.id, function(){
+			this.manager.elementTypeRemove(this.elType.id, function(){
 				__self.close();
 				NS.life(__self.callback);
 			});

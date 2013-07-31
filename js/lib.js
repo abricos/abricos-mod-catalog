@@ -486,7 +486,7 @@ Component.entryPoint = function(NS){
 		},
 		_initDataUpdate: function(d){
 			this.catalogList = this._catalogListUpdate(d);
-			this.typeList = this._typeListUpdate(d);
+			this._typeListUpdate(d);
 		},
 		_typeListUpdate: function(d){
 			var list = null;
@@ -497,6 +497,9 @@ Component.entryPoint = function(NS){
 				if (!L.isNull(btype)){
 					btype.title = this.getLang('element.type.base');
 				}
+			}
+			if (L.isValue(list)){
+				this.typeList = list;
 			}
 			return list;
 		},
@@ -703,10 +706,20 @@ Component.entryPoint = function(NS){
 			var __self = this;
 			this.ajax({
 				'do': 'elementtypesave',
-				'typeid': typeid,
+				'eltypeid': typeid,
 				'savedata': sd
 			}, function(d){
-				__self.typeList = __self._typeListUpdate(d);
+				__self._typeListUpdate(d);
+				NS.life(callback);
+			});
+		},
+		elementTypeRemove: function(typeid, callback){
+			var __self =  this;
+			this.ajax({
+				'do': 'elementtyperemove',
+				'elementid': typeid
+			}, function(d){
+				__self._typeListUpdate(d);
 				NS.life(callback);
 			});
 		},
@@ -717,7 +730,7 @@ Component.entryPoint = function(NS){
 				'optionid': optionid,
 				'savedata': sd
 			}, function(d){
-				__self.typeList = __self._typeListUpdate(d);
+				__self._typeListUpdate(d);
 				NS.life(callback);
 			});
 		},

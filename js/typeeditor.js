@@ -22,7 +22,7 @@ Component.entryPoint = function(NS){
 		cfg = L.merge({
 			'fromElement': null,
 			'onCancelClick': null,
-			'onSaveElement': null
+			'onSave': null
 		}, cfg || {});
 		TypeEditorWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'widget' 
@@ -119,7 +119,7 @@ Component.entryPoint = function(NS){
 			this.manager.elementTypeSave(elType.id, sd, function(elType){
 				__self.elShow('btnsc,btnscc');
 				__self.elHide('btnpc,btnpcc');
-				NS.life(cfg['onSaveElement'], __self, elType);
+				NS.life(cfg['onSave'], __self, elType);
 			}, elType);
 		}
 	});

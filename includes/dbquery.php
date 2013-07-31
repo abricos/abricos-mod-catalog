@@ -479,6 +479,13 @@ class CatalogDbQuery {
 		$db->query_write($sql);
 	}
 	
+	public static function ElementTypeTableChange(Ab_Database $db, $oldTableName, $newTableName){
+		$sql = "
+			RENAME TABLE `".$oldTableName."` TO `".$newTableName."`
+		";
+		$db->query_write($sql);
+	}
+	
 	public static function ElementTypeAppend(Ab_Database $db, $d){
 		$sql = "
 			INSERT INTO ".CatalogQuery::$PFX."eltype
@@ -490,6 +497,19 @@ class CatalogDbQuery {
 		";
 		$db->query_write($sql);
 		return $db->insert_id();
+	}
+	
+	public static function ElementTypeUpdate(Ab_Database $db, $elTypeId, $d){
+		$sql = "
+			UPDATE ".CatalogQuery::$PFX."eltype
+			SET
+				name='".bkstr($d->nm)."',
+				title='".bkstr($d->tl)."',
+				descript='".bkstr($d->dsc)."'
+			WHERE eltypeid=".bkint($elTypeId)."
+			LIMIT 1
+		";
+		$db->query_write($sql);
 	}
 	
 	public static function ElementTypeList(Ab_Database $db, $pfx){
