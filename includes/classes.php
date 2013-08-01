@@ -267,7 +267,11 @@ class CatalogElementTypeList extends CatalogItemList {
 	public function GetByIndex($i){
 		return parent::GetByIndex($i);
 	}
-	
+
+	/**
+	 * @param string $name
+	 * @return CatalogElementType
+	 */
 	public function GetByName($name){
 		for ($i=0;$i<$this->Count();$i++){
 			$elType = $this->GetByIndex($i);
@@ -1296,6 +1300,9 @@ class CatalogModuleManager {
 	}
 	
 	public function ElementTypeTableName($name){
+		if (empty($name)){
+			return $this->pfx."element";
+		}
 		return $this->pfx."eltbl_".$name;
 	}
 	
@@ -1305,9 +1312,9 @@ class CatalogModuleManager {
 		$utm = Abricos::TextParser();
 		$utmf = Abricos::TextParser(true);
 		
-		$eltTypeId = intval($elTypeId);
+		$eltTypeId	= intval($elTypeId);
 		$d->tl		= $utmf->Parser($d->tl);
-		$d->nm		= translateruen($d->nm);
+		$d->nm		= strtolower(translateruen($d->nm));
 		$d->dsc		= $utm->Parser($d->dsc);
 		
 		$tableName = $this->ElementTypeTableName($d->nm);
@@ -1416,6 +1423,77 @@ class CatalogModuleManager {
 		if (!$this->IsWriteRole()){ return false; }
 		
 		CatalogDbQuery::FotoAddToBuffer($this->db, $this->pfx, $fhash);
+	}
+	
+	private function ElementOptionDataFix($d){
+		switch($d->tp){
+			case Catalog::TP_BOOLEAN:
+				$d->sz = 1;
+				break;
+			case Catalog::TP_NUMBER:
+				$d->sz = max(min(intval($d->sz), 1), 10);
+				break;
+			case Catalog::TP_STRING:
+				$d->sz = max(min(intval($d->sz), 2), 255);
+				break;
+			case Catalog::TP_DOUBLE:
+				$asz = explode(",", $d->sz);
+				$asz[0] = max(min(intval($asz[0]), 3), 10);
+				$asz[1] = max(min(intval($asz[1]), 0), 5);
+				$d->sz = $asz[0].",".$asz[1];
+				break;
+			case Catalog::TP_TEXT:
+				$d->sz = 0;
+				break;
+		}
+		return $d;
+	}
+	
+	public function ElementOptionSave($optionid, $d){
+		if (!$this->IsAdminRole()){ return null; }
+		
+		$utm = Abricos::TextParser();
+		$utmf = Abricos::TextParser(true);
+		
+		$optionid = intval($elTypeId);
+		$elTypeId = intval($d->tpid);
+		
+		$d->tl = $utmf->Parser($d->tl);
+		$d->nm = strtolower(translateruen($d->nm));
+		$d->tp = intval($d->tp);
+		
+		if (empty($d->tl) || empty($d->nm)){ return null; }
+		
+		$typeList = $this->ElementTypeList();
+		$elType = $typeList->Get($elTypeId);
+		
+		if (empty($elType)){ return null; }
+		
+		$checkOption = $elType->options->GetByName($d->nm);
+
+		$d = $this->ElementOptionDataFix($d);
+		
+		$tableName = $this->ElementTypeTableName($elType->name);
+		print_r($tableName); exit;
+		
+		if ($optionid == 0){
+			if (!empty($checkOption)){
+				return null; // нельзя добавить опции с одинаковым именем
+			}
+			
+			
+		}else{
+			
+		}
+		return $optionid;
+	}
+	
+	public function ElementOptionSaveToAJAX($optionid, $d){
+		$optionid = $this->ElementOptionSave($optionid, $d);
+		
+		if (empty($optionid)){ return null; }
+		
+		
 	}
 	
 	public function OptionTableValueSave($eltypeid, $optionid, $valueid, $value){

@@ -143,7 +143,8 @@ Component.entryPoint = function(NS){
 				'nm': this.gel('nm').value,
 				'sz': this.gel('sz').value,
 				'ord': this.gel('ord').value,
-				'tp': this.fTypeSelectWidget.getValue()
+				'tp': this.fTypeSelectWidget.getValue(),
+				'tpid': option.typeid
 			};
 
 			this.elHide('btnsc,btnscc');

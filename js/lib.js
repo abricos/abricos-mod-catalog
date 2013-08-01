@@ -739,7 +739,7 @@ Component.entryPoint = function(NS){
 		optionSave: function(optionid, sd, callback){
 			var __self = this;
 			this.ajax({
-				'do': 'optionsave',
+				'do': 'elementoptionsave',
 				'optionid': optionid,
 				'savedata': sd
 			}, function(d){
