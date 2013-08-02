@@ -469,6 +469,13 @@ class CatalogDbQuery {
 		return $db->query_read($sql);
 	}
 	
+	public static function ElementTypeTableName($pfx, $name){
+		if (empty($name)){
+			return $pfx."element";
+		}
+		return $pfx."eltbl_".$name;
+	}
+	
 	public static function ElementTypeTableCreate(Ab_Database $db, $tableName){
 		$sql = "
 			CREATE TABLE IF NOT EXISTS `".$tableName."` (
@@ -523,6 +530,99 @@ class CatalogDbQuery {
 			WHERE t.deldate=0
 		";
 		return $db->query_read($sql);
+	}
+	
+	public static function ElementOptionRemove(Ab_Database $db, $pfx, $optionid){
+		$sql = "
+			DELETE FROM ".$pfx."eloption
+			WHERE eloptionid=".bkint($optionid)."
+			LIMIT 1
+		";
+		$db->query_write($sql);
+	}
+	
+	public static function ElementOptionFieldRemove(Ab_Database $db, $pfx, CatalogElementType $elType, CatalogElementTypeOption $option){
+		if ($option->type == Catalog::TP_TABLE){
+			$tableName = $pfx."eltbl_".$elType->name."_fld_".$option->name;
+			$sql = "DROP TABLE IF EXISTS `".$tableName."`";
+			$db->query_write($sql);
+			return;
+		}
+		
+		$tableName = CatalogDbQuery::ElementTypeTableName($pfx, $elType->name);
+		$sql = "
+			ALTER TABLE `".$tableName."` DROP `fld_".$option->name."`
+		";
+		$db->query_write($sql);
+	}
+	
+	public static function ElementOptionAppend(Ab_Database $db, $pfx, $d){
+		$sql = "
+			INSERT INTO ".$pfx."eloption
+			(eltypeid, fieldtype, name, title, descript, dateline) VALUES (
+				".bkint($d->tpid).",
+				".bkint($d->tp).",
+				'".bkstr($d->nm)."',
+				'".bkstr($d->tl)."',
+				'".bkstr($d->dsc)."',
+				".TIMENOW."
+			)
+		";
+		$db->query_write($sql);
+		return $db->insert_id();
+	}
+	
+	public static function ElementOptionFieldCreate(Ab_Database $db, $pfx, CatalogElementType $elType, $tableName, $d){
+		$optionName = bkstr($d->nm);
+		
+		if ($d->tp == Catalog::TP_TABLE){
+			$tableName = $pfx."eltbl_".$elType->name."_fld_".$d->nm;
+			
+			$sql = "
+				CREATE TABLE IF NOT EXISTS `".$tableName."` (
+					`".$optionName."id` int(10) unsigned NOT NULL auto_increment,
+					`title` varchar(250) NOT NULL default '',
+					PRIMARY KEY  (`".$optionName."id`)
+				) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'
+			";
+			$db->query_write($sql);
+			return;
+		}
+		
+		$sql = "ALTER TABLE ".$tableName." ADD `fld_".$optionName."` ";
+		switch($d->tp){
+		case Catalog::TP_BOOLEAN:
+			$sql .= "INT(1) UNSIGNED NOT NULL DEFAULT 0";
+			break;
+		case Catalog::TP_NUMBER:
+			$sql .= "INT(".$d->sz.") NOT NULL DEFAULT 0";
+			break;
+		case Catalog::TP_DOUBLE:
+			$sql .= "DOUBLE(".$d->sz.") NOT NULL DEFAULT 0";
+			break;
+		case Catalog::TP_STRING:
+			$sql .= "VARCHAR(".$d->sz.") NOT NULL DEFAULT ''";
+			break;
+		case Catalog::TP_TEXT:
+			$sql .= "TEXT NOT NULL ";
+			break;
+		}
+		$sql .= " COMMENT '".bkstr($d->tl)."'";
+		$db->query_write($sql);
+	}
+	
+	public static function ElementOptionTableCreate(Ab_Database $db, $elTypeTableName, $optionName){
+		$optionName = bkstr($optionName);
+		$tableName = $elTypeTableName."_fld_".$optionName;
+		
+		$sql = "
+			CREATE TABLE IF NOT EXISTS `".$tableName."` (
+				`".$optionName."id` int(10) unsigned NOT NULL auto_increment,
+				`title` varchar(250) NOT NULL default '',
+				 PRIMARY KEY  (`".$optionName."id`)
+			) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'
+		";
+		$db->query_write($sql);
 	}
 	
 	public static function ElementTypeOptionList(Ab_Database $db, $pfx){

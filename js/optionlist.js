@@ -74,29 +74,8 @@ Component.entryPoint = function(NS){
 					'onSaveElement': function(w){ __self.render(); }
 				});
 				
-				/*
-				new NS.ElementRowDragItem(div, {
-					'endDragCallback': function(dgi, elDiv){
-						var chs = elList.childNodes, ordb = list.count();
-						var orders = {};
-						for (var i=0;i<chs.length;i++){
-							var option = chs[i]['catalogElement'];
-							if (option){
-								option.order = ordb;
-								orders[option.id] = ordb;
-								ordb--;
-							}
-						}
-						man.elementListOrderSave(list.catid, orders);
-						__self.render();
-					}
-				});
-				/**/
-		
 				ws[ws.length] = w;
 			}, 'order', true);
-			
-			// new YAHOO.util.DDTarget(elList);
 		},
 		foreach: function(f){
 			if (!L.isFunction(f)){ return; }
@@ -267,7 +246,7 @@ Component.entryPoint = function(NS){
 				__self = this;
 			Dom.setStyle(gel('btns'), 'display', 'none');
 			Dom.setStyle(gel('bloading'), 'display', '');
-			this.manager.elementRemove(this.option.id, function(){
+			this.manager.optionRemove(this.option.typeid, this.option.id, function(){
 				__self.close();
 				NS.life(__self.callback);
 			});

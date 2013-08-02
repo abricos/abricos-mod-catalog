@@ -935,6 +935,8 @@ class CatalogModuleManager {
 				return $this->ElementTypeSaveToAJAX($d->eltypeid, $d->savedata);
 			case "elementoptionsave":
 				return $this->ElementOptionSaveToAJAX($d->optionid, $d->savedata);
+			case "elementoptionremove":
+				return $this->ElementOptionRemoveToAJAX($d->eltypeid, $d->optionid);
 			case "elementtypelist":
 				return $this->ElementTypeList();
 			case "optiontablevaluesave":
@@ -1368,8 +1370,12 @@ class CatalogModuleManager {
 	/**
 	 * @return CatalogElementTypeList
 	 */
-	public function ElementTypeList(){
+	public function ElementTypeList($clearCache = false){
 		if (!$this->IsViewRole()){ return false; }
+		
+		if ($clearCache){
+			$this->_cacheElementTypeList = null;
+		}
 		
 		if (!empty($this->_cacheElementTypeList)){
 			return $this->_cacheElementTypeList;
@@ -1409,8 +1415,8 @@ class CatalogModuleManager {
 		return $list;
 	}
 	
-	public function ElementTypeListToAJAX(){
-		$list = $this->ElementTypeList();
+	public function ElementTypeListToAJAX($clearCache = false){
+		$list = $this->ElementTypeList($clearCache);
 		
 		if (empty($list)){ return null; }
 		
@@ -1461,6 +1467,7 @@ class CatalogModuleManager {
 		$d->tl = $utmf->Parser($d->tl);
 		$d->nm = strtolower(translateruen($d->nm));
 		$d->tp = intval($d->tp);
+		$d->dsc = $utm->Parser($d->dsc);
 		
 		if (empty($d->tl) || empty($d->nm)){ return null; }
 		
@@ -1474,14 +1481,13 @@ class CatalogModuleManager {
 		$d = $this->ElementOptionDataFix($d);
 		
 		$tableName = $this->ElementTypeTableName($elType->name);
-		print_r($tableName); exit;
 		
 		if ($optionid == 0){
-			if (!empty($checkOption)){
+			if (!empty($checkOption)){ // такая опция уже есть
 				return null; // нельзя добавить опции с одинаковым именем
 			}
-			
-			
+			$optionid = CatalogDbQuery::ElementOptionAppend($this->db, $this->pfx, $d);
+			CatalogDbQuery::ElementOptionFieldCreate($this->db, $this->pfx, $elType, $tableName, $d);
 		}else{
 			
 		}
@@ -1493,7 +1499,29 @@ class CatalogModuleManager {
 		
 		if (empty($optionid)){ return null; }
 		
+		return $this->ElementTypeListToAJAX(true);
+	}
+	
+	public function ElementOptionRemove($elTypeId, $optionid){
+		if (!$this->IsAdminRole()){ return null; }
 		
+		$typeList = $this->ElementTypeList();
+		$elType = $typeList->Get($elTypeId);
+		
+		if (empty($elType)){ return null; }
+		
+		$option = $elType->options->Get($optionid);
+		if (empty($option)){ return null; }
+		
+		CatalogDbQuery::ElementOptionRemove($this->db, $this->pfx, $optionid);
+		
+		CatalogDbQuery::ElementOptionFieldRemove($this->db, $this->pfx, $elType, $option);
+	}
+	
+	public function ElementOptionRemoveToAJAX($elTypeId, $optionid){
+		$this->ElementOptionRemove($elTypeId, $optionid);
+		
+		return $this->ElementTypeListToAJAX(true);
 	}
 	
 	public function OptionTableValueSave($eltypeid, $optionid, $valueid, $value){

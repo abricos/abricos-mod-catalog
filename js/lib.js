@@ -730,7 +730,7 @@ Component.entryPoint = function(NS){
 			var __self =  this;
 			this.ajax({
 				'do': 'elementtyperemove',
-				'elementid': typeid
+				'eltypeid': typeid
 			}, function(d){
 				__self._typeListUpdate(d);
 				NS.life(callback);
@@ -742,6 +742,17 @@ Component.entryPoint = function(NS){
 				'do': 'elementoptionsave',
 				'optionid': optionid,
 				'savedata': sd
+			}, function(d){
+				__self._typeListUpdate(d);
+				NS.life(callback);
+			});
+		},
+		optionRemove: function(typeid, optionid, callback){
+			var __self =  this;
+			this.ajax({
+				'do': 'elementoptionremove',
+				'eltypeid': typeid,
+				'optionid': optionid
 			}, function(d){
 				__self._typeListUpdate(d);
 				NS.life(callback);
