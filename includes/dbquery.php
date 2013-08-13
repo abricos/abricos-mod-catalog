@@ -6,7 +6,6 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
-
 class CatalogDbQuery {
 
 	public static function CatalogList(Ab_Database $db, $pfx){
@@ -570,6 +569,54 @@ class CatalogDbQuery {
 		";
 		$db->query_write($sql);
 		return $db->insert_id();
+	}
+	
+	public static function ElementOptionUpdate(Ab_Database $db, $pfx, $optionid, $d){
+		$sql = "
+			UPDATE ".$pfx."eloption
+			SET name='".bkstr($d->nm)."',
+				title='".bkstr($d->tl)."',
+				descript='".bkstr($d->dsc)."'
+			WHERE eloptionid=".bkint($optionid)."
+		";
+		$db->query_write($sql);
+	}
+	
+	public static function ElementOptionFieldUpdate(Ab_Database $db, $pfx, CatalogElementType $elType, $tableName, CatalogElementTypeOption $oldOption, $d){
+		$optionName = bkstr($d->nm);
+		
+		if ($d->tp == Catalog::TP_TABLE){
+			$tableName = $pfx."eltbl_".$elType->name."_fld_".$d->nm;
+			$oldTableName = $pfx."eltbl_".$elType->name."_fld_".$oldOption;
+			
+			$sql = "
+				RENAME TABLE ".$oldTableName." TO ".$tableName."
+			";
+			$db->query_write($sql);
+			return;
+		}
+		$sql = "
+			ALTER TABLE ".$tableName." CHANGE `".$oldOption->name."` ".$optionName."
+		";
+		
+		switch($oldOption->type){
+			case Catalog::TP_BOOLEAN:
+				$sql .= "INT(1) UNSIGNED NOT NULL DEFAULT 0";
+				break;
+			case Catalog::TP_NUMBER:
+				$sql .= "INT(".$oldOption->size.") NOT NULL DEFAULT 0";
+				break;
+			case Catalog::TP_DOUBLE:
+				$sql .= "DOUBLE(".$oldOption->size.") NOT NULL DEFAULT 0";
+				break;
+			case Catalog::TP_STRING:
+				$sql .= "VARCHAR(".$oldOption->size.") NOT NULL DEFAULT ''";
+				break;
+			case Catalog::TP_TEXT:
+				$sql .= "TEXT NOT NULL ";
+				break;
+		}
+		$db->query_write($sql);
 	}
 	
 	public static function ElementOptionFieldCreate(Ab_Database $db, $pfx, CatalogElementType $elType, $tableName, $d){

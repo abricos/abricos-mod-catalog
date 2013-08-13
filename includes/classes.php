@@ -1457,18 +1457,18 @@ class CatalogModuleManager {
 	
 	public function ElementOptionSave($optionid, $d){
 		if (!$this->IsAdminRole()){ return null; }
-		
+
 		$utm = Abricos::TextParser();
 		$utmf = Abricos::TextParser(true);
 		
-		$optionid = intval($elTypeId);
+		$optionid = intval($optionid);
 		$elTypeId = intval($d->tpid);
 		
 		$d->tl = $utmf->Parser($d->tl);
 		$d->nm = strtolower(translateruen($d->nm));
 		$d->tp = intval($d->tp);
 		$d->dsc = $utm->Parser($d->dsc);
-		
+
 		if (empty($d->tl) || empty($d->nm)){ return null; }
 		
 		$typeList = $this->ElementTypeList();
@@ -1490,6 +1490,14 @@ class CatalogModuleManager {
 			CatalogDbQuery::ElementOptionFieldCreate($this->db, $this->pfx, $elType, $tableName, $d);
 		}else{
 			
+			if ($checkOption->name != $d->nm){ // попытка изменить имя
+				$newCheckOption = $elType->options->GetByName($d->nm);
+				if (!empty($newCheckOption)){ // уже есть опция с таким именем
+					return;
+				}
+				CatalogDbQuery::ElementOptionFieldUpdate($this->db, $this->pfx, $elType, $tableName, $checkOption, $d);
+			}
+			CatalogDbQuery::ElementOptionUpdate($this->db, $this->pfx, $optionid, $d);
 		}
 		return $optionid;
 	}

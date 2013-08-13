@@ -51,11 +51,15 @@ Component.entryPoint = function(NS){
 			this.allEditorClose();
 			this.render();
 		},
-		render: function(){
+		render: function(isListUpdate){
+			if (isListUpdate){
+				this.list = this.manager.typeList.get(this.list.elTypeId).optionList;
+			}
+			
 			this.clearList();
 
 			var elList = this.gel('list'), ws = this.wsList, 
-				__self = this, man = this.manager;
+				__self = this;
 			
 			var list = this.list;
 
@@ -114,19 +118,16 @@ Component.entryPoint = function(NS){
 			if (!L.isNull(this.newEditorWidget)){ return; }
 			
 			this.allEditorClose();
-			var man = this.manager, __self = this;
-			var option = man.newElementOption({'tpid': this.list.elTypeId});
+			var man = this.manager, __self = this, elTypeId = this.list.elTypeId;
+			var option = man.newElementOption({'tpid': elTypeId});
 
 			this.newEditorWidget = 
 				new NS.OptionEditorWidget(this.gel('neweditor'), man, option, {
 					'fromElement': fel || null,
 					'onCancelClick': function(wEditor){ __self.newEditorClose(); },
-					'onSaveElement': function(wEditor, element){
-						if (!L.isNull(element)){
-							__self.list.add(element);
-						}
+					'onSave': function(wEditor){
 						__self.newEditorClose(); 
-						__self.render();
+						__self.render(true);
 					}
 				});
 		},

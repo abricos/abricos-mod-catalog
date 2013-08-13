@@ -151,11 +151,11 @@ Component.entryPoint = function(NS){
 			this.elShow('btnpc,btnpcc');
 
 			var __self = this;
-			this.manager.optionSave(option.id, sd, function(option){
+			this.manager.optionSave(option.id, sd, function(){
 				__self.elShow('btnsc,btnscc');
 				__self.elHide('btnpc,btnpcc');
-				NS.life(cfg['onSave'], __self, option);
-			}, option);
+				NS.life(cfg['onSave'], __self);
+			});
 		}
 	});
 	NS.OptionEditorWidget = OptionEditorWidget;
