@@ -75,7 +75,9 @@ Component.entryPoint = function(NS){
 					'onCopyClick': function(w){__self.onElementCopyClick(w);},
 					'onRemoveClick': function(w){__self.onElementRemoveClick(w);},
 					'onSelectClick': function(w){__self.onElementSelectClick(w);},
-					'onSaveElement': function(w){ __self.render(); }
+					'onSave': function(w){ 
+						__self.render(true); 
+					}
 				});
 				
 				ws[ws.length] = w;
@@ -145,7 +147,7 @@ Component.entryPoint = function(NS){
 			'onCopyClick': null,
 			'onRemoveClick': null,
 			'onSelectClick': null,
-			'onSaveElement': null
+			'onSave': null
 		}, cfg || {});
 		OptionRowWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'row' 
@@ -192,8 +194,8 @@ Component.entryPoint = function(NS){
 		onSelectClick: function(){
 			NS.life(this.cfg['onSelectClick'], this);
 		},
-		onSaveElement: function(){
-			NS.life(this.cfg['onSaveElement'], this);
+		onSave: function(){
+			NS.life(this.cfg['onSave'], this);
 		},
 		editorShow: function(){
 			if (!L.isNull(this.editorWidget)){ return; }
@@ -201,9 +203,9 @@ Component.entryPoint = function(NS){
 			this.editorWidget = 
 				new NS.OptionEditorWidget(this.gel('easyeditor'), this.manager, this.option, {
 					'onCancelClick': function(wEditor){ __self.editorClose(); },
-					'onSaveElement': function(wEditor){ 
+					'onSave': function(wEditor){ 
 						__self.editorClose(); 
-						__self.onSaveElement();
+						__self.onSave();
 					}
 				});
 			

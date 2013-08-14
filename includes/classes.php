@@ -1476,20 +1476,21 @@ class CatalogModuleManager {
 		
 		if (empty($elType)){ return null; }
 		
-		$checkOption = $elType->options->GetByName($d->nm);
-
 		$d = $this->ElementOptionDataFix($d);
 		
 		$tableName = $this->ElementTypeTableName($elType->name);
 		
 		if ($optionid == 0){
+			$checkOption = $elType->options->GetByName($d->nm);
 			if (!empty($checkOption)){ // такая опция уже есть
 				return null; // нельзя добавить опции с одинаковым именем
 			}
 			$optionid = CatalogDbQuery::ElementOptionAppend($this->db, $this->pfx, $d);
 			CatalogDbQuery::ElementOptionFieldCreate($this->db, $this->pfx, $elType, $tableName, $d);
 		}else{
-			
+			$checkOption = $elType->options->Get($optionid);
+			if (empty($checkOption)){ return null; }
+				
 			if ($checkOption->name != $d->nm){ // попытка изменить имя
 				$newCheckOption = $elType->options->GetByName($d->nm);
 				if (!empty($newCheckOption)){ // уже есть опция с таким именем

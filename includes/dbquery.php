@@ -596,7 +596,7 @@ class CatalogDbQuery {
 			return;
 		}
 		$sql = "
-			ALTER TABLE ".$tableName." CHANGE `".$oldOption->name."` ".$optionName."
+			ALTER TABLE ".$tableName." CHANGE `fld_".$oldOption->name."` `fld_".$optionName."`
 		";
 		
 		switch($oldOption->type){
