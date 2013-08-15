@@ -492,6 +492,13 @@ class CatalogDbQuery {
 		$db->query_write($sql);
 	}
 	
+	public static function ElementTypeTableRemove(Ab_Database $db, $tableName){
+		$sql = "
+			DROP TABLE IF EXISTS `".$tableName."`
+		";
+		$db->query_write($sql);
+	}
+	
 	public static function ElementTypeAppend(Ab_Database $db, $d){
 		$sql = "
 			INSERT INTO ".CatalogQuery::$PFX."eltype
@@ -505,13 +512,22 @@ class CatalogDbQuery {
 		return $db->insert_id();
 	}
 	
-	public static function ElementTypeUpdate(Ab_Database $db, $elTypeId, $d){
+	public static function ElementTypeUpdate(Ab_Database $db, $pfx, $elTypeId, $d){
 		$sql = "
-			UPDATE ".CatalogQuery::$PFX."eltype
+			UPDATE ".$pfx."eltype
 			SET
 				name='".bkstr($d->nm)."',
 				title='".bkstr($d->tl)."',
 				descript='".bkstr($d->dsc)."'
+			WHERE eltypeid=".bkint($elTypeId)."
+			LIMIT 1
+		";
+		$db->query_write($sql);
+	}
+	
+	public static function ElementTypeRemove(Ab_Database $db, $pfx, $elTypeId){
+		$sql = "
+			DELETE FROM ".$pfx."eltype
 			WHERE eltypeid=".bkint($elTypeId)."
 			LIMIT 1
 		";

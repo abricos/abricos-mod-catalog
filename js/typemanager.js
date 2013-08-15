@@ -62,9 +62,11 @@ Component.entryPoint = function(NS){
 		showRemoveElTypePanel: function(elTypeId){
 			var elType = this.manager.typeList.get(elTypeId);
 			if (!L.isValue(elType)){ return; }
+			
+			var __self = this;
 
 			new NS.TypeRemovePanel(this.manager, elType, function(){
-				
+				__self.typeListWidget.render();
 			});
 		},
 		showElTypeEditor: function(elTypeId){

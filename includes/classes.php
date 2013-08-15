@@ -933,6 +933,8 @@ class CatalogModuleManager {
 				return $this->ElementRemove($d->elementid);
 			case "elementtypesave":
 				return $this->ElementTypeSaveToAJAX($d->eltypeid, $d->savedata);
+			case "elementtyperemove":
+				return $this->ElementTypeRemoveToAJAX($d->eltypeid);
 			case "elementoptionsave":
 				return $this->ElementOptionSaveToAJAX($d->optionid, $d->savedata);
 			case "elementoptionremove":
@@ -1351,7 +1353,7 @@ class CatalogModuleManager {
 				$oldTableName = $this->ElementTypeTableName($checkElType->name);
 				
 				CatalogDbQuery::ElementTypeTableChange($this->db, $oldTableName, $tableName);
-				CatalogDbQuery::ElementTypeUpdate($this->db, $elTypeId, $d);
+				CatalogDbQuery::ElementTypeUpdate($this->db, $this->pfx, $elTypeId, $d);
 			}
 		}
 		
@@ -1364,6 +1366,31 @@ class CatalogModuleManager {
 		$this->_cacheElementTypeList = null;
 		
 		return $this->ElementTypeListToAJAX();
+	}
+	
+	public function ElementTypeRemove($elTypeId){
+		if (!$this->IsAdminRole()){ return null; }
+		
+		if ($elTypeId == 0){ return null; } // нельзя удалить базовый тип
+		
+		$typeList = $this->ElementTypeList();
+		$elType = $typeList->Get($elTypeId);
+		
+		$cnt = $elType->options->Count();
+		for ($i=0; $i<$cnt; $i++){
+			$option = $elType->options->GetByIndex($i);
+			$this->ElementOptionRemove($elTypeId, $option->id);
+		}
+		
+		$tableName = $this->ElementTypeTableName($elType->name);
+		
+		CatalogDbQuery::ElementTypeTableRemove($this->db, $tableName);
+		CatalogDbQuery::ElementTypeRemove($this->db, $this->pfx, $elTypeId);
+	}
+	
+	public function ElementTypeRemoveToAJAX($elTypeId){
+		$this->ElementTypeRemove($elTypeId);
+		return $this->ElementTypeListToAJAX(true);
 	}
 	
 	private $_cacheElementTypeList;
