@@ -122,6 +122,21 @@ Component.entryPoint = function(NS){
 				this.elHide('fsize');
 				break;
 			}
+			
+			if (this._lastFType != fType){
+				this._lastFType = fType;
+				switch(fType){
+				case NS.FTYPE['NUMBER']:
+					this.elSetValue('sz', '10');
+					break;
+				case NS.FTYPE['DOUBLE']:
+					this.elSetValue('sz', '10,2');
+					break;
+				case NS.FTYPE['STRING']:
+					this.elSetValue('sz', '255');
+					break;
+				}
+			}
 		},
 		onClick: function(el, tp){
 			switch(el.id){
