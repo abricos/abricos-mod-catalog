@@ -94,10 +94,12 @@ if ($updateManager->isInstall()){
 			`eloptgroupid` int(5) unsigned NOT NULL auto_increment,
 			`parenteloptgroupid` int(5) unsigned NOT NULL default '0',
 			`eltypeid` int(5) unsigned NOT NULL default '0' COMMENT 'Тип элемента',
+			`name` varchar(50) NOT NULL default '' COMMENT 'Имя (идентификатор)',
 			`title` varchar(250) NOT NULL default '',
 			`descript` text NOT NULL COMMENT 'Описание',
 			`ord` int(5) NOT NULL default '0' COMMENT 'Сортировка',
-
+			`issystem` tinyint(1) unsigned NOT NULL default 0 COMMENT 'Системная группа',
+			
 			PRIMARY KEY (`eloptgroupid`)
 		)". $charset
 	);
@@ -231,6 +233,17 @@ if ($updateManager->isUpdate('0.2.5.2')){
 			WHERE eloptionid=".$row['eloptionid']."
 		");
 	}
+}
+
+if ($updateManager->isUpdate('0.2.5.3') && !$updateManager->isInstall()){
+
+	// группирование опций элемента
+	$db->query_write("
+		ALTER TABLE `".$pfx."eloptgroup`
+		ADD `name` varchar(50) NOT NULL default '' COMMENT 'Имя (идентификатор)',
+		ADD `issystem` tinyint(1) unsigned NOT NULL default 0 COMMENT 'Системная группа'
+	");
+	
 }
 
 

@@ -547,6 +547,19 @@ class CatalogDbQuery {
 		return $db->query_read($sql);
 	}
 	
+	public static function ElementTypeOptionGroupList(Ab_Database $db, $pfx){
+		$sql = "
+			SELECT
+				eloptgroupid as id,
+				title as tl,
+				name as nm,
+				eltypeid as tpid
+			FROM ".$pfx."eloptgroup
+			ORDER BY ord DESC, title
+		";
+		return $db->query_read($sql);
+	}
+	
 	public static function ElementOptionRemove(Ab_Database $db, $pfx, $optionid){
 		$sql = "
 			DELETE FROM ".$pfx."eloption

@@ -299,6 +299,77 @@ class CatalogElementTypeList extends CatalogItemList {
 	}
 }
 
+class CatalogElementTypeOptionGroup extends CatalogItem {
+	
+	public $elTypeId;
+	public $title;
+	public $name;
+
+	public function __construct($d){
+		parent::__construct($d);
+		$this->elTypeId = intval($d['tpid']);
+		$this->title	= strval($d['tl']);
+		$this->name		= strval($d['nm']);
+	}
+
+	public function ToAJAX(CatalogModuleManager $man){
+		$ret = new stdClass();
+		$ret->id		= $this->id;
+		$ret->tpid		= $this->elTypeId;
+		$ret->tl		= $this->title;
+		$ret->nm		= $this->name;
+		return $ret;
+	}
+	
+}
+
+
+class CatalogElementTypeOptionGroupList extends CatalogItemList {
+
+	public function Add(CatalogElementTypeOptionGroup $item = null){
+		parent::Add($item);
+	}
+
+	/**
+	 * @param integer $id
+	 * @return CatalogElementTypeOptionGroup
+	 */
+	public function GetByIndex($i){
+		return parent::GetByIndex($i);
+	}
+
+	/**
+	 * @param integer $id
+	 * @return CatalogElementTypeOptionGroup
+	 */
+	public function Get($id){
+		return parent::Get($id);
+	}
+
+	/**
+	 * @param CatalogElementTypeOptionGroup $name
+	 */
+	public function GetByName($name){
+
+		$cnt = $this->Count();
+		for ($i=0; $i<$cnt; $i++){
+			$item = $this->GetByIndex($i);
+			if ($name == $item->name){
+				return $item;
+			}
+		}
+		return null;
+	}
+
+	public function ToAJAX(CatalogModuleManager $man){
+		$ret = array();
+		for ($i=0; $i<$this->Count(); $i++){
+			array_push($ret, $this->GetByIndex($i)->ToAJAX($man));
+		}
+		return $ret;
+	}
+}
+
 /**
  * Опция элемента
  */
@@ -1451,6 +1522,42 @@ class CatalogModuleManager {
 		$ret->eltypes = $list->ToAJAX($this);
 		return $ret;
 	}
+	
+	private $_cacheElementOptGroupList;
+	
+	/**
+	 * @param unknown_type $clearCache
+	 * @return CatalogElementTypeOptionGroup
+	 */
+	public function ElementTypeOptionGroupList($clearCache = false){
+		if (!$this->IsViewRole()){ return false; }
+		
+		if ($clearCache){
+			$this->_cacheElementOptGroupList = null;
+		}
+		
+		if (!empty($this->_cacheElementOptGroupList)){
+			return _cacheElementOptGroupList;
+		}
+		
+		$list = new CatalogElementTypeOptionGroupList();
+		$rows = CatalogDbQuery::ElementTypeOptionGroupList($this->db, $this->pfx);
+		while (($d = $this->db->fetch_array($rows))){
+			$list->Add(new CatalogElementTypeOptionGroup($d));
+		}
+		return $list;
+	}
+	
+	public function ElementTypeOptionGroupListToAJAX($clearCache = false){
+		$list = $this->ElementTypeOptionGroupList($clearCache);
+	
+		if (empty($list)){ return null; }
+	
+		$ret = new stdClass();
+		$ret->eloptgroups = $list->ToAJAX($this);
+		return $ret;
+	}
+	
 	
 	public function FotoAddToBuffer($fhash){
 		if (!$this->IsWriteRole()){ return false; }
