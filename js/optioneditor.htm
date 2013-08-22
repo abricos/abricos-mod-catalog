@@ -15,6 +15,12 @@
 		
 	
 		<div class="r">
+			<dl id="{i#fcopyfrom}" style="display: none">
+				<dt>Копировать с</dt>
+				<dd>
+					<div id="{i#copyfrom}"></div>
+				</dd>
+			</dl>
 			<dl>
 				<dt>Название</dt>
 				<dd>
@@ -65,7 +71,6 @@
 	</div>
 </div>
 
-
 <!--{ftypeselect}-->
 <select id="{i#id}" class="inp">
 	<option value="0">Логический</option>
@@ -76,3 +81,12 @@
 	<option value="5">Таблица</option>
 	<option value="7">Текст</option>
 </select>
+
+<!--{select}-->
+<select id="{i#id}" class="inp">
+	<option value="0"></option>
+	{v#rows}
+</select>
+
+<!--{option}-->
+<option value="{v#id}">{v#tptl} / {v#tl}</option>

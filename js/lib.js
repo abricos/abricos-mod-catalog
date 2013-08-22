@@ -392,6 +392,18 @@ Component.entryPoint = function(NS){
 	YAHOO.extend(ElementTypeList, SysNS.ItemList, {
 		createItem: function(di){
 			return this.manager.newElementType(di);
+		},
+		getOption: function(optionid){
+			var foption = null;
+			this.foreach(function(elType){
+				elType.optionList.foreach(function(option){
+					if (optionid == option.id){
+						foption = option;
+						return true;
+					}
+				});
+			});
+			return foption;
 		}
 	});
 	NS.ElementTypeList = ElementTypeList;

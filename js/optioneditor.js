@@ -18,6 +18,49 @@ Component.entryPoint = function(NS){
 		buildTemplate = this.buildTemplate,
 		BW = Brick.mod.widget.Widget;
 	
+	var OptionFromSelectWidget = function(container, manager, curOption, cfg){
+		cfg = L.merge({
+			'onChange': null
+		}, cfg || {});
+		
+		OptionFromSelectWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'select,option'
+		}, manager, curOption, cfg);
+	};
+	YAHOO.extend(OptionFromSelectWidget, BW, {
+		buildTData: function(manager, curOption, cfg){
+			var lst = "", TM = this._TM;
+			manager.typeList.foreach(function(elType){
+				elType.optionList.foreach(function(option){
+					lst += TM.replace('option', {
+						'id': option.id,
+						'tptl': elType.title,
+						'tl': option.title
+					});
+				});
+			});
+			return {
+				'rows': lst
+			};
+		},
+		onLoad: function(manager, curOption, cfg){
+			this.setValue(cfg['value']);
+
+			var __self = this;
+			E.on(this.gel('id'), 'change', function(e){
+				NS.life(cfg['onChange'], __self.getValue());
+			});
+		},
+		setValue: function(value){
+			this.elSetValue('id', value);
+		},
+		getValue: function(){
+			return this.gel('id').value;
+		}
+	});
+	NS.OptionFromSelectWidget = OptionFromSelectWidget;
+	
+	
 	var OptionFTypeSelectWidget = function(container, cfg){
 		cfg = L.merge({
 			'value': 0,
@@ -30,7 +73,6 @@ Component.entryPoint = function(NS){
 	};
 	YAHOO.extend(OptionFTypeSelectWidget, BW, {
 		onLoad: function(cfg){
-
 			this.setValue(cfg['value']);
 
 			var __self = this;
@@ -76,14 +118,23 @@ Component.entryPoint = function(NS){
 				'sz': option.size,
 				'ord': option.order
 			});
+			
 			if (option.id > 0){
 				this._lastFType = option.type;
+			}else{
+				this.elShow('fcopyfrom');
 			}
 
 			this.fTypeSelectWidget = new NS.OptionFTypeSelectWidget(this.gel('ftypesel'), {
 				'value': option.type,
 				'onChange': function(){
 					__self.refreshFType();
+				}
+			});
+			
+			this.fromTypeSelectWidget = new NS.OptionFromSelectWidget(this.gel('copyfrom'), manager, option, {
+				'onChange': function(optionid){
+					__self.copyFrom(optionid);
 				}
 			});
 			
@@ -100,6 +151,19 @@ Component.entryPoint = function(NS){
 			
 			E.on(this.gel('nm'), 'focus', function(e){
 				__self.nameTranslate();
+			});
+		},
+		copyFrom: function(optionid){
+			var option = this.manager.typeList.getOption(optionid);
+			if (!L.isValue(option)){ return; }
+			
+			this.fTypeSelectWidget.setValue(option.type);
+			this.refreshFType();
+			
+			this.elSetValue({
+				'tl': option.title,
+				'nm': option.name,
+				'sz': option.size
 			});
 		},
 		nameTranslate: function(){

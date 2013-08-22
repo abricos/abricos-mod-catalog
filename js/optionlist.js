@@ -122,6 +122,11 @@ Component.entryPoint = function(NS){
 			this.allEditorClose();
 			var man = this.manager, __self = this, elTypeId = this.list.elTypeId;
 			var option = man.newElementOption({'tpid': elTypeId});
+			
+			if (L.isValue(fel)){
+				option.size = fel.size;
+				option.type = fel.type;
+			}
 
 			this.newEditorWidget = 
 				new NS.OptionEditorWidget(this.gel('neweditor'), man, option, {
