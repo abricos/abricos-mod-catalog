@@ -640,17 +640,16 @@ class CatalogDbQuery {
 		$optionName = bkstr($d->nm);
 		
 		if ($d->tp == Catalog::TP_TABLE){
-			$tableName = $pfx."eltbl_".$elType->name."_fld_".$d->nm;
+			$fldTableName = $pfx."eltbl_".$elType->name."_fld_".$d->nm;
 			
 			$sql = "
-				CREATE TABLE IF NOT EXISTS `".$tableName."` (
+				CREATE TABLE IF NOT EXISTS `".$fldTableName."` (
 					`".$optionName."id` int(10) unsigned NOT NULL auto_increment,
 					`title` varchar(250) NOT NULL default '',
 					PRIMARY KEY  (`".$optionName."id`)
 				) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'
 			";
 			$db->query_write($sql);
-			return;
 		}
 		
 		$sql = "ALTER TABLE ".$tableName." ADD `fld_".$optionName."` ";
@@ -669,6 +668,9 @@ class CatalogDbQuery {
 			break;
 		case Catalog::TP_TEXT:
 			$sql .= "TEXT NOT NULL ";
+			break;
+		case Catalog::TP_TABLE:
+			$sql .= "INT(10) NOT NULL DEFAULT 0";
 			break;
 		}
 		$sql .= " COMMENT '".bkstr($d->tl)."'";
