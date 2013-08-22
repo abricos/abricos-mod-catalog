@@ -1464,15 +1464,15 @@ class CatalogModuleManager {
 				$d->sz = 1;
 				break;
 			case Catalog::TP_NUMBER:
-				$d->sz = max(min(intval($d->sz), 1), 10);
+				$d->sz = min(max(intval($d->sz), 1), 10);
 				break;
 			case Catalog::TP_STRING:
-				$d->sz = max(min(intval($d->sz), 2), 255);
+				$d->sz = min(max(intval($d->sz), 2), 255);
 				break;
 			case Catalog::TP_DOUBLE:
 				$asz = explode(",", $d->sz);
-				$asz[0] = max(min(intval($asz[0]), 3), 10);
-				$asz[1] = max(min(intval($asz[1]), 0), 5);
+				$asz[0] = min(max(intval($asz[0]), 3), 10);
+				$asz[1] = min(max(intval($asz[1]), 0), 5);
 				$d->sz = $asz[0].",".$asz[1];
 				break;
 			case Catalog::TP_TEXT:

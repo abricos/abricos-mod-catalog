@@ -76,6 +76,9 @@ Component.entryPoint = function(NS){
 				'sz': option.size,
 				'ord': option.order
 			});
+			if (option.id > 0){
+				this._lastFType = option.type;
+			}
 
 			this.fTypeSelectWidget = new NS.OptionFTypeSelectWidget(this.gel('ftypesel'), {
 				'value': option.type,
