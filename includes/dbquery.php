@@ -499,9 +499,9 @@ class CatalogDbQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function ElementTypeAppend(Ab_Database $db, $d){
+	public static function ElementTypeAppend(Ab_Database $db, $pfx, $d){
 		$sql = "
-			INSERT INTO ".CatalogQuery::$PFX."eltype
+			INSERT INTO ".$pfx."eltype
 				(name, title, descript) VALUES (
 				'".bkstr($d->nm)."',
 				'".bkstr($d->tl)."',

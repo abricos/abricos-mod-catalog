@@ -1337,7 +1337,7 @@ class CatalogModuleManager {
 			}
 
 			CatalogDbQuery::ElementTypeTableCreate($this->db, $tableName);
-			$elTypeId = CatalogDbQuery::ElementTypeAppend($this->db, $d);
+			$elTypeId = CatalogDbQuery::ElementTypeAppend($this->db, $this->pfx, $d);
 		}else{
 			
 			$checkElType = $typeList->GetByName($d->nm);
