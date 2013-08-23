@@ -547,7 +547,7 @@ class CatalogDbQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function ElementTypeOptionGroupList(Ab_Database $db, $pfx){
+	public static function ElementOptionGroupList(Ab_Database $db, $pfx){
 		$sql = "
 			SELECT
 				eloptgroupid as id,
@@ -569,7 +569,7 @@ class CatalogDbQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function ElementOptionFieldRemove(Ab_Database $db, $pfx, CatalogElementType $elType, CatalogElementTypeOption $option){
+	public static function ElementOptionFieldRemove(Ab_Database $db, $pfx, CatalogElementType $elType, CatalogElementOption $option){
 		if ($option->type == Catalog::TP_TABLE){
 			$tableName = $pfx."eltbl_".$elType->name."_fld_".$option->name;
 			$sql = "DROP TABLE IF EXISTS `".$tableName."`";
@@ -587,10 +587,11 @@ class CatalogDbQuery {
 	public static function ElementOptionAppend(Ab_Database $db, $pfx, $d){
 		$sql = "
 			INSERT INTO ".$pfx."eloption
-			(eltypeid, fieldtype, fieldsize, name, title, descript, dateline) VALUES (
+			(eltypeid, fieldtype, fieldsize, eloptgroupid, name, title, descript, dateline) VALUES (
 				".bkint($d->tpid).",
 				".bkint($d->tp).",
 				'".bkstr($d->sz)."',
+				".bkint($d->gid).",
 				'".bkstr($d->nm)."',
 				'".bkstr($d->tl)."',
 				'".bkstr($d->dsc)."',
@@ -604,7 +605,8 @@ class CatalogDbQuery {
 	public static function ElementOptionUpdate(Ab_Database $db, $pfx, $optionid, $d){
 		$sql = "
 			UPDATE ".$pfx."eloption
-			SET name='".bkstr($d->nm)."',
+			SET eloptgroupid=".bkint($d->gid).",
+				name='".bkstr($d->nm)."',
 				title='".bkstr($d->tl)."',
 				descript='".bkstr($d->dsc)."'
 			WHERE eloptionid=".bkint($optionid)."
@@ -612,7 +614,7 @@ class CatalogDbQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function ElementOptionFieldUpdate(Ab_Database $db, $pfx, CatalogElementType $elType, $tableName, CatalogElementTypeOption $oldOption, $d){
+	public static function ElementOptionFieldUpdate(Ab_Database $db, $pfx, CatalogElementType $elType, $tableName, CatalogElementOption $oldOption, $d){
 		$optionName = bkstr($d->nm);
 		
 		if ($d->tp == Catalog::TP_TABLE){
@@ -704,25 +706,25 @@ class CatalogDbQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function ElementTypeOptionList(Ab_Database $db, $pfx){
+	public static function ElementOptionList(Ab_Database $db, $pfx){
 		$sql = "
 			SELECT
 				eloptionid as id,
 				eltypeid as tpid,
 				fieldtype as tp,
 				fieldsize as sz,
+				eloptgroupid as gid,
 				name as nm,
 				title as tl,
 				descript as dsc,
 				ord as ord,
-				
 				eloptgroupid as gpid,
 				param as prms,
 				eltitlesource as ets,
 				disable as dsb
 			FROM ".$pfx."eloption
 			WHERE deldate=0
-			ORDER BY tpid, eloptgroupid, ord
+			ORDER BY tpid, ord DESC, tl
 		";
 		return $db->query_read($sql);
 	}

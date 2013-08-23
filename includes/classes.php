@@ -220,7 +220,7 @@ class CatalogElementType extends CatalogItem {
 	public $tableName = "";
 	
 	/**
-	 * @var CatalogElementTypeOptionList
+	 * @var CatalogElementOptionList
 	 */
 	public $options;
 	
@@ -230,7 +230,7 @@ class CatalogElementType extends CatalogItem {
 		$this->title	= strval($d['tl']); 
 		$this->name		= strval($d['nm']);
 
-		$this->options = new CatalogElementTypeOptionList();
+		$this->options = new CatalogElementOptionList();
 		
 		$this->tableName = "element";
 		if ($this->id > 0){
@@ -299,7 +299,7 @@ class CatalogElementTypeList extends CatalogItemList {
 	}
 }
 
-class CatalogElementTypeOptionGroup extends CatalogItem {
+class CatalogElementOptionGroup extends CatalogItem {
 	
 	public $elTypeId;
 	public $title;
@@ -323,16 +323,15 @@ class CatalogElementTypeOptionGroup extends CatalogItem {
 	
 }
 
+class CatalogElementOptionGroupList extends CatalogItemList {
 
-class CatalogElementTypeOptionGroupList extends CatalogItemList {
-
-	public function Add(CatalogElementTypeOptionGroup $item = null){
+	public function Add(CatalogElementOptionGroup $item = null){
 		parent::Add($item);
 	}
 
 	/**
 	 * @param integer $id
-	 * @return CatalogElementTypeOptionGroup
+	 * @return CatalogElementOptionGroup
 	 */
 	public function GetByIndex($i){
 		return parent::GetByIndex($i);
@@ -340,14 +339,14 @@ class CatalogElementTypeOptionGroupList extends CatalogItemList {
 
 	/**
 	 * @param integer $id
-	 * @return CatalogElementTypeOptionGroup
+	 * @return CatalogElementOptionGroup
 	 */
 	public function Get($id){
 		return parent::Get($id);
 	}
 
 	/**
-	 * @param CatalogElementTypeOptionGroup $name
+	 * @param CatalogElementOptionGroup $name
 	 */
 	public function GetByName($name){
 
@@ -373,11 +372,12 @@ class CatalogElementTypeOptionGroupList extends CatalogItemList {
 /**
  * Опция элемента
  */
-class CatalogElementTypeOption extends CatalogItem {
+class CatalogElementOption extends CatalogItem {
 	
 	public $elTypeId;
 	public $type;
 	public $size;
+	public $groupid;
 	public $title;
 	public $name;
 	
@@ -386,6 +386,7 @@ class CatalogElementTypeOption extends CatalogItem {
 		$this->elTypeId = intval($d['tpid']);
 		$this->type		= intval($d['tp']);
 		$this->size		= strval($d['sz']);
+		$this->groupid	= intval($d['gid']);
 		$this->title	= strval($d['tl']);
 		$this->name		= strval($d['nm']);
 	}
@@ -396,6 +397,7 @@ class CatalogElementTypeOption extends CatalogItem {
 		$ret->tpid		= $this->elTypeId;
 		$ret->tp		= $this->type;
 		$ret->sz		= $this->size;
+		$ret->gid		= $this->groupid;
 		$ret->tl		= $this->title;
 		$ret->nm		= $this->name;
 		return $ret;
@@ -405,7 +407,7 @@ class CatalogElementTypeOption extends CatalogItem {
 /**
  * Опция - тип поля таблица
  */
-class CatalogElementTypeOptionTable extends CatalogElementTypeOption {
+class CatalogElementOptionTable extends CatalogElementOption {
 	
 	public $values = array();
 	
@@ -421,20 +423,20 @@ class CatalogElementTypeOptionTable extends CatalogElementTypeOption {
 }
 
 
-class CatalogElementTypeOptionList extends CatalogItemList {
+class CatalogElementOptionList extends CatalogItemList {
 	
 	public function __construct(){
 		parent::__construct();
 		$this->isCheckDouble = true;
 	}
 
-	public function Add(CatalogElementTypeOption $item = null){
+	public function Add(CatalogElementOption $item = null){
 		parent::Add($item);
 	}
 
 	/**
 	 * @param integer $id
-	 * @return CatalogElementTypeOption
+	 * @return CatalogElementOption
 	 */
 	public function GetByIndex($i){
 		return parent::GetByIndex($i);
@@ -442,14 +444,14 @@ class CatalogElementTypeOptionList extends CatalogItemList {
 
 	/**
 	 * @param integer $id
-	 * @return CatalogElementTypeOption
+	 * @return CatalogElementOption
 	 */
 	public function Get($id){
 		return parent::Get($id);
 	}
 	
 	/**
-	 * @param CatalogElementTypeOption $name
+	 * @param CatalogElementOption $name
 	 */
 	public function GetByName($name){
 		
@@ -491,7 +493,7 @@ class CatalogElement extends CatalogItem {
 	
 	/**
 	 * @param array $d
-	 * @param CatalogElementTypeOptionList $extFields
+	 * @param CatalogElementOptionList $extFields
 	 */
 	public function __construct($d){
 		parent::__construct($d);
@@ -723,7 +725,7 @@ class CatalogElementListConfig {
 	/**
 	 * Дополнительные поля в списке
 	 * 
-	 * @var CatalogElementTypeOptionList
+	 * @var CatalogElementOptionList
 	 */
 	public $extFields;
 	
@@ -756,7 +758,7 @@ class CatalogElementListConfig {
 		$this->elids = array();
 		
 		$this->orders = new CatalogElementOrderOptionList();
-		$this->extFields = new CatalogElementTypeOptionList();
+		$this->extFields = new CatalogElementOptionList();
 		$this->where = new CatalogElementWhereOptionList();
 	}
 	
@@ -765,7 +767,7 @@ class CatalogElementListConfig {
 class CatalogElementWhereOption extends CatalogItem {
 
 	/**
-	 * @var CatalogElementTypeOption
+	 * @var CatalogElementOption
 	 */
 	public $option;
 
@@ -775,7 +777,7 @@ class CatalogElementWhereOption extends CatalogItem {
 	 */
 	public $exp = "";
 
-	public function __construct(CatalogElementTypeOption $option, $exp){
+	public function __construct(CatalogElementOption $option, $exp){
 		$this->id = $option->id;
 		$this->option = $option;
 		$this->exp = $exp;
@@ -797,7 +799,7 @@ class CatalogElementWhereOptionList extends CatalogItemList {
 	}
 
 	/**
-	 * @param CatalogElementTypeOption $option
+	 * @param CatalogElementOption $option
 	 * @param boolean $isDesc
 	 */
 	public function AddByOption($option, $isDesc = false){
@@ -816,7 +818,7 @@ class CatalogElementWhereOptionList extends CatalogItemList {
 class CatalogElementOrderOption extends CatalogItem {
 	
 	/**
-	 * @var CatalogElementTypeOption
+	 * @var CatalogElementOption
 	 */
 	public $option;
 
@@ -832,7 +834,7 @@ class CatalogElementOrderOption extends CatalogItem {
 	 */
 	public $zeroDesc = false;
 	 
-	public function __construct(CatalogElementTypeOption $option, $isDesc = false){
+	public function __construct(CatalogElementOption $option, $isDesc = false){
 		$this->id = $option->id;
 		$this->option = $option;
 		$this->isDesc = $isDesc;
@@ -851,7 +853,7 @@ class CatalogElementOrderOptionList extends CatalogItemList {
 	}
 	
 	/**
-	 * @param CatalogElementTypeOption $option
+	 * @param CatalogElementOption $option
 	 * @param boolean $isDesc
 	 * 
 	 * @return CatalogElementOrderOption
@@ -1030,6 +1032,9 @@ class CatalogModuleManager {
 		
 		$ajaxElTypes = $this->ElementTypeListToAJAX();
 		$ret->eltypes = $ajaxElTypes->eltypes;
+		
+		$ajaxOptGroups = $this->ElementOptionGroupListToAJAX();
+		$ret->eloptgroups = $ajaxOptGroups->eloptgroups;
 		
 		return $ret;
 	}
@@ -1488,7 +1493,7 @@ class CatalogModuleManager {
 			$list->Add(new CatalogElementType($d));
 		}
 		
-		$rows = CatalogDbQuery::ElementTypeOptionList($this->db, $this->pfx);
+		$rows = CatalogDbQuery::ElementOptionList($this->db, $this->pfx);
 		while (($d = $this->db->fetch_array($rows))){
 
 			if (empty($curType) || $curType->id != $d['tpid']){
@@ -1497,12 +1502,12 @@ class CatalogModuleManager {
 
 			if ($d['tp'] == Catalog::TP_TABLE){
 				
-				$option = new CatalogElementTypeOptionTable($d);
+				$option = new CatalogElementOptionTable($d);
 				
 				$rtbs = CatalogDbQuery::OptionTableValueList($this->db, $this->pfx, $curType->name, $option->name);
 				$option->values = CatalogManager::$instance->ToArrayId($rtbs);
 			}else{
-				$option = new CatalogElementTypeOption($d);
+				$option = new CatalogElementOption($d);
 			}
 			
 			if (empty($curType)){ 
@@ -1526,10 +1531,10 @@ class CatalogModuleManager {
 	private $_cacheElementOptGroupList;
 	
 	/**
-	 * @param unknown_type $clearCache
-	 * @return CatalogElementTypeOptionGroup
+	 * @param boolean $clearCache
+	 * @return CatalogElementOptionGroup
 	 */
-	public function ElementTypeOptionGroupList($clearCache = false){
+	public function ElementOptionGroupList($clearCache = false){
 		if (!$this->IsViewRole()){ return false; }
 		
 		if ($clearCache){
@@ -1540,16 +1545,16 @@ class CatalogModuleManager {
 			return _cacheElementOptGroupList;
 		}
 		
-		$list = new CatalogElementTypeOptionGroupList();
-		$rows = CatalogDbQuery::ElementTypeOptionGroupList($this->db, $this->pfx);
+		$list = new CatalogElementOptionGroupList();
+		$rows = CatalogDbQuery::ElementOptionGroupList($this->db, $this->pfx);
 		while (($d = $this->db->fetch_array($rows))){
-			$list->Add(new CatalogElementTypeOptionGroup($d));
+			$list->Add(new CatalogElementOptionGroup($d));
 		}
 		return $list;
 	}
 	
-	public function ElementTypeOptionGroupListToAJAX($clearCache = false){
-		$list = $this->ElementTypeOptionGroupList($clearCache);
+	public function ElementOptionGroupListToAJAX($clearCache = false){
+		$list = $this->ElementOptionGroupList($clearCache);
 	
 		if (empty($list)){ return null; }
 	

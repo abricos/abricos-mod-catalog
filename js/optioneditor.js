@@ -34,8 +34,7 @@ Component.entryPoint = function(NS){
 				elType.optionList.foreach(function(option){
 					lst += TM.replace('option', {
 						'id': option.id,
-						'tptl': elType.title,
-						'tl': option.title
+						'tl': elType.title + ' / ' + option.title
 					});
 				});
 			});
@@ -60,7 +59,44 @@ Component.entryPoint = function(NS){
 	});
 	NS.OptionFromSelectWidget = OptionFromSelectWidget;
 	
-	
+	var OptionGroupSelectWidget = function(container, manager, cfg){
+		cfg = L.merge({
+			'value': null,
+			'onChange': null
+		}, cfg || {});
+		
+		OptionGroupSelectWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'select,option'
+		}, manager, cfg);
+	};
+	YAHOO.extend(OptionGroupSelectWidget, BW, {
+		buildTData: function(manager, cfg){
+			var lst = "", TM = this._TM;
+			manager.optionGroupList.foreach(function(group){
+				lst += TM.replace('option', {
+					'id': group.id,
+					'tl': group.title
+				});
+			});
+			return {'rows': lst};
+		},
+		onLoad: function(manager, cfg){
+			this.setValue(cfg['value']);
+
+			var __self = this;
+			E.on(this.gel('id'), 'change', function(e){
+				NS.life(cfg['onChange'], __self.getValue());
+			});
+		},
+		setValue: function(value){
+			this.elSetValue('id', value);
+		},
+		getValue: function(){
+			return this.gel('id').value;
+		}
+	});
+	NS.OptionGroupSelectWidget = OptionGroupSelectWidget;
+		
 	var OptionFTypeSelectWidget = function(container, cfg){
 		cfg = L.merge({
 			'value': 0,
@@ -138,6 +174,10 @@ Component.entryPoint = function(NS){
 				}
 			});
 			
+			this.optionGroupSelectWidget = new NS.OptionGroupSelectWidget(this.gel('optgroup'), manager, {
+				'value': option.groupid
+			});
+
 			var keypress = function(e){
 				if (e.keyCode != 13){ return false; }
 				__self.save(); return true; 
@@ -226,7 +266,8 @@ Component.entryPoint = function(NS){
 				'sz': this.gel('sz').value,
 				'ord': this.gel('ord').value,
 				'tp': this.fTypeSelectWidget.getValue(),
-				'tpid': option.typeid
+				'tpid': option.typeid,
+				'gid': this.optionGroupSelectWidget.getValue()
 			};
 
 			this.elHide('btnsc,btnscc');

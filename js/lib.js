@@ -305,6 +305,7 @@ Component.entryPoint = function(NS){
 			'tpid':	0,
 			'tp':	0,
 			'sz':	'',
+			'gid':	0,
 			'ord':	0
 		}, d || {});
 		ElementType.superclass.constructor.call(this, d);
@@ -316,6 +317,7 @@ Component.entryPoint = function(NS){
 			this.typeid		= d['tpid']|0;
 			this.type		= d['tp']|0;
 			this.size		= d['sz'];
+			this.groupid	= d['gid']|0;
 			this.order		= d['ord']|0;
 		}
 	});
@@ -408,7 +410,37 @@ Component.entryPoint = function(NS){
 	});
 	NS.ElementTypeList = ElementTypeList;
 	
+	var ElementOptionGroup = function(manager, d){
+		this.manager = manager;
+		
+		d = L.merge({
+			'tpid': 0,
+			'tl': '',
+			'nm': '',
+			'ord': 0
+		}, d || {});
+		ElementOptionGroup.superclass.constructor.call(this, d);
+	};
+	YAHOO.extend(ElementOptionGroup, SysNS.Item, {
+		update: function(d){
+			this.elTypeId = d['tpid']|0;
+			this.title = d['tl'];
+			this.name = d['nm'];
+		}
+	});
+	NS.ElementOptionGroup = ElementOptionGroup;
 	
+	var ElementOptionGroupList = function(manager, d, elementOptionGroupClass, cfg){
+		this.manager = manager;
+		ElementOptionGroupList.superclass.constructor.call(this, d, elementTypeClass, cfg);
+	};
+	YAHOO.extend(ElementOptionGroupList, SysNS.ItemList, {
+		createItem: function(di){
+			return this.manager.newElementOptionGroup(di);
+		}
+	});
+	NS.ElementOptionGroupList = ElementOptionGroupList;	
+
 	NS.managers = {};
 	
 	var Manager = function(modname, callback, cfg){
@@ -418,9 +450,11 @@ Component.entryPoint = function(NS){
 			'ElementClass': NS.Element,
 			'ElementListClass': NS.ElementList,
 			'ElementTypeClass': NS.ElementType,
+			'ElementTypeListClass': NS.ElementTypeList,
+			'ElementOptionGroupClass': NS.ElementOptionGroup,
+			'ElementOptionGroupListClass': NS.ElementOptionGroupList,
 			'ElementOptionClass': NS.ElementOption,
 			'ElementOptionListClass': NS.ElementOptionList,
-			'ElementTypeListClass': NS.ElementTypeList,
 			'language': null
 		}, cfg || {});
 
@@ -438,11 +472,14 @@ Component.entryPoint = function(NS){
 			this.ElementClass		= cfg['ElementClass'];
 			this.ElementListClass	= cfg['ElementListClass'];
 			this.ElementTypeClass	= cfg['ElementTypeClass'];
+			this.ElementTypeListClass = cfg['ElementTypeListClass'];
+			this.ElementOptionGroupClass = cfg['ElementOptionGroupClass'];
+			this.ElementOptionGroupListClass = cfg['ElementOptionGroupListClass'];
 			this.ElementOptionClass = cfg['ElementOptionClass'];
 			this.ElementOptionListClass = cfg['ElementOptionListClass'];
-			this.ElementTypeListClass = cfg['ElementTypeListClass'];
 			
 			this.typeList = null;
+			this.optionGroupList = null;
 			
 			this.catalogChangedEvent = new CE('catalogChangedEvent');
 			this.catalogCreatedEvent = new CE('catalogCraetedEvent');
@@ -475,6 +512,12 @@ Component.entryPoint = function(NS){
 		},
 		newElementTypeList: function(d, cfg){
 			return new this.ElementTypeListClass(this, d, this.ElementTypeClass, cfg);
+		},
+		newElementOptionGroup: function(d){
+			return new this.ElementOptionGroupClass(this, d);
+		},
+		newElementOptionGroupList: function(d, cfg){
+			return new this.ElementOptionGroupListClass(this, d, this.ElementOptionGroupClass, cfg);
 		},
 		newElementOption: function(d){
 			return new this.ElementOptionClass(this, d);
@@ -512,6 +555,7 @@ Component.entryPoint = function(NS){
 		_initDataUpdate: function(d){
 			this.catalogList = this._catalogListUpdate(d);
 			this._typeListUpdate(d);
+			this._optionGroupListUpdate(d);
 		},
 		_typeListUpdate: function(d){
 			var list = null;
@@ -525,6 +569,16 @@ Component.entryPoint = function(NS){
 			}
 			if (L.isValue(list)){
 				this.typeList = list;
+			}
+			return list;
+		},
+		_optionGroupListUpdate: function(d){
+			var list = null;
+			if (!L.isNull(d) && !L.isNull(d['eloptgroups'])){
+				list = this.newElementTypeList(d['eloptgroups']);
+			}
+			if (L.isValue(list)){
+				this.optionGroupList = list;
 			}
 			return list;
 		},
