@@ -213,8 +213,9 @@ class CatalogDbQuery {
 				e.name as nm,
 				e.ord as ord,
 				(
-					SELECT f.fileid
+					SELECT CONCAT(f.fileid,'/',fm.extension)
 					FROM ".$pfx."foto f
+					LEFT JOIN ".$db->prefix."fm_file fm ON f.fileid=fm.filehash
 					WHERE f.elementid=e.elementid
 					ORDER BY ord
 					LIMIT 1
@@ -309,8 +310,9 @@ class CatalogDbQuery {
 				e.metadesc as mdsc,
 				e.ord as ord,
 				(
-					SELECT f.fileid
+					SELECT CONCAT(f.fileid,'/',fm.extension)
 					FROM ".$pfx."foto f
+					LEFT JOIN ".$db->prefix."fm_file fm ON f.fileid=fm.filehash
 					WHERE f.elementid=e.elementid
 					ORDER BY ord
 					LIMIT 1

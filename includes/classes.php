@@ -160,9 +160,11 @@ class CatalogList extends CatalogItemList {
 		$this->owner = $cat;
 	}
 	
-	public function Add(Catalog $item){
+	public function Add(Catalog $item, $notChangeParent = false){
 		parent::Add($item);
-		$item->parent = $this->owner;
+		if (!$notChangeParent){
+			$item->parent = $this->owner;
+		}
 	}
 	
 
@@ -483,6 +485,7 @@ class CatalogElement extends CatalogItem {
 	public $order;
 	
 	public $foto;
+	public $fotoExt;
 	
 	public $ext = array();
 	
@@ -503,7 +506,10 @@ class CatalogElement extends CatalogItem {
 		$this->title	= strval($d['tl']);
 		$this->name		= strval($d['nm']);
 		$this->order	= intval($d['ord']);
-		$this->foto		= strval($d['foto']);
+		
+		$afoto 			= explode("/", strval($d['foto']));
+		$this->foto		= $afoto[0];
+		$this->fotoExt	= $afoto[1];
 		
 		if (is_array($d['ext'])){
 			$this->ext = $d['ext'];
@@ -524,7 +530,7 @@ class CatalogElement extends CatalogItem {
 		if (count($arr)>0){
 			$ret = $ret.implode("-", $arr)."/";
 		}
-		$ret .= $this->name; // .".".$this->fotoExt;
+		$ret .= $this->name.".".$this->fotoExt;
 	
 		return $ret;
 	}
@@ -1040,6 +1046,11 @@ class CatalogModuleManager {
 	}
 	
 	private $_cacheCatalogList;
+	/**
+	 * Древовидный список категорий каталога
+	 * @param boolean $clearCache
+	 * @return CatalogList
+	 */
 	public function CatalogList ($clearCache = false){
 		if (!$this->IsViewRole()){ return false; }
 		
@@ -1086,6 +1097,39 @@ class CatalogModuleManager {
 		}
 		$this->_cacheCatalogList = $catList;
 		return $catList;
+	}
+	
+	private function CatalogListLineFill(CatalogList $catListLine, CatalogList $catList){
+		for ($i=0;$i<$catList->Count();$i++){
+			$cat = $catList->GetByIndex($i);
+			$catListLine->Add($cat, true);
+			$this->CatalogListLineFill($catListLine, $cat->childs);
+		}
+	}
+	
+	private $_cacheCatalogListLine;
+	
+	/**
+	 * Линейный список категорий каталога
+	 * 
+	 * @return CatalogList
+	 */
+	public function CatalogListLine($clearCache = false){
+		if ($clearCache){
+			$this->_cacheCatalogListLine = null;
+		}
+		if (!empty($this->_cacheCatalogListLine)){
+			return $this->_cacheCatalogListLine;
+		}
+		$catListLine = new CatalogList(null);
+		
+		$catList = $this->CatalogList();
+		
+		$this->CatalogListLineFill($catListLine, $catList);
+		
+		$this->_cacheCatalogListLine = $catListLine;
+		
+		return $catListLine;
 	}
 	
 	public function CatalogListToAJAX(){
