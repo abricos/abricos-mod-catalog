@@ -1132,6 +1132,27 @@ class CatalogModuleManager {
 		return $catListLine;
 	}
 	
+	/**
+	 * Список категорий каталога по набору идентификаторов
+	 * 
+	 * @param mixed $catids
+	 * @return CatalogList
+	 */
+	public function CatalogListByIds($catids){
+		if (is_string($catids)){
+			$catids = explode(",", $catids);
+		}
+		$retCatList = new CatalogList(null);
+		$catList = $this->CatalogList();
+		for ($i=0;$i<count($catids);$i++){
+			$cat = $catList->Find($catids[$i]);
+			if (!empty($cat)){
+				$retCatList->Add($cat, true);
+			}
+		}
+		return $retCatList;
+	}
+	
 	public function CatalogListToAJAX(){
 		$list = $this->CatalogList();
 
