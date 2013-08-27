@@ -1,7 +1,7 @@
 <?php 
 /**
  * @package Abricos
- * @subpackage EShop
+ * @subpackage Catalog
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
@@ -1769,6 +1769,34 @@ class CatalogModuleManager {
 		$ret = new stdClass();
 		$ret->values = $option->values;
 	
+		return $ret;
+	}
+	
+	/**
+	 * Получить список возможных вариантов для автозаполнения в поиске
+	 * @param string $query
+	 */
+	public function SearchAutoComplete($query){
+		$ret = array();
+		
+		if (!$this->IsViewRole()){ return $ret; }
+		if (strlen($query) < 2){ return $ret; }
+		
+		$rows = CatalogDbQuery::SearchAutoComplete($this->db, $this->pfx, $query);
+		while (($row = $this->db->fetch_array($rows))){
+			array_push($ret, $row['tl']);
+		}
+		return $ret;
+	}
+	
+	public function Search($query){
+		$ret = array();
+		
+		if (!$this->IsViewRole()){ return $ret; }
+		$rows = CatalogDbQuery::Search($this->db, $this->pfx, $query);
+		while (($row = $this->db->fetch_array($rows))){
+			array_push($ret, $row);
+		}
 		return $ret;
 	}
 	

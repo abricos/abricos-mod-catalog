@@ -852,8 +852,52 @@ class CatalogDbQuery {
 			}
 		}
 	}
+	
+	public static function SearchAutoComplete(Ab_Database $db, $pfx, $query){
+		$sql = "
+			SELECT
+				catalogid as id, 
+ 				title as tl,
+ 				'c' as tp
+ 			FROM ".$pfx."catalog
+ 			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%'
+ 			LIMIT 3
+ 			
+ 			UNION
+
+ 			SELECT
+ 				elementid as id,
+ 				title as tl,
+ 				'e' as tp
+ 			FROM ".$pfx."element e
+ 			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%'
+ 			LIMIT 7
+		";
+		return $db->query_read($sql);
+	}
+	
+	public static function Search(Ab_Database $db, $pfx, $query){
+		$sql = "
+			SELECT
+				catalogid as id,
+				title as tl,
+				'c' as tp
+			FROM ".$pfx."catalog
+			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%'
+			LIMIT 3
+		
+			UNION
+		
+			SELECT
+				elementid as id,
+				title as tl,
+				'e' as tp
+			FROM ".$pfx."element e
+			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%'
+			LIMIT 47
+		";
+		return $db->query_read($sql);
+	}
 }
-
-
 
 ?>
