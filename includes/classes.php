@@ -1797,13 +1797,23 @@ class CatalogModuleManager {
 	 * Получить список возможных вариантов для автозаполнения в поиске
 	 * @param string $query
 	 */
-	public function SearchAutoComplete($query){
+	public function SearchAutoComplete($query, $eFField = '', $eFValue = ''){
 		$ret = array();
 		
 		if (!$this->IsViewRole()){ return $ret; }
 		if (strlen($query) < 2){ return $ret; }
 		
-		$rows = CatalogDbQuery::SearchAutoComplete($this->db, $this->pfx, $query);
+		$optValueId = 0;
+		
+		if (!empty($eFField) && !empty($eFValue)){
+			$elTypeBase = $this->ElementTypeList()->GetByIndex(0);
+			$option = $elTypeBase->options->GetByName($eFField);
+			if (!empty($option) && $option->type == Catalog::TP_TABLE && !empty($option->values[$eFValue])){
+				$optValueId = intval($eFValue);
+			}
+		}
+		
+		$rows = CatalogDbQuery::SearchAutoComplete($this->db, $this->pfx, $query, $eFField, $optValueId);
 		while (($row = $this->db->fetch_array($rows))){
 			array_push($ret, $row['tl']);
 		}

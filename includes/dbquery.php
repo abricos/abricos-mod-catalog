@@ -853,7 +853,7 @@ class CatalogDbQuery {
 		}
 	}
 	
-	public static function SearchAutoComplete(Ab_Database $db, $pfx, $query){
+	public static function SearchAutoComplete(Ab_Database $db, $pfx, $query, $eFField = '', $eFValue = 0){
 		$sql = "
 			SELECT
 				catalogid as id, 
@@ -871,6 +871,13 @@ class CatalogDbQuery {
  				'e' as tp
  			FROM ".$pfx."element e
  			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%'
+		";
+		if ($eFValue > 0){
+			$sql .= "
+				AND fld_".bkstr($eFField)."=".bkint($eFValue)."
+			";
+		}
+		$sql .= "
  			LIMIT 7
 		";
 		return $db->query_read($sql);
