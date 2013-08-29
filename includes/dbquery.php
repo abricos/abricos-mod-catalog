@@ -878,7 +878,7 @@ class CatalogDbQuery {
 			";
 		}
 		$sql .= "
- 			LIMIT 7
+ 			LIMIT 17
 		";
 		return $db->query_read($sql);
 	}
