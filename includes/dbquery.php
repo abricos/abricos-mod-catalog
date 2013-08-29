@@ -884,17 +884,23 @@ class CatalogDbQuery {
 	}
 	
 	public static function Search(Ab_Database $db, $pfx, $query, $eFField = '', $eFValue = 0){
-		$sql = "
-			SELECT
-				catalogid as id,
-				title as tl,
-				'c' as tp
-			FROM ".$pfx."catalog
-			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%'
-			LIMIT 3
+		$sql = "";
 		
-			UNION
+		if (!empty($query)){
+			$sql .= "
+				SELECT
+					catalogid as id,
+					title as tl,
+					'c' as tp
+				FROM ".$pfx."catalog
+				WHERE deldate=0 AND title LIKE '%".bkstr($query)."%'
+				LIMIT 3
+			
+				UNION
+			";
+		}
 		
+		$sql .= "
 			SELECT
 				elementid as id,
 				title as tl,

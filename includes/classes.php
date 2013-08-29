@@ -1021,7 +1021,7 @@ class CatalogModuleManager {
 			case "elementtypelist":
 				return $this->ElementTypeList();
 			case "optiontablevaluesave":
-				return $this->OptionTableValueSave($d->eltypeid, $d->optionid, $d->valueid, $d->value);
+				return $this->OptionTableValueSaveToAJAX($d->eltypeid, $d->optionid, $d->valueid, $d->value);
 			case "optiontablevalueremove":
 				return $this->OptionTableValueRemove($d->eltypeid, $d->optionid, $d->valueid);
 		}
@@ -1764,6 +1764,18 @@ class CatalogModuleManager {
 		}else{
 			CatalogDbQuery::OptionTableValueUpdate($this->db, $this->pfx, $elType->name, $option->name, $valueid, $value);
 		}
+		
+		return $valueid;
+	}
+	
+	public function OptionTableValueSaveToAJAX($eltypeid, $optionid, $valueid, $value){
+		$valueid = $this->OptionTableValueSave($eltypeid, $optionid, $valueid, $value);
+		
+		if (empty($valueid)){ return null; }
+		
+		$elTypeList = $this->ElementTypeList();
+		$elType = $elTypeList->Get($eltypeid);
+		$option = $elType->options->Get($optionid);
 		
 		$rtbs = CatalogDbQuery::OptionTableValueList($this->db, $this->pfx, $elType->name, $option->name);
 		$option->values = CatalogManager::$instance->ToArrayId($rtbs);
