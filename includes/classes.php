@@ -1659,6 +1659,12 @@ class CatalogModuleManager {
 		return $d;
 	}
 	
+	/**
+	 * Сохранение опции элемента
+	 * 
+	 * @param integer $optionid идентификатор опции, если 0, то новая опция
+	 * @param mixed $d
+	 */
 	public function ElementOptionSave($optionid, $d){
 		if (!$this->IsAdminRole()){ return null; }
 
