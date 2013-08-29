@@ -1793,6 +1793,20 @@ class CatalogModuleManager {
 		return $ret;
 	}
 	
+	public function SearchOptionCheck($eFField = '', $eFValue = ''){
+		$optValueId = 0;
+		
+		if (empty($eFField) || empty($eFValue)){
+			return 0;
+		}
+		$elTypeBase = $this->ElementTypeList()->GetByIndex(0);
+		$option = $elTypeBase->options->GetByName($eFField);
+		if (!empty($option) && $option->type == Catalog::TP_TABLE && !empty($option->values[$eFValue])){
+			$optValueId = intval($eFValue);
+		}
+		return $optValueId;
+	}
+	
 	/**
 	 * Получить список возможных вариантов для автозаполнения в поиске
 	 * @param string $query
@@ -1803,28 +1817,22 @@ class CatalogModuleManager {
 		if (!$this->IsViewRole()){ return $ret; }
 		if (strlen($query) < 2){ return $ret; }
 		
-		$optValueId = 0;
+		$eFValue = $this->SearchOptionCheck($eFField, $eFValue);
 		
-		if (!empty($eFField) && !empty($eFValue)){
-			$elTypeBase = $this->ElementTypeList()->GetByIndex(0);
-			$option = $elTypeBase->options->GetByName($eFField);
-			if (!empty($option) && $option->type == Catalog::TP_TABLE && !empty($option->values[$eFValue])){
-				$optValueId = intval($eFValue);
-			}
-		}
-		
-		$rows = CatalogDbQuery::SearchAutoComplete($this->db, $this->pfx, $query, $eFField, $optValueId);
+		$rows = CatalogDbQuery::SearchAutoComplete($this->db, $this->pfx, $query, $eFField, $eFValue);
 		while (($row = $this->db->fetch_array($rows))){
 			array_push($ret, $row['tl']);
 		}
 		return $ret;
 	}
 	
-	public function Search($query){
+	public function Search($query, $eFField = '', $eFValue = ''){
 		$ret = array();
-		
 		if (!$this->IsViewRole()){ return $ret; }
-		$rows = CatalogDbQuery::Search($this->db, $this->pfx, $query);
+		
+		$eFValue = $this->SearchOptionCheck($eFField, $eFValue);
+		
+		$rows = CatalogDbQuery::Search($this->db, $this->pfx, $query, $eFField, $eFValue);
 		while (($row = $this->db->fetch_array($rows))){
 			array_push($ret, $row);
 		}
