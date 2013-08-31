@@ -75,7 +75,9 @@ class Catalog extends CatalogItem {
 		$this->childs = new CatalogList($this);
 	}
 	
-	public function ToAJAX(CatalogModuleManager $man){
+	public function ToAJAX(){
+		$man = func_get_arg(0);
+		
 		$ret = parent::ToAJAX();
 		$ret->pid	= $this->parentid;
 		$ret->tl	= $this->title;
@@ -135,7 +137,9 @@ class CatalogDetail {
 		$this->metaDescript	= strval($d['mdsc']);
 	}
 	
-	public function ToAJAX(CatalogModuleManager $man){
+	public function ToAJAX(){
+		$man = func_get_arg(0);
+		
 		$ret = new stdClass();
 		$ret->dsc	= $this->descript;
 		if ($man->IsAdminRole()){
@@ -160,7 +164,10 @@ class CatalogList extends CatalogItemList {
 		$this->owner = $cat;
 	}
 	
-	public function Add(Catalog $item, $notChangeParent = false){
+	public function Add($item){
+		
+		$notChangeParent = func_num_args()>1 ? func_get_arg(1) : false;
+		
 		parent::Add($item);
 		if (!$notChangeParent){
 			$item->parent = $this->owner;
@@ -205,7 +212,9 @@ class CatalogList extends CatalogItemList {
 		return null;
 	}
 	
-	public function ToAJAX(CatalogModuleManager $man){
+	public function ToAJAX(){
+		$man = func_get_arg(0);
+		
 		$ret = array();
 		for ($i=0; $i<$this->Count(); $i++){
 			array_push($ret, $this->GetByIndex($i)->ToAJAX($man));
@@ -240,7 +249,9 @@ class CatalogElementType extends CatalogItem {
 		}
 	}
 	
-	public function ToAJAX(CatalogModuleManager $man){
+	public function ToAJAX(){
+		$man = func_get_arg(0);
+		
 		$ret = new stdClass();
 		$ret->id	= $this->id;
 		$ret->tl	= $this->title;
@@ -258,7 +269,7 @@ class CatalogElementType extends CatalogItem {
  */
 class CatalogElementTypeList extends CatalogItemList {
 
-	public function Add(CatalogElementType $item){
+	public function Add($item){
 		parent::Add($item);
 	}
 
@@ -292,7 +303,9 @@ class CatalogElementTypeList extends CatalogItemList {
 		return parent::Get($id);
 	}
 
-	public function ToAJAX(CatalogModuleManager $man){
+	public function ToAJAX(){
+		$man = func_get_arg(0);
+		
 		$ret = array();
 		for ($i=0; $i<$this->Count(); $i++){
 			array_push($ret, $this->GetByIndex($i)->ToAJAX($man));
@@ -314,7 +327,9 @@ class CatalogElementOptionGroup extends CatalogItem {
 		$this->name		= strval($d['nm']);
 	}
 
-	public function ToAJAX(CatalogModuleManager $man){
+	public function ToAJAX(){
+		$man = func_get_arg(0);
+		
 		$ret = new stdClass();
 		$ret->id		= $this->id;
 		$ret->tpid		= $this->elTypeId;
@@ -327,7 +342,7 @@ class CatalogElementOptionGroup extends CatalogItem {
 
 class CatalogElementOptionGroupList extends CatalogItemList {
 
-	public function Add(CatalogElementOptionGroup $item = null){
+	public function Add($item){
 		parent::Add($item);
 	}
 
@@ -362,7 +377,9 @@ class CatalogElementOptionGroupList extends CatalogItemList {
 		return null;
 	}
 
-	public function ToAJAX(CatalogModuleManager $man){
+	public function ToAJAX(){
+		$man = func_get_arg(0);
+		
 		$ret = array();
 		for ($i=0; $i<$this->Count(); $i++){
 			array_push($ret, $this->GetByIndex($i)->ToAJAX($man));
@@ -393,7 +410,9 @@ class CatalogElementOption extends CatalogItem {
 		$this->name		= strval($d['nm']);
 	}
 	
-	public function ToAJAX(CatalogModuleManager $man){
+	public function ToAJAX(){
+		$man = func_get_arg(0);
+		
 		$ret = new stdClass();
 		$ret->id		= $this->id;
 		$ret->tpid		= $this->elTypeId;
@@ -417,7 +436,9 @@ class CatalogElementOptionTable extends CatalogElementOption {
 		parent::__construct($d);
 	}
 	
-	public function ToAJAX($man){
+	public function ToAJAX(){
+		$man = func_get_arg(0);
+		
 		$ret = parent::ToAJAX($man);
 		$ret->values = $this->values;
 		return $ret;
@@ -432,7 +453,7 @@ class CatalogElementOptionList extends CatalogItemList {
 		$this->isCheckDouble = true;
 	}
 
-	public function Add(CatalogElementOption $item = null){
+	public function Add($item){
 		parent::Add($item);
 	}
 
@@ -465,7 +486,9 @@ class CatalogElementOptionList extends CatalogItemList {
 		return null;
 	}
 
-	public function ToAJAX(CatalogModuleManager $man){
+	public function ToAJAX(){
+		$man = func_get_arg(0);
+		
 		$ret = array();
 		for ($i=0; $i<$this->Count(); $i++){
 			array_push($ret, $this->GetByIndex($i)->ToAJAX($man));
@@ -535,7 +558,9 @@ class CatalogElement extends CatalogItem {
 		return $ret;
 	}
 	
-	public function ToAJAX(CatalogModuleManager $man){
+	public function ToAJAX(){
+		$man = func_get_arg(0);
+		
 		$ret = new stdClass();
 		$ret->id		= $this->id;
 		$ret->catid		= $this->catid;
@@ -596,7 +621,9 @@ class CatalogElementDetail {
 		$this->fotoList = $fotoList;
 	}
 
-	public function ToAJAX(CatalogModuleManager $man){
+	public function ToAJAX(){
+		$man = func_get_arg(0);
+		
 		$ret = new stdClass();
 		$ret->fotos	= $this->fotos;
 		$ret->optb = $this->optionsBase;
@@ -625,7 +652,7 @@ class CatalogElementList extends CatalogItemList {
 	 */
 	public $total;
 	
-	public function Add(CatalogElement $item){
+	public function Add($item){
 		parent::Add($item);
 	}
 
@@ -645,7 +672,9 @@ class CatalogElementList extends CatalogItemList {
 		return parent::Get($id);
 	}
 
-	public function ToAJAX(CatalogModuleManager $man){
+	public function ToAJAX(){
+		$man = func_get_arg(0);
+		
 		$list = array();
 		$count = $this->Count();
 		for ($i=0; $i<$count; $i++){
@@ -854,7 +883,7 @@ class CatalogElementOrderOptionList extends CatalogItemList {
 		$this->isCheckDouble = true;
 	}
 	
-	public function Add(CatalogElementOrderOption $item){
+	public function Add($item){
 		parent::Add($item);
 	}
 	
@@ -906,7 +935,7 @@ class CatalogItemList {
 		$this->_map = array();
 	}
 
-	public function Add(CatalogItem $item = null){
+	public function Add($item){
 		if (empty($item)){ return; }
 		
 		if ($this->isCheckDouble){
