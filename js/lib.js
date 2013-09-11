@@ -456,7 +456,8 @@ Component.entryPoint = function(NS){
 			'ElementOptionClass': NS.ElementOption,
 			'ElementOptionListClass': NS.ElementOptionList,
 			'language': null,
-			'elementNameChange': false
+			'elementNameChange': false,
+			'elementCreateBaseTypeDisable': false
 		}, cfg || {});
 
 		NS.managers[modname] = this;

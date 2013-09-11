@@ -1011,6 +1011,22 @@ class CatalogModuleManager {
 	 */
 	public $cfgElementNameChange = false;
 	
+	/**
+	 * Опции элементов, которые должны быть уникальны для каждого элемента.
+	 * Если несколько, то указать через зяпатую.
+	 * 
+	 * Например: 'name,articul'
+	 * 
+	 * @var boolean
+	 */
+	public $cfgElementUniqueOptions = '';
+	
+	/**
+	 * Отключить создание базовых элементов
+	 * @var boolean
+	 */
+	public $cfgElementCreateBaseTypeDisable = false;
+	
 	public function __construct($dbPrefix){
 		$this->db = CatalogManager::$instance->db;
 		$this->pfx = $this->db->prefix."ctg_".$dbPrefix."_";
@@ -1061,6 +1077,19 @@ class CatalogModuleManager {
 				return $this->OptionTableValueRemove($d->eltypeid, $d->optionid, $d->valueid);
 		}
 		return null;
+	}
+	
+	public function ParamToObject($o){
+		if (is_array($o)){
+			$ret = new stdClass();
+			foreach($o as $key => $value){
+				$ret->$key = $value;
+			}
+			return $ret;
+		}else if (!is_object($o)){
+			return new stdClass();
+		}
+		return $o;
 	}
 	
 	public function CatalogInitDataToAJAX(){
@@ -1233,6 +1262,8 @@ class CatalogModuleManager {
 	
 	public function CatalogSave($catid, $d){
 		if (!$this->IsAdminRole()){ return null; }
+		
+		$d = $this->ParamToObject($d);
 	
 		$utm = Abricos::TextParser();
 		$utmf = Abricos::TextParser(true);
@@ -1433,13 +1464,31 @@ class CatalogModuleManager {
 	}
 	
 	/**
-	 * Сохранение элемента каталога
+	 * Создать/сохранение элемент каталога
 	 * 
-	 * @param integer $elid
-	 * @param object $d
+	 * Если $elid=0, то создать новый элемент
+	 * 
+	 * В качестве параметра $d необходимо передать именованный массив
+	 * или объект с полями:
+	 * catid - идентификатор каталога,
+	 * tpid - идентификатор типа элемента,
+	 * tl - название элемента,
+	 * nm - имя элемента,
+	 * mtl - МЕТА-тег TITLE,
+	 * mks - МЕТА-тег KEYS,
+	 * mdsc - МЕТА-тег DESCRIPTION,
+	 * ord - сортировка,
+	 * values - опции элемента в виде именованного массива или объекта в качестве
+	 * полей которого используется идентификатор типа элемента,
+	 * fotos - массив идентификатор фотографий менеджера файлов
+	 * 
+	 * @param integer $elid идентификатор элемента
+	 * @param array|object $d
 	 */
 	public function ElementSave($elid, $d){
 		if (!$this->IsAdminRole()){ return null; }
+		
+		$d = $this->ParamToObject($d);
 		
 		$utm = Abricos::TextParser();
 		$utmf = Abricos::TextParser(true);
@@ -1461,6 +1510,15 @@ class CatalogModuleManager {
 		
 		$d->ord		= intval($d->ord);
 		
+		$elTypeList = $this->ElementTypeList();
+		$elType = $elTypeList->Get($d->tpid);
+		if (empty($elType)){ return null; }
+		
+		if ($elid == 0 && $d->tpid == 0 && $this->cfgElementCreateBaseTypeDisable){
+			// создание базовых элементов отключено
+			return null;
+		}
+		
 		$isNew = false;
 		if ($elid == 0){ // добавление нового
 			
@@ -1471,8 +1529,6 @@ class CatalogModuleManager {
 		}else{ // сохранение текущего
 			CatalogDbQuery::ElementUpdate($this->db, $this->pfx, $elid, $d);
 		}
-		
-		$elTypeList = $this->ElementTypeList();
 		
 		if (!empty($d->values)){
 			foreach($d->values as $tpid => $opts){
@@ -1521,8 +1577,24 @@ class CatalogModuleManager {
 		return $this->pfx."eltbl_".$name;
 	}
 	
+	/**
+	 * Создать/сохранить тип элемента
+	 * 
+	 * Если $elTypeId=0, то создать тип элемента
+	 * 
+	 * В качестве параметра $d необходимо передать именованный массив 
+	 * или объект с полями:
+	 * nm - уникальное имя латиницей,
+	 * tl - название,
+	 * dsc - описание
+	 * 
+	 * @param integer $elTypeId
+	 * @param array|object $d данные типа элемента
+	 */
 	public function ElementTypeSave($elTypeId, $d){
 		if (!$this->IsAdminRole()){ return null; }
+		
+		$d = $this->ParamToObject($d);
 		
 		$utm = Abricos::TextParser();
 		$utmf = Abricos::TextParser(true);
@@ -1737,6 +1809,8 @@ class CatalogModuleManager {
 	 */
 	public function ElementOptionSave($optionid, $d){
 		if (!$this->IsAdminRole()){ return null; }
+		
+		$d = $this->ParamToObject($d);
 
 		$utm = Abricos::TextParser();
 		$utmf = Abricos::TextParser(true);

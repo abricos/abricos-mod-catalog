@@ -367,6 +367,7 @@ Component.entryPoint = function(NS){
 			if (tpList.count() > 1){
 				var lst = "";
 				tpList.foreach(function(tp){
+					if (manager.cfg.elementCreateBaseTypeDisable && tp.id == 0){ return; }
 					lst += TM.replace('tprow', {
 						'id': tp.id, 'tl': tp.title
 					});
@@ -409,7 +410,9 @@ Component.entryPoint = function(NS){
 		_onLoadElement: function(element){
 			this.element = element;
 			
-			if (this.manager.cfg['elementNameChange']){
+			var man = this.manager;
+			
+			if (man.cfg['elementNameChange']){
 				this.elShow('fnm');
 			}
 			
@@ -437,6 +440,13 @@ Component.entryPoint = function(NS){
 			});
 			
 			this.fotosWidget = new NS.FotoListEditWidget(this.gel('fotos'), this.manager, this.element.detail.fotos);
+			
+			if (element.id == 0 && man.cfg.elementCreateBaseTypeDisable){
+				var elType = man.typeList.getByIndex(1);
+				if (L.isValue(elType)){
+					element.typeid = elType.id;
+				}
+			}
 			
 			this.renderOptions();
 			this.elSetValue('tplist.id', element.typeid);
