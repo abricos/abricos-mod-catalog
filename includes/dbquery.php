@@ -345,7 +345,7 @@ class CatalogDbQuery {
 					LIMIT 1
 				) as foto
 			FROM ".$pfx."element e
-			WHERE e.name='".bkint($name)."'
+			WHERE e.name='".bkstr($name)."'
 			LIMIT 1
 		";
 		return $db->query_first($sql);

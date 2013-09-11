@@ -1415,14 +1415,23 @@ class CatalogModuleManager {
 		$element->detail = $detail;
 	}
 	
+	private $_cacheElementByName = null;
+	
 	/**
 	 * Получить элемент по имени
 	 * 
 	 * @param string $name имя элемента
 	 * @return CatalogElement
 	 */
-	public function ElementByName($name){
+	public function ElementByName($name, $clearCache = false){
 		if (!$this->IsViewRole()){ return null; }
+		
+		if ($clearCache || !is_array($this->_cacheElementByName)){
+			$this->_cacheElementByName = array();
+		}
+		if (!empty($this->_cacheElementByName[$name])){
+			return $this->_cacheElementByName[$name];
+		}
 
 		$dbEl = CatalogDbQuery::ElementByName($this->db, $this->pfx, $name);
 		if (empty($dbEl)){ return null; }
@@ -1431,8 +1440,12 @@ class CatalogModuleManager {
 		
 		$this->ElementDetailFill($element);
 		
+		$this->_cacheElementByName[$name] = $element;
+		
 		return $element;
 	}
+	
+	private $_cacheElementById = null;
 	
 	/**
 	 * Получить элемент по идентификатор
@@ -1440,8 +1453,15 @@ class CatalogModuleManager {
 	 * @param integer $elid идентифиатор элемента
 	 * @return CatalogElement
 	 */
-	public function Element($elid){
+	public function Element($elid, $clearCache = false){
 		if (!$this->IsViewRole()){ return null; }
+		
+		if ($clearCache || !is_array($this->_cacheElementById)){
+			$this->_cacheElementById = array();
+		}
+		if (!empty($this->_cacheElementById[$elid])){
+			return $this->_cacheElementById[$elid];
+		}
 		
 		$dbEl = CatalogDbQuery::Element($this->db, $this->pfx, $elid);
 		if (empty($dbEl)){ return null; }
@@ -1449,6 +1469,8 @@ class CatalogModuleManager {
 		$element = new $this->CatalogElementClass($dbEl);
 		
 		$this->ElementDetailFill($element);
+		
+		$this->_cacheElementById[$elid] = $element;
 		
 		return $element;
 	}
