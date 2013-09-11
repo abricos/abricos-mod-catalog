@@ -324,6 +324,34 @@ class CatalogDbQuery {
 		return $db->query_first($sql);
 	}
 	
+	public static function ElementByName(Ab_Database $db, $pfx, $name){
+		$sql = "
+			SELECT
+				e.elementid as id,
+				e.catalogid as catid,
+				e.eltypeid as tpid,
+				e.title as tl,
+				e.name as nm,
+				e.metatitle as mtl,
+				e.metakeys as mks,
+				e.metadesc as mdsc,
+				e.ord as ord,
+				(
+					SELECT CONCAT(f.fileid,'/',fm.extension)
+					FROM ".$pfx."foto f
+					LEFT JOIN ".$db->prefix."fm_file fm ON f.fileid=fm.filehash
+					WHERE f.elementid=e.elementid
+					ORDER BY ord
+					LIMIT 1
+				) as foto
+			FROM ".$pfx."element e
+			WHERE e.name='".bkint($name)."'
+			LIMIT 1
+		";
+		return $db->query_first($sql);
+	}
+	
+	
 	public static function ElementDetail(Ab_Database $db, $pfx, $elid, CatalogElementType $elType){
 		$options = $elType->options;
 		$fields = array();

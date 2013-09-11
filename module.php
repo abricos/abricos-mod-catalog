@@ -9,6 +9,11 @@
 class CatalogModule extends Ab_Module {
 	
 	/**
+	 * @var CatalogModule
+	 */
+	public static $instance = null;
+	
+	/**
 	 * Upload Status: 0 - session, 1 - id
 	 *
 	 * @var integer
@@ -33,8 +38,8 @@ class CatalogModule extends Ab_Module {
 	
 	private $_manager;
 	
-	
 	function __construct(){
+		CatalogModule::$instance = $this;
 		$this->version = "0.2.5.3";
 		$this->name = "catalog";
 		$this->takelink = "catalogbase";
@@ -122,7 +127,7 @@ class CatalogModule extends Ab_Module {
 	}
 
 	/**
-	 * Регистрация модуля "паразита"
+	 * Регистрация модуля
 	 *
 	 * @param Ab_Module $modman
 	 */

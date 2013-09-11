@@ -1005,6 +1005,12 @@ class CatalogModuleManager {
 	public $CatalogElementClass		= CatalogElement;
 	public $CatalogElementListClass = CatalogElementList;
 
+	/**
+	 * Разрешить изменять имя элемента
+	 * @var boolean
+	 */
+	public $cfgElementNameChange = false;
+	
 	public function __construct($dbPrefix){
 		$this->db = CatalogManager::$instance->db;
 		$this->pfx = $this->db->prefix."ctg_".$dbPrefix."_";
@@ -1347,31 +1353,25 @@ class CatalogModuleManager {
 	}
 	
 	/**
-	 * @param integer $elid
-	 * @return CatalogElement
+	 * Заполнить элемент деталями
+	 * 
+	 * @param CatalogElement $element
 	 */
-	public function Element($elid){
-		if (!$this->IsViewRole()){ return false; }
-		
-		$dbEl = CatalogDbQuery::Element($this->db, $this->pfx, $elid);
-		if (empty($dbEl)){ return null; }
-		
-		$element = new $this->CatalogElementClass($dbEl);
-		
+	public function ElementDetailFill($element){
 		$elTypeList = $this->ElementTypeList();
 		
 		$tpBase = $elTypeList->Get(0);
-		$dbOptionsBase = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $elid, $tpBase);
-
+		$dbOptionsBase = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $element->id, $tpBase);
+		
 		$dbOptionsPers = array();
 		if ($element->elTypeId > 0){
 			$tpPers = $elTypeList->Get($element->elTypeId);
 			if (!empty($tpPers)){
-				$dbOptionsPers = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $elid, $tpPers);
+				$dbOptionsPers = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $element->id, $tpPers);
 			}
 		}
 		
-		$rows = CatalogDbQuery::ElementFotoList($this->db, $this->pfx, $elid);
+		$rows = CatalogDbQuery::ElementFotoList($this->db, $this->pfx, $element->id);
 		$fotos = array();
 		$fotoList = new CatalogFotoList();
 		while (($row = $this->db->fetch_array($rows))){
@@ -1382,6 +1382,42 @@ class CatalogModuleManager {
 		$detail = new CatalogElementDetail($dbEl, $dbOptionsBase, $dbOptionsPers, $fotos, $fotoList);
 		
 		$element->detail = $detail;
+	}
+	
+	/**
+	 * Получить элемент по имени
+	 * 
+	 * @param string $name имя элемента
+	 * @return CatalogElement
+	 */
+	public function ElementByName($name){
+		if (!$this->IsViewRole()){ return null; }
+
+		$dbEl = CatalogDbQuery::ElementByName($this->db, $this->pfx, $name);
+		if (empty($dbEl)){ return null; }
+		
+		$element = new $this->CatalogElementClass($dbEl);
+		
+		$this->ElementDetailFill($element);
+		
+		return $element;
+	}
+	
+	/**
+	 * Получить элемент по идентификатор
+	 * 
+	 * @param integer $elid идентифиатор элемента
+	 * @return CatalogElement
+	 */
+	public function Element($elid){
+		if (!$this->IsViewRole()){ return null; }
+		
+		$dbEl = CatalogDbQuery::Element($this->db, $this->pfx, $elid);
+		if (empty($dbEl)){ return null; }
+		
+		$element = new $this->CatalogElementClass($dbEl);
+		
+		$this->ElementDetailFill($element);
 		
 		return $element;
 	}
@@ -1412,7 +1448,12 @@ class CatalogModuleManager {
 		$d->catid	= intval($d->catid);
 		$d->tpid	= intval($d->tpid);
 		$d->tl		= $utmf->Parser($d->tl);
-		$d->nm		= translateruen($d->tl);
+		
+		if (!$this->cfgElementNameChange || empty($d->nm)){
+			$d->nm	= translateruen($d->tl);
+		}else{
+			$d->nm	= translateruen($d->nm);
+		}
 		
 		$d->mtl		= $utmf->Parser($d->mtl);
 		$d->mks		= $utmf->Parser($d->mks);

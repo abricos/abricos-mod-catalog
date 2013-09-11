@@ -404,11 +404,20 @@ Component.entryPoint = function(NS){
 			}
 			if (YAHOO.util.DragDropMgr){
 				YAHOO.util.DragDropMgr.lock();
-			} 
+			}
 		},
 		_onLoadElement: function(element){
 			this.element = element;
 			
+			if (this.manager.cfg['elementNameChange']){
+				this.elShow('fnm');
+			}
+			
+			var rootCatItem = this.manager.catalogList.get(0);
+			if (rootCatItem.childs.count() == 0){
+				this.elHide('fcatalog');
+			}
+
 			this.elHide('loading');
 			this.elShow('view');
 			
@@ -420,6 +429,7 @@ Component.entryPoint = function(NS){
 			
 			this.elSetValue({
 				'tl': element.title,
+				'nm': element.name,
 				'ord': element.order,
 				'mtl': dtl.metaTitle,
 				'mks': dtl.metaKeys,
@@ -521,6 +531,7 @@ Component.entryPoint = function(NS){
 				'catid': this.catSelectWidget.getValue(),
 				'tpid': element.typeid,
 				'tl': this.gel('tl').value,
+				'nm': this.gel('nm').value,
 				'fotos': this.fotosWidget.fotos,
 				'values': vals,
 				'ord': this.gel('ord').value,
