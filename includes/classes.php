@@ -13,16 +13,51 @@ require_once 'dbquery.php';
  */
 class Catalog extends CatalogItem {
 	
+	/**
+	 * Логический тип
+	 * @var integer
+	 */
 	const TP_BOOLEAN = 0;
+	/**
+	 * Целое число
+	 * @var integer
+	 */
 	const TP_NUMBER = 1;
+	/**
+	 * Число с плавающей точкой 
+	 * @var integer
+	 */
 	const TP_DOUBLE = 2;
+	/**
+	 * Строка
+	 * @var integer
+	 */
 	const TP_STRING = 3;
 	// const TP_LIST = 4;
+	/**
+	 * Табличный список
+	 * @var integer
+	 */
 	const TP_TABLE = 5;
 	// const TP_MULTI = 6;
+	/**
+	 * Текст
+	 * @var integer
+	 */
 	const TP_TEXT = 7;
 	// const TP_DICT = 8;
 	// const TP_CHILDELEMENT = 9;
+	/**
+	 * Список идентификаторов на другие элементы
+	 * 
+	 * @var integer
+	 */
+	const TP_ELDEPENDS = 9;
+	/**
+	 * Набор файлов
+	 * @var integer
+	 */
+	const TP_FILES = 10;
 	
 	/**
 	 * @var Catalog

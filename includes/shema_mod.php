@@ -17,17 +17,17 @@ if ($updateManager->isInstall()){
 	// Каталог
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."catalog` (
-			`catalogid` int(10) unsigned NOT NULL auto_increment,
-			`parentcatalogid` int(10) unsigned NOT NULL default '0' COMMENT 'ID родителя',
+			`catalogid` int(10) UNSIGNED NOT NULL auto_increment,
+			`parentcatalogid` int(10) UNSIGNED NOT NULL default '0' COMMENT 'ID родителя',
 			`name` varchar(250) NOT NULL default '',
 			`title` varchar(250) NOT NULL default '',
 			`descript` text NOT NULL COMMENT 'Описание',
 			`metatitle` varchar(250) NOT NULL default '' COMMENT 'Тег title',
 			`metakeys` varchar(250) NOT NULL default '' COMMENT 'Тег keywords',
 			`metadesc` varchar(250) NOT NULL default '' COMMENT 'Тег description',
-			`dateline` int(10) unsigned NOT NULL default '0' COMMENT 'дата добавления',
-			`deldate` int(10) unsigned NOT NULL default '0' COMMENT 'дата удаления',
-			`level` int(2) unsigned NOT NULL default '0' COMMENT 'Уровень вложений',
+			`dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
+			`deldate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
+			`level` int(2) UNSIGNED NOT NULL default '0' COMMENT 'Уровень вложений',
 			`ord` int(3) NOT NULL default '0' COMMENT 'Сортировка',
 			
 			PRIMARY KEY  (`catalogid`),
@@ -38,12 +38,12 @@ if ($updateManager->isInstall()){
 	// справочник
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."dict` (
-			`dictid` int(5) unsigned NOT NULL auto_increment,
+			`dictid` int(5) UNSIGNED NOT NULL auto_increment,
 			`title` varchar(250) NOT NULL default '',
 			`name` varchar(250) NOT NULL default '',
 			`descript` text NOT NULL COMMENT 'Описание',
-			`dateline` int(10) unsigned NOT NULL default '0' COMMENT 'дата добавления',
-			`deldate` int(10) unsigned NOT NULL default '0' COMMENT 'дата удаления',
+			`dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
+			`deldate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
 		
 			PRIMARY KEY (`dictid`)
 		)". $charset
@@ -52,22 +52,32 @@ if ($updateManager->isInstall()){
 	// Элементы каталога
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."element` (
-			`elementid` int(10) unsigned NOT NULL auto_increment COMMENT 'Идентификатор записи',
-			`catalogid` int(10) unsigned NOT NULL COMMENT 'Категория',
-			`eltypeid` int(5) unsigned NOT NULL COMMENT 'Тип элемента',
+			`elementid` int(10) UNSIGNED NOT NULL auto_increment COMMENT 'Идентификатор записи',
+			`catalogid` int(10) UNSIGNED NOT NULL COMMENT 'Категория',
+			`eltypeid` int(5) UNSIGNED NOT NULL COMMENT 'Тип элемента',
+			
+			`userid` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Автор добавленной записи',
+			`ismoder` tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-ожидает модерацию',
+			
 			`title` VARCHAR(250) NOT NULL default 'Название',
 			`name` VARCHAR(250) NOT NULL default 'Имя',
-			`ord` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'Пользовательская сортировка',
+			`ord` int(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Пользовательская сортировка',
+
+			`version` int(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Версия записи',
+			`isarhversion` tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-есть новая версия, этот помещен в архив',
+			`prevelementid` int(10) UNSIGNED NOT NULL COMMENT 'Предыдущая версия элемента',
 			
 			`metatitle` varchar(250) NOT NULL default '' COMMENT 'Тег title',
 			`metakeys` varchar(250) NOT NULL default '' COMMENT 'Тег keywords',
 			`metadesc` varchar(250) NOT NULL default '' COMMENT 'Тег description',
 					  
-			`dateline` int(10) unsigned NOT NULL default '0' COMMENT 'дата добавления',
-			`deldate` int(10) unsigned NOT NULL default '0' COMMENT 'дата удаления',
+			`dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
+			`deldate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
 		
 			PRIMARY KEY  (`elementid`),
-			KEY `element` (`catalogid`, `deldate`),
+			KEY `name` (`name`),
+			KEY `catalogid` (`catalogid`),
+			KEY `element` (`ismoder`, `isarhversion`, `deldate`),
 			KEY `ord` (`ord`)
 		)".$charset
 	);
@@ -80,9 +90,9 @@ if ($updateManager->isInstall()){
 			`name` VARCHAR(250) NOT NULL default '',
 			`title` VARCHAR(250) NOT NULL default '',
 			`descript` text NOT NULL COMMENT 'Описание',
-			`fotouse` int(1) unsigned NOT NULL default '0' COMMENT 'В опциях элемента есть фотографии, по умолчанию - нет',
-			`dateline` int(10) unsigned NOT NULL default '0' COMMENT 'дата добавления',
-			`deldate` int(10) unsigned NOT NULL default '0' COMMENT 'дата удаления',
+			`fotouse` int(1) UNSIGNED NOT NULL default '0' COMMENT 'В опциях элемента есть фотографии, по умолчанию - нет',
+			`dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
+			`deldate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
 		
 			PRIMARY KEY  (`eltypeid`)
 		)". $charset
@@ -91,14 +101,14 @@ if ($updateManager->isInstall()){
 	// группа опций типа элемента каталога
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."eloptgroup` (
-			`eloptgroupid` int(5) unsigned NOT NULL auto_increment,
-			`parenteloptgroupid` int(5) unsigned NOT NULL default '0',
-			`eltypeid` int(5) unsigned NOT NULL default '0' COMMENT 'Тип элемента',
+			`eloptgroupid` int(5) UNSIGNED NOT NULL auto_increment,
+			`parenteloptgroupid` int(5) UNSIGNED NOT NULL default '0',
+			`eltypeid` int(5) UNSIGNED NOT NULL default '0' COMMENT 'Тип элемента',
 			`name` varchar(50) NOT NULL default '' COMMENT 'Имя (идентификатор)',
 			`title` varchar(250) NOT NULL default '',
 			`descript` text NOT NULL COMMENT 'Описание',
 			`ord` int(5) NOT NULL default '0' COMMENT 'Сортировка',
-			`issystem` tinyint(1) unsigned NOT NULL default 0 COMMENT 'Системная группа',
+			`issystem` tinyint(1) UNSIGNED NOT NULL default 0 COMMENT 'Системная группа',
 			
 			PRIMARY KEY (`eloptgroupid`)
 		)". $charset
@@ -108,10 +118,10 @@ if ($updateManager->isInstall()){
 	// fieldtype - тип поля: 0-boolean, 1-число, 2-дробное, 3-строка, 4-список, 5-таблица, 6-мульти
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."eloption` (
-		  `eloptionid` int(5) unsigned NOT NULL auto_increment,
-		  `eltypeid` int(5) unsigned NOT NULL default '0' COMMENT 'Тип элемента',
-		  `eloptgroupid` int(5) unsigned NOT NULL default '0' COMMENT 'Группа',
-		  `fieldtype` int(1) unsigned NOT NULL default '0' COMMENT 'Тип поля',
+		  `eloptionid` int(5) UNSIGNED NOT NULL auto_increment,
+		  `eltypeid` int(5) UNSIGNED NOT NULL default '0' COMMENT 'Тип элемента',
+		  `eloptgroupid` int(5) UNSIGNED NOT NULL default '0' COMMENT 'Группа',
+		  `fieldtype` int(1) UNSIGNED NOT NULL default '0' COMMENT 'Тип поля',
 		  `fieldsize` varchar(50) NOT NULL default '' COMMENT 'Размер поля',
 		  `param` text NOT NULL COMMENT 'Параметры опции в формате JSON',
 		  `name` varchar(50) NOT NULL default 'имя поля',
@@ -119,10 +129,10 @@ if ($updateManager->isInstall()){
 		  `descript` text NOT NULL COMMENT 'Описание',
 		  `eltitlesource` int(1) NOT NULL default '0' COMMENT '1-элемент является составной частью названия элемента',
 		  `ord` int(5) NOT NULL default '0' COMMENT 'Сортировка',
-		  `issystem` tinyint(1) unsigned NOT NULL default '0' COMMENT '1-системная опция',
-		  `disable` int(2) unsigned NOT NULL default '0' COMMENT 'Опция отключена',
-		  `dateline` int(10) unsigned NOT NULL default '0' COMMENT 'дата добавления',
-		  `deldate` int(10) unsigned NOT NULL default '0' COMMENT 'дата удаления',
+		  `issystem` tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-системная опция',
+		  `disable` int(2) UNSIGNED NOT NULL default '0' COMMENT 'Опция отключена',
+		  `dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
+		  `deldate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
 		  PRIMARY KEY  (`eloptionid`)
 		)". $charset
 	);
@@ -144,10 +154,10 @@ if ($updateManager->isInstall()){
 	// картинки элементов
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."foto` (
-		  `fotoid` int(10) unsigned NOT NULL auto_increment,
-		  `elementid` int(10) unsigned NOT NULL COMMENT 'Идентификатор элемента',
+		  `fotoid` int(10) UNSIGNED NOT NULL auto_increment,
+		  `elementid` int(10) UNSIGNED NOT NULL COMMENT 'Идентификатор элемента',
 		  `fileid` varchar(8) NOT NULL,
-		  `ord` int(4) unsigned NOT NULL default '0' COMMENT 'Сортировка',
+		  `ord` int(4) UNSIGNED NOT NULL default '0' COMMENT 'Сортировка',
 		  PRIMARY KEY (`fotoid`),
 		  KEY `elementid` (`elementid`)
 		)". $charset
@@ -156,7 +166,7 @@ if ($updateManager->isInstall()){
 	// Таблица сессий: необходима для хранение картинок, пока создается элемент 
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."session` (
-		  `sessionid` int(10) unsigned NOT NULL auto_increment,
+		  `sessionid` int(10) UNSIGNED NOT NULL auto_increment,
 		  `session` varchar(32) NOT NULL,
 		  `data` text NOT NULL,
 		  PRIMARY KEY (`sessionid`)
@@ -170,17 +180,17 @@ if ($updateManager->isUpdate('0.2.2')){
 		ADD `imageid`  varchar(8) NOT NULL DEFAULT '' COMMENT 'Картника'"
 	);
 }
-
+/*
 if ($updateManager->isUpdate('0.2.3')){
 
 	// Таблица вложенных элементов в элемент
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."link` (
-		  `linkid` int(10) unsigned NOT NULL auto_increment,
+		  `linkid` int(10) UNSIGNED NOT NULL auto_increment,
 		  `optionid` varchar(50) NOT NULL DEFAULT '',
-		  `elementid` int(10) unsigned NOT NULL COMMENT 'Идентификатор элемента',
-		  `childid` int(10) unsigned NOT NULL COMMENT 'Идентификатор вложенного элемента',
-		  `ord` int(4) unsigned NOT NULL default '0' COMMENT 'Сортировка',
+		  `elementid` int(10) UNSIGNED NOT NULL COMMENT 'Идентификатор элемента',
+		  `childid` int(10) UNSIGNED NOT NULL COMMENT 'Идентификатор вложенного элемента',
+		  `ord` int(4) UNSIGNED NOT NULL default '0' COMMENT 'Сортировка',
 
 			PRIMARY KEY (`linkid`),
 			KEY `elementid` (`elementid`), 
@@ -189,12 +199,13 @@ if ($updateManager->isUpdate('0.2.3')){
 	);
 
 }
+/**/
 
 if ($updateManager->isUpdate('0.2.5.1') && !$updateManager->isInstall()){
 
 	$db->query_write("
 		ALTER TABLE `".$pfx."element` 
-		ADD `ord` int(5) unsigned NOT NULL DEFAULT 0 COMMENT 'Пользовательская сортировка',
+		ADD `ord` int(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Пользовательская сортировка',
 			
 		ADD `metatitle` varchar(250) NOT NULL default '' COMMENT 'Тег title',
 		ADD `metakeys` varchar(250) NOT NULL default '' COMMENT 'Тег keywords',
@@ -211,7 +222,7 @@ if ($updateManager->isUpdate('0.2.5.1') && !$updateManager->isInstall()){
 
 	$db->query_write("
 		ALTER TABLE `".$pfx."eloption`
-		ADD `issystem` tinyint(1) unsigned NOT NULL default '0' COMMENT '1-системная опция'
+		ADD `issystem` tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-системная опция'
 	");
 	
 }
@@ -241,10 +252,60 @@ if ($updateManager->isUpdate('0.2.5.3') && !$updateManager->isInstall()){
 	$db->query_write("
 		ALTER TABLE `".$pfx."eloptgroup`
 		ADD `name` varchar(50) NOT NULL default '' COMMENT 'Имя (идентификатор)',
-		ADD `issystem` tinyint(1) unsigned NOT NULL default 0 COMMENT 'Системная группа'
+		ADD `issystem` tinyint(1) UNSIGNED NOT NULL default 0 COMMENT 'Системная группа'
 	");
 	
 }
 
+if ($updateManager->isUpdate('0.2.5.4') && !$updateManager->isInstall()){
+	// добавлен автор элемента, модерация элемента, версионность элементов
+	$db->query_write("
+		ALTER TABLE `".$pfx."element`
+		ADD int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Автор добавленной записи',
+		ADD `ismoder` tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-ожидает модерацию',
+
+		ADD `isarhversion` tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-есть новая версия, этот помещен в архив',
+		ADD `version` int(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Версия записи',
+		ADD `prevelementid` int(10) UNSIGNED NOT NULL COMMENT 'Предыдущая версия элемента',
+		ADD INDEX `name` (`name`),
+		ADD INDEX `catalogid` (`catalogid`),
+		DROP INDEX `element`,
+		ADD INDEX KEY `element` (`ismoder`, `isarhversion`, `deldate`)
+	");
+}
+
+if ($updateManager->isUpdate('0.2.5.4')){
+	
+	$db->query_write("DROP TABLE IF EXISTS `".$pfx."link`");
+
+	// Список идентификаторов на другие элементы
+	$db->query_write("
+		CREATE TABLE IF NOT EXISTS `".$pfx."eldepends` (
+			`eldependsid` int(10) UNSIGNED NOT NULL auto_increment,
+			`eloptionid` int(5) UNSIGNED NOT NULL DEFAULT 'Идентификатор опции элемента',
+			`elementid` int(10) UNSIGNED NOT NULL COMMENT 'Идентификатор элемента',
+			`elementdepid` int(10) UNSIGNED NOT NULL COMMENT 'Ссылается на элемент',
+			`ord` int(4) UNSIGNED NOT NULL default '0' COMMENT 'Сортировка',
+
+			PRIMARY KEY (`eldependsid`),
+			KEY `dep` (`eloptionid`, `elementid`) 
+		)". $charset
+	);
+	
+	// файлы элементов по опциям
+	$db->query_write("
+		CREATE TABLE IF NOT EXISTS `".$pfx."file` (
+			`fileid` int(10) UNSIGNED NOT NULL auto_increment,
+			`eloptionid` int(5) UNSIGNED NOT NULL DEFAULT 'Идентификатор опции элемента',
+			`elementid` int(10) UNSIGNED NOT NULL COMMENT 'Идентификатор элемента',
+			`filehash` varchar(8) NOT NULL COMMENT 'Идентификатор файла',
+			`ord` int(4) UNSIGNED NOT NULL default '0' COMMENT 'Сортировка',
+			PRIMARY KEY (`fileid`),
+			UNIQUE KEY `file` (`eloptionid`, `elementid`, `filehash`) 
+		)". $charset
+	);
+	
+	
+}
 
 ?>
