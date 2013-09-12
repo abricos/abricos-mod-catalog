@@ -460,6 +460,7 @@ Component.entryPoint = function(NS){
 			'ElementOptionListClass': NS.ElementOptionList,
 			'language': null,
 			'elementNameChange': false,
+			'elementNameUnique': false,
 			'elementCreateBaseTypeDisable': false
 		}, cfg || {});
 

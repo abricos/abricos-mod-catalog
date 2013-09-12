@@ -1064,14 +1064,11 @@ class CatalogModuleManager {
 	public $cfgElementNameChange = false;
 	
 	/**
-	 * Опции элементов, которые должны быть уникальны для каждого элемента.
-	 * Если несколько, то указать через зяпатую.
-	 * 
-	 * Например: 'name,articul'
+	 * Имя элемента является уникальным
 	 * 
 	 * @var boolean
 	 */
-	public $cfgElementUniqueOptions = '';
+	public $cfgElementNameUnique = false;
 	
 	/**
 	 * Отключить создание базовых элементов

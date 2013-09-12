@@ -264,12 +264,17 @@ Component.entryPoint = function(NS){
 			this.cfg = cfg;
 			this.editorWidget = null;
 		},
-		onLoad: function(manager, catel){
+		onLoad: function(manager, el){
 			this.elSetHTML({
-				'tl': catel.title
+				'idval': el.id,
+				'nm': el.name,
+				'tl': el.title
 			});
-			if (L.isNull(catel.url())){
+			if (L.isNull(el.url())){
 				this.elHide('bgopage');
+			}
+			if (manager.cfg.elementNameUnique){
+				this.elShow('colnm');
 			}
 		},
 		onClick: function(el, tp){
