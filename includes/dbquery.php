@@ -162,7 +162,12 @@ class CatalogDbQuery {
 
 		$wEls = array();
 		foreach ($cfg->elids as $elid){
+			if ($elid == 0){ continue; }
 			array_push($wEls, "e.elementid=".bkint($elid));
+		}
+		foreach ($cfg->elnames as $elname){
+			if (empty($elname)){ continue; }
+			array_push($wEls, "e.name='".bkstr($elname)."'");
 		}
 		
 		$orders = "";
@@ -370,12 +375,13 @@ class CatalogDbQuery {
 		return $db->query_first($sql);
 	}
 	
-	public static function ElementAppend(Ab_Database $db, $pfx, $d){
+	public static function ElementAppend(Ab_Database $db, $pfx, $userid, $d){
 		$sql = "
 			INSERT INTO ".$pfx."element
-			(catalogid, eltypeid, title, name, metatitle, metakeys, metadesc, ord, dateline) VALUES (
+			(catalogid, eltypeid, userid, title, name, metatitle, metakeys, metadesc, ord, dateline) VALUES (
 				".bkint($d->catid).",
 				".bkint($d->tpid).",
+				".bkint($userid).",
 				'".bkstr($d->tl)."',
 				'".bkstr($d->nm)."',
 				'".bkstr($d->mtl)."',
@@ -426,6 +432,14 @@ class CatalogDbQuery {
 		$db->query_write($sql);
 	}
 	
+	/**
+	 * Обновить значение опций элемента
+	 * @param Ab_Database $db
+	 * @param string $pfx
+	 * @param integer $elid
+	 * @param CatalogElementType $elType
+	 * @param object $d
+	 */
 	public static function ElementDetailUpdate(Ab_Database $db, $pfx, $elid, CatalogElementType $elType, $d){
 		$options = $elType->options;
 		if ($options->Count() == 0){ return; }
@@ -460,9 +474,29 @@ class CatalogDbQuery {
 				case Catalog::TP_TEXT:
 					$val = "'".bkstr($utm->Parser($val))."'";
 					break;
+				case Catalog::TP_ELDEPENDS:
+					$cfg = new CatalogElementListConfig();
+					$cfg->elids = explode(",", $val);
+					$rows = CatalogDbQuery::ElementList($db, $pfx, $cfg);
+					$aIds = array();
+					while (($d = $db->fetch_array($rows))){
+						array_push($aIds, $d['id']);
+					}
+					$val = "'".implode(",", $aIds)."'";
+					break;
+				case Catalog::TP_ELDEPENDSNAME:
+					$cfg = new CatalogElementListConfig();
+					$cfg->elnames = explode(",", $val);
+					$rows = CatalogDbQuery::ElementList($db, $pfx, $cfg);
+					$aNames = array();
+					while (($d = $db->fetch_array($rows))){
+						array_push($aNames, $d['nm']);
+					}
+					$val = "'".implode(",", $aNames)."'";
+					break;
 				default: 
 					$val = bkstr($val);
-					 break;
+					break;
 			}
 			array_push($insfld, "fld_".$name);
 			array_push($insval, $val);
@@ -716,6 +750,16 @@ class CatalogDbQuery {
 			break;
 		case Catalog::TP_TABLE:
 			$sql .= "INT(10) NOT NULL DEFAULT 0";
+			break;
+		case Catalog::TP_ELDEPENDS:
+			// содержит в себе кеш идентификаторов элементов  через запятую
+			// основная таблица зависимых модулей - eldepends
+			$sql .= "TEXT NOT NULL ";
+			break;
+		case Catalog::TP_ELDEPENDSNAME:
+			// содержит в себе кеш имен элементов через запятую
+			// основная таблица зависимых модулей - eldependsname
+			$sql .= "TEXT NOT NULL ";
 			break;
 		}
 		$sql .= " COMMENT '".bkstr($d->tl)."'";

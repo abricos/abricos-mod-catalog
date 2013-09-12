@@ -48,16 +48,20 @@ class Catalog extends CatalogItem {
 	// const TP_DICT = 8;
 	// const TP_CHILDELEMENT = 9;
 	/**
-	 * Список идентификаторов на другие элементы
-	 * 
+	 * Список на другие элементы (поле содержит кеш идентификаторов через запятую)
 	 * @var integer
 	 */
 	const TP_ELDEPENDS = 9;
 	/**
+	 * Список на другие элементы (поле содержит кеш имен через запятую)
+	 * @var unknown_type
+	 */
+	const TP_ELDEPENDSNAME = 10;
+	/**
 	 * Набор файлов
 	 * @var integer
 	 */
-	const TP_FILES = 10;
+	const TP_FILES = 11;
 	
 	/**
 	 * @var Catalog
@@ -814,6 +818,12 @@ class CatalogElementListConfig {
 	public $elids;
 	
 	/**
+	 * Имена элементов
+	 * @var array
+	 */
+	public $elnames;
+	
+	/**
 	 * @var CatalogElementTypeList
 	 */
 	public $typeList;
@@ -826,6 +836,7 @@ class CatalogElementListConfig {
 		}
 		$this->catids = $catids;
 		$this->elids = array();
+		$this->elnames = array();
 		
 		$this->orders = new CatalogElementOrderOptionList();
 		$this->extFields = new CatalogElementOptionList();
@@ -1034,6 +1045,12 @@ class CatalogModuleManager {
 	 */
 	private $pfx;
 	
+	/**
+	 * Идентификатор текущего пользователя
+	 * @var integer
+	 */
+	private $userid;
+	
 	public $CatalogClass			= Catalog;
 	public $CatalogListClass		= CatalogList;
 	
@@ -1065,6 +1082,7 @@ class CatalogModuleManager {
 	public function __construct($dbPrefix){
 		$this->db = CatalogManager::$instance->db;
 		$this->pfx = $this->db->prefix."ctg_".$dbPrefix."_";
+		$this->userid = Abricos::$user->id;
 	}
 	
 	public function IsAdminRole(){ return false; }
@@ -1580,7 +1598,7 @@ class CatalogModuleManager {
 		if ($elid == 0){ // добавление нового
 			
 			$isNew = true;
-			$elid = CatalogDbQuery::ElementAppend($this->db, $this->pfx, $d);
+			$elid = CatalogDbQuery::ElementAppend($this->db, $this->pfx, $this->userid, $d);
 			if (empty($elid)){ return null; }
 			
 		}else{ // сохранение текущего
@@ -1852,6 +1870,8 @@ class CatalogModuleManager {
 				$d->sz = $asz[0].",".$asz[1];
 				break;
 			case Catalog::TP_TEXT:
+			case Catalog::TP_ELDEPENDS:
+			case Catalog::TP_ELDEPENDSNAME:
 				$d->sz = 0;
 				break;
 		}

@@ -265,7 +265,10 @@ Component.entryPoint = function(NS){
 		'STRING':	3,
 		// 'LIST':		4,
 		'TABLE':	5,
-		'TEXT':		7
+		'TEXT':		7,
+		'ELDEPENDS': 9,
+		'ELDEPENDSNAME': 10,
+		'FILES': 11
 	};
 	
 	var ElementList = function(manager, d, catid, elementClass, cfg){

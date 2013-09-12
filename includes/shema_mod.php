@@ -257,38 +257,53 @@ if ($updateManager->isUpdate('0.2.5.3') && !$updateManager->isInstall()){
 	
 }
 
-if ($updateManager->isUpdate('0.2.5.4') && !$updateManager->isInstall()){
+if ($updateManager->isUpdate('0.2.6') && !$updateManager->isInstall()){
 	// добавлен автор элемента, модерация элемента, версионность элементов
 	$db->query_write("
 		ALTER TABLE `".$pfx."element`
-		ADD int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Автор добавленной записи',
+		ADD userid int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Автор добавленной записи',
 		ADD `ismoder` tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-ожидает модерацию',
 
 		ADD `isarhversion` tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-есть новая версия, этот помещен в архив',
 		ADD `version` int(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Версия записи',
 		ADD `prevelementid` int(10) UNSIGNED NOT NULL COMMENT 'Предыдущая версия элемента',
+			
 		ADD INDEX `name` (`name`),
 		ADD INDEX `catalogid` (`catalogid`),
 		DROP INDEX `element`,
-		ADD INDEX KEY `element` (`ismoder`, `isarhversion`, `deldate`)
+		ADD INDEX `element` (`ismoder`, `isarhversion`, `deldate`)
 	");
-}
-
-if ($updateManager->isUpdate('0.2.5.4')){
 	
 	$db->query_write("DROP TABLE IF EXISTS `".$pfx."link`");
+}
 
+if ($updateManager->isUpdate('0.2.6')){
+	
 	// Список идентификаторов на другие элементы
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."eldepends` (
 			`eldependsid` int(10) UNSIGNED NOT NULL auto_increment,
-			`eloptionid` int(5) UNSIGNED NOT NULL DEFAULT 'Идентификатор опции элемента',
+			`eloptionid` int(5) UNSIGNED NOT NULL COMMENT 'Идентификатор опции элемента',
 			`elementid` int(10) UNSIGNED NOT NULL COMMENT 'Идентификатор элемента',
-			`elementdepid` int(10) UNSIGNED NOT NULL COMMENT 'Ссылается на элемент',
+			`elementdepid` int(10) UNSIGNED NOT NULL COMMENT 'Ссылается на элемент - id',
 			`ord` int(4) UNSIGNED NOT NULL default '0' COMMENT 'Сортировка',
 
 			PRIMARY KEY (`eldependsid`),
 			KEY `dep` (`eloptionid`, `elementid`) 
+		)". $charset
+	);
+
+	// Список идентификаторов на другие элементы
+	$db->query_write("
+		CREATE TABLE IF NOT EXISTS `".$pfx."eldependsname` (
+			`eldependsnameid` int(10) UNSIGNED NOT NULL auto_increment,
+			`eloptionid` int(5) UNSIGNED NOT NULL COMMENT 'Идентификатор опции элемента',
+			`elementid` int(10) UNSIGNED NOT NULL COMMENT 'Идентификатор элемента',
+			`elementdepname` varchar(250) NOT NULL COMMENT 'Ссылается на элемент - имя',
+			`ord` int(4) UNSIGNED NOT NULL default '0' COMMENT 'Сортировка',
+	
+			PRIMARY KEY (`eldependsnameid`),
+			KEY `dep` (`eloptionid`, `elementid`)
 		)". $charset
 	);
 	
@@ -296,7 +311,7 @@ if ($updateManager->isUpdate('0.2.5.4')){
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."file` (
 			`fileid` int(10) UNSIGNED NOT NULL auto_increment,
-			`eloptionid` int(5) UNSIGNED NOT NULL DEFAULT 'Идентификатор опции элемента',
+			`eloptionid` int(5) UNSIGNED NOT NULL COMMENT 'Идентификатор опции элемента',
 			`elementid` int(10) UNSIGNED NOT NULL COMMENT 'Идентификатор элемента',
 			`filehash` varchar(8) NOT NULL COMMENT 'Идентификатор файла',
 			`ord` int(4) UNSIGNED NOT NULL default '0' COMMENT 'Сортировка',

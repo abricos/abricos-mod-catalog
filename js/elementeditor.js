@@ -341,6 +341,59 @@ Component.entryPoint = function(NS){
 		}
 	});
 	NS.ElementEditTextWidget = ElementEditTextWidget;
+	
+	
+	var ElementEditElDependsWidget = function(container, manager, option, value, cfg){
+		cfg = L.merge({
+		}, cfg || {});
+		ElementEditElDependsWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'opteldepends'  
+		}, manager, option, value, cfg);
+	};
+	YAHOO.extend(ElementEditElDependsWidget, BW, {
+		buildTData: function(manager, option, value, cfg){
+			return {'tl': option.title};
+		},
+		init: function(manager, option, value, cfg){
+			this.manager = manager;
+			this.option = option;
+			this.value = value;
+			this.cfg = cfg;
+		},
+		onLoad: function(manager, option, value, cfg){
+			this.elSetValue('val', value);
+		},
+		getValue: function(){
+			return this.gel('val').value;
+		}
+	});
+	NS.ElementEditElDependsWidget = ElementEditElDependsWidget;
+
+	var ElementEditElDependsNameWidget = function(container, manager, option, value, cfg){
+		cfg = L.merge({
+		}, cfg || {});
+		ElementEditElDependsNameWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'opteldependsname'  
+		}, manager, option, value, cfg);
+	};
+	YAHOO.extend(ElementEditElDependsNameWidget, BW, {
+		buildTData: function(manager, option, value, cfg){
+			return {'tl': option.title};
+		},
+		init: function(manager, option, value, cfg){
+			this.manager = manager;
+			this.option = option;
+			this.value = value;
+			this.cfg = cfg;
+		},
+		onLoad: function(manager, option, value, cfg){
+			this.elSetValue('val', value);
+		},
+		getValue: function(){
+			return this.gel('val').value;
+		}
+	});
+	NS.ElementEditElDependsNameWidget = ElementEditElDependsNameWidget;
 
 	var ElementEditorWidget = function(container, manager, element, cfg){
 		cfg = L.merge({
@@ -498,6 +551,12 @@ Component.entryPoint = function(NS){
 					break;
 				case NS.FTYPE['TEXT']:
 					ws[ws.length] = new NS.ElementEditTextWidget(div, option, value);
+					break;
+				case NS.FTYPE['ELDEPENDS']:
+					ws[ws.length] = new NS.ElementEditElDependsWidget(div, man, option, value);
+					break;
+				case NS.FTYPE['ELDEPENDSNAME']:
+					ws[ws.length] = new NS.ElementEditElDependsNameWidget(div, man, option, value);
 					break;
 				}
 			});
