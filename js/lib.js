@@ -30,6 +30,19 @@ Component.entryPoint = function(NS){
 	NS.Item = SysNS.Item;
 	NS.ItemList = SysNS.ItemList;
 	
+	NS.FTYPE = {
+		'BOOLEAN':	0,
+		'NUMBER':	1,
+		'DOUBLE':	2,
+		'STRING':	3,
+		// 'LIST':		4,
+		'TABLE':	5,
+		'TEXT':		7,
+		'ELDEPENDS': 9,
+		'ELDEPENDSNAME': 10,
+		'FILES': 11
+	};
+	
 	var Dict = function(d){
 		d = L.merge({
 			'tl':''
@@ -258,19 +271,6 @@ Component.entryPoint = function(NS){
 	};
 	NS.ElementDetail = ElementDetail;
 	
-	NS.FTYPE = {
-		'BOOLEAN':	0,
-		'NUMBER':	1,
-		'DOUBLE':	2,
-		'STRING':	3,
-		// 'LIST':		4,
-		'TABLE':	5,
-		'TEXT':		7,
-		'ELDEPENDS': 9,
-		'ELDEPENDSNAME': 10,
-		'FILES': 11
-	};
-	
 	var ElementList = function(manager, d, catid, elementClass, cfg){
 		this.manager = manager;
 		this.catid = catid;
@@ -305,6 +305,7 @@ Component.entryPoint = function(NS){
 		d = L.merge({
 			'tl':	'',
 			'nm':	'',
+			'prm':	'',
 			'tpid':	0,
 			'tp':	0,
 			'sz':	'',
@@ -317,6 +318,7 @@ Component.entryPoint = function(NS){
 		update: function(d){
 			this.title		= d['tl'];
 			this.name		= d['nm'];
+			this.param		= d['prm'];
 			this.typeid		= d['tpid']|0;
 			this.type		= d['tp']|0;
 			this.size		= d['sz'];

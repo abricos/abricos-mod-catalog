@@ -123,14 +123,14 @@ if ($updateManager->isInstall()){
 		  `eloptgroupid` int(5) UNSIGNED NOT NULL default '0' COMMENT 'Группа',
 		  `fieldtype` int(1) UNSIGNED NOT NULL default '0' COMMENT 'Тип поля',
 		  `fieldsize` varchar(50) NOT NULL default '' COMMENT 'Размер поля',
-		  `param` text NOT NULL COMMENT 'Параметры опции в формате JSON',
+		  `param` text NOT NULL COMMENT 'Параметры опции',
 		  `name` varchar(50) NOT NULL default 'имя поля',
 		  `title` varchar(250) NOT NULL default '',
 		  `descript` text NOT NULL COMMENT 'Описание',
 		  `eltitlesource` int(1) NOT NULL default '0' COMMENT '1-элемент является составной частью названия элемента',
 		  `ord` int(5) NOT NULL default '0' COMMENT 'Сортировка',
 		  `issystem` tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-системная опция',
-		  `disable` int(2) UNSIGNED NOT NULL default '0' COMMENT 'Опция отключена',
+		  `disable` tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-опция отключена',
 		  `dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
 		  `deldate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
 		  PRIMARY KEY  (`eloptionid`)
@@ -163,7 +163,7 @@ if ($updateManager->isInstall()){
 		)". $charset
 	);
 	
-	// Таблица сессий: необходима для хранение картинок, пока создается элемент 
+	// Таблица сессий: необходима для хранение файлов, пока создается элемент 
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."session` (
 		  `sessionid` int(10) UNSIGNED NOT NULL auto_increment,

@@ -494,6 +494,8 @@ class CatalogDbQuery {
 					}
 					$val = "'".implode(",", $aNames)."'";
 					break;
+				case Catalog::TP_FILES:
+					break;
 				default: 
 					$val = bkstr($val);
 					break;
@@ -651,7 +653,7 @@ class CatalogDbQuery {
 	public static function ElementOptionAppend(Ab_Database $db, $pfx, $d){
 		$sql = "
 			INSERT INTO ".$pfx."eloption
-			(eltypeid, fieldtype, fieldsize, eloptgroupid, name, title, descript, dateline) VALUES (
+			(eltypeid, fieldtype, fieldsize, eloptgroupid, name, title, descript, param, dateline) VALUES (
 				".bkint($d->tpid).",
 				".bkint($d->tp).",
 				'".bkstr($d->sz)."',
@@ -659,6 +661,7 @@ class CatalogDbQuery {
 				'".bkstr($d->nm)."',
 				'".bkstr($d->tl)."',
 				'".bkstr($d->dsc)."',
+				'".bkstr($d->prm)."',
 				".TIMENOW."
 			)
 		";
@@ -672,7 +675,8 @@ class CatalogDbQuery {
 			SET eloptgroupid=".bkint($d->gid).",
 				name='".bkstr($d->nm)."',
 				title='".bkstr($d->tl)."',
-				descript='".bkstr($d->dsc)."'
+				descript='".bkstr($d->dsc)."',
+				param='".bkstr($d->prm)."'
 			WHERE eloptionid=".bkint($optionid)."
 		";
 		$db->query_write($sql);
@@ -761,6 +765,11 @@ class CatalogDbQuery {
 			// основная таблица зависимых модулей - eldependsname
 			$sql .= "TEXT NOT NULL ";
 			break;
+		case Catalog::TP_FILES:
+			// содержит в себе кеш идентификаторов файлов через запятую
+			// основная таблица зависимых модулей - eldepends
+			$sql .= "TEXT NOT NULL ";
+			break;
 		}
 		$sql .= " COMMENT '".bkstr($d->tl)."'";
 		$db->query_write($sql);
@@ -793,7 +802,7 @@ class CatalogDbQuery {
 				descript as dsc,
 				ord as ord,
 				eloptgroupid as gpid,
-				param as prms,
+				param as prm,
 				eltitlesource as ets,
 				disable as dsb
 			FROM ".$pfx."eloption

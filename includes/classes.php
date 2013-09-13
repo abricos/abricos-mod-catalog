@@ -333,6 +333,22 @@ class CatalogElementTypeList extends CatalogItemList {
 		}
 		return null;
 	}
+	
+	/**
+	 * Получить опцию элемента по идентификатору
+	 * @param integer $optionid
+	 * @return CatalogElementOption
+	 */
+	public function GetOptionById($optionid){
+		for ($i=0;$i<$this->Count();$i++){
+			$elType = $this->GetByIndex($i);
+			$option = $elType->options->Get($optionid);
+			if (!empty($option)){ 
+				return $option; 
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * @param integer $id
@@ -438,6 +454,7 @@ class CatalogElementOption extends CatalogItem {
 	public $groupid;
 	public $title;
 	public $name;
+	public $param;
 	
 	public function __construct($d){
 		parent::__construct($d);
@@ -447,6 +464,7 @@ class CatalogElementOption extends CatalogItem {
 		$this->groupid	= intval($d['gid']);
 		$this->title	= strval($d['tl']);
 		$this->name		= strval($d['nm']);
+		$this->param	= strval($d['prm']);
 	}
 	
 	public function ToAJAX(){
@@ -460,6 +478,7 @@ class CatalogElementOption extends CatalogItem {
 		$ret->gid		= $this->groupid;
 		$ret->tl		= $this->title;
 		$ret->nm		= $this->name;
+		$ret->prm		= $this->param;
 		return $ret;
 	}
 }
@@ -483,7 +502,6 @@ class CatalogElementOptionTable extends CatalogElementOption {
 		return $ret;
 	}
 }
-
 
 class CatalogElementOptionList extends CatalogItemList {
 	
@@ -1849,6 +1867,12 @@ class CatalogModuleManager {
 		CatalogDbQuery::FotoAddToBuffer($this->db, $this->pfx, $fhash);
 	}
 	
+	public function FileAddToBuffer($fhash){
+		if (!$this->IsWriteRole()){ return false; }
+		
+		CatalogDbQuery::FotoAddToBuffer($this->db, $this->pfx, $fhash);
+	}
+	
 	private function ElementOptionDataFix($d){
 		switch($d->tp){
 			case Catalog::TP_BOOLEAN:
@@ -1869,6 +1893,7 @@ class CatalogModuleManager {
 			case Catalog::TP_TEXT:
 			case Catalog::TP_ELDEPENDS:
 			case Catalog::TP_ELDEPENDSNAME:
+			case Catalog::TP_FILES:
 				$d->sz = 0;
 				break;
 		}

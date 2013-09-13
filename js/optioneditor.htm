@@ -48,6 +48,12 @@
 					<input id="{i#sz}" class="inp" type="text" onfocus="this.select();" />
 				</dd>
 			</dl>
+			<dl id="{i#fparam}" style="display: none">
+				<dt>Параметры</dt>
+				<dd>
+					<div id="{i#param}"></div>
+				</dd>
+			</dl>
 			<dl id="{i#foptgroup}">
 				<dt>Группа</dt>
 				<dd>
@@ -87,7 +93,8 @@
 	<option value="5">Таблица</option>
 	<option value="7">Текст</option>
 	<option value="9">Вложенные элементы по идентификатору</option>
-	<option value="9">Вложенные элементы по имени</option>
+	<option value="10">Вложенные элементы по имени</option>
+	<option value="11">Файлы</option>
 </select>
 
 <!--{select}-->
@@ -98,3 +105,16 @@
 
 <!--{option}-->
 <option value="{v#id}">{v#tl}</option>
+
+<!--{ftefiles}-->
+<div id="{i#id}" class="ft_files">
+	<input id="{i#prm}" class="inp" type="text" onfocus="this.select();" />
+	<div class="dsc">
+		Список параметров: <br />
+		<b>onlyimage</b> - только картинки,<br />
+		<b>count</b> - max кол-во прикрепляемых файлов,<br />
+		<b>ftypes</b> - разрешенные файлы через запятую по формату <i>расширение_файла:допустимый_размер_байт</i>. 
+		Если параметр отсутсвует, то применяются общие правила менеджера файлов<br />
+		Пример: <i>onlyimage=true;count=2,ftypes=zip:10488832,pdf:10488832</i>
+	</div>
+</div>

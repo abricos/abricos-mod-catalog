@@ -73,8 +73,10 @@ class CatalogModule extends Ab_Module {
 		$adress = $this->registry->adress;
 		$dir = Abricos::$adress->dir;
 
-		if ($dir[1] == 'uploadimg'){
-			return 'uploadimg';
+		switch($dir[1]){
+			case 'uploadimg':
+			case 'uploadoptfiles';
+			return $dir[1];
 		}
 		
 		if ($adress->level >= 2){

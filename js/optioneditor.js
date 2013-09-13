@@ -142,6 +142,7 @@ Component.entryPoint = function(NS){
 			this.cfg = cfg;
 
 			this.wsOptions = [];
+			this.paramWidget = null;
 		},
 		destroy: function(){
 			OptionEditorWidget.superclass.destroy.call(this);
@@ -244,6 +245,19 @@ Component.entryPoint = function(NS){
 					break;
 				}
 			}
+			if (L.isValue(this.paramWidget)){
+				this.paramWidget.destroy();
+				this.paramWidget = null;
+			}
+			if (L.isValue(NS.OptionEditorWidget.paramEditor[fType])){
+				this.paramWidget = new NS.OptionEditorWidget.paramEditor[fType](
+					this.gel('param'), this.manager, this.option
+				);
+				this.elShow('fparam');
+			}else {
+				this.elHide('fparam');
+			}
+			
 		},
 		onClick: function(el, tp){
 			switch(el.id){
@@ -267,7 +281,8 @@ Component.entryPoint = function(NS){
 				'ord': this.gel('ord').value,
 				'tp': this.fTypeSelectWidget.getValue(),
 				'tpid': option.typeid,
-				'gid': this.optionGroupSelectWidget.getValue()
+				'gid': this.optionGroupSelectWidget.getValue(),
+				'prm': L.isValue(this.paramWidget) ? this.paramWidget.getValue() : ''
 			};
 
 			this.elHide('btnsc,btnscc');
@@ -282,4 +297,29 @@ Component.entryPoint = function(NS){
 		}
 	});
 	NS.OptionEditorWidget = OptionEditorWidget;
+	
+	NS.OptionEditorWidget.paramEditor = {};
+	
+	var OptionTypeFilesEditParamWidget = function(container, manager, option){
+		OptionTypeFilesEditParamWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'ftefiles' 
+		}, manager, option);
+	};
+	YAHOO.extend(OptionTypeFilesEditParamWidget, BW, {
+		init: function(manager, option){
+			this.manager = manager;
+			this.option = option;
+		},
+		onLoad: function(manager, option, cfg){
+			this.elSetValue({
+				'prm': option.param
+			});
+		},
+		getValue: function(){
+			return this.gel('prm').value;
+		}
+	});
+	NS.OptionTypeFilesEditParamWidget = OptionTypeFilesEditParamWidget;
+	NS.OptionEditorWidget.paramEditor[NS.FTYPE.FILES] = OptionTypeFilesEditParamWidget;
+
 };

@@ -7,6 +7,7 @@ var Component = new Brick.Component();
 Component.requires = {
 	mod:[
 		{name: 'sys', files: ['editor.js']},
+        {name: 'filemanager', files: ['attachment.js']},
 		{name: '{C#MODNAME}', files: ['fotoeditor.js', 'lib.js']}
 	]
 };
@@ -395,6 +396,62 @@ Component.entryPoint = function(NS){
 	});
 	NS.ElementEditElDependsNameWidget = ElementEditElDependsNameWidget;
 
+	var ElementEditFilesWidget = function(container, manager, option, value, cfg){
+		cfg = L.merge({
+		}, cfg || {});
+		ElementEditFilesWidget.superclass.constructor.call(this, container, {
+			'buildTemplate': buildTemplate, 'tnames': 'optfiles'  
+		}, manager, option, value, cfg);
+	};
+	YAHOO.extend(ElementEditFilesWidget, BW, {
+		buildTData: function(manager, option, value, cfg){
+			return {'tl': option.title};
+		},
+		init: function(manager, option, value, cfg){
+			this.manager = manager;
+			this.option = option;
+			this.value = value;
+			this.cfg = cfg;
+			this.uploadWindow = null;
+		},
+		onLoad: function(manager, option, value, cfg){
+			var __self = this;
+			this.filesWidget = new Brick.mod.filemanager.AttachmentWidget(this.gel('files'), value, {
+				'hideFMButton': true,
+				'clickFileUploadCallback': function(){
+					__self.showFileUpload();
+				}
+			});
+		},
+		getValue: function(){
+		},
+		showFileUpload: function(){
+			
+			ElementEditFilesWidget.uploadFiles = this;
+			
+			var man = this.manager;
+			
+			if (!L.isNull(this.uploadWindow) && !this.uploadWindow.closed){
+				this.uploadWindow.focus();
+				return;
+			}
+			var url = '/catalogbase/uploadoptfiles/'+man.modname+'/'+this.option.id+'/';
+			this.uploadWindow = window.open(
+				url, 'catalogimage',	
+				'statusbar=no,menubar=no,toolbar=no,scrollbars=yes,resizable=yes,width=550,height=500' 
+			);
+			NS.activeImageList = this;
+		},
+		filesAdd: function(files){
+			if (!L.isArray(files)){ return; }
+			for (var i=0;i<files.length;i++){
+				this.filesWidget.appendFile(files[i]);
+			}
+		}
+	});
+	ElementEditFilesWidget.uploadFiles = null;
+	NS.ElementEditFilesWidget = ElementEditFilesWidget;
+
 	var ElementEditorWidget = function(container, manager, element, cfg){
 		cfg = L.merge({
 			'fromElement': null,
@@ -557,6 +614,9 @@ Component.entryPoint = function(NS){
 					break;
 				case NS.FTYPE['ELDEPENDSNAME']:
 					ws[ws.length] = new NS.ElementEditElDependsNameWidget(div, man, option, value);
+					break;
+				case NS.FTYPE['FILES']:
+					ws[ws.length] = new NS.ElementEditFilesWidget(div, man, option, value);
 					break;
 				}
 			});
