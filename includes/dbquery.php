@@ -495,6 +495,9 @@ class CatalogDbQuery {
 					$val = "'".implode(",", $aNames)."'";
 					break;
 				case Catalog::TP_FILES:
+					$aFiles = CatalogDbQuery::ElementDetailOptionFilesUpdate($db, $pfx, $elid, $option, $val);
+					
+					$val = "'".implode(",", $aFiles)."'";
 					break;
 				default: 
 					$val = bkstr($val);
@@ -514,6 +517,49 @@ class CatalogDbQuery {
 				".implode(", ", $upd)."
 		";
 		$db->query_write($sql);
+	}
+	
+	public static function ElementDetailOptionFilesUpdate(Ab_Database $db, $pfx, $elid, CatalogElementOption $option, $files){
+		$aFiles = explode(",", trim($files));
+		if (count($aFiles) == 0){ return; }
+		
+		// все имеющиеся файлы пометить как временные
+		$sql = "
+			UPDATE ".$pfx."file
+			SET elementid=0,
+				dateline=".TIMENOW."
+			WHERE elementid=".bkint($elid)." AND eloptionid=".bkint($option->id)."
+		";
+		$db->query_write($sql);
+		
+		// сохранить в список файлов только те файлы, которые выгружены только через этот модуль
+		$aWhere = array();
+		for ($i=0;$i<count($aFiles);$i++){
+			$afi = explode(":", $aFiles[$i]);
+			array_push($aWhere, " filehash='".$afi[0]."' ");
+		}
+		$sql = "
+			UPDATE ".$pfx."file
+			SET elementid=".bkint($elid)."
+			WHERE elementid=0 AND eloptionid=".bkint($option->id)." AND (".implode(" OR ", $aWhere).")
+		";
+		$db->query_write($sql);
+		
+		// новый список файлов
+		$sql = "
+			SELECT 
+				filehash as fh,
+				filename as fn
+			FROM ".$pfx."file
+			WHERE elementid=".bkint($elid)." AND eloptionid=".bkint($option->id)."
+		";
+		$rows = $db->query_read($sql);
+		
+		$nfList = array();
+		while (($row = $db->fetch_array($rows))){
+			array_push($nfList, $row['fh'].":".$row['fn']);
+		}
+		return $nfList;
 	}
 
 	public static function ElementOrderUpdate(Ab_Database $db, $pfx, $elid, $order){
@@ -767,7 +813,7 @@ class CatalogDbQuery {
 			break;
 		case Catalog::TP_FILES:
 			// содержит в себе кеш идентификаторов файлов через запятую
-			// основная таблица зависимых модулей - eldepends
+			// основная таблица зависимых модулей - file
 			$sql .= "TEXT NOT NULL ";
 			break;
 		}
@@ -858,13 +904,66 @@ class CatalogDbQuery {
 	
 	public static function FotoAddToBuffer(Ab_Database $db, $pfx, $fhash){
 		$sql = "
-			INSERT INTO ".$pfx."foto (fileid) VALUES (
-				'".bkstr($fhash)."'
+			INSERT INTO ".$pfx."foto (fileid, dateline) VALUES (
+				'".bkstr($fhash)."',
+				".TIMENOW."
 			)
 		";
 		$db->query_write($sql);
 	}
 	
+	public static function FotoFreeFromBufferList(Ab_Database $db, $pfx){
+		$sql = "
+			SELECT
+				fotoid as id, 
+				fileid as fh
+			FROM ".$pfx."foto
+			WHERE elementid=0 AND dateline<".(TIMENOW-60*60*24)." 
+		";
+		return $db->query_read($sql);
+	}
+	
+	public static function FotoFreeListClear(Ab_Database $db, $pfx){
+		$sql = "
+			DELETE FROM ".$pfx."foto
+			WHERE elementid=0 AND dateline<".(TIMENOW-60*60*24)." 
+		";
+		return $db->query_read($sql);
+	}
+	
+	public static function OptionFileAddToBuffer(Ab_Database $db, $pfx, $userid, $optionid, $fhash, $fname){
+		$sql = "
+			INSERT INTO ".$pfx."file (userid, eloptionid, filehash, filename, dateline) VALUES (
+				".bkint($userid).",
+				".bkint($optionid).",
+				'".bkstr($fhash)."',
+				'".bkstr($fname)."',
+				".TIMENOW."
+			)
+		";
+		$db->query_write($sql);
+	}
+	
+	public static function OptionFileFreeFromBufferList(Ab_Database $db, $pfx){
+		$sql = "
+			SELECT
+				fileid as id,
+				filehash as fh
+			FROM ".$pfx."file
+			WHERE elementid=0 AND dateline<".(TIMENOW-60*60*24)."
+		";
+		return $db->query_read($sql);
+	}
+	
+	public static function OptionFileFreeListClear(Ab_Database $db, $pfx){
+		$sql = "
+			DELETE FROM ".$pfx."file
+			WHERE elementid=0 AND dateline<".(TIMENOW-60*60*24)."
+		";
+		return $db->query_read($sql);
+	}
+	
+		
 	public static function ElementFotoList(Ab_Database $db, $pfx, $elementid){
 		$sql = "
 			SELECT

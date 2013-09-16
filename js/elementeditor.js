@@ -415,8 +415,15 @@ Component.entryPoint = function(NS){
 			this.uploadWindow = null;
 		},
 		onLoad: function(manager, option, value, cfg){
-			var __self = this;
-			this.filesWidget = new Brick.mod.filemanager.AttachmentWidget(this.gel('files'), value, {
+			var __self = this, files = [], a = value.split(',');
+			for (var i=0;i<a.length;i++){
+				var aa = a[i].split(':');
+				files[files.length] = {
+					'id': aa[0], 'nm': aa[1]	
+				};
+			}
+			
+			this.filesWidget = new Brick.mod.filemanager.AttachmentWidget(this.gel('files'), files, {
 				'hideFMButton': true,
 				'clickFileUploadCallback': function(){
 					__self.showFileUpload();
@@ -424,6 +431,11 @@ Component.entryPoint = function(NS){
 			});
 		},
 		getValue: function(){
+			var files = this.filesWidget.files, a = [];
+			for (var i=0; i<files.length; i++){
+				a[a.length] = files[i]['id']+':'+files[i]['nm'];
+			}
+			return a.join(',');
 		},
 		showFileUpload: function(){
 			

@@ -25,42 +25,19 @@ if (empty($modFM)){ return; }
 $brick = Brick::$builder->brick;
 $var = &$brick->param->var;
 
-$elTypeList = $man->cManager->ElementTypeList();
-$option = $elTypeList->GetOptionById($optionid);
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
 	"modname" => $modname,
 	"optionid" => $optionid
 ));
 
-if (empty($option) || $option->type != Catalog::TP_FILES){
-	return;
-}
+$uPrm = $man->cManager->OptionFileUploadCheck($optionid);
+if (empty($uPrm)){ return; }
 
-$aFTypes = array();
-$aOPrms = explode(";", $option->param);
-for ($i=0;$i<count($aOPrms);$i++){
-	$aExp = explode("=", $aOPrms[$i]);
-	switch (strtolower(trim($aExp[0]))){
-	case 'ftypes':
-		
-		$aft = explode(",", $aExp[1]);
-		for ($ii=0;$ii<count($aft);$ii++){
-			$af = explode(":", $aft[$ii]);
-			$aFTypes[$af[0]] = array(
-				'maxsize' => $af[1]
-			);
-		}
-		break;
-	}
-}
+// TODO: передать параметры ограничение на кол-во и т.п. в окно загрузчика
 
-if (Abricos::$adress->dir[4] !== "go"){
-	return;
-}
-
+if (Abricos::$adress->dir[4] !== "go"){ return; }
 
 $resa = array();
-
 for ($i=0; $i<10; $i++){
 
 	$uploadFile = FileManagerModule::$instance->GetManager()->CreateUploadByVar('file'.$i);
@@ -72,7 +49,7 @@ for ($i=0; $i<10; $i++){
 	// $uploadFile->folderPath = "system/".date("d.m.Y", TIMENOW);
 	$uploadFile->outUserProfile = true;
 	$uploadFile->ignoreUploadRole = true;
-	$uploadFile->cfgFileExtension = $aFTypes;
+	$uploadFile->cfgFileExtension = $uPrm->fTypes;
 
 	$error = $uploadFile->Upload();
 	
@@ -87,10 +64,9 @@ for ($i=0; $i<10; $i++){
 	
 	if ($error > 0){ continue; }
 	
-	$man->cManager->FileAddToBuffer($res->fhash);
+	$man->cManager->OptionFileAddToBuffer($uPrm->option, $res->fhash, $res->fname);
 }
 
 $brick->param->var['result'] = json_encode($resa);
-
 
 ?>

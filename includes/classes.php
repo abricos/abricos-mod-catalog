@@ -1860,18 +1860,109 @@ class CatalogModuleManager {
 		return $ret;
 	}
 	
-	
+	/**
+	 * В процессе добавления фото к элементу/каталогу идентификатор файла 
+	 * помещается в буфер. Если в течении времени, фото так и не было прикреплено 
+	 * к чему либо, он удаляется 
+	 * @param string $fhash
+	 */
 	public function FotoAddToBuffer($fhash){
 		if (!$this->IsWriteRole()){ return false; }
 		
 		CatalogDbQuery::FotoAddToBuffer($this->db, $this->pfx, $fhash);
+		
+		$this->FotoBufferClear();
 	}
 	
-	public function FileAddToBuffer($fhash){
+	/**
+	 * Удалить временные фото из буфера
+	 */
+	public function FotoBufferClear(){
+		$mod = Abricos::GetModule('filemanager');
+		if (empty($mod)){ return; }
+		$mod->GetManager();
+		$fm = FileManager::$instance;
+		$fm->RolesDisable();
+		
+		$rows = CatalogDbQuery::FotoFreeFromBufferList($this->db, $this->pfx);
+		while (($row = $this->db->fetch_array($rows))){
+			$fm->FileRemove($row['fh']);
+		}
+		$fm->RolesEnable();
+		
+		CatalogDbQuery::FotoFreeListClear($this->db, $this->pfx);
+	}
+	
+	/**
+	 * Есть ли возможность выгрузки файла для запись в значении опции элемента
+	 *  
+	 * @param integer $optionid
+	 */
+	public function OptionFileUploadCheck($optionid){
 		if (!$this->IsWriteRole()){ return false; }
 		
-		CatalogDbQuery::FotoAddToBuffer($this->db, $this->pfx, $fhash);
+		$elTypeList = $this->ElementTypeList();
+		$option = $elTypeList->GetOptionById($optionid);
+		
+		if (empty($option) || $option->type != Catalog::TP_FILES){
+			return null;
+		}
+		
+		$aFTypes = array();
+		$aOPrms = explode(";", $option->param);
+		for ($i=0;$i<count($aOPrms);$i++){
+			$aExp = explode("=", $aOPrms[$i]);
+			switch (strtolower(trim($aExp[0]))){
+			case 'ftypes':
+	
+				$aft = explode(",", $aExp[1]);
+				for ($ii=0;$ii<count($aft);$ii++){
+					$af = explode(":", $aft[$ii]);
+					$aFTypes[$af[0]] = array(
+						'maxsize' => $af[1]
+					);
+				}
+				break;
+			}
+		}
+		$ret = new stdClass();
+		$ret->fTypes = $aFTypes;
+		$ret->option = $option;
+		return $ret;
 	}
+	
+	/**
+	 * Поместить идентификатор файла в буфер
+	 * 
+	 * Метод вызывает content_uploadoptfiles.php
+	 * 
+	 * @param CatalogElementOption $option
+	 * @param string $fhash идентификатор файла
+	 * @param string $fname имя файла
+	 */
+	public function OptionFileAddToBuffer($option, $fhash, $fname){
+		if (!$this->IsWriteRole()){ return false; }
+		
+		CatalogDbQuery::OptionFileAddToBuffer($this->db, $this->pfx, $this->userid, $option->id, $fhash, $fname);
+		$this->OptionFileBufferClear();
+	}
+	
+	public function OptionFileBufferClear(){
+		$mod = Abricos::GetModule('filemanager');
+		if (empty($mod)){ return; }
+		$mod->GetManager();
+		$fm = FileManager::$instance;
+		$fm->RolesDisable();
+	
+		$rows = CatalogDbQuery::FotoFreeFromBufferList($this->db, $this->pfx);
+		while (($row = $this->db->fetch_array($rows))){
+			$fm->FileRemove($row['fh']);
+		}
+		$fm->RolesEnable();
+	
+		CatalogDbQuery::OptionFileFreeListClear($this->db, $this->pfx);
+	}
+	
 	
 	private function ElementOptionDataFix($d){
 		switch($d->tp){

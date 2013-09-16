@@ -154,12 +154,13 @@ if ($updateManager->isInstall()){
 	// картинки элементов
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."foto` (
-		  `fotoid` int(10) UNSIGNED NOT NULL auto_increment,
-		  `elementid` int(10) UNSIGNED NOT NULL COMMENT 'Идентификатор элемента',
-		  `fileid` varchar(8) NOT NULL,
-		  `ord` int(4) UNSIGNED NOT NULL default '0' COMMENT 'Сортировка',
-		  PRIMARY KEY (`fotoid`),
-		  KEY `elementid` (`elementid`)
+			`fotoid` int(10) UNSIGNED NOT NULL auto_increment,
+			`elementid` int(10) UNSIGNED NOT NULL COMMENT 'Идентификатор элемента',
+			`fileid` varchar(8) NOT NULL,
+			`ord` int(4) UNSIGNED NOT NULL default '0' COMMENT 'Сортировка',
+			`dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
+			PRIMARY KEY (`fotoid`),
+			KEY `elementid` (`elementid`)
 		)". $charset
 	);
 	
@@ -273,7 +274,12 @@ if ($updateManager->isUpdate('0.2.6') && !$updateManager->isInstall()){
 		DROP INDEX `element`,
 		ADD INDEX `element` (`ismoder`, `isarhversion`, `deldate`)
 	");
-	
+	// добавлен автор элемента, модерация элемента, версионность элементов
+	$db->query_write("
+		ALTER TABLE `".$pfx."foto`
+		ADD `dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
+	");
+
 	$db->query_write("DROP TABLE IF EXISTS `".$pfx."link`");
 }
 
@@ -313,10 +319,14 @@ if ($updateManager->isUpdate('0.2.6')){
 			`fileid` int(10) UNSIGNED NOT NULL auto_increment,
 			`eloptionid` int(5) UNSIGNED NOT NULL COMMENT 'Идентификатор опции элемента',
 			`elementid` int(10) UNSIGNED NOT NULL COMMENT 'Идентификатор элемента',
+			`userid` int(10) UNSIGNED NOT NULL COMMENT 'Пользователь',
 			`filehash` varchar(8) NOT NULL COMMENT 'Идентификатор файла',
+			`filename` varchar(250) NOT NULL COMMENT 'Имя файла',
 			`ord` int(4) UNSIGNED NOT NULL default '0' COMMENT 'Сортировка',
+			`dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'Дата добавления',
 			PRIMARY KEY (`fileid`),
-			UNIQUE KEY `file` (`eloptionid`, `elementid`, `filehash`) 
+			KEY `elementid` (`elementid`), 
+			KEY `file` (`eloptionid`, `elementid`) 
 		)". $charset
 	);
 	
