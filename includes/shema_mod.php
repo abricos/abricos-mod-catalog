@@ -277,7 +277,7 @@ if ($updateManager->isUpdate('0.2.6') && !$updateManager->isInstall()){
 	// добавлен автор элемента, модерация элемента, версионность элементов
 	$db->query_write("
 		ALTER TABLE `".$pfx."foto`
-		ADD `dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
+		ADD `dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления'
 	");
 
 	$db->query_write("DROP TABLE IF EXISTS `".$pfx."link`");
