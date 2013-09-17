@@ -33,6 +33,11 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
 $uPrm = $man->cManager->OptionFileUploadCheck($optionid);
 if (empty($uPrm)){ return; }
 
+Brick::$builder->LoadBrickS('filemanager', 'accinfo', $brick, array("p" => array(
+	"hideuserspace" => true,
+	"fextobj" => $uPrm->fTypes
+)));
+
 // TODO: передать параметры ограничение на кол-во и т.п. в окно загрузчика
 
 if (Abricos::$adress->dir[4] !== "go"){ return; }
@@ -49,7 +54,7 @@ for ($i=0; $i<10; $i++){
 	// $uploadFile->folderPath = "system/".date("d.m.Y", TIMENOW);
 	$uploadFile->outUserProfile = true;
 	$uploadFile->ignoreUploadRole = true;
-	$uploadFile->cfgFileExtension = $uPrm->fTypes;
+	$uploadFile->cfgFileExtensions = $uPrm->fTypes;
 
 	$error = $uploadFile->Upload();
 	

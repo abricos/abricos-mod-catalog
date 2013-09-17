@@ -7,7 +7,9 @@
  */
 
 class CatalogDbQuery {
-
+	
+	const FILECLEARTIME = 86400;
+	
 	public static function CatalogList(Ab_Database $db, $pfx){
 		$sql = "
 			(SELECT
@@ -918,7 +920,7 @@ class CatalogDbQuery {
 				fotoid as id, 
 				fileid as fh
 			FROM ".$pfx."foto
-			WHERE elementid=0 AND dateline<".(TIMENOW-60*60*24)." 
+			WHERE elementid=0 AND dateline<".(TIMENOW-CatalogDbQuery::FILECLEARTIME)." 
 		";
 		return $db->query_read($sql);
 	}
@@ -926,7 +928,7 @@ class CatalogDbQuery {
 	public static function FotoFreeListClear(Ab_Database $db, $pfx){
 		$sql = "
 			DELETE FROM ".$pfx."foto
-			WHERE elementid=0 AND dateline<".(TIMENOW-60*60*24)." 
+			WHERE elementid=0 AND dateline<".(TIMENOW-CatalogDbQuery::FILECLEARTIME)." 
 		";
 		return $db->query_read($sql);
 	}
@@ -950,7 +952,7 @@ class CatalogDbQuery {
 				fileid as id,
 				filehash as fh
 			FROM ".$pfx."file
-			WHERE elementid=0 AND dateline<".(TIMENOW-60*60*24)."
+			WHERE elementid=0 AND dateline<".(TIMENOW-CatalogDbQuery::FILECLEARTIME)."
 		";
 		return $db->query_read($sql);
 	}
@@ -958,7 +960,7 @@ class CatalogDbQuery {
 	public static function OptionFileFreeListClear(Ab_Database $db, $pfx){
 		$sql = "
 			DELETE FROM ".$pfx."file
-			WHERE elementid=0 AND dateline<".(TIMENOW-60*60*24)."
+			WHERE elementid=0 AND dateline<".(TIMENOW-CatalogDbQuery::FILECLEARTIME)."
 		";
 		return $db->query_read($sql);
 	}

@@ -417,12 +417,12 @@ Component.entryPoint = function(NS){
 		onLoad: function(manager, option, value, cfg){
 			var __self = this, files = [], a = value.split(',');
 			for (var i=0;i<a.length;i++){
+				if (a[i].length == 0){continue;}
 				var aa = a[i].split(':');
 				files[files.length] = {
 					'id': aa[0], 'nm': aa[1]	
 				};
 			}
-			
 			this.filesWidget = new Brick.mod.filemanager.AttachmentWidget(this.gel('files'), files, {
 				'hideFMButton': true,
 				'clickFileUploadCallback': function(){

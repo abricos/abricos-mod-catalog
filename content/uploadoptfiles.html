@@ -11,7 +11,7 @@
 		font-size: 18px;
 	}
 	.mod-catalog  .upload #inputs {
-		min-height: 300px;
+		min-height: 70px;
 	}
 	.mod-catalog  .upload .errortext {
 		color: red;
@@ -38,7 +38,7 @@
 		<fieldset id="errorpanel" style="display: none">
 			<legend class="errortext">Ошибка</legend>
 			<div class="errortext">
-				Не удалось выполнить загрузку:
+				Не удалось выполнить загрузку: <span id="errortext"></span>
 			</div>
 		</fieldset>
 
@@ -66,6 +66,7 @@
 		
 	</form>
 </div>
+[mod]filemanager:accinfo[/mod]
 
 <script type="text/javascript">
    	var error = {
@@ -108,6 +109,11 @@
 		
 		if (!iserr){
 			self.close();
+		}else{
+			var elEP = document.getElementById('errorpanel'),
+				elET = document.getElementById('errortext');
+			elEP.style.display = '';
+			elET.innerHTML = error[r['error']];
 		}
 	}
 	setResult();

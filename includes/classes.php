@@ -1629,6 +1629,9 @@ class CatalogModuleManager {
 		
 		// обновление фоток
 		CatalogDbQuery::ElementFotoUpdate($this->db, $this->pfx, $elid, $d->fotos);
+		
+		$this->OptionFileBufferClear();
+		$this->FotoBufferClear();
 
 		return $elid;
 	}
@@ -1954,12 +1957,11 @@ class CatalogModuleManager {
 		$fm = FileManager::$instance;
 		$fm->RolesDisable();
 	
-		$rows = CatalogDbQuery::FotoFreeFromBufferList($this->db, $this->pfx);
+		$rows = CatalogDbQuery::OptionFileFreeFromBufferList($this->db, $this->pfx);
 		while (($row = $this->db->fetch_array($rows))){
 			$fm->FileRemove($row['fh']);
 		}
 		$fm->RolesEnable();
-	
 		CatalogDbQuery::OptionFileFreeListClear($this->db, $this->pfx);
 	}
 	
