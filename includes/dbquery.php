@@ -451,12 +451,10 @@ class CatalogDbQuery {
 		$utm = Abricos::TextParser();
 		$utmf = Abricos::TextParser(true);
 		
-		for ($i=0; $i<$options->Count(); $i++){
-			$option = $options->GetByIndex($i);
-			$name = $option->name;
-			
-			$val = $d->$name;
-			
+		foreach ($d as $optName => $val){
+			$option = $options->GetByName($optName);
+			if (empty($option)){ continue; }
+				
 			switch($option->type){
 				case Catalog::TP_BOOLEAN:
 					$val = empty($val) ? 0 : 1;
@@ -505,9 +503,9 @@ class CatalogDbQuery {
 					$val = bkstr($val);
 					break;
 			}
-			array_push($insfld, "fld_".$name);
+			array_push($insfld, "fld_".$optName);
 			array_push($insval, $val);
-			array_push($upd, "fld_".$name."=". $val);
+			array_push($upd, "fld_".$optName."=". $val);
 		}
 		
 		$sql = "
