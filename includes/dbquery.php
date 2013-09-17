@@ -768,9 +768,15 @@ class CatalogDbQuery {
 			case Catalog::TP_STRING:
 				$sql .= "VARCHAR(".$oldOption->size.") NOT NULL DEFAULT ''";
 				break;
-			case Catalog::TP_TEXT:
-				$sql .= "TEXT NOT NULL ";
+			case Catalog::TP_TABLE:
+				$sql .= "INT(10) NOT NULL DEFAULT 0";
 				break;
+			case Catalog::TP_TEXT:
+			case Catalog::TP_ELDEPENDS:
+			case Catalog::TP_ELDEPENDSNAME:
+			case Catalog::TP_FILES:
+				$sql .= "TEXT NOT NULL ";
+				break;				
 		}
 		$db->query_write($sql);
 	}
@@ -1156,6 +1162,27 @@ class CatalogDbQuery {
 			WHERE ".implode(" OR ", $aWh)."
 		";
 		return $db->query_read($sql);
+	}
+	
+	public static function ElementOptionFileList(Ab_Database $db, $pfx, $elids){
+		if (count($elids) == 0){ return null; }
+		
+		$aWh = array();
+		foreach($elids as $elid){
+			array_push($aWh, "ef.elementid=".bkint($elid));
+		}
+		$sql = "
+			SELECT 
+				ef.filehash as id,
+				ef.filename as fn,
+				f.counter as cnt,
+				f.filesize as sz,
+				f.dateline as dl
+			FROM ".$pfx."file ef
+			INNER JOIN ".$db->prefix."fm_file f ON f.filehash=ef.filehash
+			WHERE ".implode(" OR ", $aWh)."
+		";
+		return $db->query_read($sql); 
 	}
 	
 }

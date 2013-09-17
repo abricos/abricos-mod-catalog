@@ -262,8 +262,34 @@ class CatalogList extends CatalogItemList {
 	}
 }
 
+class CatalogFile extends AbricosItem {
+	public $name;
+	public $counter;
+	public $dateline;
+	
+	public function __construct($d){
+		$this->id = strval($d['id']);
+		$this->name = strval($d['fn']);
+		$this->counter = intval($d['cnt']);
+		$this->dateline = intval($d['dl']);
+	}
+	
+	public function URL(){
+		return "/filemanager/i/".$this->id."/".$this->name;
+	}
+}
+
+class CatalogFileList extends AbricosList {
+	
+	/**
+	 * @return CatalogFile
+	 */
+	public function Get($id){
+		return parent::Get($id);
+	}
+}
+
 class CatalogUser extends AbricosItem {
-	public $id;
 	public $userName;
 	public $avatar;
 	public $firstName;
@@ -2313,6 +2339,40 @@ class CatalogModuleManager {
 			$users->Add($user);
 		}
 		return $users;
+	}
+	
+	
+	/**
+	 * Получить список файлов
+	 * 
+	 * @param CatalogElementList|CataloElement $data
+	 * @return CatalogFileList
+	 */
+	public function ElementOptionFileList($data){
+		$files = new CatalogFileList();
+		if (!$this->IsViewRole()){ return $files; }
+		
+		$elids = array();
+		$elcids = array();
+		if ($data instanceof CatalogElementList){
+			for ($i=0;$i<$data->Count();$i++){
+				$el = $data->GetByIndex($i);
+				if ($elcids[$el->id]){
+					continue;
+				}
+				$elcids[$el->userid] = true;
+				array_push($elids, $el->id);
+			}
+		}else if ($data instanceof CatalogElement){
+			array_push($elids, $data->id);
+		}
+		
+		$rows = CatalogDbQuery::ElementOptionFileList($this->db, $this->pfx, $elids);
+		while (($d = $this->db->fetch_array($rows))){
+			$file = new CatalogFile($d);
+			$files->Add($file);
+		}
+		return $files;
 	}
 	
 }
