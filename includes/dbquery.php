@@ -219,6 +219,9 @@ class CatalogDbQuery {
 				e.title as tl,
 				e.name as nm,
 				e.ord as ord,
+				e.userid as uid,
+				e.dateline as dl,
+				e.upddate as upd,
 				(
 					SELECT CONCAT(f.fileid,'/',fm.extension)
 					FROM ".$pfx."foto f
@@ -316,6 +319,9 @@ class CatalogDbQuery {
 				e.metakeys as mks,
 				e.metadesc as mdsc,
 				e.ord as ord,
+				e.userid as uid,
+				e.dateline as dl,
+				e.upddate as upd,
 				(
 					SELECT CONCAT(f.fileid,'/',fm.extension)
 					FROM ".$pfx."foto f
@@ -343,6 +349,9 @@ class CatalogDbQuery {
 				e.metakeys as mks,
 				e.metadesc as mdsc,
 				e.ord as ord,
+				e.userid as uid,
+				e.dateline as dl,
+				e.upddate as upd,
 				(
 					SELECT CONCAT(f.fileid,'/',fm.extension)
 					FROM ".$pfx."foto f
@@ -408,7 +417,8 @@ class CatalogDbQuery {
 				metatitle='".bkstr($d->mtl)."',
 				metakeys='".bkstr($d->mks)."',
 				metadesc='".bkstr($d->mdsc)."',
-				ord=".bkint($d->ord)."
+				ord=".bkint($d->ord).",
+				upddate=".TIMENOW."
 			WHERE elementid=".bkint($elid)."
 			LIMIT 1
 		";
@@ -1100,6 +1110,54 @@ class CatalogDbQuery {
 		
 		return $db->query_read($sql);
 	}
+	
+	public static function UserRatingSQLExt(Ab_Database $db){
+		$urt = new stdClass();
+		$urt->fld = "";
+		$urt->tbl = "";
+		$userid = Abricos::$user->id;
+		
+		$modURating = Abricos::GetModule("urating");
+		
+		if (!empty($modURating) && $userid>0){
+			$urt->fld .= "
+				,IF(ISNULL(urt.reputation), 0, urt.reputation) as rep,
+				IF(ISNULL(urt.skill), 0, urt.skill) as rtg
+			";
+			$urt->tbl .= "
+				LEFT JOIN ".$db->prefix."urating_user urt ON u.userid=urt.userid
+			";
+		}
+	
+		return $urt;
+	}
+	
+	
+	public static function UserList(Ab_Database $db, $uids){
+		if (count($uids) == 0){ return null; }
+		
+		$urt = CatalogDbQuery::UserRatingSQLExt($db);
+		
+		$aWh = array();
+		foreach($uids as $uid){
+			array_push($aWh, "u.userid=".bkint($uid));
+		}
+	
+		$sql = "
+			SELECT
+				u.userid as id,
+				u.username as unm,
+				u.avatar as avt,
+				u.firstname as fnm,
+				u.lastname as lnm
+				".$urt->fld."
+			FROM ".$db->prefix."user u
+			".$urt->tbl."
+			WHERE ".implode(" OR ", $aWh)."
+		";
+		return $db->query_read($sql);
+	}
+	
 }
 
 ?>

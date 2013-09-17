@@ -262,6 +262,77 @@ class CatalogList extends CatalogItemList {
 	}
 }
 
+class CatalogUser extends AbricosItem {
+	public $id;
+	public $userName;
+	public $avatar;
+	public $firstName;
+	public $lastName;
+	
+	public function __construct($d){
+		$this->id			= intval($d['uid'])>0 ? $d['uid'] : $d['id'];
+		$this->userName		= $d['unm'];
+		$this->avatar		= $d['avt'];
+		$this->firstName	= $d['fnm'];
+		$this->lastName		= $d['lnm'];
+	}
+	
+	public function ToAJAX(){
+		$ret = new stdClass();
+		$ret->id = $this->id;
+		$ret->unm = $this->userName;
+		$ret->avt = $this->avatar;
+		$ret->fnm = $this->firstName;
+		$ret->lnm = $this->lastName;
+		return $ret;
+	}
+	
+	public function GetUserName(){
+		if (!empty($this->firstName) && !empty($this->lastName)){
+			return $this->firstName." ".$this->lastName;
+		}
+		return $this->userName;
+	}
+	
+	public function URL(){
+		$mod = Abricos::GetModule('uprofile');
+		if (empty($mod)){ return "#"; }
+		return '/uprofile/'.$this->id.'/';
+	}
+	
+	private function Avatar($size){
+		$url = empty($this->avatar) ?
+		'/modules/uprofile/images/nofoto'.$size.'.gif' :
+		'/filemanager/i/'.$this->avatar.'/w_'.$size.'-h_'.$size.'/avatar.gif';
+		return '<img src="'.$url.'">';
+	}
+	
+	public function Avatar24(){
+		return $this->Avatar(24);
+	}
+	
+	public function Avatar90(){
+		return $this->Avatar(90);
+	}
+}
+
+class CatalogUserList extends AbricosList {
+	
+	/**
+	 * @return CatalogUser
+	 */
+	public function Get($id){
+		return parent::Get($id);
+	}
+	
+	/**
+	 * @return CatalogUser
+	 */
+	public function GetByIndex($i){
+		return parent::GetByIndex($id);
+	}
+}
+
 class CatalogElementType extends CatalogItem {
 
 	public $title;
@@ -575,6 +646,23 @@ class CatalogElement extends CatalogItem {
 	public $detail = null;
 	
 	/**
+	 * Идентификатор пользователя добавивший элемент
+	 * @var integer
+	 */
+	public $userid = 0;
+	
+	/**
+	 * Дата добавления
+	 * @var integer
+	 */
+	public $dateline = 0;
+	/**
+	 * Дата обновления
+	 * @var integer
+	 */
+	public $upddate = 0;
+	
+	/**
 	 * @param array $d
 	 * @param CatalogElementOptionList $extFields
 	 */
@@ -586,6 +674,9 @@ class CatalogElement extends CatalogItem {
 		$this->title	= strval($d['tl']);
 		$this->name		= strval($d['nm']);
 		$this->order	= intval($d['ord']);
+		$this->userid	= intval($d['uid']);
+		$this->dateline	= intval($d['dl']);
+		$this->upddate	= intval($d['upd']);
 		
 		$afoto 			= explode("/", strval($d['foto']));
 		$this->foto		= $afoto[0];
@@ -2191,6 +2282,37 @@ class CatalogModuleManager {
 			array_push($ret, $row);
 		}
 		return $ret;
+	}
+	
+	/**
+	 * Получить список пользователей
+	 * 
+	 * @param CatalogElementList|CataloElement $data
+	 * @return CatalogUserList
+	 */
+	public function UserList($data){
+		$users = new CatalogUserList();
+		if (!$this->IsViewRole()){ return $users; }
+		
+		$uids = array();
+		$ucids = array();
+		if ($data instanceof CatalogElementList){
+			for ($i=0;$i<$data->Count();$i++){
+				$el = $data->GetByIndex($i);
+				if ($ucids[$el->userid]){ continue; }
+				$ucids[$el->userid] = true;
+				array_push($uids, $el->userid);
+			}
+		}else if ($data instanceof CatalogElement){
+			array_push($uids, $data->userid);
+		}
+		
+		$rows = CatalogDbQuery::UserList($this->db, $uids);
+		while (($d = $this->db->fetch_array($rows))){
+			$user = new CatalogUser($d);
+			$users->Add($user);
+		}
+		return $users;
 	}
 	
 }

@@ -71,8 +71,9 @@ if ($updateManager->isInstall()){
 			`metakeys` varchar(250) NOT NULL default '' COMMENT 'Тег keywords',
 			`metadesc` varchar(250) NOT NULL default '' COMMENT 'Тег description',
 					  
-			`dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
-			`deldate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
+			`dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'Дата добавления',
+			`upddate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'Дата обновления',
+			`deldate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'Дата удаления',
 		
 			PRIMARY KEY  (`elementid`),
 			KEY `name` (`name`),
@@ -268,12 +269,19 @@ if ($updateManager->isUpdate('0.2.6') && !$updateManager->isInstall()){
 		ADD `isarhversion` tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-есть новая версия, этот помещен в архив',
 		ADD `version` int(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Версия записи',
 		ADD `prevelementid` int(10) UNSIGNED NOT NULL COMMENT 'Предыдущая версия элемента',
+		
+		ADD `upddate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'Дата обновления',
 			
 		ADD INDEX `name` (`name`),
 		ADD INDEX `catalogid` (`catalogid`),
 		DROP INDEX `element`,
 		ADD INDEX `element` (`ismoder`, `isarhversion`, `deldate`)
 	");
+	$db->query_write("
+		UPDATE `".$pfx."element`
+		SET upddate=dateline
+	");
+
 	// добавлен автор элемента, модерация элемента, версионность элементов
 	$db->query_write("
 		ALTER TABLE `".$pfx."foto`
