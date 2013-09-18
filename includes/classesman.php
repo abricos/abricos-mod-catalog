@@ -480,6 +480,28 @@ class CatalogModuleManager {
 		return $element;
 	}
 	
+	/**
+	 * Список измнений элемента
+	 * 
+	 * @param string $name
+	 * @param string $sExtOptions дополнительные опции элементов базового типа
+	 */
+	public function ElementChangeLogListByName($name, $sExtOptions){
+		if (!$this->IsViewRole()){ return null; }
+		
+		$elTypeList = $this->ElementTypeList();
+		$elTypeBase = $elTypeList->Get(0);
+		$optionList = new CatalogElementOptionList();
+		$aExtOptions = explode(",", $sExtOptions);
+		foreach ($aExtOptions as $optName){
+			$option = $elTypeBase->options->GetByName($optName);
+			if (empty($option)){ continue; }
+			$optionList->Add($option);
+		} 
+		
+		$rows = CatalogDbQuery::ElementChangeLogListByName($this->db, $this->pfx, $name, $optionList);
+	}
+	
 	private $_cacheElementById = null;
 	
 	/**

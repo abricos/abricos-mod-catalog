@@ -157,6 +157,28 @@ class CatalogDbQuery {
 		$db->query_write($sql);
 	}
 	
+	public static function ElementChangeLogListByName(Ab_Database $db, $pfx, $elname, CatalogElementOptionList $extOptions){
+		$extFields = "";
+		$cnt = $extOptions->Count();
+		for ($i=0; $i<$cnt; $i++){
+			$option = $extOptions->GetByIndex($i);
+			if ($option->elTypeId > 0){ continue; }
+		
+			$extFields .= ", e.fld_".$option->name;
+		}
+		
+		$sql = "
+			SELECT
+				e.elementid as id,
+				e.version as v
+				".$extFields."
+			FROM ".$pfx."element e
+			WHERE e.name='".bkstr($elname)."' AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+			ORDER BY e.version DESC
+		";
+		return $db->query_read($sql);
+	}
+	
 	public static function ElementList(Ab_Database $db, $pfx, CatalogElementListConfig $cfg){
 		
 		$wCats = array();
