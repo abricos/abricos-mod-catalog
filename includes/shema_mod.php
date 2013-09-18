@@ -69,6 +69,7 @@ if ($updateManager->isInstall()){
 			`version` int(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Версия записи',
 			`isarhversion` tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-есть новая версия, этот помещен в архив',
 			`prevelementid` int(10) UNSIGNED NOT NULL COMMENT 'Предыдущая версия элемента',
+			`changelog` text NOT NULL COMMENT 'Список изменений',
 			
 			`metatitle` varchar(250) NOT NULL default '' COMMENT 'Тег title',
 			`metakeys` varchar(250) NOT NULL default '' COMMENT 'Тег keywords',
@@ -270,7 +271,8 @@ if ($updateManager->isUpdate('0.2.6') && !$updateManager->isInstall()){
 		ADD `isarhversion` tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-есть новая версия, этот помещен в архив',
 		ADD `version` int(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Версия записи',
 		ADD `prevelementid` int(10) UNSIGNED NOT NULL COMMENT 'Предыдущая версия элемента',
-		
+		ADD `changelog` text NOT NULL COMMENT 'Список изменений',
+			
 		ADD `upddate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'Дата обновления',
 		ADD `language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
 

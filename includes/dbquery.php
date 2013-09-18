@@ -224,6 +224,11 @@ class CatalogDbQuery {
 				e.userid as uid,
 				e.dateline as dl,
 				e.upddate as upd,
+				
+				e.version as v,
+				e.prevelementid as pelid,
+				e.changelog as chlg,
+				
 				(
 					SELECT CONCAT(f.fileid,'/',fm.extension)
 					FROM ".$pfx."foto f
@@ -234,7 +239,7 @@ class CatalogDbQuery {
 				) as foto
 				".$extFields."
 			FROM ".$pfx."element e
-			WHERE e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+			WHERE e.isarhversion=0 AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 		";
 		
 		$isWhere = false;
@@ -287,7 +292,7 @@ class CatalogDbQuery {
 		$sql = "
 			SELECT count(*) as cnt
 			FROM ".$pfx."element e
-			WHERE e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+			WHERE e.isarhversion=0 AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 		";
 		
 		$isWhere = false;
@@ -324,6 +329,11 @@ class CatalogDbQuery {
 				e.userid as uid,
 				e.dateline as dl,
 				e.upddate as upd,
+				
+				e.version as v,
+				e.prevelementid as pelid,
+				e.changelog as chlg,
+				
 				(
 					SELECT CONCAT(f.fileid,'/',fm.extension)
 					FROM ".$pfx."foto f
@@ -347,13 +357,20 @@ class CatalogDbQuery {
 				e.eltypeid as tpid,
 				e.title as tl,
 				e.name as nm,
+				
 				e.metatitle as mtl,
 				e.metakeys as mks,
 				e.metadesc as mdsc,
+				
 				e.ord as ord,
 				e.userid as uid,
 				e.dateline as dl,
 				e.upddate as upd,
+				
+				e.version as v,
+				e.prevelementid as pelid,
+				e.changelog as chlg,
+				
 				(
 					SELECT CONCAT(f.fileid,'/',fm.extension)
 					FROM ".$pfx."foto f
@@ -363,7 +380,7 @@ class CatalogDbQuery {
 					LIMIT 1
 				) as foto
 			FROM ".$pfx."element e
-			WHERE e.name='".bkstr($name)."' AND e.language='".bkstr(Abricos::$LNG)."'
+			WHERE e.isarhversion=0 AND e.deldate=0 AND e.name='".bkstr($name)."' AND e.language='".bkstr(Abricos::$LNG)."'
 			LIMIT 1
 		";
 		return $db->query_first($sql);
@@ -391,7 +408,8 @@ class CatalogDbQuery {
 	public static function ElementAppend(Ab_Database $db, $pfx, $userid, $d){
 		$sql = "
 			INSERT INTO ".$pfx."element
-			(catalogid, eltypeid, userid, title, name, metatitle, metakeys, metadesc, ord, language, dateline) VALUES (
+			(catalogid, eltypeid, userid, title, name, metatitle, metakeys, metadesc, ord, 
+				version, prevelementid, changelog, language, dateline) VALUES (
 				".bkint($d->catid).",
 				".bkint($d->tpid).",
 				".bkint($userid).",
@@ -401,6 +419,9 @@ class CatalogDbQuery {
 				'".bkstr($d->mks)."',
 				'".bkstr($d->mdsc)."',
 				".bkint($d->ord).",
+				".bkint($d->v).",
+				".bkint($d->pelid).",
+				'".bkstr($d->chlg)."',
 				'".bkstr(Abricos::$LNG)."',
 				".TIMENOW."
 			)
@@ -420,8 +441,19 @@ class CatalogDbQuery {
 				metatitle='".bkstr($d->mtl)."',
 				metakeys='".bkstr($d->mks)."',
 				metadesc='".bkstr($d->mdsc)."',
+				changelog='".bkstr($d->chlg)."',
 				ord=".bkint($d->ord).",
 				upddate=".TIMENOW."
+			WHERE elementid=".bkint($elid)."
+			LIMIT 1
+		";
+		$db->query_write($sql);
+	}
+	
+	public static function ElementToArhive(Ab_Database $db, $pfx, $elid){
+		$sql = "
+			UPDATE ".$pfx."element
+			SET isarhversion=1
 			WHERE elementid=".bkint($elid)."
 			LIMIT 1
 		";

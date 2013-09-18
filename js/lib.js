@@ -212,7 +212,8 @@ Component.entryPoint = function(NS){
 			'mdsc': '',
 			'mks': '',
 			'optb': {},
-			'optp': {}
+			'optp': {},
+			'chlg': ''
 		}, d || {});
 		this.init(manager, owner, d);
 	};
@@ -229,6 +230,8 @@ Component.entryPoint = function(NS){
 			
 			this.optionsBase = d['optb'];
 			this.optionsPers = d['optp'];
+			
+			this.changeLog = d['chlg'];
 		},
 		foreach: function(f){
 			var man = this.manager;
@@ -463,7 +466,8 @@ Component.entryPoint = function(NS){
 			'language': null,
 			'elementNameChange': false,
 			'elementNameUnique': false,
-			'elementCreateBaseTypeDisable': false
+			'elementCreateBaseTypeDisable': false,
+			'versionControl': false
 		}, cfg || {});
 
 		NS.managers[modname] = this;

@@ -538,6 +538,10 @@ Component.entryPoint = function(NS){
 				this.elShow('fnm');
 			}
 			
+			if (man.cfg['versionControl']){
+				this.elShow('versioncontrol');
+			}
+			
 			var rootCatItem = this.manager.catalogList.get(0);
 			if (rootCatItem.childs.count() == 0){
 				this.elHide('fcatalog');
@@ -558,7 +562,8 @@ Component.entryPoint = function(NS){
 				'ord': element.order,
 				'mtl': dtl.metaTitle,
 				'mks': dtl.metaKeys,
-				'mdsc': dtl.metaDesc
+				'mdsc': dtl.metaDesc,
+				'chlg': dtl.changeLog
 			});
 			
 			this.fotosWidget = new NS.FotoListEditWidget(this.gel('fotos'), this.manager, this.element.detail.fotos);
@@ -678,7 +683,8 @@ Component.entryPoint = function(NS){
 				'ord': this.gel('ord').value,
 				'mtl': this.gel('mtl').value,
 				'mks': this.gel('mks').value,
-				'mdsc': this.gel('mdsc').value
+				'mdsc': this.gel('mdsc').value,
+				'chlg': this.gel('chlg').value
 			};
 
 			this.elHide('btnsc,btnscc');
