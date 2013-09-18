@@ -29,7 +29,7 @@ class CatalogDbQuery {
 					GROUP BY e.catalogid
 				) as ecnt
 			FROM ".$pfx."catalog cat
-			LEFT JOIN ".$pfx."element e ON e.catalogid=0 AND e.deldate=0
+			LEFT JOIN ".$pfx."element e ON e.catalogid=0 AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 			GROUP BY e.catalogid
 			LIMIT 1)
 							
@@ -48,12 +48,13 @@ class CatalogDbQuery {
 				(
 					SELECT count(*) as cnt
 					FROM ".$pfx."element e
-					WHERE e.catalogid=cat.catalogid AND e.deldate=0
+					WHERE e.catalogid=cat.catalogid AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 					GROUP BY e.catalogid
 				) as ecnt
 			FROM ".$pfx."catalog cat
 			LEFT JOIN ".$db->prefix."fm_file f ON cat.imageid=f.filehash 
-			WHERE cat.deldate=0)
+			WHERE cat.deldate=0 AND cat.language='".bkstr(Abricos::$LNG)."'
+			)
 			ORDER BY ord DESC, tl
 		";
 		return $db->query_read($sql);
@@ -73,7 +74,7 @@ class CatalogDbQuery {
 					0 as ord, 
 					count(*) as ecnt
 				FROM ".$pfx."element e
-				WHERE e.catalogid=0 AND e.deldate=0
+				WHERE e.catalogid=0 AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 			";
 		}else{
 			$sql = "
@@ -99,7 +100,7 @@ class CatalogDbQuery {
 					cat.metadesc as mdsc
 					 
 				FROM ".$pfx."catalog cat
-				WHERE catalogid=".bkint($catid)." AND cat.deldate=0
+				WHERE catalogid=".bkint($catid)." AND cat.deldate=0 AND cat.language='".bkstr(Abricos::$LNG)."'
 				LIMIT 1
 			";
 		}
@@ -109,7 +110,7 @@ class CatalogDbQuery {
 	public static function CatalogAppend(Ab_Database $db, $pfx, $d){
 		$sql = "
 			INSERT INTO ".$pfx."catalog
-				(parentcatalogid, title, name, imageid, descript, metatitle, metakeys, metadesc, ord, dateline) VALUES (
+				(parentcatalogid, title, name, imageid, descript, metatitle, metakeys, metadesc, ord, language, dateline) VALUES (
 				".bkint($d->pid).",
 				'".bkstr($d->tl)."',
 				'".bkstr($d->nm)."',
@@ -119,6 +120,7 @@ class CatalogDbQuery {
 				'".bkstr($d->mks)."',
 				'".bkstr($d->mdsc)."',
 				".bkint($d->ord).",
+				'".bkstr(Abricos::$LNG)."',
 				".TIMENOW."
 			)
 		";
@@ -232,7 +234,7 @@ class CatalogDbQuery {
 				) as foto
 				".$extFields."
 			FROM ".$pfx."element e
-			WHERE e.deldate=0 
+			WHERE e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 		";
 		
 		$isWhere = false;
@@ -285,7 +287,7 @@ class CatalogDbQuery {
 		$sql = "
 			SELECT count(*) as cnt
 			FROM ".$pfx."element e
-			WHERE e.deldate=0 
+			WHERE e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 		";
 		
 		$isWhere = false;
@@ -361,7 +363,7 @@ class CatalogDbQuery {
 					LIMIT 1
 				) as foto
 			FROM ".$pfx."element e
-			WHERE e.name='".bkstr($name)."'
+			WHERE e.name='".bkstr($name)."' AND e.language='".bkstr(Abricos::$LNG)."'
 			LIMIT 1
 		";
 		return $db->query_first($sql);
@@ -389,7 +391,7 @@ class CatalogDbQuery {
 	public static function ElementAppend(Ab_Database $db, $pfx, $userid, $d){
 		$sql = "
 			INSERT INTO ".$pfx."element
-			(catalogid, eltypeid, userid, title, name, metatitle, metakeys, metadesc, ord, dateline) VALUES (
+			(catalogid, eltypeid, userid, title, name, metatitle, metakeys, metadesc, ord, language, dateline) VALUES (
 				".bkint($d->catid).",
 				".bkint($d->tpid).",
 				".bkint($userid).",
@@ -399,6 +401,7 @@ class CatalogDbQuery {
 				'".bkstr($d->mks)."',
 				'".bkstr($d->mdsc)."',
 				".bkint($d->ord).",
+				'".bkstr(Abricos::$LNG)."',
 				".TIMENOW."
 			)
 		";
@@ -624,10 +627,11 @@ class CatalogDbQuery {
 	public static function ElementTypeAppend(Ab_Database $db, $pfx, $d){
 		$sql = "
 			INSERT INTO ".$pfx."eltype
-				(name, title, descript) VALUES (
+				(name, title, descript, language) VALUES (
 				'".bkstr($d->nm)."',
 				'".bkstr($d->tl)."',
-				'".bkstr($d->dsc)."'
+				'".bkstr($d->dsc)."',
+				'".bkstr(Abricos::$LNG)."'
 			)
 		";
 		$db->query_write($sql);
@@ -664,7 +668,7 @@ class CatalogDbQuery {
 				name as nm,
 				descript as dsc
 			FROM ".$pfx."eltype t
-			WHERE t.deldate=0
+			WHERE t.deldate=0 AND t.language='".bkstr(Abricos::$LNG)."'
 		";
 		return $db->query_read($sql);
 	}
@@ -677,6 +681,7 @@ class CatalogDbQuery {
 				name as nm,
 				eltypeid as tpid
 			FROM ".$pfx."eloptgroup
+			WHERE language='".bkstr(Abricos::$LNG)."'
 			ORDER BY ord DESC, title
 		";
 		return $db->query_read($sql);
@@ -709,7 +714,7 @@ class CatalogDbQuery {
 	public static function ElementOptionAppend(Ab_Database $db, $pfx, $d){
 		$sql = "
 			INSERT INTO ".$pfx."eloption
-			(eltypeid, fieldtype, fieldsize, eloptgroupid, name, title, descript, param, dateline) VALUES (
+			(eltypeid, fieldtype, fieldsize, eloptgroupid, name, title, descript, param, language, dateline) VALUES (
 				".bkint($d->tpid).",
 				".bkint($d->tp).",
 				'".bkstr($d->sz)."',
@@ -718,6 +723,7 @@ class CatalogDbQuery {
 				'".bkstr($d->tl)."',
 				'".bkstr($d->dsc)."',
 				'".bkstr($d->prm)."',
+				'".bkstr(Abricos::$LNG)."',
 				".TIMENOW."
 			)
 		";
@@ -868,7 +874,7 @@ class CatalogDbQuery {
 				eltitlesource as ets,
 				disable as dsb
 			FROM ".$pfx."eloption
-			WHERE deldate=0
+			WHERE deldate=0 AND language='".bkstr(Abricos::$LNG)."'
 			ORDER BY tpid, ord DESC, tl
 		";
 		return $db->query_read($sql);
@@ -1056,7 +1062,7 @@ class CatalogDbQuery {
  				title as tl,
  				'c' as tp
  			FROM ".$pfx."catalog
- 			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%'
+ 			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%' AND language='".bkstr(Abricos::$LNG)."'
  			LIMIT 3
  			
  			UNION
@@ -1066,7 +1072,7 @@ class CatalogDbQuery {
  				title as tl,
  				'e' as tp
  			FROM ".$pfx."element e
- 			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%'
+ 			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%' AND language='".bkstr(Abricos::$LNG)."'
 		";
 		if ($eFValue > 0){
 			$sql .= "
@@ -1089,7 +1095,7 @@ class CatalogDbQuery {
 					title as tl,
 					'c' as tp
 				FROM ".$pfx."catalog
-				WHERE deldate=0 AND title LIKE '%".bkstr($query)."%'
+				WHERE deldate=0 AND title LIKE '%".bkstr($query)."%' AND language='".bkstr(Abricos::$LNG)."'
 				LIMIT 3
 			
 				UNION
@@ -1102,7 +1108,7 @@ class CatalogDbQuery {
 				title as tl,
 				'e' as tp
 			FROM ".$pfx."element e
-			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%'
+			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%' AND language='".bkstr(Abricos::$LNG)."'
 		";
 		if ($eFValue > 0){
 			$sql .= "

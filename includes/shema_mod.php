@@ -25,10 +25,13 @@ if ($updateManager->isInstall()){
 			`metatitle` varchar(250) NOT NULL default '' COMMENT 'Тег title',
 			`metakeys` varchar(250) NOT NULL default '' COMMENT 'Тег keywords',
 			`metadesc` varchar(250) NOT NULL default '' COMMENT 'Тег description',
-			`dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
-			`deldate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
 			`level` int(2) UNSIGNED NOT NULL default '0' COMMENT 'Уровень вложений',
 			`ord` int(3) NOT NULL default '0' COMMENT 'Сортировка',
+			
+			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
+			
+			`dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
+			`deldate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
 			
 			PRIMARY KEY  (`catalogid`),
 			KEY `deldate` (`deldate`)
@@ -70,7 +73,9 @@ if ($updateManager->isInstall()){
 			`metatitle` varchar(250) NOT NULL default '' COMMENT 'Тег title',
 			`metakeys` varchar(250) NOT NULL default '' COMMENT 'Тег keywords',
 			`metadesc` varchar(250) NOT NULL default '' COMMENT 'Тег description',
-					  
+
+			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
+			
 			`dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'Дата добавления',
 			`upddate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'Дата обновления',
 			`deldate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'Дата удаления',
@@ -78,7 +83,7 @@ if ($updateManager->isInstall()){
 			PRIMARY KEY  (`elementid`),
 			KEY `name` (`name`),
 			KEY `catalogid` (`catalogid`),
-			KEY `element` (`ismoder`, `isarhversion`, `deldate`),
+			KEY `element` (`language`, `ismoder`, `isarhversion`, `deldate`),
 			KEY `ord` (`ord`)
 		)".$charset
 	);
@@ -92,10 +97,14 @@ if ($updateManager->isInstall()){
 			`title` VARCHAR(250) NOT NULL default '',
 			`descript` text NOT NULL COMMENT 'Описание',
 			`fotouse` int(1) UNSIGNED NOT NULL default '0' COMMENT 'В опциях элемента есть фотографии, по умолчанию - нет',
+
+			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
+			
 			`dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
 			`deldate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
 		
-			PRIMARY KEY  (`eltypeid`)
+			PRIMARY KEY  (`eltypeid`),
+			KEY `eltype` (`language`, `deldate`)
 		)". $charset
 	);
 	
@@ -111,6 +120,8 @@ if ($updateManager->isInstall()){
 			`ord` int(5) NOT NULL default '0' COMMENT 'Сортировка',
 			`issystem` tinyint(1) UNSIGNED NOT NULL default 0 COMMENT 'Системная группа',
 			
+			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
+			
 			PRIMARY KEY (`eloptgroupid`)
 		)". $charset
 	);
@@ -119,36 +130,27 @@ if ($updateManager->isInstall()){
 	// fieldtype - тип поля: 0-boolean, 1-число, 2-дробное, 3-строка, 4-список, 5-таблица, 6-мульти
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."eloption` (
-		  `eloptionid` int(5) UNSIGNED NOT NULL auto_increment,
-		  `eltypeid` int(5) UNSIGNED NOT NULL default '0' COMMENT 'Тип элемента',
-		  `eloptgroupid` int(5) UNSIGNED NOT NULL default '0' COMMENT 'Группа',
-		  `fieldtype` int(1) UNSIGNED NOT NULL default '0' COMMENT 'Тип поля',
-		  `fieldsize` varchar(50) NOT NULL default '' COMMENT 'Размер поля',
-		  `param` text NOT NULL COMMENT 'Параметры опции',
-		  `name` varchar(50) NOT NULL default 'имя поля',
-		  `title` varchar(250) NOT NULL default '',
-		  `descript` text NOT NULL COMMENT 'Описание',
-		  `eltitlesource` int(1) NOT NULL default '0' COMMENT '1-элемент является составной частью названия элемента',
-		  `ord` int(5) NOT NULL default '0' COMMENT 'Сортировка',
-		  `issystem` tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-системная опция',
-		  `disable` tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-опция отключена',
-		  `dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
-		  `deldate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
-		  PRIMARY KEY  (`eloptionid`)
-		)". $charset
-	);
-	
-	// Конфигурация каталога
-	$db->query_write("
-		CREATE TABLE IF NOT EXISTS `".$pfx."catalogcfg` (
-		  `catalogcfgid` INT(10) UNSIGNED NOT NULL auto_increment,
-		  `level` INT(2) UNSIGNED NOT NULL default '0' COMMENT 'Уровень',
-		  `leveltype` INT(1) UNSIGNED NOT NULL default '0' COMMENT 'Тип уровня: 0-динамический, 1-фиксированный',
-		  `title` VARCHAR(250) NOT NULL default '',
-		  `name` VARCHAR(250) NOT NULL default '',
-		  `descript` TEXT NOT NULL COMMENT 'Описание',
-		  `status` INT(1) UNSIGNED NOT NULL default '0' COMMENT 'Статус: 0-доступен, 1-закрыт',
-		  PRIMARY KEY  (`catalogcfgid`)
+			`eloptionid` int(5) UNSIGNED NOT NULL auto_increment,
+			`eltypeid` int(5) UNSIGNED NOT NULL default '0' COMMENT 'Тип элемента',
+			`eloptgroupid` int(5) UNSIGNED NOT NULL default '0' COMMENT 'Группа',
+			`fieldtype` int(1) UNSIGNED NOT NULL default '0' COMMENT 'Тип поля',
+			`fieldsize` varchar(50) NOT NULL default '' COMMENT 'Размер поля',
+			`param` text NOT NULL COMMENT 'Параметры опции',
+			`name` varchar(50) NOT NULL default 'имя поля',
+			`title` varchar(250) NOT NULL default '',
+			`descript` text NOT NULL COMMENT 'Описание',
+			`eltitlesource` int(1) NOT NULL default '0' COMMENT '1-элемент является составной частью названия элемента',
+			`ord` int(5) NOT NULL default '0' COMMENT 'Сортировка',
+			`issystem` tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-системная опция',
+			`disable` tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-опция отключена',
+			
+			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
+			
+			`dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
+			`deldate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
+			
+			PRIMARY KEY  (`eloptionid`),
+			KEY `eloption` (`language`, `deldate`)
 		)". $charset
 	);
 	
@@ -165,15 +167,6 @@ if ($updateManager->isInstall()){
 		)". $charset
 	);
 	
-	// Таблица сессий: необходима для хранение файлов, пока создается элемент 
-	$db->query_write("
-		CREATE TABLE IF NOT EXISTS `".$pfx."session` (
-		  `sessionid` int(10) UNSIGNED NOT NULL auto_increment,
-		  `session` varchar(32) NOT NULL,
-		  `data` text NOT NULL,
-		  PRIMARY KEY (`sessionid`)
-		)". $charset
-	);
 }
 
 if ($updateManager->isUpdate('0.2.2')){
@@ -182,26 +175,6 @@ if ($updateManager->isUpdate('0.2.2')){
 		ADD `imageid`  varchar(8) NOT NULL DEFAULT '' COMMENT 'Картника'"
 	);
 }
-/*
-if ($updateManager->isUpdate('0.2.3')){
-
-	// Таблица вложенных элементов в элемент
-	$db->query_write("
-		CREATE TABLE IF NOT EXISTS `".$pfx."link` (
-		  `linkid` int(10) UNSIGNED NOT NULL auto_increment,
-		  `optionid` varchar(50) NOT NULL DEFAULT '',
-		  `elementid` int(10) UNSIGNED NOT NULL COMMENT 'Идентификатор элемента',
-		  `childid` int(10) UNSIGNED NOT NULL COMMENT 'Идентификатор вложенного элемента',
-		  `ord` int(4) UNSIGNED NOT NULL default '0' COMMENT 'Сортировка',
-
-			PRIMARY KEY (`linkid`),
-			KEY `elementid` (`elementid`), 
-			UNIQUE KEY `elopt` (`elementid`,`optionid`,`childid`)
-		)". $charset
-	);
-
-}
-/**/
 
 if ($updateManager->isUpdate('0.2.5.1') && !$updateManager->isInstall()){
 
@@ -260,6 +233,34 @@ if ($updateManager->isUpdate('0.2.5.3') && !$updateManager->isInstall()){
 }
 
 if ($updateManager->isUpdate('0.2.6') && !$updateManager->isInstall()){
+	$db->query_write("
+		ALTER TABLE `".$pfx."catalog`
+		ADD `language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
+		DROP INDEX `deldate`,
+		ADD INDEX `catalog` (`language`, `deldate`)
+	");
+	$db->query_write("UPDATE `".$pfx."catalog` SET language='ru' ");
+
+	$db->query_write("
+		ALTER TABLE `".$pfx."eltype`
+		ADD `language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
+		ADD INDEX `eltype` (`language`, `deldate`)
+	");
+	$db->query_write("UPDATE `".$pfx."eltype` SET language='ru' ");
+	
+	$db->query_write("
+		ALTER TABLE `".$pfx."eloptgroup`
+		ADD `language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык'
+	");
+	$db->query_write("UPDATE `".$pfx."eloptgroup` SET language='ru' ");
+	
+	$db->query_write("
+		ALTER TABLE `".$pfx."eloption`
+		ADD `language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
+		ADD INDEX `eloption` (`language`, `deldate`)
+	");
+	$db->query_write("UPDATE `".$pfx."eloption` SET language='ru' ");
+	
 	// добавлен автор элемента, модерация элемента, версионность элементов
 	$db->query_write("
 		ALTER TABLE `".$pfx."element`
@@ -271,15 +272,16 @@ if ($updateManager->isUpdate('0.2.6') && !$updateManager->isInstall()){
 		ADD `prevelementid` int(10) UNSIGNED NOT NULL COMMENT 'Предыдущая версия элемента',
 		
 		ADD `upddate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'Дата обновления',
-			
+		ADD `language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
+
 		ADD INDEX `name` (`name`),
 		ADD INDEX `catalogid` (`catalogid`),
 		DROP INDEX `element`,
-		ADD INDEX `element` (`ismoder`, `isarhversion`, `deldate`)
+		ADD INDEX `element` (`language`, `ismoder`, `isarhversion`, `deldate`)
 	");
 	$db->query_write("
 		UPDATE `".$pfx."element`
-		SET upddate=dateline
+		SET upddate=dateline, language='ru'
 	");
 
 	// добавлен автор элемента, модерация элемента, версионность элементов
@@ -289,6 +291,8 @@ if ($updateManager->isUpdate('0.2.6') && !$updateManager->isInstall()){
 	");
 
 	$db->query_write("DROP TABLE IF EXISTS `".$pfx."link`");
+	$db->query_write("DROP TABLE IF EXISTS `".$pfx."catalogcfg`");
+	$db->query_write("DROP TABLE IF EXISTS `".$pfx."session`");
 }
 
 if ($updateManager->isUpdate('0.2.6')){
