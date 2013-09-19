@@ -873,6 +873,39 @@ class CatalogElementList extends CatalogItemList {
 	}
 }
 
+class CatalogElementChangeLog extends AbricosItem {
+	public $version;
+	public $ext;
+	public $dateline;
+	public $log;
+	
+	public function __construct($d){
+		parent::__construct($d);
+		
+		$this->version = intval($d['v']);
+		$this->dateline = intval($d['dl']);
+		$this->log = strval($d['chlg']);
+		$this->ext = array();
+	}
+}
+
+class CatalogElementChangeLogList extends AbricosList {
+	
+	/**
+	 * @return CatalogElementChangeLog
+	 */
+	public function Get($id){
+		return parent::Get($id);
+	}
+	
+	/**
+	 * @return CatalogElementChangeLog
+	 */
+	public function GetByIndex($i){
+		return parent::GetByIndex($i);
+	}
+}
+
 /**
  * Фото элемента каталога
  */

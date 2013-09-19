@@ -485,6 +485,7 @@ class CatalogModuleManager {
 	 * 
 	 * @param string $name
 	 * @param string $sExtOptions дополнительные опции элементов базового типа
+	 * @return CatalogElementChangeLog
 	 */
 	public function ElementChangeLogListByName($name, $sExtOptions){
 		if (!$this->IsViewRole()){ return null; }
@@ -497,9 +498,21 @@ class CatalogModuleManager {
 			$option = $elTypeBase->options->GetByName($optName);
 			if (empty($option)){ continue; }
 			$optionList->Add($option);
-		} 
+		}
 		
+		$list = new CatalogElementChangeLogList();
 		$rows = CatalogDbQuery::ElementChangeLogListByName($this->db, $this->pfx, $name, $optionList);
+		while (($d = $this->db->fetch_array($rows))){
+			$chLog = new CatalogElementChangeLog($d);
+			
+			for ($i=0;$i<$optionList->Count();$i++){
+				$option = $optionList->GetByIndex($i);
+				$chLog->ext[$option->name] = $d['fld_'.$option->name];
+			}
+			$list->Add($chLog);
+		}
+		
+		return $list;
 	}
 	
 	private $_cacheElementById = null;
@@ -587,9 +600,11 @@ class CatalogModuleManager {
 		$d->mks		= $utmf->Parser($d->mks);
 		$d->mdsc	= $utmf->Parser($d->mdsc);
 		
-		$d->chlg	= $utm->Parser($d->chlg);
-		
 		$d->ord		= intval($d->ord);
+		
+		$utmChLog = Abricos::TextParser(true);
+		$utmChLog->jevix->cfgSetAutoBrMode(false);
+		$d->chlg	= $utmChLog->Parser($d->chlg);
 		
 		$elTypeList = $this->ElementTypeList();
 		$elType = $elTypeList->Get($d->tpid);

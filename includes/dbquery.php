@@ -170,7 +170,9 @@ class CatalogDbQuery {
 		$sql = "
 			SELECT
 				e.elementid as id,
-				e.version as v
+				e.dateline as dl,
+				e.version as v,
+				e.changelog as chlg
 				".$extFields."
 			FROM ".$pfx."element e
 			WHERE e.name='".bkstr($elname)."' AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'

@@ -187,10 +187,15 @@ Component.entryPoint = function(NS){
 			this.ext		= d['ext'] || {};
 		},
 		copy: function(){
+			var tl = this.title;
+			if (!this.manager.cfg['versionControl']){
+				tl = "Copy " + this.title;
+			}
+			
 			var el = this.manager.newElement({
 				'catid': this.catid,
 				'tpid': this.typeid,
-				'tl': "Copy " + this.title,
+				'tl': tl,
 				'nm': this.name,
 				'ord': this.order
 			});
