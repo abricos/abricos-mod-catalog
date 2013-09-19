@@ -603,8 +603,13 @@ class CatalogModuleManager {
 		$d->ord		= intval($d->ord);
 		
 		$utmChLog = Abricos::TextParser(true);
-		$utmChLog->jevix->cfgSetAutoBrMode(false);
-		$d->chlg	= $utmChLog->Parser($d->chlg);
+		
+		// TODO: временное решение в лоб
+		$d->chlg = str_replace("\r\n",'[--!rn!--]', $d->chlg);
+		$d->chlg = str_replace("\n",'[--!n!--]', $d->chlg);
+		$d->chlg = $utmf->Parser($d->chlg);
+		$d->chlg = str_replace('[--!rn!--]', "\r\n", $d->chlg);
+		$d->chlg = str_replace('[--!n!--]', "\n", $d->chlg);
 		
 		$elTypeList = $this->ElementTypeList();
 		$elType = $elTypeList->Get($d->tpid);
