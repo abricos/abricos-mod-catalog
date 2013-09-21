@@ -19,6 +19,8 @@ Component.entryPoint = function(NS){
 		buildTemplate = this.buildTemplate,
 		BW = Brick.mod.widget.Widget;
 	
+	var UID = Brick.env.user.id;
+	
 	var ElementEditBooleanWidget = function(container, option, value, cfg){
 		cfg = L.merge({
 		}, cfg || {});
@@ -612,12 +614,17 @@ Component.entryPoint = function(NS){
 				});
 			}
 		},
-		_nameUniqueSetNewVersionStatus: function(flag){
+		_nameUniqueSetNewVersionStatus: function(info){
 			this.elHide('uniquenameloading');
 			
-			if (flag){
-				this.elShow('bsavenewv,bsavenewvc');
-				this.elHide('bcreate,bcreatec');
+			if (info['elementid'] > 0){
+				var roles = this.manager.roles;
+				if (!roles['isAdmin'] && roles['isOperator'] && info['userid'] != UID){
+					this.elHide('bsavenewv,bsavenewvc,bcreate,bcreatec');
+				}else{
+					this.elShow('bsavenewv,bsavenewvc');
+					this.elHide('bcreate,bcreatec');
+				}
 			}else{
 				this.elHide('bsavenewv,bsavenewvc');
 				this.elShow('bcreate,bcreatec');
@@ -635,7 +642,7 @@ Component.entryPoint = function(NS){
 				this._cacheCheckUniqueName = {};
 			}
 			if (this._cacheCheckUniqueName[nm]){
-				this._nameUniqueSetNewVersionStatus(this._cacheCheckUniqueName[nm]['elid']>0);
+				this._nameUniqueSetNewVersionStatus(this._cacheCheckUniqueName[nm]);
 				return;
 			}
 			
@@ -647,11 +654,11 @@ Component.entryPoint = function(NS){
 			setTimeout(function(){
 				if (__self._currentCheckUniqueName != nm){ return; } // уже идет новая проверка
 				
-				man.elementIdByName(nm, function(elid){
+				man.elementIdByName(nm, function(info){
 					if (__self._currentCheckUniqueName != nm){ return; } // уже идет новая проверка
 					
-					__self._cacheCheckUniqueName[nm] = {'elid': elid};
-					__self._nameUniqueSetNewVersionStatus(elid>0);
+					__self._cacheCheckUniqueName[nm] = info;
+					__self._nameUniqueSetNewVersionStatus(info);
 				});
 				
 			}, 1000);

@@ -884,11 +884,11 @@ Component.entryPoint = function(NS){
 				'do': 'elementidbyname',
 				'elname': name
 			}, function(d){
-				var elid = 0;
+				var info = {'elementid': 0, 'userid': 0};
 				if (L.isValue(d)){
-					elid = d['elementid'];
+					info = d;
 				}
-				NS.life(callback, elid);
+				NS.life(callback, info);
 			});
 		}
 	};

@@ -597,6 +597,7 @@ class CatalogModuleManager {
 
 		$ret = new stdClass();
 		$ret->elementid = $element->id;
+		$ret->userid = $element->userid;
 		
 		return $ret;
 		
