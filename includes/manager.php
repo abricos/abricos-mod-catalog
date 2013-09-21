@@ -17,16 +17,8 @@ class CatalogManager extends Ab_ModuleManager {
 	 */
 	public $module = null;
 	
-	/**
-	 * @var CatalogManager
-	 */
-	public static $instance = null;
-	
-	private $_disableRole = false;
-	
 	public function __construct(CatalogModule $module){
 		parent::__construct($module);
-		CatalogManager::$instance = $this;
 	}
 	
 	public function ToArray($rows, &$ids1 = "", $fnids1 = 'uid', &$ids2 = "", $fnids2 = '', &$ids3 = "", $fnids3 = ''){
@@ -53,41 +45,5 @@ class CatalogManager extends Ab_ModuleManager {
 		}
 		return $ret;
 	}
-	
-	/**
-	 * Отключить проверку ролей перед выполением функций
-	 * <b>Внимание!</b> Не отключайте роли без явной необходимости дабы может пострадать безопасность. 
-	 */
-	public function DisableRole(){
-		$this->_disableRole = true;
-	}
-	
-	/**
-	 * Проверка на роль администратора текущего пользователя
-	 * @return boolean Если true, пользователь имеет роль администратора
-	 */
-	public function IsAdminRole(){
-		if ($this->_disableRole){ return true; }
-		return $this->IsRoleEnable(CatalogAction::ADMIN);
-	}
-	
-	/**
-	 * Проверка на роль оператора текущего пользователя
-	 * @return boolean Если true, пользователь имеет роль оператора
-	 */
-	public function IsWriteRole(){
-		if ($this->_disableRole){ return true; }
-		return $this->IsRoleEnable(CatalogAction::WRITE);
-	}
-	
-	/**
-	 * Проверка на роль чтения каталога и его элементов текущего пользователя
-	 * @return boolean Если true, пользователь имеет доступ на чтение каталога и его элементов
-	 */
-	public function IsViewRole(){
-		if ($this->_disableRole){ return true; }
-		return $this->IsRoleEnable(CatalogAction::VIEW);
-	}
-
 }
 ?>

@@ -12,6 +12,13 @@
 .aw-catalog .elrow .easyeditor .btnsc {
 	top: -22px;
 }
+.aw-catalog .elementlist .easyeditor .elnmline {
+	position: relative;
+}
+.aw-catalog .elementlist .easyeditor .uniquenameloading {
+	position: absolute;
+	top: 3px; left: 388px;
+}
 
 /* * * * * Option Table * * * */
 .aw-catalog .easyeditor .opttable select {

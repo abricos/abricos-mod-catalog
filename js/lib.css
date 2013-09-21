@@ -133,6 +133,11 @@
 	border-top: 1px solid #D1D3DC;
 	padding-top: 10px;
 }
+.aw-catalog .easyeditor .newflagtl {
+	position: absolute;
+	left: 10px; top: 4px;
+	color: red;
+}
 .aw-catalog .easyeditor .btnsc {
 	position: absolute;
 	right: 3px; top: 4px;

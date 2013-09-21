@@ -534,12 +534,22 @@ Component.entryPoint = function(NS){
 			
 			var man = this.manager;
 			
+			if (element.id == 0){
+				this.elShow('bcreate,bcreatec,newflagtl');
+			}else{
+				this.elShow('bsave,bsavec');
+			}
+			
 			if (man.cfg['elementNameChange']){
 				this.elShow('fnm');
 			}
 			
 			if (man.cfg['versionControl']){
 				this.elShow('versioncontrol');
+			}
+			
+			if (man.roles['isAdmin']){
+				this.elShow('seo,ford');
 			}
 			
 			var rootCatItem = this.manager.catalogList.get(0);
@@ -590,6 +600,61 @@ Component.entryPoint = function(NS){
 			
 			var elTitle = this.gel('tl');
 			setTimeout(function(){try{elTitle.focus();}catch(e){}}, 100);
+			
+			if (man.cfg['elementNameUnique'] && element.id > 0){
+				this.elDisable('nm');
+			}else{
+				E.on(this.gel('nm'), 'change', function(e){
+					__self._onNameChange();				
+				});
+				E.on(this.gel('nm'), 'keyup', function(e){
+					__self._onNameChange();				
+				});
+			}
+		},
+		_nameUniqueSetNewVersionStatus: function(flag){
+			this.elHide('uniquenameloading');
+			
+			if (flag){
+				this.elShow('bsavenewv,bsavenewvc');
+				this.elHide('bcreate,bcreatec');
+			}else{
+				this.elHide('bsavenewv,bsavenewvc');
+				this.elShow('bcreate,bcreatec');
+			}
+		},
+		_onNameChange: function(){
+			if (this._nameChangeLock){ return; }
+			this._nameChangeLock = true;
+			var nm = this.gel('nm').value;
+			nm = nm.replace(/[^a-zA-Z0-9\-\_]/, '');
+			this.gel('nm').value = nm;
+			this._nameChangeLock = false;
+			
+			if (!this._cacheCheckUniqueName){
+				this._cacheCheckUniqueName = {};
+			}
+			if (this._cacheCheckUniqueName[nm]){
+				this._nameUniqueSetNewVersionStatus(this._cacheCheckUniqueName[nm]['elid']>0);
+				return;
+			}
+			
+			this.elShow('uniquenameloading');
+			
+			// проверка на новую версию
+			this._currentCheckUniqueName = nm;
+			var __self = this, man = this.manager;
+			setTimeout(function(){
+				if (__self._currentCheckUniqueName != nm){ return; } // уже идет новая проверка
+				
+				man.elementIdByName(nm, function(elid){
+					if (__self._currentCheckUniqueName != nm){ return; } // уже идет новая проверка
+					
+					__self._cacheCheckUniqueName[nm] = {'elid': elid};
+					__self._nameUniqueSetNewVersionStatus(elid>0);
+				});
+				
+			}, 1000);
 		},
 		_wsClear: function(){
 			var ws = this.wsOptions;
@@ -648,8 +713,9 @@ Component.entryPoint = function(NS){
 		},
 		onClick: function(el, tp){
 			switch(el.id){
-			case tp['bsave']: 
-			case tp['bsavec']: 
+			case tp['bcreate']: case tp['bcreatec']: 
+			case tp['bsave']: case tp['bsavec']: 
+			case tp['bsavenewv']: case tp['bsavenewvc']: 
 				this.save(); return true;
 			case tp['bcancel']: 
 			case tp['bcancelc']: 

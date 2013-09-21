@@ -25,10 +25,4 @@ if ($updateManager->isInstall()){
 	". $charset);
 }
 
-if ($updateManager->isUpdate('0.2.1')){
-	
-	Abricos::GetModule('catalog')->permission->Install();
-	
-}
-
 ?>

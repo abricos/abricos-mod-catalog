@@ -53,7 +53,7 @@ Component.entryPoint = function(NS){
 		},
 		onLoad: function(man, cfg){
 			this.elHide('loading');
-			this.treeWidget = new NS.CatalogTreeWidget(this.gel('explore'), man.catalogList);
+			this.treeWidget = new NS.CatalogTreeWidget(this.gel('explore'), man, man.catalogList);
 			this.treeWidget.selectedItemEvent.subscribe(this.onSelectedCatalogItem, this, true);
 			this.treeWidget.addChildClickEvent.subscribe(this.onAddChildClickCatalogItem, this, true);
 			this.treeWidget.editClickEvent.subscribe(this.onEditClickCatalogItem, this, true);

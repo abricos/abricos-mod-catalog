@@ -16,15 +16,16 @@ Component.entryPoint = function(NS){
 		buildTemplate = this.buildTemplate,
 		BW = Brick.mod.widget.Widget;
 	
-	var CatalogTreeWidget = function(container, list, cfg){
+	var CatalogTreeWidget = function(container, manager, list, cfg){
 		cfg = L.merge({ }, cfg || {});
 		
 		CatalogTreeWidget.superclass.constructor.call(this, container, {
 			'buildTemplate': buildTemplate, 'tnames': 'widget,table,row' 
-		}, list, cfg);
+		}, manager, list, cfg);
 	};
 	YAHOO.extend(CatalogTreeWidget, BW, {
-		init: function(list, cfg){
+		init: function(manager, list, cfg){
+			this.manager = manager;
 			this.list = list;
 			this.config = cfg;
 			this.selectedItem = null;
@@ -62,11 +63,13 @@ Component.entryPoint = function(NS){
 			var sChild = cat.childs.count() > 0 ? this.buildRows(cat, cat.childs, level+1) : '';
 			
 			var goPageURL = cat.url();
+			var roles = this.manager.roles;
 			
 			return this._TM.replace('row', {
 				'id': cat.id,
 				'tl': cat.title,
 				'child': sChild,
+				'showman': roles['isAdmin'] ? '' : 'none',
 				'clst': islast ? 'ln' : 'tn',
 				'chdicoview': cat.childs.count() == 0 ? 'hide' : 'none',
 				'chdicon': cat.expanded ? 'chdcls' : 'chdexpd',

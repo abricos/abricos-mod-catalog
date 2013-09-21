@@ -16,7 +16,6 @@ Component.entryPoint = function(NS){
 	var L = YAHOO.lang,
 		CE = YAHOO.util.CustomEvent;
 	
-	var R = NS.roles;
 	var SysNS = Brick.mod.sys;
 	var LNG = this.language;
 
@@ -162,9 +161,9 @@ Component.entryPoint = function(NS){
 
 	var Element = function(manager, d){
 		this.manager = manager;
-
 		d = L.merge({
-			'catid': 0, 
+			'catid': 0,
+			'uid': 0,
 			'tpid': 0, 
 			'tl': '', 
 			'nm': '',
@@ -180,6 +179,7 @@ Component.entryPoint = function(NS){
 		},
 		update: function(d){
 			this.catid		= d['catid']|0;
+			this.userid		= d['uid']|0;
 			this.typeid		= d['tpid']|0;
 			this.title		= d['tl'];
 			this.name		= d['nm'];
@@ -458,6 +458,7 @@ Component.entryPoint = function(NS){
 	
 	var Manager = function(modname, callback, cfg){
 		cfg = L.merge({
+			'roles': {},
 			'CatalogItemClass': NS.CatalogItem,
 			'CatalogListClass': NS.CatalogList,
 			'ElementClass': NS.Element,
@@ -474,6 +475,14 @@ Component.entryPoint = function(NS){
 			'elementCreateBaseTypeDisable': false,
 			'versionControl': false
 		}, cfg || {});
+		
+		cfg['roles'] = L.merge({
+			'isView': false,
+			'isWrite': false,
+			'isOperator': false,
+			'isModerator': false,
+			'isAdmin': false
+		}, cfg['roles'] || {});
 
 		NS.managers[modname] = this;
 		
@@ -483,6 +492,7 @@ Component.entryPoint = function(NS){
 		init: function(modname, callback, cfg){
 			this.modname = modname;
 			this.cfg = cfg;
+			this.roles = cfg['roles'];
 
 			this.CatalogItemClass	= cfg['CatalogItemClass'];
 			this.CatalogListClass	= cfg['CatalogListClass'];
@@ -503,13 +513,11 @@ Component.entryPoint = function(NS){
 			this.catalogRemovedEvent = new CE('catalogRemovedEvent');
 			
 			var __self = this;
-			R.load(function(){
-				__self.ajax({
-					'do': 'cataloginitdata'
-				}, function(d){
-					__self._initDataUpdate(d);
-					NS.life(callback, __self);
-				});
+			this.ajax({
+				'do': 'cataloginitdata'
+			}, function(d){
+				__self._initDataUpdate(d);
+				NS.life(callback, __self);
 			});
 		},
 		newCatalogItem: function(d){
@@ -869,6 +877,18 @@ Component.entryPoint = function(NS){
 					values = d['values'];
 				}
 				NS.life(callback, values);
+			});
+		},
+		elementIdByName: function(name, callback){
+			this.ajax({
+				'do': 'elementidbyname',
+				'elname': name
+			}, function(d){
+				var elid = 0;
+				if (L.isValue(d)){
+					elid = d['elementid'];
+				}
+				NS.life(callback, elid);
 			});
 		}
 	};

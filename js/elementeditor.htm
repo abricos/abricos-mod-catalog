@@ -6,10 +6,13 @@
 		</div>
 	</div>
 	<div id="{i#view}" class="editform" style="display: none">
+		<div id="{i#newflagtl}" class="newflagtl" style="display: none">Новый</div>
 	
 		<div class="btnsc">
 			<span id="{i#btnscc}">
-				<a id="{i#bsavec}" href="#" class="habtn">Сохранить</a>
+				<a id="{i#bcreatec}" href="#" class="habtn" style="display: none">Сохранить</a>
+				<a id="{i#bsavec}" href="#" class="habtn" style="display: none">Сохранить изменения</a>
+				<a id="{i#bsavenewvc}" href="#" class="habtn" style="display: none">Сохранить как новую версию</a>
 				<a id="{i#bcancelc}" href="#" class="habtn">Отмена</a>
 			</span>
 			<span id="{i#btnpcc}" style="display: none">
@@ -30,7 +33,10 @@
 			<dl id="{i#fnm}" style="display: none">
 				<dt>Имя</dt>
 				<dd>
-					<input id="{i#nm}" class="inp" type="text" placeholder="Введите имя" onfocus="this.select();" />
+					<div class="elnmline">
+						<input id="{i#nm}" class="inp" type="text" placeholder="Введите имя" onfocus="this.select();" />
+						<img id="{i#uniquenameloading}" src="/images/loading.gif" class="uniquenameloading" style="display: none" />
+					</div>
 				</dd>
 			</dl>
 			<dl id="{i#fcatalog}">
@@ -53,7 +59,7 @@
 		
 			<div id="{i#optlist}"></div>
 			
-			<dl>
+			<dl id="{i#ford}" style="display: none">
 				<dt>Сортировка</dt>
 				<dd>
 					<input id="{i#ord}" type="text" class="inp"/>
@@ -71,9 +77,8 @@
 					</dd>
 				</dl>
 			</div>
-			
 		
-			<div id="{i#seo}">
+			<div id="{i#seo}" style="display: none">
 				<div class="rtl">Мета-теги</div>
 				
 				<dl>
@@ -99,7 +104,9 @@
 		
 		<div class="btns right r">
 			<span id="{i#btnsc}">
-				<a id="{i#bsave}" href="#" class="habtn">Сохранить</a>
+				<a id="{i#bcreate}" href="#" class="habtn" style="display: none">Сохранить</a>
+				<a id="{i#bsave}" href="#" class="habtn" style="display: none">Сохранить изменения</a>
+				<a id="{i#bsavenewv}" href="#" class="habtn" style="display: none">Сохранить как новую версию</a>
 				<a id="{i#bcancel}" href="#" class="habtn">Отмена</a>
 			</span>
 			<span id="{i#btnpc}" style="display: none">

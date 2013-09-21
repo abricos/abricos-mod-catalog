@@ -20,6 +20,8 @@ Component.entryPoint = function(NS){
 	
 	var DDM = YAHOO.util.DragDropMgr; 
 	
+	var UID = Brick.env.user.id;
+	
 	var ElementListWidget = function(container, manager, list, cfg){
 		cfg = L.merge({
 		}, cfg || {});
@@ -76,22 +78,24 @@ Component.entryPoint = function(NS){
 					'onSaveElement': function(w){ __self.render(); }
 				});
 				
-				new NS.ElementRowDragItem(div, {
-					'endDragCallback': function(dgi, elDiv){
-						var chs = elList.childNodes, ordb = list.count();
-						var orders = {};
-						for (var i=0;i<chs.length;i++){
-							var catel = chs[i]['catalogElement'];
-							if (catel){
-								catel.order = ordb;
-								orders[catel.id] = ordb;
-								ordb--;
+				if (man.roles['isAdmin']){
+					new NS.ElementRowDragItem(div, {
+						'endDragCallback': function(dgi, elDiv){
+							var chs = elList.childNodes, ordb = list.count();
+							var orders = {};
+							for (var i=0;i<chs.length;i++){
+								var catel = chs[i]['catalogElement'];
+								if (catel){
+									catel.order = ordb;
+									orders[catel.id] = ordb;
+									ordb--;
+								}
 							}
+							man.elementListOrderSave(list.catid, orders);
+							__self.render();
 						}
-						man.elementListOrderSave(list.catid, orders);
-						__self.render();
-					}
-				});
+					});
+				}
 		
 				ws[ws.length] = w;
 			}, 'order', true);
@@ -264,7 +268,7 @@ Component.entryPoint = function(NS){
 			this.cfg = cfg;
 			this.editorWidget = null;
 		},
-		onLoad: function(manager, el){
+		onLoad: function(man, el){
 			this.elSetHTML({
 				'idval': el.id,
 				'nm': el.name,
@@ -273,9 +277,16 @@ Component.entryPoint = function(NS){
 			if (L.isNull(el.url())){
 				this.elHide('bgopage');
 			}
-			if (manager.cfg.elementNameUnique){
+			if (man.cfg.elementNameUnique){
 				this.elShow('colnm');
 			}
+			var roles = man.roles;
+			if (roles['isAdmin'] || (roles['isOperator'] && el.userid == UID)){
+				this.elShow('bedit,bcopy,bremove');
+			}else{
+				this.elHide('bedit,bcopy,bremove');
+			}
+			
 		},
 		onClick: function(el, tp){
 			switch(el.id){

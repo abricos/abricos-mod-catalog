@@ -43,8 +43,6 @@ class CatalogModule extends Ab_Module {
 		$this->version = "0.2.6";
 		$this->name = "catalog";
 		$this->takelink = "catalogbase";
-		
-		$this->permission = new CatalogPermission($this);
 	}
 	
 	/**
@@ -159,53 +157,6 @@ class CatalogModule extends Ab_Module {
 		$this->updateShemaModule = null;
 	}
 	
-}
-
-/**
- * Роли пользователей каталога
- */
-class CatalogAction {
-	
-	/** 
-	 * Роль на чтение - чтение разделов каталога и его элементов 
-	 * @var integer
-	 */
-	const VIEW			= 10;
-
-	/**
-	 * Роль оператора - изменение/добавление/удаление элементов каталога
-	 * @var integer
-	 */
-	const WRITE			= 30;
-	
-	/**
-	 * Роль админа - изменения структуры каталога
-	 * @var integer
-	 */
-	const ADMIN			= 50;
-}
-
-class CatalogPermission extends CMSPermission {
-	
-	public function CatalogPermission(CatalogModule $module){
-		$defRoles = array(
-			new CMSRole(CatalogAction::VIEW, 1, User::UG_GUEST),
-			new CMSRole(CatalogAction::VIEW, 1, User::UG_REGISTERED),
-			new CMSRole(CatalogAction::VIEW, 1, User::UG_ADMIN),
-
-			new CMSRole(CatalogAction::WRITE, 1, User::UG_ADMIN),
-			new CMSRole(CatalogAction::ADMIN, 1, User::UG_ADMIN)
-		);
-		parent::CMSPermission($module, $defRoles);
-	}
-	
-	public function GetRoles(){
-		return array(
-			CatalogAction::VIEW => $this->CheckAction(CatalogAction::VIEW),
-			CatalogAction::WRITE => $this->CheckAction(CatalogAction::WRITE), 
-			CatalogAction::ADMIN => $this->CheckAction(CatalogAction::ADMIN) 
-		);
-	}
 }
 
 class CatalogQueryExt {

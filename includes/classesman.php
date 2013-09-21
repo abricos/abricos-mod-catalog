@@ -62,13 +62,47 @@ class CatalogModuleManager {
 	public $cfgVersionControl = false;
 	
 	public function __construct($dbPrefix){
-		$this->db = CatalogManager::$instance->db;
+		$this->db = Abricos::$db;
 		$this->pfx = $this->db->prefix."ctg_".$dbPrefix."_";
 		$this->userid = Abricos::$user->id;
 	}
 	
+	/**
+	 * Роль администратора
+	 * 
+	 * Полный доступ
+	 */
 	public function IsAdminRole(){ return false; }
+
+	/**
+	 * Роль модератора
+	 * 
+	 * Может: 
+	 * редактировать каталог, его элементы, 
+	 * подверждать новые элементы созданные оператором
+	 * 
+	 * Не может:
+	 * редактировать опции элемента
+	 */
+	public function IsModeratorRole(){ return false; }
+	
+	/**
+	 * Роль оператора
+	 * 
+	 * Может создавать элементы каталога, но они должны 
+	 * пройти подверждение модератором
+	 */
+	public function IsOperatorRole(){ return false; }
+	
+	/**
+	 * Роль авторизованного пользователя
+	 */
 	public function IsWriteRole(){ return false; }
+	
+	/**
+	 * Роль на просмотр
+	 * @return boolean
+	 */
 	public function IsViewRole(){ return false; }
 	
 	
@@ -92,6 +126,8 @@ class CatalogModuleManager {
 				return $this->ElementListOrderSave($d->catid, $d->orders);
 			case "element":
 				return $this->ElementToAJAX($d->elementid);
+			case "elementidbyname":
+				return $this->ElementIdByNameToAJAX($d->elname);
 			case "elementsave":
 				return $this->ElementSaveToAJAX($d->elementid, $d->savedata);
 			case "elementremove":
@@ -555,6 +591,17 @@ class CatalogModuleManager {
 		return $ret;
 	}
 	
+	public function ElementIdByNameToAJAX($elname){
+		$element = $this->ElementByName($elname);
+		if (empty($element)){ return null; }
+
+		$ret = new stdClass();
+		$ret->elementid = $element->id;
+		
+		return $ret;
+		
+	}
+	
 	/**
 	 * Создать/сохранение элемент каталога
 	 * 
@@ -642,6 +689,15 @@ class CatalogModuleManager {
 			if (empty($elid)){ return null; }
 			
 		}else{ // сохранение текущего элемента
+			
+			$el = $this->Element($elid);
+			if (empty($el)){ return null; }
+			
+			if ($this->cfgElementNameUnique){
+				// имя элемента уникальное, поэтому изменять его нельзя
+				$d->nm = $el->name;
+			}
+			
 			CatalogDbQuery::ElementUpdate($this->db, $this->pfx, $elid, $d);
 		}
 		
@@ -896,7 +952,7 @@ class CatalogModuleManager {
 	 * @param string $fhash
 	 */
 	public function FotoAddToBuffer($fhash){
-		if (!$this->IsWriteRole()){ return false; }
+		if (!$this->IsAdminRole()){ return false; }
 		
 		CatalogDbQuery::FotoAddToBuffer($this->db, $this->pfx, $fhash);
 		
@@ -928,7 +984,7 @@ class CatalogModuleManager {
 	 * @param integer $optionid
 	 */
 	public function OptionFileUploadCheck($optionid){
-		if (!$this->IsWriteRole()){ return false; }
+		if (!$this->IsAdminRole()){ return false; }
 		
 		$elTypeList = $this->ElementTypeList();
 		$option = $elTypeList->GetOptionById($optionid);
@@ -970,7 +1026,7 @@ class CatalogModuleManager {
 	 * @param string $fname имя файла
 	 */
 	public function OptionFileAddToBuffer($option, $fhash, $fname){
-		if (!$this->IsWriteRole()){ return false; }
+		if (!$this->IsAdminRole()){ return false; }
 		
 		CatalogDbQuery::OptionFileAddToBuffer($this->db, $this->pfx, $this->userid, $option->id, $fhash, $fname);
 		$this->OptionFileBufferClear();

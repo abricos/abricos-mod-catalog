@@ -65,14 +65,18 @@ Component.entryPoint = function(NS){
 				'cattl': cat.title,
 				'elcount': cat.elementCount
 			});
-			
-			if (cat.id == 0){
-				this.elHide('beditcat,bremcat');
-			}else{
-				this.elShow('beditcat,bremcat');
+			var roles = this.manager.roles;
+			if (roles['isAdmin']){
+				this.elShow('baddcat,beditcat,bremcat');
+				if (cat.id == 0){
+					this.elHide('beditcat,bremcat');
+				}else{
+					this.elShow('beditcat,bremcat');
+				}
 			}
-			
-			this.elShow('mangroup');
+			if (roles['isOperator']){
+				this.elShow('mangroup');
+			}
 			this.closeEditor();
 		},
 		onAddElementClick: function(){

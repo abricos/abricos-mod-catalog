@@ -738,6 +738,7 @@ class CatalogElement extends CatalogItem {
 		$ret = new stdClass();
 		$ret->id		= $this->id;
 		$ret->catid		= $this->catid;
+		$ret->uid		= $this->userid;
 		$ret->tpid		= $this->elTypeId;
 		$ret->tl		= $this->title;
 		$ret->nm		= $this->name;
