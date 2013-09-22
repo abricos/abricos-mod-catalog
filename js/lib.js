@@ -168,7 +168,8 @@ Component.entryPoint = function(NS){
 			'tl': '', 
 			'nm': '',
 			'ord': 0,
-			'ext': {}
+			'ext': {},
+			'mdr': 0
 		}, d || {});
 		Element.superclass.constructor.call(this, d);
 	};
@@ -184,6 +185,7 @@ Component.entryPoint = function(NS){
 			this.title		= d['tl'];
 			this.name		= d['nm'];
 			this.order		= d['ord']|0;
+			this.isModer	= d['mdr']|0;
 			this.ext		= d['ext'] || {};
 		},
 		copy: function(){

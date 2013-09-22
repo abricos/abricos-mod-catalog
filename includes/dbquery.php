@@ -181,7 +181,7 @@ class CatalogDbQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function ElementList(Ab_Database $db, $pfx, CatalogElementListConfig $cfg){
+	public static function ElementList(Ab_Database $db, $pfx, $userid, CatalogElementListConfig $cfg){
 		
 		$wCats = array();
 		foreach ($cfg->catids as $catid){
@@ -253,6 +253,8 @@ class CatalogDbQuery {
 				e.prevelementid as pelid,
 				e.changelog as chlg,
 				
+				e.ismoder as mdr,
+				
 				(
 					SELECT CONCAT(f.fileid,'/',fm.extension)
 					FROM ".$pfx."foto f
@@ -263,7 +265,9 @@ class CatalogDbQuery {
 				) as foto
 				".$extFields."
 			FROM ".$pfx."element e
-			WHERE e.isarhversion=0 AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+			WHERE (e.ismoder=0 OR (e.ismoder=1 AND userid=".bkint($userid).")) 
+				AND e.isarhversion=0 
+				AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 		";
 		
 		$isWhere = false;
@@ -289,7 +293,7 @@ class CatalogDbQuery {
 		if (!$isWhere){ return null; }
 		
 		$sql .= "
-		 	ORDER BY ord DESC".$orders.", e.dateline
+		 	ORDER BY mdr DESC, ord DESC".$orders.", e.dateline
 		";
 		
 		if ($cfg->limit > 0){
@@ -316,7 +320,7 @@ class CatalogDbQuery {
 		$sql = "
 			SELECT count(*) as cnt
 			FROM ".$pfx."element e
-			WHERE e.isarhversion=0 AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+			WHERE e.ismoder=0 AND e.isarhversion=0 AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 		";
 		
 		$isWhere = false;
@@ -357,6 +361,7 @@ class CatalogDbQuery {
 				e.version as v,
 				e.prevelementid as pelid,
 				e.changelog as chlg,
+				e.ismoder as mdr,
 				
 				(
 					SELECT CONCAT(f.fileid,'/',fm.extension)
@@ -395,6 +400,8 @@ class CatalogDbQuery {
 				e.prevelementid as pelid,
 				e.changelog as chlg,
 				
+				e.ismoder as mdr,
+				
 				(
 					SELECT CONCAT(f.fileid,'/',fm.extension)
 					FROM ".$pfx."foto f
@@ -404,7 +411,8 @@ class CatalogDbQuery {
 					LIMIT 1
 				) as foto
 			FROM ".$pfx."element e
-			WHERE e.isarhversion=0 AND e.deldate=0 AND e.name='".bkstr($name)."' AND e.language='".bkstr(Abricos::$LNG)."'
+			WHERE e.ismoder=0 AND e.isarhversion=0 AND e.deldate=0 AND e.name='".bkstr($name)."' 
+				AND e.language='".bkstr(Abricos::$LNG)."'
 			LIMIT 1
 		";
 		return $db->query_first($sql);
@@ -429,11 +437,11 @@ class CatalogDbQuery {
 		return $db->query_first($sql);
 	}
 	
-	public static function ElementAppend(Ab_Database $db, $pfx, $userid, $d){
+	public static function ElementAppend(Ab_Database $db, $pfx, $userid, $isOperator, $d){
 		$sql = "
 			INSERT INTO ".$pfx."element
 			(catalogid, eltypeid, userid, title, name, metatitle, metakeys, metadesc, ord, 
-				version, prevelementid, changelog, language, dateline) VALUES (
+				version, prevelementid, changelog, ismoder, language, dateline) VALUES (
 				".bkint($d->catid).",
 				".bkint($d->tpid).",
 				".bkint($userid).",
@@ -446,6 +454,7 @@ class CatalogDbQuery {
 				".bkint($d->v).",
 				".bkint($d->pelid).",
 				'".bkstr($d->chlg)."',
+				".($isOperator ? 1 : 0).",
 				'".bkstr(Abricos::$LNG)."',
 				".TIMENOW."
 			)

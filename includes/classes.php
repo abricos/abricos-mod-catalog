@@ -689,6 +689,12 @@ class CatalogElement extends CatalogItem {
 	public $upddate = 0;
 	
 	/**
+	 * True - ожидает модерацию
+	 * @var boolean
+	 */
+	public $isModer = false;
+	
+	/**
 	 * @param array $d
 	 * @param CatalogElementOptionList $extFields
 	 */
@@ -703,6 +709,7 @@ class CatalogElement extends CatalogItem {
 		$this->userid	= intval($d['uid']);
 		$this->dateline	= intval($d['dl']);
 		$this->upddate	= intval($d['upd']);
+		$this->isModer	= intval($d['mdr'])>0;
 		
 		$afoto 			= explode("/", strval($d['foto']));
 		$this->foto		= $afoto[0];
@@ -744,6 +751,7 @@ class CatalogElement extends CatalogItem {
 		$ret->nm		= $this->name;
 		$ret->ord		= $this->order;
 		$ret->foto		= $this->foto;
+		$ret->mdr		= $this->isModer ? 1 : 0;
 		
 		$ret->dtl	= null;
 		if (!empty($this->detail)){

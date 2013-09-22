@@ -150,6 +150,31 @@ class CatalogModuleManager {
 		return null;
 	}
 	
+	public function ToArray($rows, &$ids1 = "", $fnids1 = 'uid', &$ids2 = "", $fnids2 = '', &$ids3 = "", $fnids3 = ''){
+		$ret = array();
+		while (($row = $this->db->fetch_array($rows))){
+			array_push($ret, $row);
+			if (is_array($ids1)){
+				$ids1[$row[$fnids1]] = $row[$fnids1];
+			}
+			if (is_array($ids2)){
+				$ids2[$row[$fnids2]] = $row[$fnids2];
+			}
+			if (is_array($ids3)){
+				$ids3[$row[$fnids3]] = $row[$fnids3];
+			}
+		}
+		return $ret;
+	}
+	
+	public function ToArrayId($rows, $field = "id"){
+		$ret = array();
+		while (($row = $this->db->fetch_array($rows))){
+			$ret[$row[$field]] = $row;
+		}
+		return $ret;
+	}
+	
 	public function ParamToObject($o){
 		if (is_array($o)){
 			$ret = new stdClass();
@@ -409,7 +434,7 @@ class CatalogModuleManager {
 		$list = new $this->CatalogElementListClass();
 		$list->cfg = $cfg;
 		
-		$rows = CatalogDbQuery::ElementList($this->db, $this->pfx, $cfg);
+		$rows = CatalogDbQuery::ElementList($this->db, $this->pfx, $this->userid, $cfg);
 		while (($d = $this->db->fetch_array($rows))){
 			
 			$cnt = $cfg->extFields->Count();
@@ -626,7 +651,11 @@ class CatalogModuleManager {
 	 * @param array|object $d
 	 */
 	public function ElementSave($elid, $d){
-		if (!$this->IsAdminRole()){ return null; }
+		$isOper = $this->IsOperatorRole() && !$this->IsModeratorRole() && !$this->IsAdminRole();
+		$isModer = $this->IsModeratorRole() && !$this->IsAdminRole();
+		$isAdmin = $this->IsAdminRole();
+		
+		if (!$this->IsOperatorRole()){ return null; }
 		
 		$d = $this->ParamToObject($d);
 		
@@ -667,26 +696,32 @@ class CatalogModuleManager {
 			// создание базовых элементов отключено
 			return null;
 		}
-		
-		$isNew = false;
+
 		if ($elid == 0){ // добавление нового элемента
 			
 			$d->v = 1;
 			$d->pelid = 0;
 			
 			if ($this->cfgVersionControl){ // проверка существующей версии
-				$curEl = $this->ElementByName($d->nm);
+				$curEl = $this->ElementByName($d->nm); // элемент текущей версии
 				if (!empty($curEl)){
-					// текущую версию переместить в архив
-					$d->pelid = $curEl->id;
-					$d->v = $curEl->detail->version+1;
+					
+					if ($isOper && $curEl->userid != $this->userid){
+						// оператору можно добавлять новые версии только своим элементам
+						return null;
+					}
+					
+					$d->pelid = $curEl->id; // новому элементу ссылку на старый
+					$d->v = $curEl->detail->version+1; // увеличить номер версии нового элемента
 
-					CatalogDbQuery::ElementToArhive($this->db, $this->pfx, $curEl->id);
+					if (!$isOper){ // Оператору может только добавить на модерацию
+						// текущую версию переместить в архив
+						CatalogDbQuery::ElementToArhive($this->db, $this->pfx, $curEl->id);
+					}
 				}
 			}
 			
-			$isNew = true;
-			$elid = CatalogDbQuery::ElementAppend($this->db, $this->pfx, $this->userid, $d);
+			$elid = CatalogDbQuery::ElementAppend($this->db, $this->pfx, $this->userid, $isOper, $d);
 			if (empty($elid)){ return null; }
 			
 		}else{ // сохранение текущего элемента
@@ -888,7 +923,7 @@ class CatalogModuleManager {
 				$option = new CatalogElementOptionTable($d);
 				
 				$rtbs = CatalogDbQuery::OptionTableValueList($this->db, $this->pfx, $curType->name, $option->name);
-				$option->values = CatalogManager::$instance->ToArrayId($rtbs);
+				$option->values = $this->ToArrayId($rtbs);
 			}else{
 				$option = new CatalogElementOption($d);
 			}
@@ -1197,7 +1232,7 @@ class CatalogModuleManager {
 		$option = $elType->options->Get($optionid);
 		
 		$rtbs = CatalogDbQuery::OptionTableValueList($this->db, $this->pfx, $elType->name, $option->name);
-		$option->values = CatalogManager::$instance->ToArrayId($rtbs);
+		$option->values = $this->ToArrayId($rtbs);
 		
 		$ret = new stdClass();
 		$ret->values = $option->values;
@@ -1222,7 +1257,7 @@ class CatalogModuleManager {
 		CatalogDbQuery::OptionTableValueRemove($this->db, $this->pfx, $elType->name, $option->name, $valueid);
 	
 		$rtbs = CatalogDbQuery::OptionTableValueList($this->db, $this->pfx, $elType->name, $option->name);
-		$option->values = CatalogManager::$instance->ToArrayId($rtbs);
+		$option->values = $this->ToArrayId($rtbs);
 	
 		$ret = new stdClass();
 		$ret->values = $option->values;
