@@ -175,13 +175,13 @@ class CatalogDbQuery {
 				e.changelog as chlg
 				".$extFields."
 			FROM ".$pfx."element e
-			WHERE e.name='".bkstr($elname)."' AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+			WHERE e.ismoder=0 AND e.name='".bkstr($elname)."' AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 			ORDER BY e.version DESC
 		";
 		return $db->query_read($sql);
 	}
 	
-	public static function ElementList(Ab_Database $db, $pfx, $userid, CatalogElementListConfig $cfg){
+	public static function ElementList(Ab_Database $db, $pfx, $userid, $isAdmin, CatalogElementListConfig $cfg){
 		
 		$wCats = array();
 		foreach ($cfg->catids as $catid){
@@ -265,7 +265,9 @@ class CatalogDbQuery {
 				) as foto
 				".$extFields."
 			FROM ".$pfx."element e
-			WHERE (e.ismoder=0 OR (e.ismoder=1 AND userid=".bkint($userid).")) 
+			WHERE (e.ismoder=0 OR 
+					".($isAdmin ? "e.ismoder=1" : "(e.ismoder=1 AND userid=".bkint($userid).")")."
+				) 
 				AND e.isarhversion=0 
 				AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 		";
@@ -305,7 +307,7 @@ class CatalogDbQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function ElementListCount(Ab_Database $db, $pfx, CatalogElementListConfig $cfg){
+	public static function ElementListCount(Ab_Database $db, $pfx, $userid, $isAdmin, CatalogElementListConfig $cfg){
 		$wCats = array();
 		foreach ($cfg->catids as $catid){
 			array_push($wCats, "e.catalogid=".bkint($catid));
@@ -320,7 +322,11 @@ class CatalogDbQuery {
 		$sql = "
 			SELECT count(*) as cnt
 			FROM ".$pfx."element e
-			WHERE e.ismoder=0 AND e.isarhversion=0 AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+			WHERE (e.ismoder=0 OR 
+					".($isAdmin ? "e.ismoder=1" : "(e.ismoder=1 AND userid=".bkint($userid).")")."
+				) 
+				AND e.isarhversion=0 
+				AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 		";
 		
 		$isWhere = false;
@@ -378,7 +384,7 @@ class CatalogDbQuery {
 		return $db->query_first($sql);
 	}
 	
-	public static function ElementByName(Ab_Database $db, $pfx, $name){
+	public static function ElementByName(Ab_Database $db, $pfx, $userid, $isAdmin, $name){
 		$sql = "
 			SELECT
 				e.elementid as id,
@@ -411,8 +417,11 @@ class CatalogDbQuery {
 					LIMIT 1
 				) as foto
 			FROM ".$pfx."element e
-			WHERE e.ismoder=0 AND e.isarhversion=0 AND e.deldate=0 AND e.name='".bkstr($name)."' 
-				AND e.language='".bkstr(Abricos::$LNG)."'
+			WHERE (e.ismoder=0 OR 
+					".($isAdmin ? "e.ismoder=1" : "(e.ismoder=1 AND userid=".bkint($userid).")")."
+				) 
+				AND e.isarhversion=0 AND e.name='".bkstr($name)."'
+				AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 			LIMIT 1
 		";
 		return $db->query_first($sql);
@@ -493,6 +502,16 @@ class CatalogDbQuery {
 		$db->query_write($sql);
 	}
 	
+	public static function ElementModer(Ab_Database $db, $pfx, $elid){
+		$sql = "
+			UPDATE ".$pfx."element
+			SET ismoder=0
+			WHERE elementid=".bkint($elid)."
+			LIMIT 1
+		";
+		$db->query_write($sql);
+	}
+	
 	public static function ElementRemove(Ab_Database $db, $pfx, $elid){
 		$sql = "
 			UPDATE ".$pfx."element
@@ -520,7 +539,7 @@ class CatalogDbQuery {
 	 * @param CatalogElementType $elType
 	 * @param object $d
 	 */
-	public static function ElementDetailUpdate(Ab_Database $db, $pfx, $elid, CatalogElementType $elType, $d){
+	public static function ElementDetailUpdate(Ab_Database $db, $pfx, $userid, $isAdmin, $elid, CatalogElementType $elType, $d){
 		$options = $elType->options;
 		if ($options->Count() == 0){ return; }
 		
@@ -555,7 +574,7 @@ class CatalogDbQuery {
 				case Catalog::TP_ELDEPENDS:
 					$cfg = new CatalogElementListConfig();
 					$cfg->elids = explode(",", $val);
-					$rows = CatalogDbQuery::ElementList($db, $pfx, $cfg);
+					$rows = CatalogDbQuery::ElementList($db, $pfx, $userid, $isAdmin, $cfg);
 					$aIds = array();
 					while (($d = $db->fetch_array($rows))){
 						array_push($aIds, $d['id']);
@@ -565,7 +584,7 @@ class CatalogDbQuery {
 				case Catalog::TP_ELDEPENDSNAME:
 					$cfg = new CatalogElementListConfig();
 					$cfg->elnames = explode(",", $val);
-					$rows = CatalogDbQuery::ElementList($db, $pfx, $cfg);
+					$rows = CatalogDbQuery::ElementList($db, $pfx, $userid, $isAdmin, $cfg);
 					$aNames = array();
 					while (($d = $db->fetch_array($rows))){
 						array_push($aNames, $d['nm']);

@@ -185,7 +185,7 @@ Component.entryPoint = function(NS){
 			this.title		= d['tl'];
 			this.name		= d['nm'];
 			this.order		= d['ord']|0;
-			this.isModer	= d['mdr']|0;
+			this.isModer	= (d['mdr']|0) > 0;
 			this.ext		= d['ext'] || {};
 		},
 		copy: function(){
@@ -485,6 +485,9 @@ Component.entryPoint = function(NS){
 			'isModerator': false,
 			'isAdmin': false
 		}, cfg['roles'] || {});
+		
+		var r = cfg['roles'];
+		r['isOperatorOnly'] = r['isOperator'] && !r['isModerator'] && !r['isAdmin'];
 
 		NS.managers[modname] = this;
 		
@@ -795,6 +798,16 @@ Component.entryPoint = function(NS){
 				'do': 'elementsave',
 				'elementid': elementid,
 				'savedata': sd
+			}, function(d){
+				element = __self._elementUpdateData(element, d);
+				NS.life(callback, element);
+			});
+		},
+		elementModer: function(elementid, callback, element){
+			var __self = this;
+			this.ajax({
+				'do': 'elementmoder',
+				'elementid': elementid
 			}, function(d){
 				element = __self._elementUpdateData(element, d);
 				NS.life(callback, element);

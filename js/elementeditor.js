@@ -603,15 +603,23 @@ Component.entryPoint = function(NS){
 			var elTitle = this.gel('tl');
 			setTimeout(function(){try{elTitle.focus();}catch(e){}}, 100);
 			
-			if (man.cfg['elementNameUnique'] && element.id > 0){
-				this.elDisable('nm');
-			}else{
-				E.on(this.gel('nm'), 'change', function(e){
-					__self._onNameChange();				
-				});
-				E.on(this.gel('nm'), 'keyup', function(e){
-					__self._onNameChange();				
-				});
+			if (man.cfg['elementNameUnique']){
+				if (element.id > 0){
+					this.elDisable('nm');
+					if (man.roles['isAdmin'] && element.isModer){
+						this.elShow('bmoder,bmoderc');
+					}
+				}else{
+					E.on(this.gel('nm'), 'change', function(e){
+						__self._onNameChange();				
+					});
+					E.on(this.gel('nm'), 'keyup', function(e){
+						__self._onNameChange();				
+					});
+					if (this.gel('nm').value.length > 0){
+						this._onNameChange();
+					}
+				}
 			}
 		},
 		_nameUniqueSetNewVersionStatus: function(info){
@@ -619,7 +627,7 @@ Component.entryPoint = function(NS){
 			
 			if (info['elementid'] > 0){
 				var roles = this.manager.roles;
-				if (!roles['isAdmin'] && roles['isOperator'] && info['userid'] != UID){
+				if (roles['isOperatorOnly'] && (info['userid'] != UID || info['ismoder'] == 1)){
 					this.elHide('bsavenewv,bsavenewvc,bcreate,bcreatec');
 				}else{
 					this.elShow('bsavenewv,bsavenewvc');
@@ -724,6 +732,8 @@ Component.entryPoint = function(NS){
 			case tp['bsave']: case tp['bsavec']: 
 			case tp['bsavenewv']: case tp['bsavenewvc']: 
 				this.save(); return true;
+			case tp['bmoder']: case tp['bmoderc']: 
+				this.moder(); return true;
 			case tp['bcancel']: 
 			case tp['bcancelc']: 
 				this.onCancelClick(); return true;
@@ -732,6 +742,17 @@ Component.entryPoint = function(NS){
 		},
 		onCancelClick: function(){
 			NS.life(this.cfg['onCancelClick'], this);
+		},
+		moder: function(){
+			this.elHide('btnsc,btnscc');
+			this.elShow('btnpc,btnpcc');
+			
+			var __self = this, cfg = this.cfg, element = this.element;
+			this.manager.elementModer(element.id, function(element){
+				__self.elShow('btnsc,btnscc');
+				__self.elHide('btnpc,btnpcc,bmoder,bmoderc');
+				NS.life(cfg['onSaveElement'], __self, element);
+			}, element);
 		},
 		save: function(){
 			var cfg = this.cfg;

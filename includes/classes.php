@@ -793,7 +793,16 @@ class CatalogElementDetail {
 	 */
 	public $fotoList;
 	
+	/**
+	 * Системная версия элемента
+	 * @var integer
+	 */
 	public $version;
+	
+	/**
+	 * Идентификатор элемента предыдущей версии
+	 * @var integer
+	 */
 	public $pElementId;
 	public $changeLog;
 

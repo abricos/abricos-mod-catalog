@@ -63,7 +63,7 @@ Component.entryPoint = function(NS){
 			
 			var list = this.list;
 
-			list.foreach(function(catel){
+			var buildList = function(catel){
 				if (list.catid != catel.catid){ return; }
 				
 				var div = document.createElement('div');
@@ -97,7 +97,17 @@ Component.entryPoint = function(NS){
 					});
 				}
 		
-				ws[ws.length] = w;
+				ws[ws.length] = w;				
+			};
+			
+			list.foreach(function(el){
+				if (!el.isModer){ return; }
+				buildList(el);
+			}, 'order', true);
+			
+			list.foreach(function(el){
+				if (el.isModer){ return; }
+				buildList(el);
 			}, 'order', true);
 			
 			new YAHOO.util.DDTarget(elList);
@@ -281,12 +291,15 @@ Component.entryPoint = function(NS){
 				this.elShow('colnm');
 			}
 			var roles = man.roles;
-			if (roles['isAdmin'] || (roles['isOperator'] && el.userid == UID)){
+			if (roles['isAdmin']){
 				this.elShow('bedit,bcopy,bremove');
-			}else{
-				this.elHide('bedit,bcopy,bremove');
+			}else if (roles['isOperatorOnly'] && el.userid == UID){
+				if (el.isModer){
+					this.elShow('bedit,bremove');
+				}else{
+					this.elShow('bcopy');
+				}
 			}
-			
 		},
 		onClick: function(el, tp){
 			switch(el.id){

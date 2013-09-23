@@ -95,6 +95,15 @@ class CatalogModuleManager {
 	public function IsOperatorRole(){ return false; }
 	
 	/**
+	 * Пользователь имеет только роль оператора
+	 */
+	public function IsOperatorOnlyRole(){
+		if (!$this->IsOperatorRole()){ return false; }
+		
+		return !$this->IsModeratorRole() && !$this->IsAdminRole();
+	}
+	
+	/**
 	 * Роль авторизованного пользователя
 	 */
 	public function IsWriteRole(){ return false; }
@@ -130,6 +139,8 @@ class CatalogModuleManager {
 				return $this->ElementIdByNameToAJAX($d->elname);
 			case "elementsave":
 				return $this->ElementSaveToAJAX($d->elementid, $d->savedata);
+			case "elementmoder":
+				return $this->ElementModerToAJAX($d->elementid);
 			case "elementremove":
 				return $this->ElementRemove($d->elementid);
 			case "elementtypesave":
@@ -434,7 +445,7 @@ class CatalogModuleManager {
 		$list = new $this->CatalogElementListClass();
 		$list->cfg = $cfg;
 		
-		$rows = CatalogDbQuery::ElementList($this->db, $this->pfx, $this->userid, $cfg);
+		$rows = CatalogDbQuery::ElementList($this->db, $this->pfx, $this->userid, $this->IsAdminRole(), $cfg);
 		while (($d = $this->db->fetch_array($rows))){
 			
 			$cnt = $cfg->extFields->Count();
@@ -448,7 +459,7 @@ class CatalogModuleManager {
 			
 			$list->Add(new $this->CatalogElementClass($d));
 		}
-		$list->total = CatalogDbQuery::ElementListCount($this->db, $this->pfx, $cfg);
+		$list->total = CatalogDbQuery::ElementListCount($this->db, $this->pfx, $this->userid, $this->IsAdminRole(), $cfg);
 		
 		return $list;
 	}
@@ -529,7 +540,7 @@ class CatalogModuleManager {
 			return $this->_cacheElementByName[$name];
 		}
 
-		$dbEl = CatalogDbQuery::ElementByName($this->db, $this->pfx, $name);
+		$dbEl = CatalogDbQuery::ElementByName($this->db, $this->pfx, $this->userid, $this->IsAdminRole(), $name);
 		if (empty($dbEl)){ return null; }
 		
 		$element = new $this->CatalogElementClass($dbEl);
@@ -606,8 +617,8 @@ class CatalogModuleManager {
 		return $element;
 	}
 	
-	public function ElementToAJAX($elid){
-		$element = $this->Element($elid);
+	public function ElementToAJAX($elid, $clearCache = false){
+		$element = $this->Element($elid, $clearCache);
 		if (empty($element)){ return null; }
 		
 		$ret = new stdClass();
@@ -621,11 +632,11 @@ class CatalogModuleManager {
 		if (empty($element)){ return null; }
 
 		$ret = new stdClass();
-		$ret->elementid = $element->id;
-		$ret->userid = $element->userid;
+		$ret->elementid	= $element->id;
+		$ret->userid	= $element->userid;
+		$ret->ismoder	= $element->isModer ? 1 : 0;
 		
 		return $ret;
-		
 	}
 	
 	/**
@@ -682,12 +693,18 @@ class CatalogModuleManager {
 		$utmChLog = Abricos::TextParser(true);
 		
 		// TODO: временное решение в лоб
+		$utmfLog = Abricos::TextParser(true);
+		$utmfLog->jevix->cfgSetAutoBrMode(true);
+		$d->chlg = $utmfLog->Parser($d->chlg);
+		$d->chlg = str_replace("<br/>",'', $d->chlg);
+		
+		/*
 		$d->chlg = str_replace("\r\n",'[--!rn!--]', $d->chlg);
 		$d->chlg = str_replace("\n",'[--!n!--]', $d->chlg);
 		$d->chlg = $utmf->Parser($d->chlg);
 		$d->chlg = str_replace('[--!rn!--]', "\r\n", $d->chlg);
 		$d->chlg = str_replace('[--!n!--]', "\n", $d->chlg);
-		
+		/**/
 		$elTypeList = $this->ElementTypeList();
 		$elType = $elTypeList->Get($d->tpid);
 		if (empty($elType)){ return null; }
@@ -705,16 +722,17 @@ class CatalogModuleManager {
 			if ($this->cfgVersionControl){ // проверка существующей версии
 				$curEl = $this->ElementByName($d->nm); // элемент текущей версии
 				if (!empty($curEl)){
-					
-					if ($isOper && $curEl->userid != $this->userid){
+
+					if ($this->IsOperatorOnlyRole() && ($curEl->userid != $this->userid || $curEl->isModer)){
 						// оператору можно добавлять новые версии только своим элементам
+						// и если эти элементы уже прошли проверку модератором
 						return null;
 					}
 					
 					$d->pelid = $curEl->id; // новому элементу ссылку на старый
 					$d->v = $curEl->detail->version+1; // увеличить номер версии нового элемента
 
-					if (!$isOper){ // Оператору может только добавить на модерацию
+					if ($this->IsAdminRole()){ // Оператор может добавить только на модерацию
 						// текущую версию переместить в архив
 						CatalogDbQuery::ElementToArhive($this->db, $this->pfx, $curEl->id);
 					}
@@ -729,6 +747,11 @@ class CatalogModuleManager {
 			$el = $this->Element($elid);
 			if (empty($el)){ return null; }
 			
+			if ($this->IsOperatorOnlyRole() && ($curEl->userid != $this->userid || !$curEl->isModer)){
+				// оператору не принадлежит этот элемент или элемент уже прошел модерацию
+				return null;
+			}
+			
 			if ($this->cfgElementNameUnique){
 				// имя элемента уникальное, поэтому изменять его нельзя
 				$d->nm = $el->name;
@@ -740,7 +763,7 @@ class CatalogModuleManager {
 		if (!empty($d->values)){
 			foreach($d->values as $tpid => $opts){
 				$elType = $elTypeList->Get($tpid);
-				CatalogDbQuery::ElementDetailUpdate($this->db, $this->pfx, $elid, $elType, $opts);
+				CatalogDbQuery::ElementDetailUpdate($this->db, $this->pfx, $this->userid, $this->IsAdminRole(), $elid, $elType, $opts);
 			}
 		}
 		
@@ -759,11 +782,45 @@ class CatalogModuleManager {
 		
 		if (empty($elid)){ return null; }
 		
-		return $this->ElementToAJAX($elid);
+		return $this->ElementToAJAX($elid, true);
+	}
+	
+	public function ElementModer($elid){
+		if (!$this->IsAdminRole()){ return null; }
+		
+		$el = $this->Element($elid);
+		
+		if (empty($el) || !$el->isModer){ return null; }
+		
+		if ($this->cfgVersionControl){
+			CatalogDbQuery::ElementToArhive($this->db, $this->pfx, $el->detail->pElementId);
+			CatalogDbQuery::ElementModer($this->db, $this->pfx, $elid);
+		}
+		
+		return $elid;
+	}
+	
+	public function ElementModerToAJAX($elid){
+		$elid = $this->ElementModer($elid);
+
+		if (empty($elid)){ return null; }
+		
+		return $this->ElementToAJAX($elid, true);
 	}
 	
 	public function ElementRemove($elid){
-		if (!$this->IsAdminRole()){ return null; }
+		if (!$this->IsOperatorRole()){ return null; }
+		
+		$el = $this->Element($elid);
+		
+		if ($this->IsOperatorOnlyRole()){
+			
+			if ($el->userid != $this->userid || !$el->isModer){
+				// оператор может удалять только свои записи
+				// не прошедшии модерацию
+				return null;
+			}
+		}
 		
 		CatalogDbQuery::ElementRemove($this->db, $this->pfx, $elid);
 		
