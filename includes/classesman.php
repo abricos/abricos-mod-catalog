@@ -662,10 +662,6 @@ class CatalogModuleManager {
 	 * @param array|object $d
 	 */
 	public function ElementSave($elid, $d){
-		$isOper = $this->IsOperatorRole() && !$this->IsModeratorRole() && !$this->IsAdminRole();
-		$isModer = $this->IsModeratorRole() && !$this->IsAdminRole();
-		$isAdmin = $this->IsAdminRole();
-		
 		if (!$this->IsOperatorRole()){ return null; }
 		
 		$d = $this->ParamToObject($d);
@@ -741,7 +737,7 @@ class CatalogModuleManager {
 				}
 			}
 			
-			$elid = CatalogDbQuery::ElementAppend($this->db, $this->pfx, $this->userid, $isOper, $d);
+			$elid = CatalogDbQuery::ElementAppend($this->db, $this->pfx, $this->userid, $this->IsOperatorOnlyRole(), $d);
 			if (empty($elid)){ return null; }
 			
 			if ($this->IsOperatorOnlyRole()){
