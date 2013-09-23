@@ -295,12 +295,21 @@ class CatalogUser extends AbricosItem {
 	public $firstName;
 	public $lastName;
 	
+	/**
+	 * Почта пользователя
+	 * 
+	 * Для внутреннего использования
+	 * @var string
+	 */
+	public $email;
+	
 	public function __construct($d){
 		$this->id			= intval($d['uid'])>0 ? $d['uid'] : $d['id'];
-		$this->userName		= $d['unm'];
-		$this->avatar		= $d['avt'];
-		$this->firstName	= $d['fnm'];
-		$this->lastName		= $d['lnm'];
+		$this->userName		= strval($d['unm']);
+		$this->avatar		= strval($d['avt']);
+		$this->firstName	= strval($d['fnm']);
+		$this->lastName		= strval($d['lnm']);
+		$this->email		= strval($d['eml']);
 	}
 	
 	public function ToAJAX(){
@@ -355,7 +364,7 @@ class CatalogUserList extends AbricosList {
 	 * @return CatalogUser
 	 */
 	public function GetByIndex($i){
-		return parent::GetByIndex($id);
+		return parent::GetByIndex($i);
 	}
 }
 

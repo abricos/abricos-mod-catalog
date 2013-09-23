@@ -713,6 +713,8 @@ class CatalogModuleManager {
 			// создание базовых элементов отключено
 			return null;
 		}
+		
+		$isNewElementByOperator = false;
 
 		if ($elid == 0){ // добавление нового элемента
 			
@@ -741,6 +743,10 @@ class CatalogModuleManager {
 			
 			$elid = CatalogDbQuery::ElementAppend($this->db, $this->pfx, $this->userid, $isOper, $d);
 			if (empty($elid)){ return null; }
+			
+			if ($this->IsOperatorOnlyRole()){
+				$isNewElementByOperator = true;
+			}
 			
 		}else{ // сохранение текущего элемента
 			
@@ -772,10 +778,19 @@ class CatalogModuleManager {
 		
 		$this->OptionFileBufferClear();
 		$this->FotoBufferClear();
+		
+		if ($isNewElementByOperator){
+			$this->OnElementAppendByOperator($elid);
+		}
 
 		return $elid;
 	}
 	
+	/**
+	 * Событие на доабвление нового элемента оператором
+	 * @param integer $elementid
+	 */
+	protected function OnElementAppendByOperator($elementid){ }
 	
 	public function ElementSaveToAJAX($elid, $d){
 		$elid = $this->ElementSave($elid, $d);
@@ -797,8 +812,16 @@ class CatalogModuleManager {
 			CatalogDbQuery::ElementModer($this->db, $this->pfx, $elid);
 		}
 		
+		$this->OnElementModer($elid);
+		
 		return $elid;
 	}
+	
+	/**
+	 * Событие на подверждение модератором нового элемента
+	 * @param integer $elementid
+	 */
+	protected function OnElementModer($elementid){ }
 	
 	public function ElementModerToAJAX($elid){
 		$elid = $this->ElementModer($elid);
@@ -1397,6 +1420,16 @@ class CatalogModuleManager {
 			$users->Add($user);
 		}
 		return $users;
+	}
+	
+	/**
+	 * Автор элемента каталога
+	 * @param CatalogElement $element
+	 * @return CatalogElement
+	 */
+	public function UserByElement(CatalogElement $element){
+		$users = $this->UserList($element);
+		return $users->GetByIndex(0);
 	}
 	
 	

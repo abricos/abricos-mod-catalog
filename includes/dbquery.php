@@ -1245,7 +1245,8 @@ class CatalogDbQuery {
 				u.username as unm,
 				u.avatar as avt,
 				u.firstname as fnm,
-				u.lastname as lnm
+				u.lastname as lnm,
+				u.email as eml
 				".$urt->fld."
 			FROM ".$db->prefix."user u
 			".$urt->tbl."
