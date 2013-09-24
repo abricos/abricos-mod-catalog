@@ -1045,9 +1045,10 @@ class CatalogElementListConfig {
 	public $elnames;
 	
 	/**
-	 * @var CatalogElementTypeList
+	 * Идентификаторы типов элемента
+	 * @var array
 	 */
-	public $typeList;
+	public $eltpids;
 	
 	public function __construct($catids = null){
 		if (is_null($catids)){
@@ -1058,6 +1059,7 @@ class CatalogElementListConfig {
 		$this->catids = $catids;
 		$this->elids = array();
 		$this->elnames = array();
+		$this->eltpids = array();
 		
 		$this->orders = new CatalogElementOrderOptionList();
 		$this->extFields = new CatalogElementOptionList();

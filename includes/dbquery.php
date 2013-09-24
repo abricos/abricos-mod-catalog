@@ -197,6 +197,11 @@ class CatalogDbQuery {
 			if (empty($elname)){ continue; }
 			array_push($wEls, "e.name='".bkstr($elname)."'");
 		}
+		if (count($cfg->eltpids) > 0){
+			foreach($cfg->eltpids as $eltpid){
+				array_push($wEls, "e.eltypeid=".bkint($eltpid));
+			}
+		}
 		
 		$orders = "";
 		$cnt = $cfg->orders->Count();
