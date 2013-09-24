@@ -95,7 +95,8 @@ if ($updateManager->isInstall()){
 		CREATE TABLE IF NOT EXISTS `".$pfx."eltype` (
 			`eltypeid` INT(5) UNSIGNED NOT NULL auto_increment,
 			`name` VARCHAR(250) NOT NULL default '',
-			`title` VARCHAR(250) NOT NULL default '',
+			`title` VARCHAR(250) NOT NULL default '' COMMENT 'Название',
+			`titlelist` VARCHAR(250) NOT NULL default '' COMMENT 'Название списка',
 			`descript` text NOT NULL COMMENT 'Описание',
 			`fotouse` int(1) UNSIGNED NOT NULL default '0' COMMENT 'В опциях элемента есть фотографии, по умолчанию - нет',
 
@@ -344,7 +345,14 @@ if ($updateManager->isUpdate('0.2.6')){
 		)". $charset
 	);
 	
-	
+}
+
+if ($updateManager->isUpdate('0.2.7.1') && !$updateManager->isInstall()){
+	$db->query_write("
+		ALTER TABLE `".$pfx."eltype`
+		ADD `titlelist` VARCHAR(250) NOT NULL default '' COMMENT 'Название списка'
+	");
+	$db->query_write("UPDATE `".$pfx."eltype` SET titlelist=title ");
 }
 
 ?>

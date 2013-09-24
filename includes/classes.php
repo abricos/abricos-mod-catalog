@@ -370,7 +370,21 @@ class CatalogUserList extends AbricosList {
 
 class CatalogElementType extends CatalogItem {
 
+	/**
+	 * Название
+	 * @var string
+	 */
 	public $title;
+	/**
+	 * Название в множественном числе
+	 * @var string
+	 */
+	public $titleList;
+	
+	/**
+	 * Имя (используется в качестве идентификатора)
+	 * @var string
+	 */
 	public $name;
 	
 	public $tableName = "";
@@ -383,7 +397,8 @@ class CatalogElementType extends CatalogItem {
 	public function __construct($d = array()){
 		parent::__construct($d);
 
-		$this->title	= strval($d['tl']); 
+		$this->title	= strval($d['tl']);
+		$this->titleList = strval($d['tls']);
 		$this->name		= strval($d['nm']);
 
 		$this->options = new CatalogElementOptionList();
@@ -400,6 +415,7 @@ class CatalogElementType extends CatalogItem {
 		$ret = new stdClass();
 		$ret->id	= $this->id;
 		$ret->tl	= $this->title;
+		$ret->tls	= $this->titleList;
 		$ret->nm	= $this->name;
 	
 		if ($this->options->Count()>0){
@@ -1231,6 +1247,59 @@ class CatalogItemList {
 		$ret->list = $list;
 
 		return $ret;
+	}
+}
+
+class CatalogStatisticElement extends AbricosItem {
+	public $catid;
+	public $elTypeId;
+	public $count;
+	
+	public function __construct($d){
+		if (empty($d['id'])){
+			$this->id = $d['catid'].'-'.$d['tpid'];
+		}else{
+			$this->id = $d['id'];
+		}
+		
+		$this->catid = intval($d['catid']);
+		$this->elTypeId = intval($d['tpid']);
+		$this->count = intval($d['cnt']);
+	}
+}
+
+class CatalogStatisticElementList extends AbricosList {
+	/**
+	 * Кол-во элементов в каталоге
+	 * @var array
+	 */
+	public $catalogCounter;
+	/**
+	 * Кол-во элементов по типу
+	 * @var array
+	 */
+	public $elTypeCounter;
+	
+	public function __construct(){
+		parent::__construct();
+		$this->catalogCounter = array();
+		$this->elTypeCounter = array();
+	}
+	
+	public function Add($item){
+		parent::Add($item);
+		if (empty($this->catalogCounter[$item->catid])){
+			$this->catalogCounter[$item->catid] = $item->count;
+		}else{
+			$this->catalogCounter[$item->catid] = $this->catalogCounter[$item->catid]+$item->count;			
+		}
+		
+		if (empty($this->elTypeCounter[$item->elTypeId])){
+			$this->elTypeCounter[$item->elTypeId] = $item->count;
+		}else{
+			$this->elTypeCounter[$item->elTypeId] = $this->elTypeCounter[$item->elTypeId]+$item->count;			
+		}
+		
 	}
 }
 

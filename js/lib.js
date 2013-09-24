@@ -322,7 +322,7 @@ Component.entryPoint = function(NS){
 			'gid':	0,
 			'ord':	0
 		}, d || {});
-		ElementType.superclass.constructor.call(this, d);
+		ElementOption.superclass.constructor.call(this, d);
 	};
 	YAHOO.extend(ElementOption, SysNS.Item, {
 		update: function(d){
@@ -386,6 +386,7 @@ Component.entryPoint = function(NS){
 		
 		d = L.merge({
 			'tl': '',
+			'tls': '',
 			'nm': '',
 			'options': []
 		}, d || {});
@@ -394,6 +395,7 @@ Component.entryPoint = function(NS){
 	YAHOO.extend(ElementType, SysNS.Item, {
 		update: function(d){
 			this.title = d['tl'];
+			this.titleList = d['tls'];
 			this.name = d['nm'];
 			
 			this.optionList = this.manager.newElementOptionList(d['options']);

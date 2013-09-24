@@ -888,6 +888,10 @@ class CatalogModuleManager {
 		
 		$eltTypeId	= intval($elTypeId);
 		$d->tl		= $utmf->Parser($d->tl);
+		if (empty($d->tls)){
+			$d->tls = $d->tl;
+		}
+		$d->tls		= $utmf->Parser($d->tls);
 		$d->nm		= strtolower(translateruen($d->nm));
 		$d->dsc		= $utm->Parser($d->dsc);
 		
@@ -923,8 +927,8 @@ class CatalogModuleManager {
 				$oldTableName = $this->ElementTypeTableName($checkElType->name);
 				
 				CatalogDbQuery::ElementTypeTableChange($this->db, $oldTableName, $tableName);
-				CatalogDbQuery::ElementTypeUpdate($this->db, $this->pfx, $elTypeId, $d);
 			}
+			CatalogDbQuery::ElementTypeUpdate($this->db, $this->pfx, $elTypeId, $d);
 		}
 		
 		return $elTypeId;
@@ -1460,6 +1464,38 @@ class CatalogModuleManager {
 			$files->Add($file);
 		}
 		return $files;
+	}
+	
+	
+	private $_cacheStatElList = null;
+	
+	/**
+	 * Статистика элементов в каталоге по типам
+	 * 
+	 * @param boolean $clearCache
+	 * @return CatalogStatisticElementList
+	 */
+	public function StatisticElementList($clearCache = false){
+		if (!$this->IsViewRole()){ return null; }
+		
+		if ($clearCache){
+			$this->_cacheStatElList = null;			
+		}
+		
+		if (!empty($this->_cacheStatElList)){
+			return $this->_cacheStatElList;
+		}
+		
+		$list = new CatalogStatisticElementList();
+		$rows = CatalogDbQuery::StatisticElementList($this->db, $this->pfx);
+		$i = 0;
+		while (($d = $this->db->fetch_array($rows))){
+			$d['id'] = $i+1;
+			$item = new CatalogStatisticElement($d);
+			$list->Add($item);
+		}
+		$this->_cacheStatElList = $list;
+		return $list;
 	}
 	
 }

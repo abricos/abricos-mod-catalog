@@ -711,9 +711,10 @@ class CatalogDbQuery {
 	public static function ElementTypeAppend(Ab_Database $db, $pfx, $d){
 		$sql = "
 			INSERT INTO ".$pfx."eltype
-				(name, title, descript, language) VALUES (
+				(name, title, titlelist, descript, language) VALUES (
 				'".bkstr($d->nm)."',
 				'".bkstr($d->tl)."',
+				'".bkstr($d->tls)."',
 				'".bkstr($d->dsc)."',
 				'".bkstr(Abricos::$LNG)."'
 			)
@@ -728,6 +729,7 @@ class CatalogDbQuery {
 			SET
 				name='".bkstr($d->nm)."',
 				title='".bkstr($d->tl)."',
+				titlelist='".bkstr($d->tls)."',
 				descript='".bkstr($d->dsc)."'
 			WHERE eltypeid=".bkint($elTypeId)."
 			LIMIT 1
@@ -749,6 +751,7 @@ class CatalogDbQuery {
 			SELECT
 				eltypeid as id,
 				title as tl,
+				titlelist as tls,
 				name as nm,
 				descript as dsc
 			FROM ".$pfx."eltype t
@@ -1276,6 +1279,20 @@ class CatalogDbQuery {
 		return $db->query_read($sql); 
 	}
 	
+	public static function StatisticElementList(Ab_Database $db, $pfx){
+		$sql = "
+			SELECT 
+				e.catalogid as catid,
+				e.eltypeid as tpid,
+				count(*) as cnt
+			FROM ".$pfx."element e
+			WHERE e.ismoder=0
+				AND e.isarhversion=0 
+				AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+			GROUP BY e.catalogid, e.eltypeid
+		";
+		return $db->query_read($sql);
+	}
 }
 
 ?>

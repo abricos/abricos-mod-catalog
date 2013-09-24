@@ -56,6 +56,7 @@ Component.entryPoint = function(NS){
 			
 			this.elSetValue({
 				'tl': elType.title,
+				'tls': elType.titleList,
 				'nm': elType.name
 			});
 			
@@ -108,6 +109,7 @@ Component.entryPoint = function(NS){
 			var cfg = this.cfg, elType = this.elType;
 			var sd = {
 				'tl': this.gel('tl').value,
+				'tls': this.gel('tls').value,
 				'nm': this.gel('nm').value,
 				'dsc': ''
 			};
