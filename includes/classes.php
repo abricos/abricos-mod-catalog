@@ -954,6 +954,7 @@ class CatalogElementChangeLogList extends AbricosList {
  */
 class CatalogFoto extends AbricosItem {
 	
+	public $elementid;
 	public $filehash;
 	public $name;
 	public $extension;
@@ -965,6 +966,7 @@ class CatalogFoto extends AbricosItem {
 		parent::__construct($d);
 		
 		$this->filehash = $d['f'];
+		$this->elementid = intval($d['elid']);
 		$this->name = $d['nm'];
 		$this->extension = $d['ext'];
 		$this->filesize = $d['sz'];
@@ -987,10 +989,33 @@ class CatalogFoto extends AbricosItem {
 
 class CatalogFotoList extends AbricosList {
 	
+	private $_groups = array();
+	
 	/**
 	 * @return CatalogFoto
 	 */
 	public function GetByIndex($i){return parent::GetByIndex($i);}
+	
+	public function Add($item){
+		parent::Add($item);
+		
+		$elid = $item->elementid;
+		if (!is_array($this->_groups[$elid])){
+			$this->_groups[$elid] = array();
+		}
+		array_push($this->_groups[$elid], $item);
+	}
+	
+	/**
+	 * Получить все фото элемента
+	 * 
+	 * @param integer $elid
+	 * @return array
+	 */
+	public function GetGroup($elid){
+		if (empty($this->_groups[$elid])){ return array(); }
+		return $this->_groups[$elid];
+	}
 }
 
 /**

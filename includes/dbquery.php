@@ -1076,12 +1076,32 @@ class CatalogDbQuery {
 		";
 		return $db->query_read($sql);
 	}
-	
+
+	/**
+	 * Получить список картинок элемента
+	 * 
+	 * В качестве параметра $elid может быть идентификатор элемента или массив
+	 * идентификаторов
+	 * 
+	 * @param Ab_Database $db
+	 * @param string $pfx
+	 * @param integer|array $elid
+	 */
+	public static function ElementFotoList(Ab_Database $db, $pfx, $elids){
+		if (!is_array($elids)){
+			$elid = array($elids);
+		}
+		if (count($elids) == 0){ return null; }
 		
-	public static function ElementFotoList(Ab_Database $db, $pfx, $elementid){
+		$aWh = array();
+		foreach ($elids as $elid){
+			array_push($aWh, "f.elementid=".bkint($elid)."");
+		} 
+		
 		$sql = "
 			SELECT
 				fm.filehash as id,
+				f.elementid as elid,
 				fm.filehash as f,
 				fm.filename as nm,
 				fm.extension as ext,
@@ -1090,8 +1110,8 @@ class CatalogDbQuery {
 				fm.imgheight as h
 			FROM ".$pfx."foto f
 			INNER JOIN ".$db->prefix."fm_file fm ON f.fileid=fm.filehash
-			WHERE f.elementid=".bkint($elementid)."
-			ORDER BY f.ord
+			WHERE ".implode(" OR ", $aWh)."
+			ORDER BY f.elementid, f.ord
 		";
 		return $db->query_read($sql);		
 	}

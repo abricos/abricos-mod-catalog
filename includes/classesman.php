@@ -509,20 +509,47 @@ class CatalogModuleManager {
 			}
 		}
 		
-		$rows = CatalogDbQuery::ElementFotoList($this->db, $this->pfx, $element->id);
 		$fotos = array();
-		$fotoList = new CatalogFotoList();
-		while (($row = $this->db->fetch_array($rows))){
-			array_push($fotos, $row['f']);
-			$fotoList->Add(new CatalogFoto($row));
+		$fotoList = $this->ElementFotoList($element);
+		for ($i=0; $i<$fotoList->Count(); $i++){
+			$foto = $fotoList->GetByIndex($i);
+			array_push($fotos, $foto->filehash);
 		}
-		
 		$detail = new CatalogElementDetail($dbEl, $dbOptionsBase, $dbOptionsPers, $fotos, $fotoList);
 		
 		$element->detail = $detail;
 	}
 	
 	private $_cacheElementByName = null;
+	
+	
+	/**
+	 * Список фотографий элемента|элементов
+	 * 
+	 * @param CatalogElementList|CataloElement $data
+	 * @return CatalogFotoList
+	 */
+	public function ElementFotoList($data){
+		if (!$this->IsViewRole()){ return null; }
+		
+		$elids = array();
+		if ($data instanceof CatalogElementList){
+			for ($i=0;$i<$data->Count();$i++){
+				$el = $data->GetByIndex($i);
+				array_push($elids, $el->id);
+			}
+		}else if ($data instanceof CatalogElement){
+			array_push($elids, $data->id);
+		}
+
+		$fotoList = new CatalogFotoList();
+		
+		$rows = CatalogDbQuery::ElementFotoList($this->db, $this->pfx, $elids);
+		while (($d = $this->db->fetch_array($rows))){
+			$fotoList->Add(new CatalogFoto($d));
+		}
+		return $fotoList;
+	}
 	
 	/**
 	 * Получить элемент по имени
@@ -1432,9 +1459,12 @@ class CatalogModuleManager {
 		return $users->GetByIndex(0);
 	}
 	
-	
 	/**
-	 * Получить список файлов
+	 * Получить список файлов 
+	 * 
+	 * Параметр $data может принимать значение: 
+	 * 		CatalogElementList - список элементов,
+	 * 		CataloElement - элемент
 	 * 
 	 * @param CatalogElementList|CataloElement $data
 	 * @return CatalogFileList
