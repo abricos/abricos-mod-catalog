@@ -614,6 +614,39 @@ class CatalogModuleManager {
 		return $list;
 	}
 	
+	/**
+	 * Список изменений по всем элементам
+	 * 
+	 * @param string $sExtOptions дополнительные опции элементов базового типа
+	 */
+	public function ElementChangeLogList($sExtOptions){
+		if (!$this->IsViewRole()){ return null; }
+		
+		$elTypeList = $this->ElementTypeList();
+		$elTypeBase = $elTypeList->Get(0);
+		$optionList = new CatalogElementOptionList();
+		$aExtOptions = explode(",", $sExtOptions);
+		foreach ($aExtOptions as $optName){
+			$option = $elTypeBase->options->GetByName($optName);
+			if (empty($option)){ continue; }
+			$optionList->Add($option);
+		}
+		
+		$list = new CatalogElementChangeLogList();
+		$rows = CatalogDbQuery::ElementChangeLogList($this->db, $this->pfx, $optionList);
+		while (($d = $this->db->fetch_array($rows))){
+			$chLog = new CatalogElementChangeLog($d);
+				
+			for ($i=0;$i<$optionList->Count();$i++){
+				$option = $optionList->GetByIndex($i);
+				$chLog->ext[$option->name] = $d['fld_'.$option->name];
+			}
+			$list->Add($chLog);
+		}
+		
+		return $list;
+	}
+	
 	private $_cacheElementById = null;
 	
 	/**

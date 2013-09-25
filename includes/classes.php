@@ -917,14 +917,40 @@ class CatalogElementList extends CatalogItemList {
 }
 
 class CatalogElementChangeLog extends AbricosItem {
+	
+	/**
+	 * Идентификатор элемента предыдущей версии
+	 * @var integer
+	 */
+	public $pvElementId;
+	
+	/**
+	 * Служебная версия элемента
+	 * @var integer
+	 */
 	public $version;
+	
+	/**
+	 * Дополнительные значения опций
+	 * @var array
+	 */
 	public $ext;
+	
+	/**
+	 * Дата публикации
+	 * @var integer
+	 */
 	public $dateline;
+	
+	/**
+	 * Список изменений
+	 * @var string
+	 */
 	public $log;
 	
 	public function __construct($d){
 		parent::__construct($d);
-		
+		$this->pvElementId = intval($d['pid']);
 		$this->version = intval($d['v']);
 		$this->dateline = intval($d['dl']);
 		$this->log = strval($d['chlg']);

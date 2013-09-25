@@ -170,6 +170,7 @@ class CatalogDbQuery {
 		$sql = "
 			SELECT
 				e.elementid as id,
+				e.prevelementid as pid,
 				e.dateline as dl,
 				e.version as v,
 				e.changelog as chlg
@@ -177,6 +178,32 @@ class CatalogDbQuery {
 			FROM ".$pfx."element e
 			WHERE e.ismoder=0 AND e.name='".bkstr($elname)."' AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 			ORDER BY e.version DESC
+		";
+		return $db->query_read($sql);
+	}
+
+	public static function ElementChangeLogList(Ab_Database $db, $pfx, CatalogElementOptionList $extOptions){
+		$extFields = "";
+		$cnt = $extOptions->Count();
+		for ($i=0; $i<$cnt; $i++){
+			$option = $extOptions->GetByIndex($i);
+			if ($option->elTypeId > 0){ continue; }
+	
+			$extFields .= ", e.fld_".$option->name;
+		}
+	
+		$sql = "
+			SELECT
+				e.elementid as id,
+				e.prevelementid as pid,
+				e.dateline as dl,
+				e.version as v,
+				e.changelog as chlg
+				".$extFields."
+			FROM ".$pfx."element e
+			WHERE e.ismoder=0 AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+			ORDER BY e.dateline DESC, e.version DESC
+			LIMIT 100
 		";
 		return $db->query_read($sql);
 	}
