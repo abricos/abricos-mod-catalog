@@ -27,18 +27,20 @@ if ($updateManager->isInstall()){
 			`metadesc` varchar(250) NOT NULL default '' COMMENT 'Тег description',
 			`level` int(2) UNSIGNED NOT NULL default '0' COMMENT 'Уровень вложений',
 			`ord` int(3) NOT NULL default '0' COMMENT 'Сортировка',
-			
+
+			`teamid` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор сообщества',
 			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
 			
 			`dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
 			`deldate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
 			
 			PRIMARY KEY  (`catalogid`),
-			KEY `deldate` (`deldate`)
+			KEY `catalog` (`teamid`, `language`, `deldate`)
 		)".$charset
 	);
 	
 	// справочник
+	/*
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."dict` (
 			`dictid` int(5) UNSIGNED NOT NULL auto_increment,
@@ -51,6 +53,7 @@ if ($updateManager->isInstall()){
 			PRIMARY KEY (`dictid`)
 		)". $charset
 	);
+	/**/
 	
 	// Элементы каталога
 	$db->query_write("
@@ -75,6 +78,7 @@ if ($updateManager->isInstall()){
 			`metakeys` varchar(250) NOT NULL default '' COMMENT 'Тег keywords',
 			`metadesc` varchar(250) NOT NULL default '' COMMENT 'Тег description',
 
+			`teamid` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор сообщества',
 			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
 			
 			`dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'Дата добавления',
@@ -84,13 +88,13 @@ if ($updateManager->isInstall()){
 			PRIMARY KEY  (`elementid`),
 			KEY `name` (`name`),
 			KEY `catalogid` (`catalogid`),
-			KEY `element` (`language`, `ismoder`, `isarhversion`, `deldate`),
+			KEY `element` (`teamid`,`language`, `ismoder`, `isarhversion`, `deldate`),
 			KEY `ord` (`ord`)
 		)".$charset
 	);
 
 	// тип элемента каталога
-	// примечание: под каждый тип будет создана отдельная таблица с полями опций этого типа 
+	// примечание: на каждый тип будет создана отдельная таблица с полями опций этого типа 
 	$db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."eltype` (
 			`eltypeid` INT(5) UNSIGNED NOT NULL auto_increment,
@@ -100,13 +104,14 @@ if ($updateManager->isInstall()){
 			`descript` text NOT NULL COMMENT 'Описание',
 			`fotouse` int(1) UNSIGNED NOT NULL default '0' COMMENT 'В опциях элемента есть фотографии, по умолчанию - нет',
 
+			`teamid` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор сообщества',
 			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
 			
 			`dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
 			`deldate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
 		
 			PRIMARY KEY  (`eltypeid`),
-			KEY `eltype` (`language`, `deldate`)
+			KEY `eltype` (`teamid`, `language`, `deldate`)
 		)". $charset
 	);
 	
@@ -146,13 +151,14 @@ if ($updateManager->isInstall()){
 			`issystem` tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-системная опция',
 			`disable` tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-опция отключена',
 			
+			`teamid` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор сообщества',
 			`language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
 			
 			`dateline` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
 			`deldate` int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
 			
 			PRIMARY KEY  (`eloptionid`),
-			KEY `eloption` (`language`, `deldate`)
+			KEY `eloption` (`teamid`, `language`, `deldate`)
 		)". $charset
 	);
 	
@@ -353,6 +359,38 @@ if ($updateManager->isUpdate('0.2.7.1') && !$updateManager->isInstall()){
 		ADD `titlelist` VARCHAR(250) NOT NULL default '' COMMENT 'Название списка'
 	");
 	$db->query_write("UPDATE `".$pfx."eltype` SET titlelist=title ");
+}
+
+if ($updateManager->isUpdate('0.2.7.2') && !$updateManager->isInstall()){
+	
+	$db->query_write("DROP TABLE IF EXISTS `".$pfx."dict`");
+	
+	$db->query_write("
+		ALTER TABLE `".$pfx."catalog`
+		ADD `teamid` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор сообщества',
+		ADD INDEX `catalog` (`teamid`, `language`, `deldate`)
+	");
+	
+	$db->query_write("
+		ALTER TABLE `".$pfx."element`
+		ADD `teamid` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор сообщества',
+		DROP INDEX `element`,
+		ADD INDEX `element` (`teamid`,`language`, `ismoder`, `isarhversion`, `deldate`)
+	");
+	
+	$db->query_write("
+		ALTER TABLE `".$pfx."eltype`
+		ADD `teamid` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор сообщества',
+		DROP INDEX `eltype`,
+		ADD INDEX `eltype` (`teamid`, `language`, `deldate`)
+	");
+	
+	$db->query_write("
+		ALTER TABLE `".$pfx."eloption`
+		ADD `teamid` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор сообщества',
+		DROP INDEX `eloption`,
+		ADD INDEX `eloption` (`teamid`, `language`, `deldate`)
+	");
 }
 
 ?>
