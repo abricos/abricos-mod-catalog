@@ -459,6 +459,16 @@ Component.entryPoint = function(NS){
 	NS.ElementOptionGroupList = ElementOptionGroupList;	
 
 	NS.managers = {};
+	NS.managers.buildId = function(modname, cfg){
+		cfg = L.merge({
+			'teamid': 0
+		}, cfg || {});
+		var id = modname;
+		if (cfg['teamid']>0){
+			id += '-'+ cfg['teamid'];
+		}
+		return id;
+	};
 	
 	var Manager = function(modname, callback, cfg){
 		cfg = L.merge({
@@ -477,7 +487,8 @@ Component.entryPoint = function(NS){
 			'elementNameChange': false,
 			'elementNameUnique': false,
 			'elementCreateBaseTypeDisable': false,
-			'versionControl': false
+			'versionControl': false,
+			'teamid': 0
 		}, cfg || {});
 		
 		cfg['roles'] = L.merge({
@@ -491,7 +502,7 @@ Component.entryPoint = function(NS){
 		var r = cfg['roles'];
 		r['isOperatorOnly'] = r['isOperator'] && !r['isModerator'] && !r['isAdmin'];
 
-		NS.managers[modname] = this;
+		NS.managers[NS.managers.buildId(modname, cfg)] = this;
 		
 		this.init(modname, callback, cfg);
 	};
@@ -576,6 +587,7 @@ Component.entryPoint = function(NS){
 		},
 		ajax: function(data, callback){
 			data = data || {};
+			data['teamid'] = this.cfg['teamid'];
 
 			Brick.ajax(this.modname, {
 				'data': data,
@@ -912,14 +924,15 @@ Component.entryPoint = function(NS){
 	NS.Manager = Manager;
 	
 	NS.initManager = function(modname, callback, cfg){
-		if (!NS.managers[modname]){
+		var id = NS.managers.buildId(modname, cfg);
+		if (!NS.managers[id]){
 			if (Brick.mod[modname] && Brick.mod[modname]['Manager']){
 				new Brick.mod[modname]['Manager'](modname, callback, cfg);
 			}else{
 				new NS.Manager(modname, callback, cfg);
 			}
 		}else{
-			NS.life(callback, NS.managers[modname]);
+			NS.life(callback, NS.managers[id]);
 		}
 	};
 	

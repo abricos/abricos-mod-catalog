@@ -1075,6 +1075,10 @@ class CatalogElementListConfig {
 	 */
 	public $extFields;
 	
+	/**
+	 * Дополнительные условия выборки
+	 * @var CatalogElementWhereOptionList
+	 */
 	public $where;
 	
 	/**
