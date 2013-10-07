@@ -10,7 +10,8 @@ class CatalogDbQuery {
 	
 	const FILECLEARTIME = 86400;
 	
-	public static function CatalogList(Ab_Database $db, $pfx){
+	public static function CatalogList(Ab_Database $db, $pfx, $teamid){
+		$teamid = intval($teamid);
 		$sql = "
 			(SELECT
 				0 as id,
@@ -29,7 +30,7 @@ class CatalogDbQuery {
 					GROUP BY e.catalogid
 				) as ecnt
 			FROM ".$pfx."catalog cat
-			LEFT JOIN ".$pfx."element e ON e.catalogid=0 AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+			LEFT JOIN ".$pfx."element e ON e.catalogid=0 AND e.teamid=".bkint($teamid)." AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 			GROUP BY e.catalogid
 			LIMIT 1)
 							
@@ -53,7 +54,7 @@ class CatalogDbQuery {
 				) as ecnt
 			FROM ".$pfx."catalog cat
 			LEFT JOIN ".$db->prefix."fm_file f ON cat.imageid=f.filehash 
-			WHERE cat.deldate=0 AND cat.language='".bkstr(Abricos::$LNG)."'
+			WHERE cat.teamid=".bkint($teamid)." AND cat.deldate=0 AND cat.language='".bkstr(Abricos::$LNG)."'
 			)
 			ORDER BY ord DESC, tl
 		";
@@ -61,7 +62,7 @@ class CatalogDbQuery {
 	}
 	
 	
-	public static function Catalog(Ab_Database $db, $pfx, $catid){
+	public static function Catalog(Ab_Database $db, $pfx, $teamid, $catid){
 		if ($catid == 0){
 			$sql = "
 				SELECT
@@ -74,7 +75,7 @@ class CatalogDbQuery {
 					0 as ord, 
 					count(*) as ecnt
 				FROM ".$pfx."element e
-				WHERE e.catalogid=0 AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+				WHERE e.catalogid=0 AND e.teamid=".bkint($teamid)." AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 			";
 		}else{
 			$sql = "
@@ -100,17 +101,17 @@ class CatalogDbQuery {
 					cat.metadesc as mdsc
 					 
 				FROM ".$pfx."catalog cat
-				WHERE catalogid=".bkint($catid)." AND cat.deldate=0 AND cat.language='".bkstr(Abricos::$LNG)."'
+				WHERE catalogid=".bkint($catid)." AND cat.teamid=".bkint($teamid)." AND cat.deldate=0 AND cat.language='".bkstr(Abricos::$LNG)."'
 				LIMIT 1
 			";
 		}
 		return $db->query_first($sql);
 	}
 	
-	public static function CatalogAppend(Ab_Database $db, $pfx, $d){
+	public static function CatalogAppend(Ab_Database $db, $pfx, $teamid, $d){
 		$sql = "
 			INSERT INTO ".$pfx."catalog
-				(parentcatalogid, title, name, imageid, descript, metatitle, metakeys, metadesc, ord, language, dateline) VALUES (
+				(parentcatalogid, title, name, imageid, descript, metatitle, metakeys, metadesc, ord, teamid, language, dateline) VALUES (
 				".bkint($d->pid).",
 				'".bkstr($d->tl)."',
 				'".bkstr($d->nm)."',
@@ -120,6 +121,7 @@ class CatalogDbQuery {
 				'".bkstr($d->mks)."',
 				'".bkstr($d->mdsc)."',
 				".bkint($d->ord).",
+				".bkint($teamid).",
 				'".bkstr(Abricos::$LNG)."',
 				".TIMENOW."
 			)
@@ -128,7 +130,7 @@ class CatalogDbQuery {
 		return $db->insert_id();
 	}
 	
-	public static function CatalogUpdate(Ab_Database $db, $pfx, $catid, $d){
+	public static function CatalogUpdate(Ab_Database $db, $pfx, $teamid, $catid, $d){
 		$sql = "
 			UPDATE ".$pfx."catalog
 			SET
@@ -141,23 +143,23 @@ class CatalogDbQuery {
 				metakeys='".bkstr($d->mks)."',
 				metadesc='".bkstr($d->mdsc)."',
 				ord=".bkint($d->ord)."
-			WHERE catalogid=".bkint($catid)."
+			WHERE catalogid=".bkint($catid)." AND teamid=".bkint($teamid)."
 			LIMIT 1
 		";
 		$db->query_write($sql);
 	}
 	
-	public static function CatalogRemove(Ab_Database $db, $pfx, $catid){
+	public static function CatalogRemove(Ab_Database $db, $pfx, $teamid, $catid){
 		$sql = "
 			UPDATE ".$pfx."catalog
 			SET deldate=".TIMENOW."
-			WHERE catalogid=".bkint($catid)."
+			WHERE catalogid=".bkint($catid)." AND teamid=".bkint($teamid)."
 			LIMIT 1
 		";
 		$db->query_write($sql);
 	}
 	
-	public static function ElementChangeLogListByName(Ab_Database $db, $pfx, $elname, CatalogElementOptionList $extOptions){
+	public static function ElementChangeLogListByName(Ab_Database $db, $pfx, $teamid, $elname, CatalogElementOptionList $extOptions){
 		$extFields = "";
 		$cnt = $extOptions->Count();
 		for ($i=0; $i<$cnt; $i++){
@@ -176,13 +178,13 @@ class CatalogDbQuery {
 				e.changelog as chlg
 				".$extFields."
 			FROM ".$pfx."element e
-			WHERE e.ismoder=0 AND e.name='".bkstr($elname)."' AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+			WHERE e.teamid=".bkint($teamid)." AND e.ismoder=0 AND e.name='".bkstr($elname)."' AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 			ORDER BY e.version DESC
 		";
 		return $db->query_read($sql);
 	}
 
-	public static function ElementChangeLogList(Ab_Database $db, $pfx, CatalogElementOptionList $extOptions){
+	public static function ElementChangeLogList(Ab_Database $db, $pfx, $teamid, CatalogElementOptionList $extOptions){
 		$extFields = "";
 		$cnt = $extOptions->Count();
 		for ($i=0; $i<$cnt; $i++){
@@ -201,14 +203,14 @@ class CatalogDbQuery {
 				e.changelog as chlg
 				".$extFields."
 			FROM ".$pfx."element e
-			WHERE e.ismoder=0 AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+			WHERE e.teamid=".bkint($teamid)." AND e.ismoder=0 AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 			ORDER BY e.dateline DESC, e.version DESC
 			LIMIT 100
 		";
 		return $db->query_read($sql);
 	}
 	
-	public static function ElementList(Ab_Database $db, $pfx, $userid, $isAdmin, CatalogElementListConfig $cfg){
+	public static function ElementList(Ab_Database $db, $pfx, $teamid, $userid, $isAdmin, CatalogElementListConfig $cfg){
 		
 		$wCats = array();
 		foreach ($cfg->catids as $catid){
@@ -300,6 +302,7 @@ class CatalogDbQuery {
 			WHERE (e.ismoder=0 OR 
 					".($isAdmin ? "e.ismoder=1" : "(e.ismoder=1 AND userid=".bkint($userid).")")."
 				) 
+				AND e.teamid=".bkint($teamid)."
 				AND e.isarhversion=0 
 				AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 		";
@@ -339,7 +342,7 @@ class CatalogDbQuery {
 		return $db->query_read($sql);
 	}
 	
-	public static function ElementListCount(Ab_Database $db, $pfx, $userid, $isAdmin, CatalogElementListConfig $cfg){
+	public static function ElementListCount(Ab_Database $db, $pfx, $teamid, $userid, $isAdmin, CatalogElementListConfig $cfg){
 		$wCats = array();
 		foreach ($cfg->catids as $catid){
 			array_push($wCats, "e.catalogid=".bkint($catid));
@@ -356,7 +359,8 @@ class CatalogDbQuery {
 			FROM ".$pfx."element e
 			WHERE (e.ismoder=0 OR 
 					".($isAdmin ? "e.ismoder=1" : "(e.ismoder=1 AND userid=".bkint($userid).")")."
-				) 
+				)
+				AND e.teamid=".bkint($teamid)."
 				AND e.isarhversion=0 
 				AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 		";
@@ -416,7 +420,7 @@ class CatalogDbQuery {
 		return $db->query_first($sql);
 	}
 	
-	public static function ElementByName(Ab_Database $db, $pfx, $userid, $isAdmin, $name){
+	public static function ElementByName(Ab_Database $db, $pfx, $teamid, $userid, $isAdmin, $name){
 		$sql = "
 			SELECT
 				e.elementid as id,
@@ -451,7 +455,8 @@ class CatalogDbQuery {
 			FROM ".$pfx."element e
 			WHERE (e.ismoder=0 OR 
 					".($isAdmin ? "e.ismoder=1" : "(e.ismoder=1 AND userid=".bkint($userid).")")."
-				) 
+				)
+				AND e.teamid=".bkint($teamid)."
 				AND e.isarhversion=0 AND e.name='".bkstr($name)."'
 				AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
 			LIMIT 1
@@ -478,11 +483,11 @@ class CatalogDbQuery {
 		return $db->query_first($sql);
 	}
 	
-	public static function ElementAppend(Ab_Database $db, $pfx, $userid, $isOperator, $d){
+	public static function ElementAppend(Ab_Database $db, $pfx, $teamid, $userid, $isOperator, $d){
 		$sql = "
 			INSERT INTO ".$pfx."element
 			(catalogid, eltypeid, userid, title, name, metatitle, metakeys, metadesc, ord, 
-				version, prevelementid, changelog, ismoder, language, dateline) VALUES (
+				version, prevelementid, changelog, ismoder, teamid, language, dateline) VALUES (
 				".bkint($d->catid).",
 				".bkint($d->tpid).",
 				".bkint($userid).",
@@ -496,6 +501,7 @@ class CatalogDbQuery {
 				".bkint($d->pelid).",
 				'".bkstr($d->chlg)."',
 				".($isOperator ? 1 : 0).",
+				".bkint($teamid).",				
 				'".bkstr(Abricos::$LNG)."',
 				".TIMENOW."
 			)
@@ -571,7 +577,7 @@ class CatalogDbQuery {
 	 * @param CatalogElementType $elType
 	 * @param object $d
 	 */
-	public static function ElementDetailUpdate(Ab_Database $db, $pfx, $userid, $isAdmin, $elid, CatalogElementType $elType, $d){
+	public static function ElementDetailUpdate(Ab_Database $db, $pfx, $teamid, $userid, $isAdmin, $elid, CatalogElementType $elType, $d){
 		$options = $elType->options;
 		if ($options->Count() == 0){ return; }
 		
@@ -606,7 +612,7 @@ class CatalogDbQuery {
 				case Catalog::TP_ELDEPENDS:
 					$cfg = new CatalogElementListConfig();
 					$cfg->elids = explode(",", $val);
-					$rows = CatalogDbQuery::ElementList($db, $pfx, $userid, $isAdmin, $cfg);
+					$rows = CatalogDbQuery::ElementList($db, $pfx, $teamid, $userid, $isAdmin, $cfg);
 					$aIds = array();
 					while (($d = $db->fetch_array($rows))){
 						array_push($aIds, $d['id']);
@@ -616,7 +622,7 @@ class CatalogDbQuery {
 				case Catalog::TP_ELDEPENDSNAME:
 					$cfg = new CatalogElementListConfig();
 					$cfg->elnames = explode(",", $val);
-					$rows = CatalogDbQuery::ElementList($db, $pfx, $userid, $isAdmin, $cfg);
+					$rows = CatalogDbQuery::ElementList($db, $pfx, teamid, $userid, $isAdmin, $cfg);
 					$aNames = array();
 					while (($d = $db->fetch_array($rows))){
 						array_push($aNames, $d['nm']);
@@ -691,7 +697,7 @@ class CatalogDbQuery {
 		return $nfList;
 	}
 
-	public static function ElementOrderUpdate(Ab_Database $db, $pfx, $elid, $order){
+	public static function ElementOrderUpdate(Ab_Database $db, $pfx, $teamid, $elid, $order){
 		$sql = "
 			UPDATE ".$pfx."element
 			SET ord=".bkint($order)."
@@ -778,7 +784,7 @@ class CatalogDbQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function ElementTypeList(Ab_Database $db, $pfx){
+	public static function ElementTypeList(Ab_Database $db, $pfx, $teamid){
 		$sql = "
 			SELECT
 				eltypeid as id,
@@ -787,7 +793,7 @@ class CatalogDbQuery {
 				name as nm,
 				descript as dsc
 			FROM ".$pfx."eltype t
-			WHERE t.deldate=0 AND t.language='".bkstr(Abricos::$LNG)."'
+			WHERE t.teamid=".bkint($teamid)." AND t.deldate=0 AND t.language='".bkstr(Abricos::$LNG)."'
 		";
 		return $db->query_read($sql);
 	}
@@ -830,10 +836,10 @@ class CatalogDbQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function ElementOptionAppend(Ab_Database $db, $pfx, $d){
+	public static function ElementOptionAppend(Ab_Database $db, $pfx, $teamid, $d){
 		$sql = "
 			INSERT INTO ".$pfx."eloption
-			(eltypeid, fieldtype, fieldsize, eloptgroupid, name, title, descript, param, language, dateline) VALUES (
+			(eltypeid, fieldtype, fieldsize, eloptgroupid, name, title, descript, param, teamid, language, dateline) VALUES (
 				".bkint($d->tpid).",
 				".bkint($d->tp).",
 				'".bkstr($d->sz)."',
@@ -842,6 +848,7 @@ class CatalogDbQuery {
 				'".bkstr($d->tl)."',
 				'".bkstr($d->dsc)."',
 				'".bkstr($d->prm)."',
+				".bkint($teamid).",				
 				'".bkstr(Abricos::$LNG)."',
 				".TIMENOW."
 			)
@@ -850,7 +857,7 @@ class CatalogDbQuery {
 		return $db->insert_id();
 	}
 	
-	public static function ElementOptionUpdate(Ab_Database $db, $pfx, $optionid, $d){
+	public static function ElementOptionUpdate(Ab_Database $db, $pfx, $teamid, $optionid, $d){
 		$sql = "
 			UPDATE ".$pfx."eloption
 			SET eloptgroupid=".bkint($d->gid).",
@@ -858,7 +865,7 @@ class CatalogDbQuery {
 				title='".bkstr($d->tl)."',
 				descript='".bkstr($d->dsc)."',
 				param='".bkstr($d->prm)."'
-			WHERE eloptionid=".bkint($optionid)."
+			WHERE eloptionid=".bkint($optionid)." AND teamid=".bkint($teamid)."
 		";
 		$db->query_write($sql);
 	}
@@ -906,7 +913,7 @@ class CatalogDbQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function ElementOptionFieldCreate(Ab_Database $db, $pfx, CatalogElementType $elType, $tableName, $d){
+	public static function ElementOptionFieldCreate(Ab_Database $db, $pfx, $teamid, CatalogElementType $elType, $tableName, $d){
 		$optionName = bkstr($d->nm);
 		
 		if ($d->tp == Catalog::TP_TABLE){
@@ -976,7 +983,7 @@ class CatalogDbQuery {
 		$db->query_write($sql);
 	}
 	
-	public static function ElementOptionList(Ab_Database $db, $pfx){
+	public static function ElementOptionList(Ab_Database $db, $pfx, $teamid){
 		$sql = "
 			SELECT
 				eloptionid as id,
@@ -993,7 +1000,7 @@ class CatalogDbQuery {
 				eltitlesource as ets,
 				disable as dsb
 			FROM ".$pfx."eloption
-			WHERE deldate=0 AND language='".bkstr(Abricos::$LNG)."'
+			WHERE teamid=".bkint($teamid)." AND deldate=0 AND language='".bkstr(Abricos::$LNG)."'
 			ORDER BY tpid, ord DESC, tl
 		";
 		return $db->query_read($sql);

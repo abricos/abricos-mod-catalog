@@ -61,10 +61,17 @@ class CatalogModuleManager {
 	 */
 	public $cfgVersionControl = false;
 	
-	public function __construct($dbPrefix){
+	/**
+	 * Идентификатор сообщества (облака)
+	 * @var integer
+	 */
+	public $teamid = 0;
+	
+	public function __construct($dbPrefix, $teamid = 0){
 		$this->db = Abricos::$db;
 		$this->pfx = $this->db->prefix."ctg_".$dbPrefix."_";
 		$this->userid = Abricos::$user->id;
+		$this->teamid = $teamid;
 	}
 	
 	/**
@@ -113,7 +120,6 @@ class CatalogModuleManager {
 	 * @return boolean
 	 */
 	public function IsViewRole(){ return false; }
-	
 	
 	public function AJAX($d){
 		// TODO: идея объеденять запросы в один
