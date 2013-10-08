@@ -219,7 +219,39 @@ class CatalogModuleManager {
 		$ajaxOptGroups = $this->ElementOptionGroupListToAJAX();
 		$ret->eloptgroups = $ajaxOptGroups->eloptgroups;
 		
+		$tuRole = $this->TeamUserRole();
+		if (!empty($tuRole)){
+			$tMan = $this->TeamManager();
+			$ret->teammodname = $tMan->modname;
+			$ret->teamuserroles = $tuRole->ToAJAX();
+		}
+		
 		return $ret;
+	}
+	
+	/**
+	 * @return TeamManager
+	 */
+	public function TeamManager(){
+		if ($this->teamid == 0){ return null; }
+
+		$mod = Abricos::GetModule('team');
+		if (empty($mod)){ return null; }
+		
+		$team = TeamModule::$instance->GetManager()->Team($this->teamid);
+		if (empty($team)){ return null; }
+		
+		return $team->Manager();
+	}
+	
+	/**
+	 * @return TeamUserRole
+	 */
+	public function TeamUserRole(){
+		$tMan = $this->TeamManager();
+		if (empty($tMan)){ return null; }
+		
+		return $tMan->TeamUserRole($this->teamid, $this->userid);
 	}
 	
 	private $_cacheCatalogList;
@@ -240,7 +272,7 @@ class CatalogModuleManager {
 		}
 		
 		$list = array();
-		$rows = CatalogDbQuery::CatalogList($this->db, $this->pfx);
+		$rows = CatalogDbQuery::CatalogList($this->db, $this->pfx, $this->teamid);
 		while (($d = $this->db->fetch_array($rows))){
 			array_push($list, new $this->CatalogClass($d));
 		}
@@ -347,7 +379,7 @@ class CatalogModuleManager {
 	public function Catalog($catid){
 		if (!$this->IsViewRole()){ return false; }
 		
-		$d = CatalogDbQuery::Catalog($this->db, $this->pfx, $catid);
+		$d = CatalogDbQuery::Catalog($this->db, $this->pfx, $this->teamid, $catid);
 		if (empty($d)){ return null; }
 		
 		$catList = $this->CatalogList();
@@ -397,12 +429,12 @@ class CatalogModuleManager {
 		if ($catid == 0){ // добавление нового
 				
 			$isNew = true;
-			$catid = CatalogDbQuery::CatalogAppend($this->db, $this->pfx, $d);
+			$catid = CatalogDbQuery::CatalogAppend($this->db, $this->pfx, $this->teamid, $d);
 			if (empty($catid)){ return null; }
 			
 			$this->_cacheCatalogList = null;
 		}else{ // сохранение текущего
-			CatalogDbQuery::CatalogUpdate($this->db, $this->pfx, $catid, $d);
+			CatalogDbQuery::CatalogUpdate($this->db, $this->pfx, $catid, $this->teamid, $d);
 		}
 	
 		CatalogDbQuery::FotoRemoveFromBuffer($this->db, $this->pfx, $d->foto);
@@ -430,8 +462,8 @@ class CatalogModuleManager {
 			$this->CatalogRemove($ccat->id);
 		}
 		
-		CatalogDbQuery::ElementListRemoveByCatId($this->db, $this->pfx, $catid);
-		CatalogDbQuery::CatalogRemove($this->db, $this->pfx, $catid);
+		CatalogDbQuery::ElementListRemoveByCatId($this->db, $this->pfx, $this->teamid, $catid);
+		CatalogDbQuery::CatalogRemove($this->db, $this->pfx, $this->teamid, $catid);
 		
 		return true;
 	}
@@ -451,7 +483,7 @@ class CatalogModuleManager {
 		$list = new $this->CatalogElementListClass();
 		$list->cfg = $cfg;
 		
-		$rows = CatalogDbQuery::ElementList($this->db, $this->pfx, $this->userid, $this->IsAdminRole(), $cfg);
+		$rows = CatalogDbQuery::ElementList($this->db, $this->pfx, $this->teamid, $this->userid, $this->IsAdminRole(), $cfg);
 		while (($d = $this->db->fetch_array($rows))){
 			
 			$cnt = $cfg->extFields->Count();
@@ -465,7 +497,7 @@ class CatalogModuleManager {
 			
 			$list->Add(new $this->CatalogElementClass($d));
 		}
-		$list->total = CatalogDbQuery::ElementListCount($this->db, $this->pfx, $this->userid, $this->IsAdminRole(), $cfg);
+		$list->total = CatalogDbQuery::ElementListCount($this->db, $this->pfx, $this->teamid, $this->userid, $this->IsAdminRole(), $cfg);
 		
 		return $list;
 	}
@@ -490,7 +522,7 @@ class CatalogModuleManager {
 			$elid = $el->id;
 			$order = $orders->$elid;
 			
-			CatalogDbQuery::ElementOrderUpdate($this->db, $this->pfx, $el->id, $order);
+			CatalogDbQuery::ElementOrderUpdate($this->db, $this->pfx, $this->teamid, $el->id, $order);
 		}
 		
 		return $this->ElementListToAJAX($catid);
@@ -573,7 +605,7 @@ class CatalogModuleManager {
 			return $this->_cacheElementByName[$name];
 		}
 
-		$dbEl = CatalogDbQuery::ElementByName($this->db, $this->pfx, $this->userid, $this->IsAdminRole(), $name);
+		$dbEl = CatalogDbQuery::ElementByName($this->db, $this->pfx, $this->teamid, $this->userid, $this->IsAdminRole(), $name);
 		if (empty($dbEl)){ return null; }
 		
 		$element = new $this->CatalogElementClass($dbEl);
@@ -606,7 +638,7 @@ class CatalogModuleManager {
 		}
 		
 		$list = new CatalogElementChangeLogList();
-		$rows = CatalogDbQuery::ElementChangeLogListByName($this->db, $this->pfx, $name, $optionList);
+		$rows = CatalogDbQuery::ElementChangeLogListByName($this->db, $this->pfx, $this->teamid, $name, $optionList);
 		while (($d = $this->db->fetch_array($rows))){
 			$chLog = new CatalogElementChangeLog($d);
 			
@@ -639,7 +671,7 @@ class CatalogModuleManager {
 		}
 		
 		$list = new CatalogElementChangeLogList();
-		$rows = CatalogDbQuery::ElementChangeLogList($this->db, $this->pfx, $optionList);
+		$rows = CatalogDbQuery::ElementChangeLogList($this->db, $this->pfx, $this->teamid, $optionList);
 		while (($d = $this->db->fetch_array($rows))){
 			$chLog = new CatalogElementChangeLog($d);
 				
@@ -803,7 +835,7 @@ class CatalogModuleManager {
 				}
 			}
 			
-			$elid = CatalogDbQuery::ElementAppend($this->db, $this->pfx, $this->userid, $this->IsOperatorOnlyRole(), $d);
+			$elid = CatalogDbQuery::ElementAppend($this->db, $this->pfx, $this->teamid, $this->userid, $this->IsOperatorOnlyRole(), $d);
 			if (empty($elid)){ return null; }
 			
 			if ($this->IsOperatorOnlyRole()){
@@ -1052,12 +1084,12 @@ class CatalogModuleManager {
 		$curType = new CatalogElementType();
 		$list->Add($curType);
 
-		$rows = CatalogDbQuery::ElementTypeList($this->db, $this->pfx);
+		$rows = CatalogDbQuery::ElementTypeList($this->db, $this->pfx, $this->teamid);
 		while (($d = $this->db->fetch_array($rows))){
 			$list->Add(new CatalogElementType($d));
 		}
 		
-		$rows = CatalogDbQuery::ElementOptionList($this->db, $this->pfx);
+		$rows = CatalogDbQuery::ElementOptionList($this->db, $this->pfx, $this->teamid);
 		while (($d = $this->db->fetch_array($rows))){
 
 			if (empty($curType) || $curType->id != $d['tpid']){
@@ -1295,8 +1327,8 @@ class CatalogModuleManager {
 			if (!empty($checkOption)){ // такая опция уже есть
 				return null; // нельзя добавить опции с одинаковым именем
 			}
-			$optionid = CatalogDbQuery::ElementOptionAppend($this->db, $this->pfx, $d);
-			CatalogDbQuery::ElementOptionFieldCreate($this->db, $this->pfx, $elType, $tableName, $d);
+			$optionid = CatalogDbQuery::ElementOptionAppend($this->db, $this->pfx, $this->teamid, $d);
+			CatalogDbQuery::ElementOptionFieldCreate($this->db, $this->pfx, $this->teamid, $elType, $tableName, $d);
 		}else{
 			$checkOption = $elType->options->Get($optionid);
 			if (empty($checkOption)){ return null; }
@@ -1308,7 +1340,7 @@ class CatalogModuleManager {
 				}
 				CatalogDbQuery::ElementOptionFieldUpdate($this->db, $this->pfx, $elType, $tableName, $checkOption, $d);
 			}
-			CatalogDbQuery::ElementOptionUpdate($this->db, $this->pfx, $optionid, $d);
+			CatalogDbQuery::ElementOptionUpdate($this->db, $this->pfx, $this->teamid, $optionid, $d);
 		}
 		return $optionid;
 	}

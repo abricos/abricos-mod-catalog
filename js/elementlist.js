@@ -78,7 +78,7 @@ Component.entryPoint = function(NS){
 					'onSaveElement': function(w){ __self.render(); }
 				});
 				
-				if (man.roles['isAdmin']){
+				if (man.roles['isAdmin'] || man.roles['isTeamAdmin']){
 					new NS.ElementRowDragItem(div, {
 						'endDragCallback': function(dgi, elDiv){
 							var chs = elList.childNodes, ordb = list.count();
@@ -291,7 +291,7 @@ Component.entryPoint = function(NS){
 				this.elShow('colnm');
 			}
 			var roles = man.roles;
-			if (roles['isAdmin']){
+			if (roles['isAdmin'] || roles['isTeamAdmin']){
 				this.elShow('bedit,bcopy,bremove');
 			}else if (roles['isOperatorOnly'] && el.userid == UID){
 				if (el.isModer){

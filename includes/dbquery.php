@@ -560,11 +560,11 @@ class CatalogDbQuery {
 		$db->query_write($sql);
 	}
 
-	public static function ElementListRemoveByCatId(Ab_Database $db, $pfx, $catid){
+	public static function ElementListRemoveByCatId(Ab_Database $db, $pfx, $teamid, $catid){
 		$sql = "
 			UPDATE ".$pfx."element
 			SET deldate=".TIMENOW."
-			WHERE catalogid=".bkint($catid)."
+			WHERE catalogid=".bkint($catid)." AND teamid=".bkint($teamid)."
 		";
 		$db->query_write($sql);
 	}

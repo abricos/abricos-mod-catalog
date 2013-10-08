@@ -499,9 +499,6 @@ Component.entryPoint = function(NS){
 			'isAdmin': false
 		}, cfg['roles'] || {});
 		
-		var r = cfg['roles'];
-		r['isOperatorOnly'] = r['isOperator'] && !r['isModerator'] && !r['isAdmin'];
-
 		NS.managers[NS.managers.buildId(modname, cfg)] = this;
 		
 		this.init(modname, callback, cfg);
@@ -597,6 +594,20 @@ Component.entryPoint = function(NS){
 			});
 		},
 		_initDataUpdate: function(d){
+			var r = this.roles;
+			
+			if (L.isValue(d['teamuserroles'])){
+				// TODO: решение в лоб. правильно будет инициализировать библиотеку управляюещего модуля облака и получить объект роли пользователя
+				if (d['teamuserroles']['isadm'] == 1){
+					r['isAdmin'] = true;
+					r['isOperator'] = true;
+					r['isWrite'] = true;
+				}
+			}
+			
+			r['isOperatorOnly'] = r['isOperator'] && !r['isModerator'] && !r['isAdmin'];
+
+			
 			this.catalogList = this._catalogListUpdate(d);
 			this._typeListUpdate(d);
 			this._optionGroupListUpdate(d);
