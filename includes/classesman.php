@@ -1514,7 +1514,7 @@ class CatalogModuleManager {
 				if ($elcids[$el->id]){
 					continue;
 				}
-				$elcids[$el->userid] = true;
+				$elcids[$el->id] = true;
 				array_push($elids, $el->id);
 			}
 		}else if ($data instanceof CatalogElement){
