@@ -1,0 +1,169 @@
+.aw-catalog .explore {
+
+  min-width: 100px;
+  min-height: 275px;
+
+  /* * * * * Tree List * * * */
+  .list {
+    padding: 5px;
+    a {
+      color: #000;
+      text-decoration: none;
+    }
+  }
+
+  table {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .staticon {
+    width: 16px;
+    position: relative;
+    margin-top: 3px;
+
+    .chdcls {
+      background: url("/modules/catalog/images/icons.png") no-repeat scroll -70px -24px transparent;
+    }
+    .chdexpd {
+      background: url("/modules/catalog/images/icons.png") no-repeat scroll -81px -24px transparent;
+    }
+    .chd {
+      position: absolute;
+      left: 3px;
+      top: 2px;
+
+      background-color: #fff;
+      width: 9px;
+      height: 9px;
+      cursor: pointer;
+    }
+  }
+
+  td.tn {
+    background: url("/modules/catalog/images/tn.gif") no-repeat scroll 0 0 transparent;
+    width: 16px;
+  }
+
+  td.ln {
+    background: url("/modules/catalog/images/ln.gif") no-repeat scroll 0 0 transparent;
+    width: 16px;
+  }
+
+  .ch-tl {
+    height: 24px;
+    overflow: hidden;
+    position: relative;
+    white-space: nowrap;
+    margin: 0 10px 0 5px;
+    padding: 0px;
+    cursor: pointer;
+
+    .shadow {
+      background: url("/modules/catalog/images/shadow.png") repeat-y scroll 0 0 transparent;
+      height: 1.3em;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 16px;
+    }
+  }
+
+  .ticon {
+    position: absolute;
+    left: 0;
+    top: 1px;
+  }
+
+  .ttypefolder {
+    .ch-tl {
+      padding-left: 16px;
+    }
+    .ticon {
+      width: 18px;
+      height: 18px;
+    }
+    .ticonchdcls {
+      background: url("/modules/catalog/images/tfolderopen.gif") no-repeat scroll 0 0 transparent;
+    }
+    .ticonchdexpd {
+      background: url("/modules/catalog/images/tfolderclose.gif") no-repeat scroll 0 0 transparent;
+    }
+  }
+
+  .rowuser .ticon img {
+    margin-left: 1px;
+    margin-top: 1px;
+    width: 16px;
+    height: 16px;
+  }
+
+  tr .select {
+    font-weight: bold;
+  }
+
+  tr .seluser a {
+    font-style: italic;
+    color: red;
+  }
+
+  /* * * * * * Menu * * * * * */
+  .boxbutton {
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #dadada;
+    border-right: none;
+  }
+
+  .head .boxbutton {
+    top: -1px;
+    right: 3px;
+  }
+
+  /* * * * * * Status * * * * * */
+  .exp-row {
+
+    .itemline {
+      position: relative;
+    }
+
+    .itemline:hover {
+      background-color: #FFF0C6;
+
+      .ch-tl .shadow {
+        background: url("/modules/catalog/images/shadow-row.png") repeat-y scroll 0 0 transparent;
+      }
+      .boxbutton {
+        display: block;
+      }
+    }
+
+    .boxbutton {
+      display: none;
+      top: 0px;
+      right: -4px;
+    }
+
+    .strem .ch-tl {
+      text-decoration: line-through;
+    }
+
+    .starch .ch-tl {
+      font-style: italic;
+    }
+
+    .notmenu .tkmenu,
+    .strem .tkmenu,
+    .starch .tkmenu {
+      display: none;
+    }
+  }
+
+}
+
+
+
+
+
+

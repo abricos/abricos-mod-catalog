@@ -1,39 +1,43 @@
 <!--{widget}-->
 <div id="{i#id}" class="aw-catalog">
-	<div class="explore">
-		<div id="{i#table}" class="list"></div>
-	</div>
+    <div class="explore">
+        <div id="{i#table}" class="list"></div>
+    </div>
 </div>
 
 <!--{table}-->
-<table id="{i#id}-{v#pid}" class="{v#clshide}"><tbody>{v#rows}</tbody></table>
+<table id="{i#id}-{v#pid}" class="{v#clshide}">
+    <tbody>{v#rows}</tbody>
+</table>
 
 <!--{row}-->
-<tr class="row">
-	<td class="{v#clst}">
-		<div class="staticon">
-			<div id="{i#bclsexpd}-{v#id}" class="chd {v#chdicon} {v#chdicoview}"></div>
-		</div>
-	</td>
-	<td>
-		<div class="itemline ttypefolder">
-			<div class="ticon ticon{v#chdicon}"></div>
-			<div id="{i#title}-{v#id}" class="ch-tl" title="{v#tl}">
-				<a id="{i#atitle}-{v#id}" href="#">{v#tl}</a>
-				<div class="shadow"></div>
-			</div>
-			<div class="boxbutton tkmenu">
-				<div id="{i#bgopage}-{v#id}" class="b" style="display: {v#showgopage}" title="Открыть просмотр каталога в новом окне">
-					<div id="{i#bgopagec}-{v#id}" class="bgopage bc"></div>
-				</div>
-				<div id="{i#bedit}-{v#id}" class="b" style="display: {v#showman}" title="Редактировать раздел каталога">
-					<div id="{i#beditc}-{v#id}" class="bedit bc"></div>
-				</div>
-				<div id="{i#badd}-{v#id}" class="b" style="display: {v#showman}" title="Добавить подраздел каталога">
-					<div id="{i#baddc}-{v#id}" class="badd bc"></div>
-				</div>
-			</div>
-		</div>
-		{v#child}
-	</td>
+<tr class="exp-row">
+    <td class="{v#clst}">
+        <div class="staticon">
+            <div id="{i#bclsexpd}-{v#id}" class="chd {v#chdicon} {v#chdicoview}"></div>
+        </div>
+    </td>
+    <td>
+        <div class="itemline ttypefolder">
+            <div class="ticon ticon{v#chdicon}"></div>
+            <div id="{i#title}-{v#id}" class="ch-tl" title="{v#tl}">
+                <a id="{i#atitle}-{v#id}" href="#">{v#tl}</a>
+
+                <div class="shadow"></div>
+            </div>
+            <div class="boxbutton tkmenu">
+                <div id="{i#bgopage}-{v#id}" class="b" style="display: {v#showgopage}"
+                     title="Открыть просмотр каталога в новом окне">
+                    <div id="{i#bgopagec}-{v#id}" class="bgopage bc"></div>
+                </div>
+                <div id="{i#bedit}-{v#id}" class="b" style="display: {v#showman}" title="Редактировать раздел каталога">
+                    <div id="{i#beditc}-{v#id}" class="bedit bc"></div>
+                </div>
+                <div id="{i#badd}-{v#id}" class="b" style="display: {v#showman}" title="Добавить подраздел каталога">
+                    <div id="{i#baddc}-{v#id}" class="badd bc"></div>
+                </div>
+            </div>
+        </div>
+        {v#child}
+    </td>
 </tr>
