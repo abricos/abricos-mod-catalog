@@ -72,8 +72,10 @@ class Catalog extends CatalogItem {
 	
 	public $title;
 	public $name;
+    public $menuDisable;
+    public $listDisable;
 	public $order;
-	
+
 	/**
 	 * Идентификатор файла картинки менеджера файлов
 	 * @var string
@@ -108,7 +110,9 @@ class Catalog extends CatalogItem {
 		$this->name		= strval($d['nm']);
 		$this->foto		= strval($d['foto']);
 		$this->fotoExt	= strval($d['fext']);
-		$this->order	= intval($d['ord']);
+        $this->menuDisable = intval($d['mdsb'])>0;
+        $this->listDisable = intval($d['ldsb'])>0;
+        $this->order	= intval($d['ord']);
 		$this->elementCount = intval($d['ecnt']);
 		 
 		$this->childs = new CatalogList($this);
@@ -122,7 +126,9 @@ class Catalog extends CatalogItem {
 		$ret->tl	= $this->title;
 		$ret->nm	= $this->name;
 		$ret->foto	= $this->foto;
-		$ret->ord	= $this->order;
+        $ret->mdsb	= $this->menuDisable;
+        $ret->ldsb	= $this->listDisable;
+        $ret->ord	= $this->order;
 		$ret->ecnt	= $this->elementCount;
 		
 		$ret->dtl	= null;

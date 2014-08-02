@@ -67,6 +67,8 @@ Component.entryPoint = function(NS){
 			'pid': 0,
 			'tl':'', // заголовок
 			'nm': '', // имя (URL)
+            'mdsb': 0,
+            'ldsb': 0,
 			'ord': 0,
 			'ecnt': 0,
 			'foto': '',
@@ -93,6 +95,8 @@ Component.entryPoint = function(NS){
 			this.title		= d['tl'];
 			this.name		= d['nm'];
 			this.foto		= d['foto'];
+            this.menuDisable= (d['mdsb']|0) > 0;
+            this.listDisable= (d['ldsb']|0) > 0;
 			this.order		= d['ord']|0;
 			
 			this.elementCount = d['ecnt']|0;

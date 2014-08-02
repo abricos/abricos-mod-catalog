@@ -19,6 +19,8 @@ class CatalogDbQuery {
 				'' as tl,
 				0 as dl,
 				0 as lvl,
+				0 as mdsb,
+				0 as ldsb,
 				0 as ord,
 				'' as foto,
 				'' as fext,
@@ -42,6 +44,8 @@ class CatalogDbQuery {
 				cat.title as tl,
 				cat.dateline as dl,
 				cat.level as lvl,
+				cat.menudisable as mdsb,
+				cat.listdisable as ldsb,
 				cat.ord,
 				cat.imageid as foto,
 				IF (ISNULL(f.filehash), '', f.extension) as fext,
@@ -71,7 +75,9 @@ class CatalogDbQuery {
 					'' as tl,
 					0 as dl,
 					0 as lvl,
-					0 as ord, 
+					0 as mdsb,
+					0 as ldsb,
+					0 as ord,
 					count(*) as ecnt
 				FROM ".$pfx."element e
 				WHERE e.catalogid=0 AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
@@ -85,6 +91,8 @@ class CatalogDbQuery {
 					cat.title as tl,
 					cat.dateline as dl,
 					cat.level as lvl,
+					cat.menudisable as mdsb,
+					cat.listdisable as ldsb,
 					cat.ord,
 					cat.imageid as foto,
 					(
@@ -110,7 +118,7 @@ class CatalogDbQuery {
 	public static function CatalogAppend(Ab_Database $db, $pfx, $d){
 		$sql = "
 			INSERT INTO ".$pfx."catalog
-				(parentcatalogid, title, name, imageid, descript, metatitle, metakeys, metadesc, ord, language, dateline) VALUES (
+				(parentcatalogid, title, name, imageid, descript, metatitle, metakeys, metadesc, menudisable, listdisable, ord, language, dateline) VALUES (
 				".bkint($d->pid).",
 				'".bkstr($d->tl)."',
 				'".bkstr($d->nm)."',
@@ -119,6 +127,8 @@ class CatalogDbQuery {
 				'".bkstr($d->mtl)."',
 				'".bkstr($d->mks)."',
 				'".bkstr($d->mdsc)."',
+				".bkint($d->mdsb).",
+				".bkint($d->ldsb).",
 				".bkint($d->ord).",
 				'".bkstr(Abricos::$LNG)."',
 				".TIMENOW."
@@ -140,6 +150,8 @@ class CatalogDbQuery {
 				metatitle='".bkstr($d->mtl)."',
 				metakeys='".bkstr($d->mks)."',
 				metadesc='".bkstr($d->mdsc)."',
+				menudisable=".bkint($d->mdsb).",
+				listdisable=".bkint($d->ldsb).",
 				ord=".bkint($d->ord)."
 			WHERE catalogid=".bkint($catid)."
 			LIMIT 1

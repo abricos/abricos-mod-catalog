@@ -166,12 +166,15 @@ Component.entryPoint = function(NS){
 			
 			this.elSetValue({
 				'tl': cat.title,
-				'ord': cat.order,
+                'ord': cat.order,
 				'mtl': dtl.metaTitle,
 				'mks': dtl.metaKeys,
 				'mdsc': dtl.metaDesc
 			});
-			
+
+            this.gel('mdsb').checked = cat.menuDisable>0 ? 'checked' : '';
+            this.gel('ldsb').checked = cat.listDisable>0 ? 'checked' : '';
+
 			this.fotosWidget = new NS.FotoListEditWidget(this.gel('fotos'), this.manager, this.cat.foto, {
 				'limit': 1
 			});
@@ -225,7 +228,9 @@ Component.entryPoint = function(NS){
 				'tl': this.gel('tl').value,
 				'dsc': this.editorWidget.getContent(),
 				'foto': foto,
-				'ord': this.gel('ord').value,
+                'mdsb': this.gel('mdsb').checked ? 1 : 0,
+                'ldsb': this.gel('ldsb').checked ? 1 : 0,
+                'ord': this.gel('ord').value,
 				'mtl': this.gel('mtl').value,
 				'mks': this.gel('mks').value,
 				'mdsc': this.gel('mdsc').value
