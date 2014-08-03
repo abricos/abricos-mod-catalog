@@ -6,7 +6,7 @@
 var Component = new Brick.Component();
 Component.requires = {
 	mod:[
-		{name: 'sys', files: ['form.js', 'editor.js']},
+		{name: 'sys', files: ['old-form.js', 'editor.js']},
 		{name: '{C#MODNAME}', files: ['fotoeditor.js', 'lib.js']}
 	]
 };
