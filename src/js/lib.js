@@ -370,9 +370,15 @@ Component.entryPoint = function(NS){
 	});
 	NS.ElementOptionTable = ElementOptionTable;
 	
-	var ElementOptionList = function(manager, d){
+	var ElementOptionList = function(manager, d, elementOptionItemClass, cfg){
 		this.manager = manager;
-		ElementOptionList.superclass.constructor.call(this, d, ElementOption);
+        elementOptionItemClass = elementOptionItemClass || ElementOption;
+
+        cfg = L.merge({
+            'order': '!order,title'
+        }, cfg || {});
+
+        ElementOptionList.superclass.constructor.call(this, d, elementOptionItemClass, cfg);
 	};
 	YAHOO.extend(ElementOptionList, SysNS.ItemList, {
 		createItem: function(di){

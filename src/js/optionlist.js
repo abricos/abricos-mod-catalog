@@ -81,7 +81,7 @@ Component.entryPoint = function(NS){
 				});
 				
 				ws[ws.length] = w;
-			}, 'order', true);
+			});
 		},
 		foreach: function(f){
 			if (!L.isFunction(f)){ return; }

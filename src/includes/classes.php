@@ -583,6 +583,7 @@ class CatalogElementOption extends CatalogItem {
 	public $title;
 	public $name;
 	public $param;
+    public $order;
 	
 	public function __construct($d){
 		parent::__construct($d);
@@ -593,6 +594,7 @@ class CatalogElementOption extends CatalogItem {
 		$this->title	= strval($d['tl']);
 		$this->name		= strval($d['nm']);
 		$this->param	= strval($d['prm']);
+        $this->order    = intval($d['ord']);
 	}
 	
 	public function ToAJAX(){
@@ -606,7 +608,8 @@ class CatalogElementOption extends CatalogItem {
 		$ret->gid		= $this->groupid;
 		$ret->tl		= $this->title;
 		$ret->nm		= $this->name;
-		$ret->prm		= $this->param;
+        $ret->prm		= $this->param;
+        $ret->ord		= $this->order;
 		return $ret;
 	}
 }
