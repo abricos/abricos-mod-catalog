@@ -60,15 +60,14 @@ class CatalogModule extends Ab_Module {
 
 
     public function SetModuleManager($modname) {
-        $core = $this->registry;
-        $this->currentModMan = $core->modules->GetModule($modname);
+        $this->currentModMan = Abricos::$modules->GetModule($modname);
         $this->GetManager();
-        CatalogQuery::PrefixSet($core->db, $this->currentModMan->catinfo['dbprefix']);
+        CatalogQuery::PrefixSet(Abricos::$db, $this->currentModMan->catinfo['dbprefix']);
     }
 
     public function GetContentName() {
         $cname = '';
-        $adress = $this->registry->adress;
+        $adress = Abricos::$adress;
         $dir = Abricos::$adress->dir;
 
         switch ($dir[1]) {
@@ -114,7 +113,7 @@ class CatalogModule extends Ab_Module {
 
     private function UpdateModMan() {
         if (is_null($this->modManInfo)) {
-            $db = $this->registry->db;
+            $db = Abricos::$db;
             $rows = CatalogQueryExt::ModuleManagerList($db);
             while (($row = $db->fetch_array($rows))) {
                 $this->modManInfo[$row['nm']] = $row;
@@ -131,7 +130,7 @@ class CatalogModule extends Ab_Module {
         $this->currentModMan = $modman;
         $this->UpdateModMan();
         if (empty($this->modManInfo[$modman->name])) {
-            CatalogQueryExt::ModuleManagerAppend($this->registry->db, $modman);
+            CatalogQueryExt::ModuleManagerAppend(Abricos::$db, $modman);
             $this->modManInfo = null;
             $this->UpdateModMan();
         }
@@ -148,7 +147,7 @@ class CatalogModule extends Ab_Module {
 
         $this->updateShemaModule = new Ab_UpdateManager($modman, $modInfo);
         require("includes/shema_mod.php");
-        CatalogQueryExt::ModuleManagerUpdate($this->registry->db, $info['id'], $this->version);
+        CatalogQueryExt::ModuleManagerUpdate(Abricos::$db, $info['id'], $this->version);
         $this->updateShemaModule = null;
     }
 
