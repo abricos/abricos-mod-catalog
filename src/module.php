@@ -91,11 +91,19 @@ class CatalogModule extends Ab_Module {
     }
 
     public static function FotoThumbInfoParse($info) {
-        if (empty($info)) return array("fh" => "", "w" => intval($arr1[0]), "h" => intval($arr1[1]));
+        if (empty($info)) return array(
+            "fh" => "",
+            "w" => intval($arr1[0]),
+            "h" => intval($arr1[1])
+        );
 
         $arr = explode(":", $info);
         $arr1 = explode("x", $arr[1]);
-        return array("fh" => $arr[0], "w" => intval($arr1[0]), "h" => intval($arr1[1]));
+        return array(
+            "fh" => $arr[0],
+            "w" => intval($arr1[0]),
+            "h" => intval($arr1[1])
+        );
     }
 
     public static function FotoThumbLink($fid, $w, $h, $fn) {
@@ -143,7 +151,10 @@ class CatalogModule extends Ab_Module {
             return;
         }
 
-        $modInfo = array('name' => $modman->name, 'version' => $info['vs']);
+        $modInfo = new Ab_ModuleInfo(array(
+                'name' => $modman->name,
+                'version' => $info['vs']
+            ));
 
         $this->updateShemaModule = new Ab_UpdateManager($modman, $modInfo);
         require("includes/shema_mod.php");
