@@ -1,5 +1,6 @@
 <?php
 return array(
+    "title" => "Каталог",
 	'content' => array(
 		'upload' => array(
 			"1" => "Основная фотография",
