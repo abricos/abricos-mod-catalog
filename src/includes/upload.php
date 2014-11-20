@@ -34,12 +34,12 @@ for ($i=0; $i<6; $i++){
 	
 	$errornum = $uploadFile->Upload();
 	if (empty($errornum)){
-		array_push($arr, $uploadFile->uploadFileHash);
+		$arr[] = $uploadFile->uploadFileHash;
 	}else {
-		array_push($errors, array(
+		$errors[] = array(
 			"fhash" => $uploadFile->uploadFileHash,
 			"fname" => $uploadFile->fileName
-		));
+		);
 	}
 }
 if (empty($arr)){ return; }
@@ -56,14 +56,16 @@ if ($modCatalog->uploadStatus == 0){
 	$rows = CatalogQuery::Session(Abricos::$db, $uploadId);
 	while (($row = Abricos::$db->fetch_array($rows))){
 		$tarr = json_decode($row['data']);
-		foreach($tarr as $ta){ array_push($newarr, $ta); }
+		foreach($tarr as $ta){
+            $newarr[] = $ta;
+        }
 	}
 } else {
 	CatalogQuery::FotoAppend(Abricos::$db, $uploadId, $arr);
 	
 	$rows = CatalogQuery::FotoList(Abricos::$db, $uploadId);
 	while (($row = Abricos::$db->fetch_array($rows))){
-		array_push($newarr, $row['fid']);
+		$newarr[] = $row['fid'];
 	}
 }
 $json = json_encode($newarr);

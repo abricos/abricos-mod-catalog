@@ -108,12 +108,12 @@ class Catalog extends CatalogItem {
 		$this->parentid	= intval($d['pid']); 
 		$this->title	= strval($d['tl']);
 		$this->name		= strval($d['nm']);
-		$this->foto		= strval($d['foto']);
-		$this->fotoExt	= strval($d['fext']);
-        $this->menuDisable = intval($d['mdsb'])>0;
-        $this->listDisable = intval($d['ldsb'])>0;
-        $this->order	= intval($d['ord']);
-		$this->elementCount = intval($d['ecnt']);
+		$this->foto		= isset($d['foto']) ? strval($d['foto']) : '';
+		$this->fotoExt	= isset($d['fext']) ? strval($d['fext']) : '';
+        $this->menuDisable = isset($d['mdsb']) ? intval($d['mdsb'])>0 : false;
+        $this->listDisable = isset($d['ldsb']) ? intval($d['ldsb'])>0 : false;
+        $this->order	= isset($d['ord']) ? intval($d['ord']) : 0;
+		$this->elementCount = isset($d['ecnt']) ? intval($d['ecnt']) : 0;
 		 
 		$this->childs = new CatalogList($this);
 	}
@@ -149,8 +149,8 @@ class Catalog extends CatalogItem {
 		}
 		
 		$arr = array();
-		if ($w > 0) array_push($arr, "w_".$w);
-		if ($h > 0) array_push($arr, "h_".$h);
+		if ($w > 0) $arr[] = "w_".$w;
+		if ($h > 0) $arr[] = "h_".$h;
 		
 		$ret = "/filemanager/i/".$this->foto."/";
 		if (count($arr)>0){
@@ -176,6 +176,13 @@ class CatalogDetail {
 	public $metaDescript;
 
 	public function __construct($d){
+        $d = array_merge(array(
+                'dsc' => '',
+                'mtl' => '',
+                'mks' => '',
+                'mdsc' => ''
+            ), $d);
+
 		$this->descript		= strval($d['dsc']);
 		$this->metaTitle	= strval($d['mtl']);
 		$this->metaKeys		= strval($d['mks']);
@@ -262,7 +269,7 @@ class CatalogList extends CatalogItemList {
 		
 		$ret = array();
 		for ($i=0; $i<$this->Count(); $i++){
-			array_push($ret, $this->GetByIndex($i)->ToAJAX($man));
+			$ret[] = $this->GetByIndex($i)->ToAJAX($man);
 		}
 		return $ret;
 	}
@@ -403,9 +410,9 @@ class CatalogElementType extends CatalogItem {
 	public function __construct($d = array()){
 		parent::__construct($d);
 
-		$this->title	= strval($d['tl']);
-		$this->titleList = strval($d['tls']);
-		$this->name		= strval($d['nm']);
+		$this->title	= isset($d['tl']) ? strval($d['tl']) : '';
+		$this->titleList = isset($d['tls']) ? strval($d['tls']) : '';
+		$this->name		= isset($d['nm']) ? strval($d['nm']) : '';
 
 		$this->options = new CatalogElementOptionList();
 		
@@ -487,11 +494,14 @@ class CatalogElementTypeList extends CatalogItemList {
 	}
 
 	public function ToAJAX(){
-		$man = func_get_arg(0);
-		
+		$man = null;
+        if (func_num_args() > 0) {
+            $man = func_get_arg(0);
+        }
+
 		$ret = array();
 		for ($i=0; $i<$this->Count(); $i++){
-			array_push($ret, $this->GetByIndex($i)->ToAJAX($man));
+			$ret[] = $this->GetByIndex($i)->ToAJAX($man);
 		}
 		return $ret;
 	}
@@ -511,8 +521,6 @@ class CatalogElementOptionGroup extends CatalogItem {
 	}
 
 	public function ToAJAX(){
-		$man = func_get_arg(0);
-		
 		$ret = new stdClass();
 		$ret->id		= $this->id;
 		$ret->tpid		= $this->elTypeId;
@@ -565,7 +573,7 @@ class CatalogElementOptionGroupList extends CatalogItemList {
 		
 		$ret = array();
 		for ($i=0; $i<$this->Count(); $i++){
-			array_push($ret, $this->GetByIndex($i)->ToAJAX($man));
+			$ret[] = $this->GetByIndex($i)->ToAJAX($man);
 		}
 		return $ret;
 	}
@@ -598,8 +606,6 @@ class CatalogElementOption extends CatalogItem {
 	}
 	
 	public function ToAJAX(){
-		$man = func_get_arg(0);
-		
 		$ret = new stdClass();
 		$ret->id		= $this->id;
 		$ret->tpid		= $this->elTypeId;
@@ -679,7 +685,7 @@ class CatalogElementOptionList extends CatalogItemList {
 		
 		$ret = array();
 		for ($i=0; $i<$this->Count(); $i++){
-			array_push($ret, $this->GetByIndex($i)->ToAJAX($man));
+			$ret[] = $this->GetByIndex($i)->ToAJAX($man);
 		}
 		return $ret;
 	}
@@ -734,6 +740,20 @@ class CatalogElement extends CatalogItem {
 	 */
 	public function __construct($d){
 		parent::__construct($d);
+
+        $d = array_merge(array(
+            'catid' => 0,
+            'tpid' => 0,
+            'tl' => '',
+            'nm' => '',
+            'ord' => 0,
+            'uid' => 0,
+            'dl' => 0,
+            'upd' => 0,
+            'mdr' => 0,
+            'foto' => '',
+            'ext' => null
+        ), $d);
 		
 		$this->catid = intval($d['catid']);
 		$this->elTypeId = intval($d['tpid']);
@@ -744,10 +764,10 @@ class CatalogElement extends CatalogItem {
 		$this->dateline	= intval($d['dl']);
 		$this->upddate	= intval($d['upd']);
 		$this->isModer	= intval($d['mdr'])>0;
-		
+
 		$afoto 			= explode("/", strval($d['foto']));
-		$this->foto		= $afoto[0];
-		$this->fotoExt	= $afoto[1];
+		$this->foto		= isset($afoto[0]) ? $afoto[0] : '';
+		$this->fotoExt	= isset($afoto[1]) ? $afoto[1] : '';
 		
 		if (is_array($d['ext'])){
 			$this->ext = $d['ext'];
@@ -761,8 +781,8 @@ class CatalogElement extends CatalogItem {
 		}
 	
 		$arr = array();
-		if ($w > 0) array_push($arr, "w_".$w);
-		if ($h > 0) array_push($arr, "h_".$h);
+		if ($w > 0) $arr[] = "w_".$w;
+		if ($h > 0) $arr[] = "h_".$h;
 	
 		$ret = "/filemanager/i/".$this->foto."/";
 		if (count($arr)>0){
@@ -914,7 +934,7 @@ class CatalogElementList extends CatalogItemList {
 		$list = array();
 		$count = $this->Count();
 		for ($i=0; $i<$count; $i++){
-			array_push($list, $this->GetByIndex($i)->ToAJAX($man));
+			$list[] = $this->GetByIndex($i)->ToAJAX($man);
 		}
 		
 		$ret = new stdClass();
@@ -1011,8 +1031,8 @@ class CatalogFoto extends AbricosItem {
 	
 	public function Link($w=0,$h=0){
 		$arr = array();
-		if ($w > 0) array_push($arr, "w_".$w);
-		if ($h > 0) array_push($arr, "h_".$h);
+		if ($w > 0) $arr[] = "w_".$w;
+		if ($h > 0) $arr[] = "h_".$h;
 		
 		$ret = "/filemanager/i/".$this->filehash."/";
 		if (count($arr)>0){
@@ -1038,7 +1058,7 @@ class CatalogFotoList extends AbricosList {
 		if (!is_array($this->_groups[$elid])){
 			$this->_groups[$elid] = array();
 		}
-		array_push($this->_groups[$elid], $item);
+		$this->_groups[$elid][] = $item;
 	}
 	
 	/**
@@ -1242,7 +1262,7 @@ class CatalogItem {
 	public $id;
 
 	public function __construct($d){
-		$this->id = intval($d['id']);
+		$this->id = isset($d['id']) ? intval($d['id']) : 0;
 	}
 
 	public function ToAJAX(){
@@ -1294,6 +1314,9 @@ class CatalogItemList {
 	 * @return CatalogItem
 	 */
 	public function Get($id){
+        if (!isset($this->_map[$id])){
+            return null;
+        }
 		$index = $this->_map[$id];
 		return $this->_list[$index];
 	}
@@ -1302,7 +1325,7 @@ class CatalogItemList {
 		$list = array();
 		$count = $this->Count();
 		for ($i=0; $i<$count; $i++){
-			array_push($list, $this->GetByIndex($i)->ToAJAX());
+			$list[] = $this->GetByIndex($i)->ToAJAX();
 		}
 
 		$ret = new stdClass();

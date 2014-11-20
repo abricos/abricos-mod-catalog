@@ -108,8 +108,8 @@ class CatalogModule extends Ab_Module {
 
     public static function FotoThumbLink($fid, $w, $h, $fn) {
         $arr = array();
-        if ($w > 0) array_push($arr, "w_".$w);
-        if ($h > 0) array_push($arr, "h_".$h);
+        if ($w > 0) $arr[] = "w_".$w;
+        if ($h > 0) $arr[] = "h_".$h;
 
         $ret = "/filemanager/i/".$fid."/";
         if (count($arr) > 0) {

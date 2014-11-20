@@ -224,21 +224,21 @@ class CatalogDbQuery {
 		
 		$wCats = array();
 		foreach ($cfg->catids as $catid){
-			array_push($wCats, "e.catalogid=".bkint($catid));
+			$wCats[] = "e.catalogid=".bkint($catid);
 		}
 
 		$wEls = array();
 		foreach ($cfg->elids as $elid){
 			if ($elid == 0){ continue; }
-			array_push($wEls, "e.elementid=".bkint($elid));
+			$wEls[] = "e.elementid=".bkint($elid);
 		}
 		foreach ($cfg->elnames as $elname){
 			if (empty($elname)){ continue; }
-			array_push($wEls, "e.name='".bkstr($elname)."'");
+			$wEls[] = "e.name='".bkstr($elname)."'";
 		}
 		if (count($cfg->eltpids) > 0){
 			foreach($cfg->eltpids as $eltpid){
-				array_push($wEls, "e.eltypeid=".bkint($eltpid));
+				$wEls[] = "e.eltypeid=".bkint($eltpid);
 			}
 		}
 		
@@ -278,7 +278,7 @@ class CatalogDbQuery {
 			
 			if ($ord->option->elTypeId > 0){ continue; }
 			
-			array_push($wExt, "e.fld_".$ord->option->name."".$ord->exp);
+			$wExt[] = "e.fld_".$ord->option->name."".$ord->exp;
 		}
 		
 		$sql = "
@@ -354,11 +354,11 @@ class CatalogDbQuery {
 	public static function ElementListCount(Ab_Database $db, $pfx, $userid, $isAdmin, CatalogElementListConfig $cfg){
 		$wCats = array();
 		foreach ($cfg->catids as $catid){
-			array_push($wCats, "e.catalogid=".bkint($catid));
+			$wCats[] = "e.catalogid=".bkint($catid);
 		}
 		$wEls = array();
 		foreach ($cfg->elids as $elid){
-			array_push($wEls, "e.elementid=".bkint($elid));
+			$wEls[] = "e.elementid=".bkint($elid);
 		}
 		
 		if (count($wCats) == 0 && count($wEls) == 0){ return 0; }
@@ -477,7 +477,7 @@ class CatalogDbQuery {
 		$fields = array();
 		for ($i=0; $i<$options->Count(); $i++){
 			$option = $options->GetByIndex($i);
-			array_push($fields, "e.fld_".$option->name." as `".$option->name."`");
+			$fields[] = "e.fld_".$option->name." as `".$option->name."`";
 		}
 		$sql = "
 			SELECT
@@ -621,7 +621,7 @@ class CatalogDbQuery {
 					$rows = CatalogDbQuery::ElementList($db, $pfx, $userid, $isAdmin, $cfg);
 					$aIds = array();
 					while (($d = $db->fetch_array($rows))){
-						array_push($aIds, $d['id']);
+						$aIds[] = $d['id'];
 					}
 					$val = "'".implode(",", $aIds)."'";
 					break;
@@ -631,7 +631,7 @@ class CatalogDbQuery {
 					$rows = CatalogDbQuery::ElementList($db, $pfx, $userid, $isAdmin, $cfg);
 					$aNames = array();
 					while (($d = $db->fetch_array($rows))){
-						array_push($aNames, $d['nm']);
+						$aNames[] = $d['nm'];
 					}
 					$val = "'".implode(",", $aNames)."'";
 					break;
@@ -644,9 +644,9 @@ class CatalogDbQuery {
 					$val = bkstr($val);
 					break;
 			}
-			array_push($insfld, "fld_".$optName);
-			array_push($insval, $val);
-			array_push($upd, "fld_".$optName."=". $val);
+			$insfld[] = "fld_".$optName;
+			$insval[] = $val;
+			$upd[] = "fld_".$optName."=". $val;
 		}
 		
 		$sql = "
@@ -677,7 +677,7 @@ class CatalogDbQuery {
 		$aWhere = array();
 		for ($i=0;$i<count($aFiles);$i++){
 			$afi = explode(":", $aFiles[$i]);
-			array_push($aWhere, " filehash='".$afi[0]."' ");
+			$aWhere[] = " filehash='".$afi[0]."' ";
 		}
 		$sql = "
 			UPDATE ".$pfx."file
@@ -698,7 +698,7 @@ class CatalogDbQuery {
 		
 		$nfList = array();
 		while (($row = $db->fetch_array($rows))){
-			array_push($nfList, $row['fh'].":".$row['fn']);
+			$nfList[] = $row['fh'].":".$row['fn'];
 		}
 		return $nfList;
 	}
@@ -854,8 +854,8 @@ class CatalogDbQuery {
 				'".bkstr($d->tl)."',
 				'".bkstr($d->dsc)."',
 				'".bkstr($d->prm)."',
-				".bkint($d->ord).",
 				'".bkstr(Abricos::$LNG)."',
+				".bkint($d->ord).",
 				".TIMENOW."
 			)
 		";
@@ -1136,7 +1136,7 @@ class CatalogDbQuery {
 		
 		$aWh = array();
 		foreach ($elids as $elid){
-			array_push($aWh, "f.elementid=".bkint($elid)."");
+			$aWh[] = "f.elementid=".bkint($elid)."";
 		} 
 		
 		$sql = "
@@ -1177,7 +1177,7 @@ class CatalogDbQuery {
 		// добавить новые/существующие фотки
 		$vals = array();
 		for ($i=0;$i<count($fotos);$i++){
-			array_push($vals, "(".bkint($elementid).", '".bkstr($fotos[$i])."', ".$i.")");
+			$vals[] = "(".bkint($elementid).", '".bkstr($fotos[$i])."', ".$i.")";
 		}
 		
 		if (count($vals) == 0){ return; }
@@ -1305,7 +1305,7 @@ class CatalogDbQuery {
 		
 		$aWh = array();
 		foreach($uids as $uid){
-			array_push($aWh, "u.userid=".bkint($uid));
+			$aWh[] = "u.userid=".bkint($uid);
 		}
 	
 		$sql = "
@@ -1329,7 +1329,7 @@ class CatalogDbQuery {
 		
 		$aWh = array();
 		foreach($elids as $elid){
-			array_push($aWh, "ef.elementid=".bkint($elid));
+			$aWh[] = "ef.elementid=".bkint($elid);
 		}
 		$sql = "
 			SELECT 

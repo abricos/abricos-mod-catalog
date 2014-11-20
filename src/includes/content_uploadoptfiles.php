@@ -65,7 +65,7 @@ for ($i=0; $i<10; $i++){
 	$res->fname = $uploadFile->fileName;
 	$res->fhash = $uploadFile->uploadFileHash;
 	
-	array_push($resa, $res);
+	$resa[] = $res;
 	
 	if ($error > 0){ continue; }
 	
