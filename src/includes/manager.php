@@ -9,16 +9,17 @@
 require_once 'classes.php';
 
 class CatalogManager extends Ab_ModuleManager {
-	
-	/**
-	 * Основной класс модуля
-	 * 
-	 * @var CatalogModule
-	 */
-	public $module = null;
-	
-	public function __construct(CatalogModule $module){
-		parent::__construct($module);
-	}
+
+    /**
+     * Основной класс модуля
+     *
+     * @var CatalogModule
+     */
+    public $module = null;
+
+    public function __construct(CatalogModule $module) {
+        parent::__construct($module);
+    }
 }
+
 ?>

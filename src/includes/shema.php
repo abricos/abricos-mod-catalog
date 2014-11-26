@@ -7,12 +7,12 @@
  */
 
 $charset = "CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'";
-$updateManager = Ab_UpdateManager::$current; 
+$updateManager = Ab_UpdateManager::$current;
 $db = Abricos::$db;
 $pfx = $db->prefix;
 
-if ($updateManager->isInstall()){
-	$db->query_write("
+if ($updateManager->isInstall()) {
+    $db->query_write("
 		CREATE TABLE IF NOT EXISTS `".$pfx."ctg_module` (
 		  `moduleid` int(3) unsigned NOT NULL auto_increment,
 		  `name` VARCHAR(50) NOT NULL default '',
@@ -22,7 +22,7 @@ if ($updateManager->isInstall()){
 		  `deldate` int(10) unsigned NOT NULL default '0' COMMENT 'дата удаления',
 		  PRIMARY KEY  (`moduleid`)
 		)
-	". $charset);
+	".$charset);
 }
 
 ?>
