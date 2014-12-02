@@ -121,6 +121,31 @@ Component.entryPoint = function(NS){
     NS.ElementEditDoubleWidget = ElementEditDoubleWidget;
 
 
+    var ElementEditCurrencyWidget = function(container, option, value, cfg){
+        cfg = L.merge({}, cfg || {});
+        ElementEditCurrencyWidget.superclass.constructor.call(this, container, {
+            'buildTemplate': buildTemplate, 'tnames': 'optcurrency'
+        }, option, value, cfg);
+    };
+    YAHOO.extend(ElementEditCurrencyWidget, BW, {
+        buildTData: function(option, value, cfg){
+            return {'tl': option.title};
+        },
+        init: function(option, value, cfg){
+            this.option = option;
+            this.value = value;
+            this.cfg = cfg;
+        },
+        onLoad: function(option, value, cfg){
+            this.elSetValue('val', value);
+        },
+        getValue: function(){
+            return this.gel('val').value;
+        }
+    });
+    NS.ElementEditCurrencyWidget = ElementEditCurrencyWidget;
+
+
     var ElementEditTableWidget = function(container, manager, option, value, cfg){
         cfg = L.merge({}, cfg || {});
         ElementEditTableWidget.superclass.constructor.call(this, container, {
@@ -722,6 +747,9 @@ Component.entryPoint = function(NS){
                 switch (option.type) {
                     case NS.FTYPE['BOOLEAN']:
                         ws[ws.length] = new NS.ElementEditBooleanWidget(div, option, value);
+                        break;
+                    case NS.FTYPE['CURRENCY']:
+                        ws[ws.length] = new NS.ElementEditCurrencyWidget(div, option, value);
                         break;
                     case NS.FTYPE['NUMBER']:
                         ws[ws.length] = new NS.ElementEditNumberWidget(div, option, value);

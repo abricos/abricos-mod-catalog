@@ -248,6 +248,7 @@ Component.entryPoint = function(NS){
                         this.elSetValue('sz', '10');
                         break;
                     case NS.FTYPE['DOUBLE']:
+                    case NS.FTYPE['CURRENCY']:
                         this.elSetValue('sz', '10,2');
                         break;
                     case NS.FTYPE['STRING']:

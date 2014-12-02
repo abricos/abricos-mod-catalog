@@ -905,6 +905,15 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
+    public static function ElementOptionTypeUpdate(Ab_Database $db, $pfx, $optionid, $d) {
+        $sql = "
+			UPDATE ".$pfx."eloption
+			SET fieldtype=".bkint($d->tp)."
+			WHERE eloptionid=".bkint($optionid)."
+		";
+        $db->query_write($sql);
+    }
+
     public static function ElementOptionFieldUpdate(Ab_Database $db, $pfx, CatalogElementType $elType, $tableName, CatalogElementOption $oldOption, $d) {
         $optionName = bkstr($d->nm);
 

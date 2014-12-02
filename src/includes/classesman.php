@@ -1392,7 +1392,7 @@ class CatalogModuleManager {
         $utmf = Abricos::TextParser(true);
 
         $d->tpid = isset($d->tpid) ? $d->tpid : 0;
-        $d->tp = isset($d->tp) ? $d->tp : 0;
+        $d->tp = isset($d->tp) ? intval($d->tp) : 0;
         $d->sz = isset($d->sz) ? $d->sz : '';
         $d->gid = isset($d->gid) ? $d->gid : 0;
         $d->dsc = isset($d->dsc) ? $d->dsc : '';
@@ -1443,6 +1443,14 @@ class CatalogModuleManager {
                 CatalogDbQuery::ElementOptionFieldUpdate($this->db, $this->pfx, $elType, $tableName, $checkOption, $d);
             }
             CatalogDbQuery::ElementOptionUpdate($this->db, $this->pfx, $optionid, $d);
+
+            if ($checkOption->type != $d->tp &&
+                ($checkOption->type == Catalog::TP_CURRENCY || $checkOption->type == Catalog::TP_DOUBLE) &&
+                ($d->tp == Catalog::TP_CURRENCY || $d->tp == Catalog::TP_DOUBLE)
+            ) { // попытка изменить тип поля
+                // пока можно менять DOUBLE <=> CURRENCY
+                CatalogDbQuery::ElementOptionTypeUpdate($this->db, $this->pfx, $optionid, $d);
+            }
         }
         return $optionid;
     }
