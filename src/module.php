@@ -40,7 +40,7 @@ class CatalogModule extends Ab_Module {
 
     function __construct() {
         CatalogModule::$instance = $this;
-        $this->version = "0.2.9";
+        $this->version = "0.3.0";
         $this->name = "catalog";
         $this->takelink = "catalogbase";
     }

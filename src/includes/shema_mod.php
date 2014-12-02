@@ -354,4 +354,32 @@ if ($updateManager->isUpdate('0.2.9') && !$updateManager->isInstall()) {
 	");
 }
 
+if ($updateManager->isUpdate('0.3.0')) {
+
+    // Список идентификаторов на другие элементы
+    $db->query_write("
+		CREATE TABLE IF NOT EXISTS ".$pfx."currency (
+			currencyid int(10) UNSIGNED NOT NULL auto_increment,
+
+			isdefault tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Цифровой код',
+
+			title varchar(8) NOT NULL DEFAULT '' COMMENT 'Название',
+
+			codestr varchar(8) NOT NULL DEFAULT '' COMMENT 'Код',
+			codenum int(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Цифровой код',
+
+			rateval double(10,6) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Текущий курс',
+			ratedate int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата курса',
+
+			prefix varchar(20) NOT NULL DEFAULT '' COMMENT 'Префикс',
+			postfix varchar(20) NOT NULL DEFAULT '' COMMENT 'Постфикс',
+
+			ord int(4) UNSIGNED NOT NULL default '0' COMMENT 'Сортировка',
+
+			dateline int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
+			deldate int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
+
+			PRIMARY KEY (currencyid)
+		)".$charset);
+}
 ?>
