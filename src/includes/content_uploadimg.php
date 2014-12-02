@@ -5,8 +5,9 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
+$dir = Abricos::$adress->dir;
 
-$modname = Abricos::$adress->dir[2];
+$modname = $dir[2];
 $mod = Abricos::GetModule($modname);
 
 if (empty($mod)) {
@@ -36,7 +37,8 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
     "modname" => $modname
 ));
 
-if (Abricos::$adress->dir[3] !== "go") {
+$act = isset($dir[3]) ? $dir[3] : "";
+if ($act !== "go") {
     return;
 }
 
