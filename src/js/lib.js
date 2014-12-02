@@ -42,7 +42,8 @@ Component.entryPoint = function(NS){
         'TEXT': 7,
         'ELDEPENDS': 9,
         'ELDEPENDSNAME': 10,
-        'FILES': 11
+        'FILES': 11,
+        'CURRENCY': 12
     };
 
     var Dict = function(d){

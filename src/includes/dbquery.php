@@ -629,6 +629,7 @@ class CatalogDbQuery {
                     $val = bkint($val);
                     break;
                 case Catalog::TP_DOUBLE:
+                case Catalog::TP_CURRENCY:
                     $val = doubleval($val);
                     break;
                 case Catalog::TP_STRING:
@@ -929,6 +930,7 @@ class CatalogDbQuery {
                 $sql .= "INT(".$oldOption->size.") NOT NULL DEFAULT 0";
                 break;
             case Catalog::TP_DOUBLE:
+            case Catalog::TP_CURRENCY:
                 $sql .= "DOUBLE(".$oldOption->size.") NOT NULL DEFAULT 0";
                 break;
             case Catalog::TP_STRING:
@@ -972,6 +974,7 @@ class CatalogDbQuery {
                 $sql .= "INT(".$d->sz.") NOT NULL DEFAULT 0";
                 break;
             case Catalog::TP_DOUBLE:
+            case Catalog::TP_CURRENCY:
                 $sql .= "DOUBLE(".$d->sz.") NOT NULL DEFAULT 0";
                 break;
             case Catalog::TP_STRING:
