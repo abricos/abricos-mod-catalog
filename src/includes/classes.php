@@ -71,6 +71,12 @@ class Catalog extends CatalogItem {
      * @var integer
      */
     const TP_FILES = 11;
+    /**
+     * Валюта
+     *
+     * @var integer
+     */
+    const TP_CURRENCY = 12;
 
     /**
      * @var Catalog

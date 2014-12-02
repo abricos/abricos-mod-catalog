@@ -886,7 +886,7 @@ class CatalogModuleManager {
                 return null;
             }
 
-            if ($this->IsOperatorOnlyRole() && ($curEl->userid != $this->userid || !$curEl->isModer)) {
+            if ($this->IsOperatorOnlyRole() && ($el->userid != $this->userid || !$el->isModer)) {
                 // оператору не принадлежит этот элемент или элемент уже прошел модерацию
                 return null;
             }

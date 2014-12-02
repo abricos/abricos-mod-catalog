@@ -91,12 +91,13 @@ class CatalogModule extends Ab_Module {
     }
 
     public static function FotoThumbInfoParse($info) {
-        if (empty($info))
+        if (empty($info)) {
             return array(
                 "fh" => "",
-                "w" => intval($arr1[0]),
-                "h" => intval($arr1[1])
+                "w" => 0,
+                "h" => 0
             );
+        }
 
         $arr = explode(":", $info);
         $arr1 = explode("x", $arr[1]);
