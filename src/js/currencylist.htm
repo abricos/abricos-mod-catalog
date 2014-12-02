@@ -1,0 +1,48 @@
+<!--{widget}-->
+<div id="{i#id}" class="aw-catalog">
+	<div class="currencylist">
+
+		<div id="{i#neweditor}" class="elneweditor"></div>
+
+		<div id="{i#list}"></div>
+	</div>
+</div>
+
+<!--{row}-->
+<div id="{i#id}" class="elrow">
+	<div id="{i#wrap}">
+		<div id="{i#dtl}" class="tl">
+			<a id="{i#tl}" href="#"></a>
+		</div>
+
+		<div id="{i#menu}" class="boxbutton elrmenu">
+			<div id="{i#bedit}" class="b" title="Редактировать">
+				<div id="{i#beditc}" class="bedit bc"></div>
+			</div>
+			<div id="{i#bremove}" class="b" title="Удалить">
+				<div id="{i#bremovec}" class="bremove bc"></div>
+			</div>
+		</div>
+
+		<div id="{i#easyeditor}"></div>
+	</div>
+</div>
+
+<!--{removepanel}-->
+<div class='hd'>Удаление</div>
+<div class='bd aw-company'>
+	<div id="{i#dialogremove}" class="field">
+		<p>
+			Вы действительно хотите удалить опцию элемента со всем содержимым?
+		</p>
+		<div class="buttons right">
+			<span id="{i#btns}">
+				<input id="{i#bremove}" value="Удалить" type="button" />
+				<input id="{i#bcancel}" value="Отмена" type="button" />
+			</span>
+			<span id="{i#bloading}" style="display: none">
+				<img src="/images/loading.gif" /> Удаление...
+			</span>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,59 @@
+<!--{widget}-->
+<div id="{i#id}" class="typeeditor easyeditor">
+    <div id="{i#loading}">
+        <div id="{i#loading}" class="loading">
+            <img src="/images/loading.gif" />
+        </div>
+    </div>
+    <div id="{i#view}" class="editform" style="display: none">
+
+        <div class="btnsc" style="display: none">
+			<span id="{i#btnscc}">
+				<a id="{i#bsavec}" href="#" class="habtn">Сохранить</a>
+				<a id="{i#bcancelc}" href="#" class="habtn">Отмена</a>
+			</span>
+			<span id="{i#btnpcc}" style="display: none">
+				<img src="/images/loading.gif" /> Сохранение...
+			</span>
+            <div class="clear"></div>
+        </div>
+
+        <div class="r">
+            <dl>
+                <dt>Название</dt>
+                <dd>
+                    <input id="{i#tl}" class="inp" type="text" placeholder="Введите название" onfocus="this.select();" />
+                </dd>
+            </dl>
+            <dl>
+                <dt>Название в множ.числе</dt>
+                <dd>
+                    <input id="{i#tls}" class="inp" type="text" placeholder="Введите название в множественном числе" onfocus="this.select();" />
+                    <div class="dsc">
+                        Вводится название в множественном числе
+                    </div>
+                </dd>
+            </dl>
+            <dl>
+                <dt>Имя таблицы в БД</dt>
+                <dd>
+                    <input id="{i#nm}" class="inp" type="text" placeholder="Введите имя таблицы в БД" onfocus="this.select();" />
+                    <div class="dsc">
+                        Вводится латиницей, допустимы символы [a-Z0-9_-]
+                    </div>
+                </dd>
+            </dl>
+        </div>
+
+        <div class="btns right r">
+			<span id="{i#btnsc}">
+				<a id="{i#bsave}" href="#" class="habtn">Сохранить</a>
+				<a id="{i#bcancel}" href="#" class="habtn">Отмена</a>
+			</span>
+			<span id="{i#btnpc}" style="display: none">
+				<img src="/images/loading.gif" /> Сохранение...
+			</span>
+            <div class="clear"></div>
+        </div>
+    </div>
+</div>

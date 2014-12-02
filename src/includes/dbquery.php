@@ -1406,6 +1406,54 @@ class CatalogDbQuery {
 		";
         return $db->query_read($sql);
     }
+
+
+    /* * * * * * * * * * * Currency * * * * * * * * * */
+
+    public static function CurrencyAppend(Ab_Database $db, $pfx, $d) {
+        $sql = "
+			INSERT INTO ".$pfx."currency
+				(title, language) VALUES (
+				'".bkstr($d->tl)."',
+				'".bkstr(Abricos::$LNG)."'
+			)
+		";
+        $db->query_write($sql);
+        return $db->insert_id();
+    }
+
+    public static function CurrencyUpdate(Ab_Database $db, $pfx, $d) {
+        $sql = "
+			UPDATE ".$pfx."currency
+			SET
+				title='".bkstr($d->tl)."',
+			WHERE currencyid=".bkint($d->id)."
+			LIMIT 1
+		";
+        $db->query_write($sql);
+    }
+
+    public static function CurrencyRemove(Ab_Database $db, $pfx, $currencyId) {
+        $sql = "
+			DELETE FROM ".$pfx."currency
+			WHERE currencyid=".bkint($currencyId)."
+			LIMIT 1
+		";
+        $db->query_write($sql);
+    }
+
+    public static function CurrencyList(Ab_Database $db, $pfx) {
+        $sql = "
+			SELECT
+				currencyid as id,
+				title as tl
+			FROM ".$pfx."currency
+			WHERE t.deldate=0 AND t.language='".bkstr(Abricos::$LNG)."'
+		";
+        return $db->query_read($sql);
+    }
+
+
 }
 
 ?>
