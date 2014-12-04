@@ -1444,7 +1444,14 @@ class CatalogDbQuery {
         $sql = "
 			UPDATE ".$pfx."currency
 			SET
-				title='".bkstr($d->tl)."',
+			    isdefault=".intval($d->isdefault).",
+			    title='".bkstr($d->title)."',
+			    codestr='".bkstr($d->codestr)."',
+			    codenum=".intval($d->codenum).",
+			    rateval=".doubleval($d->rateval).",
+			    ratedate=".intval($d->ratedate).",
+			    prefix='".bkstr($d->prefix)."',
+			    postfix='".bkstr($d->postfix)."'
 			WHERE currencyid=".bkint($d->id)."
 			LIMIT 1
 		";

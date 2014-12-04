@@ -177,6 +177,10 @@ class CatalogModuleManager {
                 return $this->OptionTableValueRemove($d->eltypeid, $d->optionid, $d->valueid);
             case "currencylist":
                 return $this->CurrencyListToAJAX();
+            case "currencysave":
+                return $this->CurrencySaveToAJAX($d->currencyid, $d->savedata);
+            case "currencyremove":
+                return $this->CurrencyRemoveToAJAX($d->currencyid);
         }
         return null;
     }
@@ -1797,6 +1801,54 @@ class CatalogModuleManager {
         $this->_cacheCurrencyList = $list;
 
         return $list;
+    }
+
+    public function CurrencySave($currencyId, $d) {
+        if (!$this->IsAdminRole()) {
+            return null;
+        }
+
+        $d = $this->ParamToObject($d);
+
+        $utmf = Abricos::TextParser(true);
+
+        $currencyId = intval($currencyId);
+        $d->title = $utmf->Parser($d->title);
+        $d->codestr = $utmf->Parser($d->codestr);
+        $d->codenum = intval($d->codenum);
+        $d->prefix = $utmf->Parser($d->prefix);
+        $d->postfix = $utmf->Parser($d->postfix);
+
+        $d->rateval = 0;
+        $d->ratedate = TIMENOW;
+        $d->ord = 0;
+
+        if ($currencyId == 0) {
+            $currencyId = CatalogDbQuery::CurrencyAppend($this->db, $this->pfx, $d);
+        } else {
+            CatalogDbQuery::CurrencyUpdate($this->db, $this->pfx, $d);
+        }
+
+        return $currencyId;
+    }
+
+    public function CurrencySaveToAJAX($currencyId, $d) {
+        $this->CurrencySave($currencyId, $d);
+
+        return $this->CurrencyListToAJAX(true);
+    }
+
+    public function CurrencyRemove($currencyId) {
+        if (!$this->IsAdminRole()) {
+            return null;
+        }
+
+        CatalogDbQuery::CurrencyRemove($this->db, $this->pfx, $currencyId);
+    }
+
+    public function CurrencyRemoveToAJAX($currencyId) {
+        $this->CurrencyRemove($currencyId);
+        return $this->CurrencyListToAJAX(true);
     }
 
 }

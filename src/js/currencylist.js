@@ -6,20 +6,19 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
-        {name: '{C#MODNAME}', files: ['currencyeditor.js']}
+        {name: '{C#MODNAME}', files: ['dragdrop.js', 'currencyeditor.js']}
     ]
 };
 Component.entryPoint = function(NS){
 
-    var Y = Brick.YUI;
-
     var Dom = YAHOO.util.Dom,
-        L = Y.Lang,
+        E = YAHOO.util.Event,
+        L = YAHOO.lang,
         buildTemplate = this.buildTemplate,
         BW = Brick.mod.widget.Widget;
 
     var CurrencyListWidget = function(container, manager, cfg){
-        cfg = Y.merge({}, cfg || {});
+        cfg = L.merge({}, cfg || {});
 
         CurrencyListWidget.superclass.constructor.call(this, container, {
             'buildTemplate': buildTemplate, 'tnames': 'widget'
@@ -28,8 +27,7 @@ Component.entryPoint = function(NS){
     YAHOO.extend(CurrencyListWidget, BW, {
         init: function(manager, cfg){
             this.manager = manager;
-            this.list = manager.currencyList;
-            this.config = cfg;
+            this.cfg = cfg;
             this.wsList = [];
 
             this.newEditorWidget = null;
@@ -45,39 +43,59 @@ Component.entryPoint = function(NS){
             }
             this.elSetHTML('list', '');
         },
-        setList: function(list){
-            this.list = list;
-            this.allEditorClose();
-            this.render();
-        },
         render: function(){
             this.clearList();
 
             var elList = this.gel('list'), ws = this.wsList,
                 __self = this;
 
-            var list = this.list;
+            var manager = this.manager;
 
-            list.foreach(function(currency){
-
+            manager.currencyList.foreach(function(currency){
                 var div = document.createElement('div');
                 div['currency'] = currency;
 
                 elList.appendChild(div);
-                var w = new NS.CurrencyRowWidget(div, __self.manager, currency, {
+                var w = new NS.CurrencyRowWidget(div, manager, currency, {
                     'onEditClick': function(w){
-                        __self.onElementEditClick(w);
+                        __self.onCurrencyEditClick(w);
                     },
                     'onRemoveClick': function(w){
-                        __self.onElementRemoveClick(w);
+                        __self.onCurrencyRemoveClick(w);
+                    },
+                    'onSelectClick': function(w){
+                        __self.onCurrencySelectClick(w);
                     },
                     'onSave': function(w){
-                        __self.render(true);
+                        __self.render();
+                    }
+                });
+
+                new NS.RowDragItem(div, {
+                    'endDragCallback': function(dgi, elDiv){
+                        var chs = elList.childNodes, ordb = manager.currencyList.count();
+                        var orders = [];
+                        for (var i = 0; i < chs.length; i++){
+                            var currency = chs[i]['currency'];
+                            if (currency){
+                                currency.order = ordb;
+                                orders[orders.length] = {
+                                    'id': currency.id,
+                                    'o': ordb
+                                };
+                                ordb--;
+                            }
+                        }
+                        manager.currencyList.reorder();
+                        manager.currencyListOrderSave(orders);
+                        __self.render();
                     }
                 });
 
                 ws[ws.length] = w;
             });
+
+            new YAHOO.util.DDTarget(elList);
         },
         foreach: function(f){
             if (!L.isFunction(f)){
@@ -98,16 +116,18 @@ Component.entryPoint = function(NS){
                 }
             });
         },
-        onElementEditClick: function(w){
+        onCurrencyEditClick: function(w){
             this.allEditorClose(w);
             w.editorShow();
         },
-        onElementRemoveClick: function(w){
+        onCurrencyRemoveClick: function(w){
             var __self = this;
-            new CurrencyRemovePanel(this.manager, w.currency, function(list){
-                __self.list.remove(w.currency.id);
+            new CurrencyRemovePanel(this.manager, w.currency, function(){
                 __self.render();
             });
+        },
+        onCurrencySelectClick: function(w){
+            this.allEditorClose(w);
         },
         showNewEditor: function(){
             if (!L.isNull(this.newEditorWidget)){
@@ -115,19 +135,18 @@ Component.entryPoint = function(NS){
             }
 
             this.allEditorClose();
-            var man = this.manager, __self = this;
-            var currency = man.newElementCurrency();
+            var __self = this;
+            var currency = new NS.Currency();
 
-            this.newEditorWidget =
-                new NS.CurrencyEditorWidget(this.gel('neweditor'), man, currency, {
-                    'onCancelClick': function(wEditor){
-                        __self.newEditorClose();
-                    },
-                    'onSave': function(wEditor){
-                        __self.newEditorClose();
-                        __self.render(true);
-                    }
-                });
+            this.newEditorWidget = new NS.CurrencyEditorWidget(this.gel('neweditor'), this.manager, currency, {
+                'onCancelClick': function(wEditor){
+                    __self.newEditorClose();
+                },
+                'onSave': function(wEditor, currency){
+                    __self.newEditorClose();
+                    __self.render();
+                }
+            });
         },
         newEditorClose: function(){
             if (L.isNull(this.newEditorWidget)){
@@ -135,14 +154,22 @@ Component.entryPoint = function(NS){
             }
             this.newEditorWidget.destroy();
             this.newEditorWidget = null;
+        },
+        onClick: function(el, tp){
+            switch (el.id) {
+                case tp['badd']:
+                    this.showNewEditor();
+                    return true;
+            }
         }
     });
     NS.CurrencyListWidget = CurrencyListWidget;
 
     var CurrencyRowWidget = function(container, manager, currency, cfg){
-        cfg = Y.merge({
+        cfg = L.merge({
             'onEditClick': null,
             'onRemoveClick': null,
+            'onSelectClick': null,
             'onSave': null
         }, cfg || {});
         CurrencyRowWidget.superclass.constructor.call(this, container, {
@@ -156,9 +183,20 @@ Component.entryPoint = function(NS){
             this.cfg = cfg;
             this.editorWidget = null;
         },
-        onLoad: function(manager, currency){
+        onLoad: function(){
+            var __self = this;
+
+            E.on(this.gel('id'), 'dblclick', function(e){
+                __self.onEditClick();
+            });
+        },
+        render: function(){
+            var currency = this.currency;
+
+            var tl = currency.title;
+
             this.elSetHTML({
-                'tl': currency.title
+                'tl': tl
             });
         },
         onClick: function(el, tp){
@@ -179,6 +217,9 @@ Component.entryPoint = function(NS){
         },
         onRemoveClick: function(){
             NS.life(this.cfg['onRemoveClick'], this);
+        },
+        onSelectClick: function(){
+            NS.life(this.cfg['onSelectClick'], this);
         },
         onSave: function(){
             NS.life(this.cfg['onSave'], this);
@@ -202,6 +243,7 @@ Component.entryPoint = function(NS){
             Dom.addClass(this.gel('wrap'), 'rborder');
             Dom.addClass(this.gel('id'), 'rowselect');
             this.elHide('menu');
+            this.render();
         },
         editorClose: function(){
             if (L.isNull(this.editorWidget)){
@@ -214,6 +256,13 @@ Component.entryPoint = function(NS){
 
             this.editorWidget.destroy();
             this.editorWidget = null;
+            this.render();
+        },
+        hide: function(){
+            Dom.addClass(this.gel('id'), 'hide');
+        },
+        show: function(){
+            Dom.removeClass(this.gel('id'), 'hide');
         }
     });
     NS.CurrencyRowWidget = CurrencyRowWidget;
@@ -247,7 +296,7 @@ Component.entryPoint = function(NS){
                 __self = this;
             Dom.setStyle(gel('btns'), 'display', 'none');
             Dom.setStyle(gel('bloading'), 'display', '');
-            this.manager.currencyRemove(this.currency.typeid, this.currency.id, function(){
+            this.manager.currencyRemove(this.currency.id, function(){
                 __self.close();
                 NS.life(__self.callback);
             });

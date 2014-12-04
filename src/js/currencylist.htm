@@ -1,24 +1,26 @@
 <!--{widget}-->
 <div id="{i#id}" class="aw-catalog">
 	<div class="currencylist">
-
-        <div id="{i#manbtns}" class="mangroup">
-            <a id="{i#badd}" class="habtn" href="#">Добавить валюту</a>
-        </div>
-
-        <div id="{i#neweditor}" class="elneweditor"></div>
-
-		<div id="{i#list}"></div>
+		<div id="{i#manbtns}" class="mangroup">
+			<a id="{i#badd}" class="btn btn-default" href="#">Добавить валюту</a>
+		</div>
+		<div id="{i#neweditor}" class="neweditor"></div>
+		<div id="{i#list}"></div>	
 	</div>
 </div>
 
 <!--{row}-->
 <div id="{i#id}" class="elrow">
 	<div id="{i#wrap}">
-		<div id="{i#dtl}" class="tl">
-			<a id="{i#tl}" href="#"></a>
-		</div>
-
+		<table class="tline" id="{i#tline}"><tbody><tr>
+			<td class="tl">
+				<div class="tln">
+					<div id="{i#tl}" class="vl"></div>
+				</div>
+			</td>
+		</tr></tbody></table>
+		<div class="clear"></div>
+		
 		<div id="{i#menu}" class="boxbutton elrmenu">
 			<div id="{i#bedit}" class="b" title="Редактировать">
 				<div id="{i#beditc}" class="bedit bc"></div>
@@ -27,17 +29,21 @@
 				<div id="{i#bremovec}" class="bremove bc"></div>
 			</div>
 		</div>
-
+		
 		<div id="{i#easyeditor}"></div>
+		
+		<div id="{i#detail}" class="detail" style="display: none">
+			<div id="{i#desc}" class="descript"></div>
+		</div>
 	</div>
 </div>
 
 <!--{removepanel}-->
 <div class='hd'>Удаление</div>
-<div class='bd aw-company'>
+<div class='bd aw-eshopcart'>
 	<div id="{i#dialogremove}" class="field">
 		<p>
-			Вы действительно хотите удалить опцию элемента со всем содержимым?
+			Вы действительно хотите удалить валюту?
 		</p>
 		<div class="buttons right">
 			<span id="{i#btns}">
@@ -50,3 +56,4 @@
 		</div>
 	</div>
 </div>
+

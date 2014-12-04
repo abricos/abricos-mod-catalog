@@ -1006,6 +1006,27 @@ Component.entryPoint = function(NS){
                 }
                 NS.life(callback, info);
             });
+        },
+        currencySave: function(currencyid, sd, callback){
+            var __self = this;
+            this.ajax({
+                'do': 'currencysave',
+                'currencyid': currencyid,
+                'savedata': sd
+            }, function(d){
+                __self._currencyListUpdate(d);
+                NS.life(callback);
+            });
+        },
+        currencyRemove: function(currencyid, callback){
+            var __self = this;
+            this.ajax({
+                'do': 'currencyremove',
+                'currencyid': currencyid
+            }, function(d){
+                __self._currencyListUpdate(d);
+                NS.life(callback);
+            });
         }
     };
     NS.Manager = Manager;

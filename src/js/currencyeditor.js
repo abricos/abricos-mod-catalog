@@ -6,107 +6,78 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
-        {name: 'sys', files: ['old-form.js', 'editor.js']},
         {name: '{C#MODNAME}', files: ['lib.js']}
     ]
 };
 Component.entryPoint = function(NS){
 
-    var Dom = YAHOO.util.Dom,
-        E = YAHOO.util.Event,
+    var E = YAHOO.util.Event,
         L = YAHOO.lang,
         buildTemplate = this.buildTemplate,
         BW = Brick.mod.widget.Widget;
 
-    var CurrencyEditorWidget = function(container, manager, elType, cfg){
+    var CurrencyEditorWidget = function(container, manager, currency, cfg){
         cfg = L.merge({
-            'fromElement': null,
             'onCancelClick': null,
             'onSave': null
         }, cfg || {});
         CurrencyEditorWidget.superclass.constructor.call(this, container, {
             'buildTemplate': buildTemplate, 'tnames': 'widget'
-        }, manager, elType, cfg);
+        }, manager, currency, cfg);
     };
     YAHOO.extend(CurrencyEditorWidget, BW, {
-        init: function(manager, elType, cfg){
+        init: function(manager, currency, cfg){
             this.manager = manager;
-            this.elType = elType;
+            this.currency = currency;
             this.cfg = cfg;
         },
-        onLoad: function(manager, elType){
-            var cfg = this.cfg, fel = cfg['fromElement'];
-            if (!L.isNull(fel)){
-                /*
-                 if (!L.isNull(fel.detail)){
-                 this._onLoadElement(fel.copy());
-                 }else{
-                 var __self = this;
-                 manager.typeLoad(fel.id, function(fel){
-                 __self._onLoadElement(fel.copy());
-                 }, fel);
-                 }
-                 /**/
+        destroy: function(){
+            if (YAHOO.util.DragDropMgr){
+                YAHOO.util.DragDropMgr.unlock();
             }
+            CurrencyEditorWidget.superclass.destroy.call(this);
+        },
+        onLoad: function(){
+            if (YAHOO.util.DragDropMgr){
+                YAHOO.util.DragDropMgr.lock();
+            }
+            var currency = this.currency;
 
             this.elHide('loading');
             this.elShow('view');
 
-            var __self = this;
-
             this.elSetValue({
-                'tl': elType.title,
-                'tls': elType.titleList,
-                'nm': elType.name
+                'title': currency.title,
+                'codestr': currency.codestr,
+                'codenum': currency.codenum,
+                'prefix': currency.prefix,
+                'postfix': currency.postfix
             });
+            this.gel('def').checked = !!currency.isDefault;
 
-            var keypress = function(e){
-                if (e.keyCode != 13){
-                    return false;
-                }
-                __self.save();
-                return true;
-            };
-            E.on(this.gel('tl'), 'keypress', keypress);
-
-            E.on(this.gel('nm'), 'focus', function(e){
-                __self.nameTranslate();
-            });
-
-            var elTitle = this.gel('tl');
+            var elTitle = this.gel('title');
             setTimeout(function(){
                 try {
                     elTitle.focus();
                 } catch (e) {
                 }
             }, 100);
-        },
-        nameTranslate: function(){
-            var tl = L.trim(this.gel('tl').value),
-                nm = L.trim(this.gel('nm').value);
-            if (nm.length == 0){
-                nm = Brick.util.Translite.ruen(tl);
-            }
 
-            this.elSetValue({
-                'nm': Brick.util.Translite.ruen(nm)
+            var __self = this;
+            E.on(this.gel('id'), 'keypress', function(e){
+                if ((e.keyCode == 13 || e.keyCode == 10) && e.ctrlKey){
+                    __self.save();
+                    return true;
+                }
+                return false;
             });
-        },
-        _wsClear: function(){
-            var ws = this.wsOptions;
-            for (var i = 0; i < ws.length; i++){
-                ws[i].destroy();
-            }
-            this.wsOptions = [];
         },
         onClick: function(el, tp){
             switch (el.id) {
                 case tp['bsave']:
-                case tp['bsavec']:
                     this.save();
                     return true;
                 case tp['bcancel']:
-                case tp['bcancelc']:
                     this.onCancelClick();
                     return true;
             }
@@ -116,25 +87,27 @@ Component.entryPoint = function(NS){
             NS.life(this.cfg['onCancelClick'], this);
         },
         save: function(){
-            this.nameTranslate();
-
-            var cfg = this.cfg, elType = this.elType;
+            var cfg = this.cfg;
+            var currency = this.currency;
             var sd = {
-                'tl': this.gel('tl').value,
-                'tls': this.gel('tls').value,
-                'nm': this.gel('nm').value,
-                'dsc': ''
+                'id': currency.id,
+                'title': this.gel('title').value,
+                'codestr': this.gel('codestr').value,
+                'codenum': this.gel('codenum').value,
+                'prefix': this.gel('prefix').value,
+                'postfix': this.gel('postfix').value,
+                'isdefault': this.gel('def').checked ? 1 : 0
             };
 
-            this.elHide('btnsc,btnscc');
-            this.elShow('btnpc,btnpcc');
+            this.elHide('btnsc');
+            this.elShow('btnpc');
 
             var __self = this;
-            this.manager.elementTypeSave(elType.id, sd, function(elType){
+            this.manager.currencySave(currency.id, sd, function(currency){
                 __self.elShow('btnsc,btnscc');
                 __self.elHide('btnpc,btnpcc');
-                NS.life(cfg['onSave'], __self, elType);
-            }, elType);
+                NS.life(cfg['onSave'], __self, currency);
+            }, currency);
         }
     });
     NS.CurrencyEditorWidget = CurrencyEditorWidget;

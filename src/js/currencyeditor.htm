@@ -1,48 +1,47 @@
 <!--{widget}-->
-<div id="{i#id}" class="typeeditor easyeditor">
-    <div id="{i#loading}">
-        <div id="{i#loading}" class="loading">
-            <img src="/images/loading.gif" />
-        </div>
+<div id="{i#id}" class="easyeditor currencyeditor">
+    <div id="{i#loading}" class="loading">
+        <img src="/images/loading.gif"/>
     </div>
     <div id="{i#view}" class="editform" style="display: none">
-
-        <div class="btnsc" style="display: none">
-			<span id="{i#btnscc}">
-				<a id="{i#bsavec}" href="#" class="habtn">Сохранить</a>
-				<a id="{i#bcancelc}" href="#" class="habtn">Отмена</a>
-			</span>
-			<span id="{i#btnpcc}" style="display: none">
-				<img src="/images/loading.gif" /> Сохранение...
-			</span>
-            <div class="clear"></div>
-        </div>
-
         <div class="r">
-            <dl>
-                <dt>Название</dt>
+            <input id="{i#title}" class="title inp" onfocus="this.select();"/>
+
+            <dl class="default">
+                <dt>По умолчанию</dt>
                 <dd>
-                    <input id="{i#tl}" class="inp" type="text" placeholder="Введите название" onfocus="this.select();" />
+                    <input id="{i#def}" type="checkbox"/>
                 </dd>
             </dl>
+
             <dl>
-                <dt>Название в множ.числе</dt>
+                <dt>Код</dt>
                 <dd>
-                    <input id="{i#tls}" class="inp" type="text" placeholder="Введите название в множественном числе" onfocus="this.select();" />
-                    <div class="dsc">
-                        Вводится название в множественном числе
-                    </div>
+                    <input id="{i#codestr}" type="text" class="inp" onfocus="this.select();"/>
                 </dd>
             </dl>
+
             <dl>
-                <dt>Имя таблицы в БД</dt>
+                <dt>Цифровой код</dt>
                 <dd>
-                    <input id="{i#nm}" class="inp" type="text" placeholder="Введите имя таблицы в БД" onfocus="this.select();" />
-                    <div class="dsc">
-                        Вводится латиницей, допустимы символы [a-Z0-9_-]
-                    </div>
+                    <input id="{i#codenum}" type="text" class="inp" onfocus="this.select();"/>
                 </dd>
             </dl>
+
+            <dl>
+                <dt>Префикс</dt>
+                <dd>
+                    <input id="{i#prefix}" type="text" class="inp" onfocus="this.select();"/>
+                </dd>
+            </dl>
+
+            <dl>
+                <dt>Постфикс</dt>
+                <dd>
+                    <input id="{i#postfix}" type="text" class="inp" onfocus="this.select();"/>
+                </dd>
+            </dl>
+
         </div>
 
         <div class="btns right r">
@@ -51,8 +50,9 @@
 				<a id="{i#bcancel}" href="#" class="habtn">Отмена</a>
 			</span>
 			<span id="{i#btnpc}" style="display: none">
-				<img src="/images/loading.gif" /> Сохранение...
+				<img src="/images/loading.gif"/> Сохранение...
 			</span>
+
             <div class="clear"></div>
         </div>
     </div>
