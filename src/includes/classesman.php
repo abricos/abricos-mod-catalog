@@ -235,6 +235,9 @@ class CatalogModuleManager {
         $ajaxOptGroups = $this->ElementOptionGroupListToAJAX();
         $ret->eloptgroups = $ajaxOptGroups->eloptgroups;
 
+        $ajaxCurrencies = $this->CurrencyListToAJAX();
+        $ret->currencies = $ajaxCurrencies->currencies;
+
         return $ret;
     }
 
@@ -1762,7 +1765,7 @@ class CatalogModuleManager {
         }
 
         $ret = new stdClass();
-        $ret->eltypes = $list->ToAJAX($this);
+        $ret->currencies = $list->ToAJAX($this);
         return $ret;
     }
 
@@ -1780,7 +1783,7 @@ class CatalogModuleManager {
             $this->_cacheCurrencyList = null;
         }
 
-        if (is_null($this->_cacheCurrencyList)) {
+        if (!is_null($this->_cacheCurrencyList)) {
             return $this->_cacheCurrencyList;
         }
 

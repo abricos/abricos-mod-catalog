@@ -715,8 +715,8 @@ Component.entryPoint = function(NS){
         },
         _currencyListUpdate: function(d){
             var list = null;
-            if (!L.isNull(d) && !L.isNull(d['currencies'])){
-                list = this.newCurrencyList(d['currencies']);
+            if (d && d.currencies && d.currencies.list){
+                list = this.newCurrencyList(d.currencies.list);
             }
             if (L.isValue(list)){
                 this.currencyList = list;

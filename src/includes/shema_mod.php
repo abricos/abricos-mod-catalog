@@ -364,9 +364,9 @@ if ($updateManager->isUpdate('0.3.0')) {
 
 			isdefault tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Цифровой код',
 
-			title varchar(8) NOT NULL DEFAULT '' COMMENT 'Название',
+			title varchar(250) NOT NULL DEFAULT '' COMMENT 'Название',
 
-			codestr varchar(8) NOT NULL DEFAULT '' COMMENT 'Код',
+			codestr varchar(3) NOT NULL DEFAULT '' COMMENT 'Код',
 			codenum int(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Цифровой код',
 
 			rateval double(10,6) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Текущий курс',

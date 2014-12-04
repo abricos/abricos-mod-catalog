@@ -11,23 +11,24 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
+    var Y = Brick.YUI;
+
     var Dom = YAHOO.util.Dom,
-        E = YAHOO.util.Event,
-        L = YAHOO.lang,
+        L = Y.Lang,
         buildTemplate = this.buildTemplate,
         BW = Brick.mod.widget.Widget;
 
-    var CurrencyListWidget = function(container, manager, list, cfg){
-        cfg = L.merge({}, cfg || {});
+    var CurrencyListWidget = function(container, manager, cfg){
+        cfg = Y.merge({}, cfg || {});
 
         CurrencyListWidget.superclass.constructor.call(this, container, {
             'buildTemplate': buildTemplate, 'tnames': 'widget'
-        }, manager, list, cfg);
+        }, manager, cfg);
     };
     YAHOO.extend(CurrencyListWidget, BW, {
-        init: function(manager, list, cfg){
+        init: function(manager, cfg){
             this.manager = manager;
-            this.list = list;
+            this.list = manager.currencyList;
             this.config = cfg;
             this.wsList = [];
 
@@ -139,7 +140,7 @@ Component.entryPoint = function(NS){
     NS.CurrencyListWidget = CurrencyListWidget;
 
     var CurrencyRowWidget = function(container, manager, currency, cfg){
-        cfg = L.merge({
+        cfg = Y.merge({
             'onEditClick': null,
             'onRemoveClick': null,
             'onSave': null

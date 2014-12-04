@@ -304,7 +304,7 @@ class CatalogList extends CatalogItemList {
 }
 
 
-class CatalogCurrency extends AbricosItem {
+class CatalogCurrency extends CatalogItem {
     public $isDefault;
     public $title;
     public $codeStr;
@@ -330,9 +330,31 @@ class CatalogCurrency extends AbricosItem {
         $this->ord = intval($d['ord']);
         $this->dateline = intval($d['dateline']);
     }
+
+    public function ToAJAX() {
+        $man = null;
+        if (func_num_args() > 0){
+            $man = func_get_arg(0);
+        }
+
+        $ret = parent::ToAJAX();
+        $ret->isdefault = $this->isDefault;
+        $ret->title = $this->title;
+        $ret->codestr = $this->codeStr;
+        $ret->codenum = $this->codeNum;
+        $ret->rateval = $this->rateVal;
+        $ret->ratedate = $this->rateDate;
+        $ret->prefix = $this->prefix;
+        $ret->postfix = $this->postfix;
+        $ret->ord = $this->ord;
+        if (!empty($man) && $man->isAdminRole()){
+            $ret->dateline = $this->dateline;
+        }
+        return $ret;
+    }
 }
 
-class CatalogCurrencyList extends AbricosList {
+class CatalogCurrencyList extends CatalogItemList {
 
     /**
      * @return CatalogCurrency
