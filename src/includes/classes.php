@@ -319,21 +319,21 @@ class CatalogCurrency extends CatalogItem {
     public function __construct($d) {
         parent::__construct($d);
 
-        $this->isDefault = $d['isdefault'] > 0;
-        $this->title = strval($d['title']);
-        $this->codeStr = strval($d['codestr']);
-        $this->codeNum = intval($d['codenum']);
-        $this->rateVal = intval($d['rateval']);
-        $this->rateDate = intval($d['ratedate']);
-        $this->prefix = strval($d['prefix']);
-        $this->postfix = strval($d['postfix']);
-        $this->ord = intval($d['ord']);
-        $this->dateline = intval($d['dateline']);
+        $this->isDefault = isset($d['isdefault']) ? $d['isdefault'] > 0 : false;
+        $this->title = isset($d['title']) ? strval($d['title']) : "";
+        $this->codeStr = isset($d['title']) ? strval($d['codestr']) : "";
+        $this->codeNum = isset($d['title']) ? intval($d['codenum']) : 0;
+        $this->rateVal = isset($d['title']) ? intval($d['rateval']) : 0;
+        $this->rateDate = isset($d['title']) ? intval($d['ratedate']) : 0;
+        $this->prefix = isset($d['title']) ? strval($d['prefix']) : "";
+        $this->postfix = isset($d['title']) ? strval($d['postfix']) : "";
+        $this->ord = isset($d['title']) ? intval($d['ord']) : 0;
+        $this->dateline = isset($d['title']) ? intval($d['dateline']) : 0;
     }
 
     public function ToAJAX() {
         $man = null;
-        if (func_num_args() > 0){
+        if (func_num_args() > 0) {
             $man = func_get_arg(0);
         }
 
@@ -346,8 +346,8 @@ class CatalogCurrency extends CatalogItem {
         $ret->ratedate = $this->rateDate;
         $ret->prefix = $this->prefix;
         $ret->postfix = $this->postfix;
-        $ret->ord = $this->ord;
-        if (!empty($man) && $man->isAdminRole()){
+        if (!empty($man) && $man->isAdminRole()) {
+            $ret->ord = $this->ord;
             $ret->dateline = $this->dateline;
         }
         return $ret;
@@ -361,6 +361,13 @@ class CatalogCurrencyList extends CatalogItemList {
      */
     public function Get($id) {
         return parent::Get($id);
+    }
+
+    /**
+     * @return CatalogCurrency
+     */
+    public function GetByIndex($i) {
+        return parent::GetByIndex($i);
     }
 }
 

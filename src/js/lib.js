@@ -1018,7 +1018,7 @@ Component.entryPoint = function(NS){
                 NS.life(callback);
             });
         },
-        currencyRemove: function(currencyid, callback){
+        сг: function(currencyid, callback){
             var __self = this;
             this.ajax({
                 'do': 'currencyremove',

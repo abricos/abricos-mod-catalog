@@ -1851,6 +1851,39 @@ class CatalogModuleManager {
         return $this->CurrencyListToAJAX(true);
     }
 
+    public function CurrencyDefaultToAJAX(){
+        $currency = $this->CurrencyDefault();
+        $ret = new stdClass();
+        $ret->currency = $currency->ToAJAX($this);
+        return $ret;
+    }
+
+    private $_cacheCurrencyDefault;
+
+    /**
+     * @return CatalogCurrency
+     */
+    public function CurrencyDefault() {
+        if (isset($this->_cacheCurrencyDefault)) {
+            return $this->_cacheCurrencyDefault;
+        }
+        $list = $this->CurrencyList();
+        if (empty($list) || $list->Count() == 0) {
+            $this->_cacheCurrencyDefault = new CatalogCurrency(array());
+            return $this->_cacheCurrencyDefault;
+        }
+
+        for ($i = 0; $i < $list->Count(); $i++) {
+            $currency = $list->GetByIndex($i);
+            if ($currency->isDefault){
+                $this->_cacheCurrencyDefault = $currency;
+                return $currency;
+            }
+        }
+        $this->_cacheCurrencyDefault = $list->GetByIndex(0);
+        return $this->_cacheCurrencyDefault;
+    }
+
 }
 
 ?>
