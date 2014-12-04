@@ -1407,14 +1407,32 @@ class CatalogDbQuery {
         return $db->query_read($sql);
     }
 
-
     /* * * * * * * * * * * Currency * * * * * * * * * */
 
+    public static function CurrencyList(Ab_Database $db, $pfx) {
+        $sql = "
+			SELECT currencyid as id, c.*
+			FROM ".$pfx."currency c
+			WHERE c.deldate=0 AND c.language='".bkstr(Abricos::$LNG)."'
+		";
+        return $db->query_read($sql);
+    }
+
     public static function CurrencyAppend(Ab_Database $db, $pfx, $d) {
+        $d = array_to_object($d);
         $sql = "
 			INSERT INTO ".$pfx."currency
-				(title, language) VALUES (
-				'".bkstr($d->tl)."',
+				(isdefault, title, codestr, codenum, rateval, ratedate, prefix, postfix, ord, dateline, language) VALUES (
+				".intval($d->isdefault).",
+				'".bkstr($d->title)."',
+				'".bkstr($d->codestr)."',
+				".intval($d->codenum).",
+				".doubleval($d->rateval).",
+				".intval($d->ratedate).",
+				'".bkstr($d->prefix)."',
+				'".bkstr($d->postfix)."',
+				".intval($d->ord).",
+				".TIMENOW.",
 				'".bkstr(Abricos::$LNG)."'
 			)
 		";
@@ -1441,18 +1459,6 @@ class CatalogDbQuery {
 		";
         $db->query_write($sql);
     }
-
-    public static function CurrencyList(Ab_Database $db, $pfx) {
-        $sql = "
-			SELECT
-				currencyid as id,
-				title as tl
-			FROM ".$pfx."currency
-			WHERE t.deldate=0 AND t.language='".bkstr(Abricos::$LNG)."'
-		";
-        return $db->query_read($sql);
-    }
-
 
 }
 

@@ -170,11 +170,13 @@ class CatalogModuleManager {
             case "elementoptionremove":
                 return $this->ElementOptionRemoveToAJAX($d->eltypeid, $d->optionid);
             case "elementtypelist":
-                return $this->ElementTypeList();
+                return $this->ElementTypeListToAJAX();
             case "optiontablevaluesave":
                 return $this->OptionTableValueSaveToAJAX($d->eltypeid, $d->optionid, $d->valueid, $d->value);
             case "optiontablevalueremove":
                 return $this->OptionTableValueRemove($d->eltypeid, $d->optionid, $d->valueid);
+            case "currencylist":
+                return $this->CurrencyListToAJAX();
         }
         return null;
     }
@@ -1748,6 +1750,49 @@ class CatalogModuleManager {
             $list->Add($item);
         }
         $this->_cacheStatElList = $list;
+        return $list;
+    }
+
+
+    public function CurrencyListToAJAX($clearCache = false) {
+        $list = $this->CurrencyList($clearCache);
+
+        if (empty($list)) {
+            return null;
+        }
+
+        $ret = new stdClass();
+        $ret->eltypes = $list->ToAJAX($this);
+        return $ret;
+    }
+
+    private $_cacheCurrencyList = null;
+
+    /**
+     * @return CatalogCurrencyList
+     */
+    public function CurrencyList($clearCache = false) {
+        if (!$this->IsViewRole()) {
+            return false;
+        }
+
+        if ($clearCache) {
+            $this->_cacheCurrencyList = null;
+        }
+
+        if (is_null($this->_cacheCurrencyList)) {
+            return $this->_cacheCurrencyList;
+        }
+
+        $list = new CatalogCurrencyList();
+
+        $rows = CatalogDbQuery::CurrencyList($this->db, $this->pfx);
+        while (($d = $this->db->fetch_array($rows))) {
+            $list->Add(new CatalogCurrency($d));
+        }
+
+        $this->_cacheCurrencyList = $list;
+
         return $list;
     }
 

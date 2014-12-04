@@ -488,6 +488,50 @@ Component.entryPoint = function(NS){
     });
     NS.ElementOptionGroupList = ElementOptionGroupList;
 
+
+    var Currency = function(manager, d){
+        this.manager = manager;
+
+        d = L.merge({
+            'isdefault': 0,
+            'title': '',
+            'codestr': '',
+            'codenum': 0,
+            'rateval': 0,
+            'ratedate': 0,
+            'prefix': '',
+            'postfix': '',
+            'ord': 0
+        }, d || {});
+        Currency.superclass.constructor.call(this, d);
+    };
+    YAHOO.extend(Currency, SysNS.Item, {
+        update: function(d){
+            this.isDefault = d['isdefault'] | 0 > 0;
+            this.title = d['title'];
+            this.codestr = d['codestr'];
+            this.codenum = d['codenum'];
+            this.rateval = d['rateval'];
+            this.ratedate = d['ratedate'];
+            this.prefix = d['prefix'];
+            this.postfix = d['postfix'];
+            this.ord = d['ord'];
+        }
+    });
+    NS.Currency = Currency;
+
+    var CurrencyList = function(manager, d, currencyClass, cfg){
+        this.manager = manager;
+        CurrencyList.superclass.constructor.call(this, d, currencyClass, cfg);
+    };
+    YAHOO.extend(CurrencyList, SysNS.ItemList, {
+        createItem: function(di){
+            return this.manager.newCurrency(di);
+        }
+    });
+    NS.CurrencyList = CurrencyList;
+
+
     NS.managers = {};
 
     var Manager = function(modname, callback, cfg){
@@ -503,6 +547,8 @@ Component.entryPoint = function(NS){
             'ElementOptionGroupListClass': NS.ElementOptionGroupList,
             'ElementOptionClass': NS.ElementOption,
             'ElementOptionListClass': NS.ElementOptionList,
+            'CurrencyClass': NS.Currency,
+            'CurrencyListClass': NS.CurrencyList,
             'language': null,
             'elementNameChange': false,
             'elementNameUnique': false,
@@ -541,6 +587,8 @@ Component.entryPoint = function(NS){
             this.ElementOptionGroupListClass = cfg['ElementOptionGroupListClass'];
             this.ElementOptionClass = cfg['ElementOptionClass'];
             this.ElementOptionListClass = cfg['ElementOptionListClass'];
+            this.CurrencyClass = cfg['CurrencyClass'];
+            this.CurrencyListClass = cfg['CurrencyListClass'];
 
             this.typeList = null;
             this.optionGroupList = null;
@@ -587,6 +635,12 @@ Component.entryPoint = function(NS){
         newElementOptionList: function(d, cfg){
             return new this.ElementOptionListClass(this, d, this.ElementOptionClass, cfg);
         },
+        newCurrency: function(d){
+            return new this.CurrencyClass(this, d);
+        },
+        newCurrencyList: function(d, cfg){
+            return new this.CurrencyListClass(this, d, this.CurrencyClass, cfg);
+        },
         onCatalogChanged: function(catid){
             this.catalogChangedEvent.fire(catid);
         },
@@ -618,6 +672,7 @@ Component.entryPoint = function(NS){
         },
         _initDataUpdate: function(d){
             this.catalogList = this._catalogListUpdate(d);
+            this.currencyList = this._currencyListUpdate(d);
             this._typeListUpdate(d);
             this._optionGroupListUpdate(d);
         },
@@ -655,6 +710,16 @@ Component.entryPoint = function(NS){
                 if (!L.isNull(rootItem)){
                     rootItem.title = this.getLang('catalog.title');
                 }
+            }
+            return list;
+        },
+        _currencyListUpdate: function(d){
+            var list = null;
+            if (!L.isNull(d) && !L.isNull(d['currencies'])){
+                list = this.newCurrencyList(d['currencies']);
+            }
+            if (L.isValue(list)){
+                this.currencyList = list;
             }
             return list;
         },

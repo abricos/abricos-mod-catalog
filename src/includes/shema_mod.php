@@ -7,10 +7,11 @@
  */
 
 $charset = "CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'";
-$modCatalog = Abricos::GetModule('catalog');
-$updateManager = $modCatalog->updateShemaModule;
+Abricos::GetModule('catalog');
+$updateManager = CatalogModule::$instance->updateShemaModule;
 $db = Abricos::$db;
-$pfx = Abricos::$db->prefix."ctg_".$updateManager->module->catinfo['dbprefix']."_";
+$modPrefix = $updateManager->module->catinfo['dbprefix']."_";
+$pfx = Abricos::$db->prefix."ctg_".$modPrefix;
 
 if ($updateManager->isInstall()) {
 
@@ -376,10 +377,31 @@ if ($updateManager->isUpdate('0.3.0')) {
 
 			ord int(4) UNSIGNED NOT NULL default '0' COMMENT 'Сортировка',
 
+			language CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
+
 			dateline int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
 			deldate int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
 
-			PRIMARY KEY (currencyid)
+			PRIMARY KEY (currencyid),
+            KEY currency (deldate, language)
+
 		)".$charset);
+
+    require_once 'dbquery.php';
+
+    CatalogDbQuery::CurrencyAppend($db, $pfx, array(
+        "isdefault" => true,
+        "title" => "Российский рубль",
+        "codestr" => "RUR",
+        "codenum" => 810,
+        "rateval" => 0,
+        "ratedate" => 0,
+        "prefix" => "",
+        "postfix" => "руб.",
+        "ord" => 0,
+    ));
+
+
 }
+
 ?>

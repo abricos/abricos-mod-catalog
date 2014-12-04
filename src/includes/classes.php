@@ -303,6 +303,46 @@ class CatalogList extends CatalogItemList {
     }
 }
 
+
+class CatalogCurrency extends AbricosItem {
+    public $isDefault;
+    public $title;
+    public $codeStr;
+    public $codeNum;
+    public $rateVal;
+    public $rateDate;
+    public $prefix;
+    public $postfix;
+    public $ord;
+    public $dateline;
+
+    public function __construct($d) {
+        parent::__construct($d);
+
+        $this->isDefault = $d['isdefault'] > 0;
+        $this->title = strval($d['title']);
+        $this->codeStr = strval($d['codestr']);
+        $this->codeNum = intval($d['codenum']);
+        $this->rateVal = intval($d['rateval']);
+        $this->rateDate = intval($d['ratedate']);
+        $this->prefix = strval($d['prefix']);
+        $this->postfix = strval($d['postfix']);
+        $this->ord = intval($d['ord']);
+        $this->dateline = intval($d['dateline']);
+    }
+}
+
+class CatalogCurrencyList extends AbricosList {
+
+    /**
+     * @return CatalogCurrency
+     */
+    public function Get($id) {
+        return parent::Get($id);
+    }
+}
+
+
 class CatalogFile extends AbricosItem {
     public $name;
     public $counter;
