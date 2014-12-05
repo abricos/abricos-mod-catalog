@@ -413,27 +413,27 @@ class CatalogModuleManager {
             return null;
         }
 
-        $d = $this->ParamToObject($d);
+        $d = array_to_object($d);
 
         $utm = Abricos::TextParser();
         $utmf = Abricos::TextParser(true);
 
         $catid = intval($catid);
-        $d->pid = intval($d->pid);
-        $d->tl = $utmf->Parser($d->tl);
+        $d->pid = isset($d->pid) ? intval($d->pid) : 0;
+        $d->tl = isset($d->tl) ? $utmf->Parser($d->tl) : "";
         $d->nm = translateruen($d->tl);
-        $d->dsc = $utm->Parser($d->dsc);
+        $d->dsc = isset($d->dsc) ? $utm->Parser($d->dsc) : "";
 
-        $d->mtl = $utmf->Parser($d->mtl);
-        $d->mks = $utmf->Parser($d->mks);
-        $d->mdsc = $utmf->Parser($d->mdsc);
+        $d->mtl = isset($d->mtl) ? $utmf->Parser($d->mtl) : "";
+        $d->mks = isset($d->mks) ? $utmf->Parser($d->mks) : "";
+        $d->mdsc = isset($d->mdsc) ? $utmf->Parser($d->mdsc) : "";
 
-        $d->ord = intval($d->ord);
+        $d->ord = isset($d->ord) ? intval($d->ord) : 0;
+        $d->mdsb = isset($d->mdsb) ? intval($d->mdsb) : 0;
+        $d->ldsb = isset($d->ldsb) ? intval($d->ldsb) : 0;
 
-        $isNew = false;
         if ($catid == 0) { // добавление нового
 
-            $isNew = true;
             $catid = CatalogDbQuery::CatalogAppend($this->db, $this->pfx, $d);
             if (empty($catid)) {
                 return null;
@@ -804,15 +804,15 @@ class CatalogModuleManager {
             return null;
         }
 
-        $d = $this->ParamToObject($d);
+        $d = array_to_object($d);
 
         $utm = Abricos::TextParser();
         $utmf = Abricos::TextParser(true);
 
         $elid = intval($elid);
         $d->catid = intval($d->catid);
-        $d->tpid = intval($d->tpid);
-        $d->tl = $utmf->Parser($d->tl);
+        $d->tpid = isset($d->tpid) ? intval($d->tpid) : 0;
+        $d->tl = isset($d->tl) ? $utmf->Parser($d->tl) : "";
 
         if (!$this->cfgElementNameChange || empty($d->nm)) {
             $d->nm = translateruen($d->tl);
@@ -820,18 +820,18 @@ class CatalogModuleManager {
             $d->nm = translateruen($d->nm);
         }
 
-        $d->mtl = $utmf->Parser($d->mtl);
-        $d->mks = $utmf->Parser($d->mks);
-        $d->mdsc = $utmf->Parser($d->mdsc);
+        $d->mtl = isset($d->mtl) ? $utmf->Parser($d->mtl) : "";
+        $d->mks = isset($d->mks) ? $utmf->Parser($d->mks) : "";
+        $d->mdsc = isset($d->mdsc) ? $utmf->Parser($d->mdsc) : "";
 
-        $d->ord = intval($d->ord);
+        $d->ord = isset($d->ord) ? intval($d->ord) : 0;
 
         $utmChLog = Abricos::TextParser(true);
 
         // TODO: временное решение в лоб
         $utmfLog = Abricos::TextParser(true);
         $utmfLog->jevix->cfgSetAutoBrMode(true);
-        $d->chlg = $utmfLog->Parser($d->chlg);
+        $d->chlg = isset($d->chlg) ? $utmfLog->Parser($d->chlg) : "";
         $d->chlg = str_replace("<br/>", '', $d->chlg);
 
         /*
@@ -1043,7 +1043,7 @@ class CatalogModuleManager {
             return null;
         }
 
-        $d = $this->ParamToObject($d);
+        $d = array_to_object($d);
 
         $d->dsc = isset($d->dsc) ? $d->dsc : '';
 
@@ -1395,7 +1395,7 @@ class CatalogModuleManager {
             return null;
         }
 
-        $d = $this->ParamToObject($d);
+        $d = array_to_object($d);
 
         $utm = Abricos::TextParser();
         $utmf = Abricos::TextParser(true);
@@ -1808,7 +1808,7 @@ class CatalogModuleManager {
             return null;
         }
 
-        $d = $this->ParamToObject($d);
+        $d = array_to_object($d);
 
         $utmf = Abricos::TextParser(true);
 
@@ -1851,7 +1851,7 @@ class CatalogModuleManager {
         return $this->CurrencyListToAJAX(true);
     }
 
-    public function CurrencyDefaultToAJAX(){
+    public function CurrencyDefaultToAJAX() {
         $currency = $this->CurrencyDefault();
         $ret = new stdClass();
         $ret->currency = $currency->ToAJAX($this);
@@ -1875,7 +1875,7 @@ class CatalogModuleManager {
 
         for ($i = 0; $i < $list->Count(); $i++) {
             $currency = $list->GetByIndex($i);
-            if ($currency->isDefault){
+            if ($currency->isDefault) {
                 $this->_cacheCurrencyDefault = $currency;
                 return $currency;
             }
