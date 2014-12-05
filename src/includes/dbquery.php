@@ -1441,6 +1441,15 @@ class CatalogDbQuery {
     }
 
     public static function CurrencyUpdate(Ab_Database $db, $pfx, $d) {
+        if ($d->isdefault){
+            $sql = "
+                UPDATE ".$pfx."currency
+                SET isdefault=0
+                WHERE currencyid<>".bkint($d->id)." AND language='".bkstr(Abricos::$LNG)."'
+            ";
+            $db->query_write($sql);
+        }
+
         $sql = "
 			UPDATE ".$pfx."currency
 			SET
