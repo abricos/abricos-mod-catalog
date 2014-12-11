@@ -369,13 +369,22 @@ class CatalogModuleManager {
         return $ret;
     }
 
+    private $_cacheCatalog = array();
+
     /**
      * @param integer $catid
      * @return Catalog
      */
-    public function Catalog($catid) {
+    public function Catalog($catid, $clearCache = false) {
         if (!$this->IsViewRole()) {
-            return false;
+            return null;
+        }
+
+        if ($clearCache){
+            $this->_cacheCatalog = array();
+        }
+        if (isset($this->_cacheCatalog[$catid])){
+            return $this->_cacheCatalog[$catid];
         }
 
         $d = CatalogDbQuery::Catalog($this->db, $this->pfx, $catid);
@@ -387,6 +396,8 @@ class CatalogModuleManager {
         $cat = $catList->Find($catid);
         // $cat = new $this->CatalogClass($d);
         $cat->detail = new CatalogDetail($d);
+
+        $this->_cacheCatalog[$catid] = $cat;
 
         return $cat;
     }
@@ -483,7 +494,7 @@ class CatalogModuleManager {
         if (!$this->IsViewRole()) {
             return false;
         }
-
+        // TODO: develop cache
         $cfg = null;
         $catid = 0;
         if (is_object($param)) {
@@ -1188,6 +1199,9 @@ class CatalogModuleManager {
             }
             $curType->options->Add($option);
         }
+
+        $this->_cacheElementTypeList = $list;
+
         return $list;
     }
 
@@ -1219,7 +1233,7 @@ class CatalogModuleManager {
         }
 
         if (!empty($this->_cacheElementOptGroupList)) {
-            return _cacheElementOptGroupList;
+            return $this->_cacheElementOptGroupList;
         }
 
         $list = new CatalogElementOptionGroupList();
@@ -1227,6 +1241,7 @@ class CatalogModuleManager {
         while (($d = $this->db->fetch_array($rows))) {
             $list->Add(new CatalogElementOptionGroup($d));
         }
+        $this->_cacheElementOptGroupList = $list;
         return $list;
     }
 
