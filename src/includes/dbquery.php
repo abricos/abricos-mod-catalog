@@ -873,7 +873,7 @@ class CatalogDbQuery {
     public static function ElementOptionAppend(Ab_Database $db, $pfx, $d) {
         $sql = "
 			INSERT INTO ".$pfx."eloption
-			(eltypeid, fieldtype, fieldsize, eloptgroupid, name, title, descript, param, language, ord, dateline) VALUES (
+			(eltypeid, fieldtype, fieldsize, eloptgroupid, name, title, descript, currencyid, param, language, ord, dateline) VALUES (
 				".bkint($d->tpid).",
 				".bkint($d->tp).",
 				'".bkstr($d->sz)."',
@@ -881,6 +881,7 @@ class CatalogDbQuery {
 				'".bkstr($d->nm)."',
 				'".bkstr($d->tl)."',
 				'".bkstr($d->dsc)."',
+				".bkint($d->crcid).",
 				'".bkstr($d->prm)."',
 				'".bkstr(Abricos::$LNG)."',
 				".bkint($d->ord).",
@@ -898,6 +899,7 @@ class CatalogDbQuery {
 				name='".bkstr($d->nm)."',
 				title='".bkstr($d->tl)."',
 				descript='".bkstr($d->dsc)."',
+				currencyid=".bkint($d->crcid).",
 				ord=".bkint($d->ord).",
 				param='".bkstr($d->prm)."'
 			WHERE eloptionid=".bkint($optionid)."
@@ -1042,6 +1044,7 @@ class CatalogDbQuery {
 				descript as dsc,
 				ord as ord,
 				eloptgroupid as gpid,
+				currencyid as crcid,
 				param as prm,
 				eltitlesource as ets,
 				disable as dsb

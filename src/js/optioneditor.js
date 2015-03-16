@@ -1,8 +1,3 @@
-/*
- @package Abricos
- @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
- */
-
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
@@ -12,8 +7,7 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-    var Dom = YAHOO.util.Dom,
-        E = YAHOO.util.Event,
+    var E = YAHOO.util.Event,
         L = YAHOO.lang,
         buildTemplate = this.buildTemplate,
         BW = Brick.mod.widget.Widget;
@@ -103,7 +97,7 @@ Component.entryPoint = function(NS){
             'onChange': null
         }, cfg || {});
 
-        OptionEditorWidget.superclass.constructor.call(this, container, {
+        OptionFTypeSelectWidget.superclass.constructor.call(this, container, {
             'buildTemplate': buildTemplate, 'tnames': 'ftypeselect'
         }, cfg);
     };
@@ -124,6 +118,44 @@ Component.entryPoint = function(NS){
         }
     });
     NS.OptionFTypeSelectWidget = OptionFTypeSelectWidget;
+
+    var CurrencySelectWidget = function(container, manager, cfg){
+        cfg = L.merge({
+            'value': null,
+            'onChange': null
+        }, cfg || {});
+
+        CurrencySelectWidget.superclass.constructor.call(this, container, {
+            'buildTemplate': buildTemplate, 'tnames': 'select,option'
+        }, manager, cfg);
+    };
+    YAHOO.extend(CurrencySelectWidget, BW, {
+        buildTData: function(manager, cfg){
+            var lst = "", TM = this._TM;
+            manager.currencyList.foreach(function(item){
+                lst += TM.replace('option', {
+                    'id': item.id,
+                    'tl': item.title
+                });
+            });
+            return {'rows': lst};
+        },
+        onLoad: function(manager, cfg){
+            this.setValue(cfg['value']);
+
+            var __self = this;
+            E.on(this.gel('id'), 'change', function(e){
+                NS.life(cfg['onChange'], __self.getValue());
+            });
+        },
+        setValue: function(value){
+            this.elSetValue('id', value);
+        },
+        getValue: function(){
+            return this.gel('id').value;
+        }
+    });
+    NS.CurrencySelectWidget = CurrencySelectWidget;
 
     var OptionEditorWidget = function(container, manager, option, cfg){
         cfg = L.merge({
@@ -177,6 +209,10 @@ Component.entryPoint = function(NS){
 
             this.optionGroupSelectWidget = new NS.OptionGroupSelectWidget(this.gel('optgroup'), manager, {
                 'value': option.groupid
+            });
+
+            this.currencySelectWidget = new NS.CurrencySelectWidget(this.gel('currencysel'), manager, {
+                'value': option.currencyid
             });
 
             var keypress = function(e){
@@ -240,6 +276,11 @@ Component.entryPoint = function(NS){
                     this.elHide('fsize');
                     break;
             }
+            if (fType == NS.FTYPE['CURRENCY']){
+                this.elShow('fcurrency');
+            }else{
+                this.elHide('fcurrency');
+            }
 
             if (this._lastFType != fType){
                 this._lastFType = fType;
@@ -247,8 +288,8 @@ Component.entryPoint = function(NS){
                     case NS.FTYPE['NUMBER']:
                         this.elSetValue('sz', '10');
                         break;
-                    case NS.FTYPE['DOUBLE']:
                     case NS.FTYPE['CURRENCY']:
+                    case NS.FTYPE['DOUBLE']:
                         this.elSetValue('sz', '10,2');
                         break;
                     case NS.FTYPE['STRING']:
@@ -297,6 +338,7 @@ Component.entryPoint = function(NS){
                 'tp': this.fTypeSelectWidget.getValue(),
                 'tpid': option.typeid,
                 'gid': this.optionGroupSelectWidget.getValue(),
+                'crcid': this.currencySelectWidget.getValue(),
                 'prm': L.isValue(this.paramWidget) ? this.paramWidget.getValue() : ''
             };
 

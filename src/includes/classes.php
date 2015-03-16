@@ -119,7 +119,7 @@ class Catalog extends CatalogItem {
      */
     public $detail = null;
 
-    public function __construct($d) {
+    public function __construct($d){
         parent::__construct($d);
 
         $this->parentid = intval($d['pid']);
@@ -135,7 +135,7 @@ class Catalog extends CatalogItem {
         $this->childs = new CatalogList($this);
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $man = func_get_arg(0);
 
         $ret = parent::ToAJAX();
@@ -149,19 +149,19 @@ class Catalog extends CatalogItem {
         $ret->ecnt = $this->elementCount;
 
         $ret->dtl = null;
-        if (!empty($this->detail)) {
+        if (!empty($this->detail)){
             $ret->dtl = $this->detail->ToAJAX($man);
         }
 
-        if ($this->childs->Count() > 0) {
+        if ($this->childs->Count() > 0){
             $ret->childs = $this->childs->ToAJAX($man);
         }
         return $ret;
     }
 
-    public function FotoSrc($w = 0, $h = 0) {
+    public function FotoSrc($w = 0, $h = 0){
 
-        if (empty($this->foto)) {
+        if (empty($this->foto)){
             return "/images/empty.gif";
         }
 
@@ -172,7 +172,7 @@ class Catalog extends CatalogItem {
             $arr[] = "h_".$h;
 
         $ret = "/filemanager/i/".$this->foto."/";
-        if (count($arr) > 0) {
+        if (count($arr) > 0){
             $ret = $ret.implode("-", $arr)."/";
         }
         $ret .= $this->name.".".$this->fotoExt;
@@ -180,7 +180,7 @@ class Catalog extends CatalogItem {
         return $ret;
     }
 
-    public function URI() {
+    public function URI(){
         return "";
     }
 
@@ -196,7 +196,7 @@ class CatalogDetail {
     public $metaKeys;
     public $metaDescript;
 
-    public function __construct($d) {
+    public function __construct($d){
         $d = array_merge(array(
             'dsc' => '',
             'mtl' => '',
@@ -210,12 +210,12 @@ class CatalogDetail {
         $this->metaDescript = strval($d['mdsc']);
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $man = func_get_arg(0);
 
         $ret = new stdClass();
         $ret->dsc = $this->descript;
-        if ($man->IsAdminRole()) {
+        if ($man->IsAdminRole()){
             $ret->mtl = $this->metaTitle;
             $ret->mks = $this->metaKeys;
             $ret->mdsc = $this->metaDescript;
@@ -231,18 +231,18 @@ class CatalogList extends CatalogItemList {
      */
     public $owner;
 
-    public function __construct($cat) {
+    public function __construct($cat){
         parent::__construct();
 
         $this->owner = $cat;
     }
 
-    public function Add($item) {
+    public function Add($item){
 
         $notChangeParent = func_num_args() > 1 ? func_get_arg(1) : false;
 
         parent::Add($item);
-        if (!$notChangeParent) {
+        if (!$notChangeParent){
             $item->parent = $this->owner;
         }
     }
@@ -254,7 +254,7 @@ class CatalogList extends CatalogItemList {
      * @param integer $index
      * @return Catalog
      */
-    public function GetByIndex($index) {
+    public function GetByIndex($index){
         return parent::GetByIndex($index);
     }
 
@@ -264,7 +264,7 @@ class CatalogList extends CatalogItemList {
      * @param integer $id
      * @return Catalog
      */
-    public function Get($id) {
+    public function Get($id){
         return parent::Get($id);
     }
 
@@ -274,17 +274,17 @@ class CatalogList extends CatalogItemList {
      * @param integer $id
      * @return Catalog
      */
-    public function Find($id) {
+    public function Find($id){
         $id = intval($id);
         $item = $this->Get($id);
-        if (!empty($item)) {
+        if (!empty($item)){
             return $item;
         }
 
         $count = $this->Count();
-        for ($i = 0; $i < $count; $i++) {
+        for ($i = 0; $i < $count; $i++){
             $item = $this->GetByIndex($i)->childs->Find($id);
-            if (!empty($item)) {
+            if (!empty($item)){
                 return $item;
             }
         }
@@ -292,11 +292,11 @@ class CatalogList extends CatalogItemList {
         return null;
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $man = func_get_arg(0);
 
         $ret = array();
-        for ($i = 0; $i < $this->Count(); $i++) {
+        for ($i = 0; $i < $this->Count(); $i++){
             $ret[] = $this->GetByIndex($i)->ToAJAX($man);
         }
         return $ret;
@@ -316,24 +316,24 @@ class CatalogCurrency extends CatalogItem {
     public $ord;
     public $dateline;
 
-    public function __construct($d) {
+    public function __construct($d){
         parent::__construct($d);
 
         $this->isDefault = isset($d['isdefault']) ? $d['isdefault'] > 0 : false;
         $this->title = isset($d['title']) ? strval($d['title']) : "";
-        $this->codeStr = isset($d['title']) ? strval($d['codestr']) : "";
-        $this->codeNum = isset($d['title']) ? intval($d['codenum']) : 0;
-        $this->rateVal = isset($d['title']) ? intval($d['rateval']) : 0;
-        $this->rateDate = isset($d['title']) ? intval($d['ratedate']) : 0;
-        $this->prefix = isset($d['title']) ? strval($d['prefix']) : "";
-        $this->postfix = isset($d['title']) ? strval($d['postfix']) : "";
-        $this->ord = isset($d['title']) ? intval($d['ord']) : 0;
-        $this->dateline = isset($d['title']) ? intval($d['dateline']) : 0;
+        $this->codeStr = isset($d['codestr']) ? strval($d['codestr']) : "";
+        $this->codeNum = isset($d['codenum']) ? intval($d['codenum']) : 0;
+        $this->rateVal = isset($d['rateval']) ? doubleval($d['rateval']) : 0;
+        $this->rateDate = isset($d['ratedate']) ? intval($d['ratedate']) : 0;
+        $this->prefix = isset($d['prefix']) ? strval($d['prefix']) : "";
+        $this->postfix = isset($d['postfix']) ? strval($d['postfix']) : "";
+        $this->ord = isset($d['ord']) ? intval($d['ord']) : 0;
+        $this->dateline = isset($d['dateline']) ? intval($d['dateline']) : 0;
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $man = null;
-        if (func_num_args() > 0) {
+        if (func_num_args() > 0){
             $man = func_get_arg(0);
         }
 
@@ -346,7 +346,7 @@ class CatalogCurrency extends CatalogItem {
         $ret->ratedate = $this->rateDate;
         $ret->prefix = $this->prefix;
         $ret->postfix = $this->postfix;
-        if (!empty($man) && $man->isAdminRole()) {
+        if (!empty($man) && $man->isAdminRole()){
             $ret->ord = $this->ord;
             $ret->dateline = $this->dateline;
         }
@@ -359,14 +359,14 @@ class CatalogCurrencyList extends CatalogItemList {
     /**
      * @return CatalogCurrency
      */
-    public function Get($id) {
+    public function Get($id){
         return parent::Get($id);
     }
 
     /**
      * @return CatalogCurrency
      */
-    public function GetByIndex($i) {
+    public function GetByIndex($i){
         return parent::GetByIndex($i);
     }
 }
@@ -377,14 +377,14 @@ class CatalogFile extends AbricosItem {
     public $counter;
     public $dateline;
 
-    public function __construct($d) {
+    public function __construct($d){
         $this->id = strval($d['id']);
         $this->name = strval($d['fn']);
         $this->counter = intval($d['cnt']);
         $this->dateline = intval($d['dl']);
     }
 
-    public function URL() {
+    public function URL(){
         return "/filemanager/i/".$this->id."/".$this->name;
     }
 }
@@ -394,7 +394,7 @@ class CatalogFileList extends AbricosList {
     /**
      * @return CatalogFile
      */
-    public function Get($id) {
+    public function Get($id){
         return parent::Get($id);
     }
 }
@@ -414,7 +414,7 @@ class CatalogUser extends AbricosItem {
      */
     public $email;
 
-    public function __construct($d) {
+    public function __construct($d){
         $this->id = intval(isset($d['uid']) && intval($d['uid']) > 0 ? $d['uid'] : $d['id']);
         $this->userName = strval($d['unm']);
         $this->avatar = strval($d['avt']);
@@ -423,7 +423,7 @@ class CatalogUser extends AbricosItem {
         $this->email = strval($d['eml']);
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = new stdClass();
         $ret->id = $this->id;
         $ret->unm = $this->userName;
@@ -433,33 +433,33 @@ class CatalogUser extends AbricosItem {
         return $ret;
     }
 
-    public function GetUserName() {
-        if (!empty($this->firstName) && !empty($this->lastName)) {
+    public function GetUserName(){
+        if (!empty($this->firstName) && !empty($this->lastName)){
             return $this->firstName." ".$this->lastName;
         }
         return $this->userName;
     }
 
-    public function URL() {
+    public function URL(){
         $mod = Abricos::GetModule('uprofile');
-        if (empty($mod)) {
+        if (empty($mod)){
             return "#";
         }
         return '/uprofile/'.$this->id.'/';
     }
 
-    private function Avatar($size) {
+    private function Avatar($size){
         $url = empty($this->avatar) ?
             '/modules/uprofile/images/nofoto'.$size.'.gif' :
             '/filemanager/i/'.$this->avatar.'/w_'.$size.'-h_'.$size.'/avatar.gif';
         return '<img src="'.$url.'">';
     }
 
-    public function Avatar24() {
+    public function Avatar24(){
         return $this->Avatar(24);
     }
 
-    public function Avatar90() {
+    public function Avatar90(){
         return $this->Avatar(90);
     }
 }
@@ -469,14 +469,14 @@ class CatalogUserList extends AbricosList {
     /**
      * @return CatalogUser
      */
-    public function Get($id) {
+    public function Get($id){
         return parent::Get($id);
     }
 
     /**
      * @return CatalogUser
      */
-    public function GetByIndex($i) {
+    public function GetByIndex($i){
         return parent::GetByIndex($i);
     }
 }
@@ -510,7 +510,7 @@ class CatalogElementType extends CatalogItem {
      */
     public $options;
 
-    public function __construct($d = array()) {
+    public function __construct($d = array()){
         parent::__construct($d);
 
         $this->title = isset($d['tl']) ? strval($d['tl']) : '';
@@ -520,12 +520,12 @@ class CatalogElementType extends CatalogItem {
         $this->options = new CatalogElementOptionList();
 
         $this->tableName = "element";
-        if ($this->id > 0) {
+        if ($this->id > 0){
             $this->tableName = "eltbl_".$this->name;
         }
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $man = func_get_arg(0);
 
         $ret = new stdClass();
@@ -534,7 +534,7 @@ class CatalogElementType extends CatalogItem {
         $ret->tls = $this->titleList;
         $ret->nm = $this->name;
 
-        if ($this->options->Count() > 0) {
+        if ($this->options->Count() > 0){
             $ret->options = $this->options->ToAJAX($man);
         }
         return $ret;
@@ -546,7 +546,7 @@ class CatalogElementType extends CatalogItem {
  */
 class CatalogElementTypeList extends CatalogItemList {
 
-    public function Add($item) {
+    public function Add($item){
         parent::Add($item);
     }
 
@@ -554,7 +554,7 @@ class CatalogElementTypeList extends CatalogItemList {
      * @param integer $id
      * @return CatalogElementType
      */
-    public function GetByIndex($i) {
+    public function GetByIndex($i){
         return parent::GetByIndex($i);
     }
 
@@ -562,10 +562,10 @@ class CatalogElementTypeList extends CatalogItemList {
      * @param string $name
      * @return CatalogElementType
      */
-    public function GetByName($name) {
-        for ($i = 0; $i < $this->Count(); $i++) {
+    public function GetByName($name){
+        for ($i = 0; $i < $this->Count(); $i++){
             $elType = $this->GetByIndex($i);
-            if ($elType->name == $name) {
+            if ($elType->name == $name){
                 return $elType;
             }
         }
@@ -578,11 +578,11 @@ class CatalogElementTypeList extends CatalogItemList {
      * @param integer $optionid
      * @return CatalogElementOption
      */
-    public function GetOptionById($optionid) {
-        for ($i = 0; $i < $this->Count(); $i++) {
+    public function GetOptionById($optionid){
+        for ($i = 0; $i < $this->Count(); $i++){
             $elType = $this->GetByIndex($i);
             $option = $elType->options->Get($optionid);
-            if (!empty($option)) {
+            if (!empty($option)){
                 return $option;
             }
         }
@@ -593,18 +593,18 @@ class CatalogElementTypeList extends CatalogItemList {
      * @param integer $id
      * @return CatalogElementType
      */
-    public function Get($id) {
+    public function Get($id){
         return parent::Get($id);
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $man = null;
-        if (func_num_args() > 0) {
+        if (func_num_args() > 0){
             $man = func_get_arg(0);
         }
 
         $ret = array();
-        for ($i = 0; $i < $this->Count(); $i++) {
+        for ($i = 0; $i < $this->Count(); $i++){
             $ret[] = $this->GetByIndex($i)->ToAJAX($man);
         }
         return $ret;
@@ -617,14 +617,14 @@ class CatalogElementOptionGroup extends CatalogItem {
     public $title;
     public $name;
 
-    public function __construct($d) {
+    public function __construct($d){
         parent::__construct($d);
         $this->elTypeId = intval($d['tpid']);
         $this->title = strval($d['tl']);
         $this->name = strval($d['nm']);
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = new stdClass();
         $ret->id = $this->id;
         $ret->tpid = $this->elTypeId;
@@ -637,7 +637,7 @@ class CatalogElementOptionGroup extends CatalogItem {
 
 class CatalogElementOptionGroupList extends CatalogItemList {
 
-    public function Add($item) {
+    public function Add($item){
         parent::Add($item);
     }
 
@@ -645,7 +645,7 @@ class CatalogElementOptionGroupList extends CatalogItemList {
      * @param integer $id
      * @return CatalogElementOptionGroup
      */
-    public function GetByIndex($i) {
+    public function GetByIndex($i){
         return parent::GetByIndex($i);
     }
 
@@ -653,30 +653,30 @@ class CatalogElementOptionGroupList extends CatalogItemList {
      * @param integer $id
      * @return CatalogElementOptionGroup
      */
-    public function Get($id) {
+    public function Get($id){
         return parent::Get($id);
     }
 
     /**
      * @param CatalogElementOptionGroup $name
      */
-    public function GetByName($name) {
+    public function GetByName($name){
 
         $cnt = $this->Count();
-        for ($i = 0; $i < $cnt; $i++) {
+        for ($i = 0; $i < $cnt; $i++){
             $item = $this->GetByIndex($i);
-            if ($name == $item->name) {
+            if ($name == $item->name){
                 return $item;
             }
         }
         return null;
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $man = func_get_arg(0);
 
         $ret = array();
-        for ($i = 0; $i < $this->Count(); $i++) {
+        for ($i = 0; $i < $this->Count(); $i++){
             $ret[] = $this->GetByIndex($i)->ToAJAX($man);
         }
         return $ret;
@@ -695,9 +695,10 @@ class CatalogElementOption extends CatalogItem {
     public $title;
     public $name;
     public $param;
+    public $currencyid;
     public $order;
 
-    public function __construct($d) {
+    public function __construct($d){
         parent::__construct($d);
         $this->elTypeId = intval($d['tpid']);
         $this->type = intval($d['tp']);
@@ -707,9 +708,10 @@ class CatalogElementOption extends CatalogItem {
         $this->name = strval($d['nm']);
         $this->param = strval($d['prm']);
         $this->order = intval($d['ord']);
+        $this->currencyid = intval($d['crcid']);
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = new stdClass();
         $ret->id = $this->id;
         $ret->tpid = $this->elTypeId;
@@ -719,6 +721,7 @@ class CatalogElementOption extends CatalogItem {
         $ret->tl = $this->title;
         $ret->nm = $this->name;
         $ret->prm = $this->param;
+        $ret->crcid = $this->currencyid;
         $ret->ord = $this->order;
         return $ret;
     }
@@ -731,11 +734,11 @@ class CatalogElementOptionTable extends CatalogElementOption {
 
     public $values = array();
 
-    public function __construct($d) {
+    public function __construct($d){
         parent::__construct($d);
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $man = func_get_arg(0);
 
         $ret = parent::ToAJAX($man);
@@ -746,12 +749,12 @@ class CatalogElementOptionTable extends CatalogElementOption {
 
 class CatalogElementOptionList extends CatalogItemList {
 
-    public function __construct() {
+    public function __construct(){
         parent::__construct();
         $this->isCheckDouble = true;
     }
 
-    public function Add($item) {
+    public function Add($item){
         parent::Add($item);
     }
 
@@ -759,7 +762,7 @@ class CatalogElementOptionList extends CatalogItemList {
      * @param integer $id
      * @return CatalogElementOption
      */
-    public function GetByIndex($i) {
+    public function GetByIndex($i){
         return parent::GetByIndex($i);
     }
 
@@ -767,30 +770,30 @@ class CatalogElementOptionList extends CatalogItemList {
      * @param integer $id
      * @return CatalogElementOption
      */
-    public function Get($id) {
+    public function Get($id){
         return parent::Get($id);
     }
 
     /**
      * @param CatalogElementOption $name
      */
-    public function GetByName($name) {
+    public function GetByName($name){
 
         $cnt = $this->Count();
-        for ($i = 0; $i < $cnt; $i++) {
+        for ($i = 0; $i < $cnt; $i++){
             $item = $this->GetByIndex($i);
-            if ($name == $item->name) {
+            if ($name == $item->name){
                 return $item;
             }
         }
         return null;
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $man = func_get_arg(0);
 
         $ret = array();
-        for ($i = 0; $i < $this->Count(); $i++) {
+        for ($i = 0; $i < $this->Count(); $i++){
             $ret[] = $this->GetByIndex($i)->ToAJAX($man);
         }
         return $ret;
@@ -848,7 +851,7 @@ class CatalogElement extends CatalogItem {
      * @param array $d
      * @param CatalogElementOptionList $extFields
      */
-    public function __construct($d) {
+    public function __construct($d){
         parent::__construct($d);
 
         $d = array_merge(array(
@@ -879,14 +882,14 @@ class CatalogElement extends CatalogItem {
         $this->foto = isset($afoto[0]) ? $afoto[0] : '';
         $this->fotoExt = isset($afoto[1]) ? $afoto[1] : '';
 
-        if (is_array($d['ext'])) {
+        if (is_array($d['ext'])){
             $this->ext = $d['ext'];
         }
     }
 
-    public function FotoSrc($w = 0, $h = 0) {
+    public function FotoSrc($w = 0, $h = 0){
 
-        if (empty($this->foto)) {
+        if (empty($this->foto)){
             return "/images/empty.gif";
         }
 
@@ -897,7 +900,7 @@ class CatalogElement extends CatalogItem {
             $arr[] = "h_".$h;
 
         $ret = "/filemanager/i/".$this->foto."/";
-        if (count($arr) > 0) {
+        if (count($arr) > 0){
             $ret = $ret.implode("-", $arr)."/";
         }
         $ret .= $this->name.".".$this->fotoExt;
@@ -905,7 +908,7 @@ class CatalogElement extends CatalogItem {
         return $ret;
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $man = func_get_arg(0);
 
         $ret = new stdClass();
@@ -920,18 +923,18 @@ class CatalogElement extends CatalogItem {
         $ret->mdr = $this->isModer ? 1 : 0;
 
         $ret->dtl = null;
-        if (!empty($this->detail)) {
+        if (!empty($this->detail)){
             $ret->dtl = $this->detail->ToAJAX($man);
         }
 
-        if (count($this->ext) > 0) {
+        if (count($this->ext) > 0){
             $ret->ext = $this->ext;
         }
 
         return $ret;
     }
 
-    public function URI() {
+    public function URI(){
         return "";
     }
 }
@@ -978,7 +981,7 @@ class CatalogElementDetail {
     public $pElementId;
     public $changeLog;
 
-    public function __construct($d, $dOptBase, $dOptPers, $fotos, CatalogFotoList $fotoList) {
+    public function __construct($d, $dOptBase, $dOptPers, $fotos, CatalogFotoList $fotoList){
         $this->metaTitle = strval($d['mtl']);
         $this->metaKeys = strval($d['mks']);
         $this->metaDesc = strval($d['mdsc']);
@@ -994,7 +997,7 @@ class CatalogElementDetail {
         $this->fotoList = $fotoList;
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $man = func_get_arg(0);
 
         $ret = new stdClass();
@@ -1027,7 +1030,7 @@ class CatalogElementList extends CatalogItemList {
      */
     public $total;
 
-    public function Add($item) {
+    public function Add($item){
         parent::Add($item);
     }
 
@@ -1035,7 +1038,7 @@ class CatalogElementList extends CatalogItemList {
      * @param integer $i
      * @return CatalogElement
      */
-    public function GetByIndex($i) {
+    public function GetByIndex($i){
         return parent::GetByIndex($i);
     }
 
@@ -1043,16 +1046,16 @@ class CatalogElementList extends CatalogItemList {
      * @param integer $id
      * @return CatalogElement
      */
-    public function Get($id) {
+    public function Get($id){
         return parent::Get($id);
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $man = func_get_arg(0);
 
         $list = array();
         $count = $this->Count();
-        for ($i = 0; $i < $count; $i++) {
+        for ($i = 0; $i < $count; $i++){
             $list[] = $this->GetByIndex($i)->ToAJAX($man);
         }
 
@@ -1101,7 +1104,7 @@ class CatalogElementChangeLog extends AbricosItem {
      */
     public $log;
 
-    public function __construct($d) {
+    public function __construct($d){
         parent::__construct($d);
         $this->pvElementId = intval($d['pid']);
         $this->version = intval($d['v']);
@@ -1116,14 +1119,14 @@ class CatalogElementChangeLogList extends AbricosList {
     /**
      * @return CatalogElementChangeLog
      */
-    public function Get($id) {
+    public function Get($id){
         return parent::Get($id);
     }
 
     /**
      * @return CatalogElementChangeLog
      */
-    public function GetByIndex($i) {
+    public function GetByIndex($i){
         return parent::GetByIndex($i);
     }
 }
@@ -1141,7 +1144,7 @@ class CatalogFoto extends AbricosItem {
     public $width;
     public $height;
 
-    public function __construct($d) {
+    public function __construct($d){
         parent::__construct($d);
 
         $this->filehash = $d['f'];
@@ -1153,7 +1156,7 @@ class CatalogFoto extends AbricosItem {
         $this->height = $d['h'];
     }
 
-    public function Link($w = 0, $h = 0) {
+    public function Link($w = 0, $h = 0){
         $arr = array();
         if ($w > 0)
             $arr[] = "w_".$w;
@@ -1161,7 +1164,7 @@ class CatalogFoto extends AbricosItem {
             $arr[] = "h_".$h;
 
         $ret = "/filemanager/i/".$this->filehash."/";
-        if (count($arr) > 0) {
+        if (count($arr) > 0){
             $ret = $ret.implode("-", $arr)."/";
         }
         return $ret.$this->name;
@@ -1175,15 +1178,15 @@ class CatalogFotoList extends AbricosList {
     /**
      * @return CatalogFoto
      */
-    public function GetByIndex($i) {
+    public function GetByIndex($i){
         return parent::GetByIndex($i);
     }
 
-    public function Add($item) {
+    public function Add($item){
         parent::Add($item);
 
         $elid = $item->elementid;
-        if (!isset($this->_groups[$elid])) {
+        if (!isset($this->_groups[$elid])){
             $this->_groups[$elid] = array();
         }
         $this->_groups[$elid][] = $item;
@@ -1195,8 +1198,8 @@ class CatalogFotoList extends AbricosList {
      * @param integer $elid
      * @return array
      */
-    public function GetGroup($elid) {
-        if (empty($this->_groups[$elid])) {
+    public function GetGroup($elid){
+        if (empty($this->_groups[$elid])){
             return array();
         }
         return $this->_groups[$elid];
@@ -1266,10 +1269,10 @@ class CatalogElementListConfig {
      */
     public $eltpids;
 
-    public function __construct($catids = null) {
-        if (is_null($catids)) {
+    public function __construct($catids = null){
+        if (is_null($catids)){
             $catids = array();
-        } else if (!is_array($catids)) {
+        } else if (!is_array($catids)){
             $catids = array($catids);
         }
         $this->catids = $catids;
@@ -1298,7 +1301,7 @@ class CatalogElementWhereOption extends CatalogItem {
      */
     public $exp = "";
 
-    public function __construct(CatalogElementOption $option, $exp) {
+    public function __construct(CatalogElementOption $option, $exp){
         $this->id = $option->id;
         $this->option = $option;
         $this->exp = $exp;
@@ -1307,7 +1310,7 @@ class CatalogElementWhereOption extends CatalogItem {
 
 class CatalogElementWhereOptionList extends CatalogItemList {
 
-    public function __construct() {
+    public function __construct(){
         parent::__construct();
         $this->isCheckDouble = true;
     }
@@ -1315,7 +1318,7 @@ class CatalogElementWhereOptionList extends CatalogItemList {
     /**
      * @param CatalogElementWhereOption $option
      */
-    public function Add($item) {
+    public function Add($item){
         parent::Add($item);
     }
 
@@ -1323,8 +1326,8 @@ class CatalogElementWhereOptionList extends CatalogItemList {
      * @param CatalogElementOption $option
      * @param boolean $isDesc
      */
-    public function AddByOption($option, $isDesc = false) {
-        if (empty($option)) {
+    public function AddByOption($option, $isDesc = false){
+        if (empty($option)){
             return;
         }
         parent::Add(new CatalogElementWhereOption($option, $isDesc));
@@ -1333,7 +1336,7 @@ class CatalogElementWhereOptionList extends CatalogItemList {
     /**
      * @return CatalogElementWhereOption
      */
-    public function GetByIndex($i) {
+    public function GetByIndex($i){
         return parent::GetByIndex($i);
     }
 }
@@ -1359,7 +1362,7 @@ class CatalogElementOrderOption extends CatalogItem {
      */
     public $zeroDesc = false;
 
-    public function __construct(CatalogElementOption $option, $isDesc = false) {
+    public function __construct(CatalogElementOption $option, $isDesc = false){
         $this->id = $option->id;
         $this->option = $option;
         $this->isDesc = $isDesc;
@@ -1368,12 +1371,12 @@ class CatalogElementOrderOption extends CatalogItem {
 
 class CatalogElementOrderOptionList extends CatalogItemList {
 
-    public function __construct() {
+    public function __construct(){
         parent::__construct();
         $this->isCheckDouble = true;
     }
 
-    public function Add($item) {
+    public function Add($item){
         parent::Add($item);
     }
 
@@ -1383,8 +1386,8 @@ class CatalogElementOrderOptionList extends CatalogItemList {
      *
      * @return CatalogElementOrderOption
      */
-    public function AddByOption($option, $isDesc = false) {
-        if (empty($option)) {
+    public function AddByOption($option, $isDesc = false){
+        if (empty($option)){
             return;
         }
         $order = new CatalogElementOrderOption($option, $isDesc);
@@ -1396,7 +1399,7 @@ class CatalogElementOrderOptionList extends CatalogItemList {
     /**
      * @return CatalogElementOrderOption
      */
-    public function GetByIndex($i) {
+    public function GetByIndex($i){
         return parent::GetByIndex($i);
     }
 }
@@ -1404,11 +1407,11 @@ class CatalogElementOrderOptionList extends CatalogItemList {
 class CatalogItem {
     public $id;
 
-    public function __construct($d) {
+    public function __construct($d){
         $this->id = isset($d['id']) ? intval($d['id']) : 0;
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = new stdClass();
         $ret->id = $this->id;
         return $ret;
@@ -1422,19 +1425,19 @@ class CatalogItemList {
 
     protected $isCheckDouble = false;
 
-    public function __construct() {
+    public function __construct(){
         $this->_list = array();
         $this->_map = array();
     }
 
-    public function Add($item) {
-        if (empty($item)) {
+    public function Add($item){
+        if (empty($item)){
             return;
         }
 
-        if ($this->isCheckDouble) {
+        if ($this->isCheckDouble){
             $checkItem = $this->Get($item->id);
-            if (!empty($checkItem)) {
+            if (!empty($checkItem)){
                 return;
             }
         }
@@ -1444,7 +1447,7 @@ class CatalogItemList {
         $this->_map[$item->id] = $index;
     }
 
-    public function Count() {
+    public function Count(){
         return count($this->_list);
     }
 
@@ -1452,7 +1455,7 @@ class CatalogItemList {
      * @param integer $index
      * @return CatalogItem
      */
-    public function GetByIndex($index) {
+    public function GetByIndex($index){
         return $this->_list[$index];
     }
 
@@ -1460,18 +1463,18 @@ class CatalogItemList {
      * @param integer $id
      * @return CatalogItem
      */
-    public function Get($id) {
-        if (!isset($this->_map[$id])) {
+    public function Get($id){
+        if (!isset($this->_map[$id])){
             return null;
         }
         $index = $this->_map[$id];
         return $this->_list[$index];
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $list = array();
         $count = $this->Count();
-        for ($i = 0; $i < $count; $i++) {
+        for ($i = 0; $i < $count; $i++){
             $list[] = $this->GetByIndex($i)->ToAJAX();
         }
 
@@ -1487,8 +1490,8 @@ class CatalogStatisticElement extends AbricosItem {
     public $elTypeId;
     public $count;
 
-    public function __construct($d) {
-        if (empty($d['id'])) {
+    public function __construct($d){
+        if (empty($d['id'])){
             $this->id = $d['catid'].'-'.$d['tpid'];
         } else {
             $this->id = $d['id'];
@@ -1514,21 +1517,21 @@ class CatalogStatisticElementList extends AbricosList {
      */
     public $elTypeCounter;
 
-    public function __construct() {
+    public function __construct(){
         parent::__construct();
         $this->catalogCounter = array();
         $this->elTypeCounter = array();
     }
 
-    public function Add($item) {
+    public function Add($item){
         parent::Add($item);
-        if (empty($this->catalogCounter[$item->catid])) {
+        if (empty($this->catalogCounter[$item->catid])){
             $this->catalogCounter[$item->catid] = $item->count;
         } else {
             $this->catalogCounter[$item->catid] = $this->catalogCounter[$item->catid] + $item->count;
         }
 
-        if (empty($this->elTypeCounter[$item->elTypeId])) {
+        if (empty($this->elTypeCounter[$item->elTypeId])){
             $this->elTypeCounter[$item->elTypeId] = $item->count;
         } else {
             $this->elTypeCounter[$item->elTypeId] = $this->elTypeCounter[$item->elTypeId] + $item->count;

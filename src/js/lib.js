@@ -341,6 +341,7 @@ Component.entryPoint = function(NS){
             'tp': 0,
             'sz': '',
             'gid': 0,
+            'crcid': 0,
             'ord': 0
         }, d || {});
         ElementOption.superclass.constructor.call(this, d);
@@ -353,6 +354,7 @@ Component.entryPoint = function(NS){
             this.typeid = d['tpid'] | 0;
             this.type = d['tp'] | 0;
             this.size = d['sz'];
+            this.currencyid = d['crcid'] | 0;
             this.groupid = d['gid'] | 0;
             this.order = d['ord'] | 0;
         }

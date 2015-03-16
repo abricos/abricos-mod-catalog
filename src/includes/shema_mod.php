@@ -13,7 +13,7 @@ $db = Abricos::$db;
 $modPrefix = $updateManager->module->catinfo['dbprefix']."_";
 $pfx = Abricos::$db->prefix."ctg_".$modPrefix;
 
-if ($updateManager->isInstall()) {
+if ($updateManager->isInstall()){
 
     // Каталог
     $db->query_write("
@@ -135,6 +135,7 @@ if ($updateManager->isInstall()) {
 			`eloptgroupid` int(5) UNSIGNED NOT NULL default '0' COMMENT 'Группа',
 			`fieldtype` int(1) UNSIGNED NOT NULL default '0' COMMENT 'Тип поля',
 			`fieldsize` varchar(50) NOT NULL default '' COMMENT 'Размер поля',
+			`currencyid` int(5) UNSIGNED NOT NULL default '0' COMMENT 'Идентификатор валюты для денежного типа',
 			`param` text NOT NULL COMMENT 'Параметры опции',
 			`name` varchar(50) NOT NULL default 'имя поля',
 			`title` varchar(250) NOT NULL default '',
@@ -167,13 +168,13 @@ if ($updateManager->isInstall()) {
 
 }
 
-if ($updateManager->isUpdate('0.2.2')) {
+if ($updateManager->isUpdate('0.2.2')){
     $db->query_write("
 		ALTER TABLE `".$pfx."catalog` 
 		ADD `imageid`  varchar(8) NOT NULL DEFAULT '' COMMENT 'Картника'");
 }
 
-if ($updateManager->isUpdate('0.2.5.1') && !$updateManager->isInstall()) {
+if ($updateManager->isUpdate('0.2.5.1') && !$updateManager->isInstall()){
 
     $db->query_write("
 		ALTER TABLE `".$pfx."element` 
@@ -199,16 +200,16 @@ if ($updateManager->isUpdate('0.2.5.1') && !$updateManager->isInstall()) {
 
 }
 
-if ($updateManager->isUpdate('0.2.5.2') && !$updateManager->isInstall()) {
+if ($updateManager->isUpdate('0.2.5.2') && !$updateManager->isInstall()){
     $db->query_write("
 		ALTER TABLE `".$pfx."eloption`
 		ADD `fieldsize` varchar(50) NOT NULL default '' COMMENT 'Размер поля'
 	");
 }
-if ($updateManager->isUpdate('0.2.5.2')) {
+if ($updateManager->isUpdate('0.2.5.2')){
     $rows = $db->query_read("SELECT * FROM `".$pfx."eloption`");
 
-    while (($row = $db->fetch_array($rows))) {
+    while (($row = $db->fetch_array($rows))){
         $d = json_decode($row['param']);
         $db->query_write("
 			UPDATE `".$pfx."eloption`
@@ -218,7 +219,7 @@ if ($updateManager->isUpdate('0.2.5.2')) {
     }
 }
 
-if ($updateManager->isUpdate('0.2.5.3') && !$updateManager->isInstall()) {
+if ($updateManager->isUpdate('0.2.5.3') && !$updateManager->isInstall()){
 
     // группирование опций элемента
     $db->query_write("
@@ -229,7 +230,7 @@ if ($updateManager->isUpdate('0.2.5.3') && !$updateManager->isInstall()) {
 
 }
 
-if ($updateManager->isUpdate('0.2.6') && !$updateManager->isInstall()) {
+if ($updateManager->isUpdate('0.2.6') && !$updateManager->isInstall()){
     $db->query_write("
 		ALTER TABLE `".$pfx."catalog`
 		ADD `language` CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
@@ -293,7 +294,7 @@ if ($updateManager->isUpdate('0.2.6') && !$updateManager->isInstall()) {
     $db->query_write("DROP TABLE IF EXISTS `".$pfx."session`");
 }
 
-if ($updateManager->isUpdate('0.2.6')) {
+if ($updateManager->isUpdate('0.2.6')){
 
     // Список идентификаторов на другие элементы
     $db->query_write("
@@ -339,7 +340,7 @@ if ($updateManager->isUpdate('0.2.6')) {
 
 }
 
-if ($updateManager->isUpdate('0.2.7.1') && !$updateManager->isInstall()) {
+if ($updateManager->isUpdate('0.2.7.1') && !$updateManager->isInstall()){
     $db->query_write("
 		ALTER TABLE `".$pfx."eltype`
 		ADD `titlelist` VARCHAR(250) NOT NULL default '' COMMENT 'Название списка'
@@ -347,7 +348,7 @@ if ($updateManager->isUpdate('0.2.7.1') && !$updateManager->isInstall()) {
     $db->query_write("UPDATE `".$pfx."eltype` SET titlelist=title ");
 }
 
-if ($updateManager->isUpdate('0.2.9') && !$updateManager->isInstall()) {
+if ($updateManager->isUpdate('0.2.9') && !$updateManager->isInstall()){
     $db->query_write("
 		ALTER TABLE `".$pfx."catalog`
 		ADD `menudisable` tinyint(1) UNSIGNED NOT NULL default 0 COMMENT '1-отключено из меню',
@@ -355,7 +356,7 @@ if ($updateManager->isUpdate('0.2.9') && !$updateManager->isInstall()) {
 	");
 }
 
-if ($updateManager->isUpdate('0.3.0')) {
+if ($updateManager->isUpdate('0.3.0')){
 
     // Список идентификаторов на другие элементы
     $db->query_write("
@@ -369,7 +370,7 @@ if ($updateManager->isUpdate('0.3.0')) {
 			codestr varchar(3) NOT NULL DEFAULT '' COMMENT 'Код',
 			codenum int(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Цифровой код',
 
-			rateval double(10,6) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Текущий курс',
+			rateval double(10,6) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Текущий курс',
 			ratedate int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата курса',
 
 			prefix varchar(20) NOT NULL DEFAULT '' COMMENT 'Префикс',
@@ -394,14 +395,19 @@ if ($updateManager->isUpdate('0.3.0')) {
         "title" => "Российский рубль",
         "codestr" => "RUR",
         "codenum" => 810,
-        "rateval" => 0,
-        "ratedate" => 0,
+        "rateval" => 1,
+        "ratedate" => TIMENOW,
         "prefix" => "",
         "postfix" => "руб.",
         "ord" => 0,
     ));
+}
 
-
+if ($updateManager->isUpdate('0.3.1') && !$updateManager->isInstall()){
+    $db->query_write("
+		ALTER TABLE ".$pfx."eloption
+		ADD currencyid int(5) UNSIGNED NOT NULL default '0' COMMENT 'Идентификатор валюты для денежного типа'
+	");
 }
 
 ?>

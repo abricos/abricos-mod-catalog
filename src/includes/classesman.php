@@ -66,7 +66,7 @@ class CatalogModuleManager {
      */
     public $cfgVersionControl = false;
 
-    public function __construct($dbPrefix) {
+    public function __construct($dbPrefix){
         $this->db = Abricos::$db;
         $this->pfx = $this->db->prefix."ctg_".$dbPrefix."_";
         $this->userid = Abricos::$user->id;
@@ -77,7 +77,7 @@ class CatalogModuleManager {
      *
      * Полный доступ
      */
-    public function IsAdminRole() {
+    public function IsAdminRole(){
         return false;
     }
 
@@ -91,7 +91,7 @@ class CatalogModuleManager {
      * Не может:
      * редактировать опции элемента
      */
-    public function IsModeratorRole() {
+    public function IsModeratorRole(){
         return false;
     }
 
@@ -101,15 +101,15 @@ class CatalogModuleManager {
      * Может создавать элементы каталога, но они должны
      * пройти подверждение модератором
      */
-    public function IsOperatorRole() {
+    public function IsOperatorRole(){
         return false;
     }
 
     /**
      * Пользователь имеет только роль оператора
      */
-    public function IsOperatorOnlyRole() {
-        if (!$this->IsOperatorRole()) {
+    public function IsOperatorOnlyRole(){
+        if (!$this->IsOperatorRole()){
             return false;
         }
 
@@ -119,7 +119,7 @@ class CatalogModuleManager {
     /**
      * Роль авторизованного пользователя
      */
-    public function IsWriteRole() {
+    public function IsWriteRole(){
         return false;
     }
 
@@ -128,15 +128,15 @@ class CatalogModuleManager {
      *
      * @return boolean
      */
-    public function IsViewRole() {
+    public function IsViewRole(){
         return false;
     }
 
 
-    public function AJAX($d) {
+    public function AJAX($d){
         // TODO: идея объеденять запросы в один
         // например $d->do = "cataloglist|elementtypelist"
-        switch ($d->do) {
+        switch ($d->do){
             case "cataloginitdata":
                 return $this->CatalogInitDataToAJAX();
             case "cataloglist":
@@ -185,46 +185,46 @@ class CatalogModuleManager {
         return null;
     }
 
-    public function ToArray($rows, &$ids1 = "", $fnids1 = 'uid', &$ids2 = "", $fnids2 = '', &$ids3 = "", $fnids3 = '') {
+    public function ToArray($rows, &$ids1 = "", $fnids1 = 'uid', &$ids2 = "", $fnids2 = '', &$ids3 = "", $fnids3 = ''){
         $ret = array();
-        while (($row = $this->db->fetch_array($rows))) {
+        while (($row = $this->db->fetch_array($rows))){
             $ret[] = $row;
-            if (is_array($ids1)) {
+            if (is_array($ids1)){
                 $ids1[$row[$fnids1]] = $row[$fnids1];
             }
-            if (is_array($ids2)) {
+            if (is_array($ids2)){
                 $ids2[$row[$fnids2]] = $row[$fnids2];
             }
-            if (is_array($ids3)) {
+            if (is_array($ids3)){
                 $ids3[$row[$fnids3]] = $row[$fnids3];
             }
         }
         return $ret;
     }
 
-    public function ToArrayId($rows, $field = "id") {
+    public function ToArrayId($rows, $field = "id"){
         $ret = array();
-        while (($row = $this->db->fetch_array($rows))) {
+        while (($row = $this->db->fetch_array($rows))){
             $ret[$row[$field]] = $row;
         }
         return $ret;
     }
 
-    public function ParamToObject($o) {
-        if (is_array($o)) {
+    public function ParamToObject($o){
+        if (is_array($o)){
             $ret = new stdClass();
-            foreach ($o as $key => $value) {
+            foreach ($o as $key => $value){
                 $ret->$key = $value;
             }
             return $ret;
-        } else if (!is_object($o)) {
+        } else if (!is_object($o)){
             return new stdClass();
         }
         return $o;
     }
 
-    public function CatalogInitDataToAJAX() {
-        if (!$this->IsViewRole()) {
+    public function CatalogInitDataToAJAX(){
+        if (!$this->IsViewRole()){
             return false;
         }
 
@@ -253,26 +253,26 @@ class CatalogModuleManager {
      * @param boolean $clearCache
      * @return CatalogList
      */
-    public function CatalogList($clearCache = false) {
-        if (!$this->IsViewRole()) {
+    public function CatalogList($clearCache = false){
+        if (!$this->IsViewRole()){
             return false;
         }
 
-        if ($clearCache) {
+        if ($clearCache){
             $this->_cacheCatalogList = null;
         }
 
-        if (!empty($this->_cacheCatalogList)) {
+        if (!empty($this->_cacheCatalogList)){
             return $this->_cacheCatalogList;
         }
 
         $list = array();
         $rows = CatalogDbQuery::CatalogList($this->db, $this->pfx);
-        while (($d = $this->db->fetch_array($rows))) {
+        while (($d = $this->db->fetch_array($rows))){
             $list[] = new $this->CatalogClass($d);
         }
 
-        if (count($list) == 0) {
+        if (count($list) == 0){
             $list[] = new $this->CatalogClass(array(
                 "id" => 0,
                 "pid" => -1,
@@ -283,16 +283,16 @@ class CatalogModuleManager {
 
         $catList = new CatalogList(null);
         $count = count($list);
-        for ($i = 0; $i < $count; $i++) {
+        for ($i = 0; $i < $count; $i++){
             $cat = $list[$i];
 
-            if ($cat->id == 0) {
+            if ($cat->id == 0){
                 $catList->Add($cat);
             } else {
-                for ($ii = 0; $ii < $count; $ii++) {
+                for ($ii = 0; $ii < $count; $ii++){
                     $pcat = $list[$ii];
 
-                    if ($pcat->id == $cat->parentid) {
+                    if ($pcat->id == $cat->parentid){
                         $pcat->childs->Add($cat);
                         break;
                     }
@@ -303,8 +303,8 @@ class CatalogModuleManager {
         return $catList;
     }
 
-    private function CatalogListLineFill(CatalogList $catListLine, CatalogList $catList) {
-        for ($i = 0; $i < $catList->Count(); $i++) {
+    private function CatalogListLineFill(CatalogList $catListLine, CatalogList $catList){
+        for ($i = 0; $i < $catList->Count(); $i++){
             $cat = $catList->GetByIndex($i);
             $catListLine->Add($cat, true);
             $this->CatalogListLineFill($catListLine, $cat->childs);
@@ -318,11 +318,11 @@ class CatalogModuleManager {
      *
      * @return CatalogList
      */
-    public function CatalogListLine($clearCache = false) {
-        if ($clearCache) {
+    public function CatalogListLine($clearCache = false){
+        if ($clearCache){
             $this->_cacheCatalogListLine = null;
         }
-        if (!empty($this->_cacheCatalogListLine)) {
+        if (!empty($this->_cacheCatalogListLine)){
             return $this->_cacheCatalogListLine;
         }
         $catListLine = new CatalogList(null);
@@ -342,25 +342,25 @@ class CatalogModuleManager {
      * @param mixed $catids
      * @return CatalogList
      */
-    public function CatalogListByIds($catids) {
-        if (is_string($catids)) {
+    public function CatalogListByIds($catids){
+        if (is_string($catids)){
             $catids = explode(",", $catids);
         }
         $retCatList = new CatalogList(null);
         $catList = $this->CatalogList();
-        for ($i = 0; $i < count($catids); $i++) {
+        for ($i = 0; $i < count($catids); $i++){
             $cat = $catList->Find($catids[$i]);
-            if (!empty($cat)) {
+            if (!empty($cat)){
                 $retCatList->Add($cat, true);
             }
         }
         return $retCatList;
     }
 
-    public function CatalogListToAJAX() {
+    public function CatalogListToAJAX(){
         $list = $this->CatalogList();
 
-        if (empty($list)) {
+        if (empty($list)){
             return null;
         }
 
@@ -375,8 +375,8 @@ class CatalogModuleManager {
      * @param integer $catid
      * @return Catalog
      */
-    public function Catalog($catid, $clearCache = false) {
-        if (!$this->IsViewRole()) {
+    public function Catalog($catid, $clearCache = false){
+        if (!$this->IsViewRole()){
             return null;
         }
 
@@ -388,7 +388,7 @@ class CatalogModuleManager {
         }
 
         $d = CatalogDbQuery::Catalog($this->db, $this->pfx, $catid);
-        if (empty($d)) {
+        if (empty($d)){
             return null;
         }
 
@@ -402,25 +402,25 @@ class CatalogModuleManager {
         return $cat;
     }
 
-    public function CatalogToAJAX($catid, $isElementList = false) {
+    public function CatalogToAJAX($catid, $isElementList = false){
         $cat = $this->Catalog($catid);
 
-        if (empty($cat)) {
+        if (empty($cat)){
             return null;
         }
 
         $ret = new stdClass();
         $ret->catalog = $cat->ToAJAX($this);
 
-        if ($isElementList) {
+        if ($isElementList){
             $retEls = $this->ElementListToAJAX($catid);
             $ret->elements = $retEls->elements;
         }
         return $ret;
     }
 
-    public function CatalogSave($catid, $d) {
-        if (!$this->IsAdminRole()) {
+    public function CatalogSave($catid, $d){
+        if (!$this->IsAdminRole()){
             return null;
         }
 
@@ -443,10 +443,10 @@ class CatalogModuleManager {
         $d->mdsb = isset($d->mdsb) ? intval($d->mdsb) : 0;
         $d->ldsb = isset($d->ldsb) ? intval($d->ldsb) : 0;
 
-        if ($catid == 0) { // добавление нового
+        if ($catid == 0){ // добавление нового
 
             $catid = CatalogDbQuery::CatalogAppend($this->db, $this->pfx, $d);
-            if (empty($catid)) {
+            if (empty($catid)){
                 return null;
             }
 
@@ -460,25 +460,25 @@ class CatalogModuleManager {
         return $catid;
     }
 
-    public function CatalogSaveToAJAX($catid, $d) {
+    public function CatalogSaveToAJAX($catid, $d){
         $catid = $this->CatalogSave($catid, $d);
 
-        if (empty($catid)) {
+        if (empty($catid)){
             return null;
         }
 
         return $this->CatalogToAJAX($catid);
     }
 
-    public function CatalogRemove($catid) {
-        if (!$this->IsAdminRole()) {
+    public function CatalogRemove($catid){
+        if (!$this->IsAdminRole()){
             return null;
         }
 
         $cat = $this->Catalog($catid);
 
         $count = $cat->childs->Count();
-        for ($i = 0; $i < $count; $i++) {
+        for ($i = 0; $i < $count; $i++){
             $ccat = $cat->childs->GetByIndex($i);
 
             $this->CatalogRemove($ccat->id);
@@ -490,14 +490,14 @@ class CatalogModuleManager {
         return true;
     }
 
-    public function ElementList($param) {
-        if (!$this->IsViewRole()) {
+    public function ElementList($param){
+        if (!$this->IsViewRole()){
             return false;
         }
         // TODO: develop cache
         $cfg = null;
         $catid = 0;
-        if (is_object($param)) {
+        if (is_object($param)){
             $cfg = $param;
         } else {
             $cfg = new CatalogElementListConfig($param);
@@ -509,12 +509,12 @@ class CatalogModuleManager {
         $list->cfg = $cfg;
 
         $rows = CatalogDbQuery::ElementList($this->db, $this->pfx, $this->userid, $this->IsAdminRole(), $cfg);
-        while (($d = $this->db->fetch_array($rows))) {
+        while (($d = $this->db->fetch_array($rows))){
 
             $cnt = $cfg->extFields->Count();
-            if ($cnt > 0) {
+            if ($cnt > 0){
                 $d['ext'] = array();
-                for ($i = 0; $i < $cnt; $i++) {
+                for ($i = 0; $i < $cnt; $i++){
                     $opt = $cfg->extFields->GetByIndex($i);
                     $d['ext'][$opt->name] = $d['fld_'.$opt->name];
                 }
@@ -527,10 +527,10 @@ class CatalogModuleManager {
         return $list;
     }
 
-    public function ElementListToAJAX($param) {
+    public function ElementListToAJAX($param){
         $list = $this->ElementList($param);
 
-        if (empty($list)) {
+        if (empty($list)){
             return null;
         }
 
@@ -539,14 +539,14 @@ class CatalogModuleManager {
         return $ret;
     }
 
-    public function ElementListOrderSave($catid, $orders) {
-        if (!$this->IsAdminRole()) {
+    public function ElementListOrderSave($catid, $orders){
+        if (!$this->IsAdminRole()){
             return null;
         }
 
         $list = $this->ElementList($catid);
 
-        for ($i = 0; $i < $list->Count(); $i++) {
+        for ($i = 0; $i < $list->Count(); $i++){
             $el = $list->GetByIndex($i);
             $elid = $el->id;
             $order = $orders->$elid;
@@ -562,23 +562,23 @@ class CatalogModuleManager {
      *
      * @param CatalogElement $element
      */
-    public function ElementDetailFill($element, $dbEl) {
+    public function ElementDetailFill($element, $dbEl){
         $elTypeList = $this->ElementTypeList();
 
         $tpBase = $elTypeList->Get(0);
         $dbOptionsBase = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $element->id, $tpBase);
 
         $dbOptionsPers = array();
-        if ($element->elTypeId > 0) {
+        if ($element->elTypeId > 0){
             $tpPers = $elTypeList->Get($element->elTypeId);
-            if (!empty($tpPers)) {
+            if (!empty($tpPers)){
                 $dbOptionsPers = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $element->id, $tpPers);
             }
         }
 
         $fotos = array();
         $fotoList = $this->ElementFotoList($element);
-        for ($i = 0; $i < $fotoList->Count(); $i++) {
+        for ($i = 0; $i < $fotoList->Count(); $i++){
             $foto = $fotoList->GetByIndex($i);
             $fotos[] = $foto->filehash;
         }
@@ -596,25 +596,25 @@ class CatalogModuleManager {
      * @param CatalogElementList|CataloElement $data
      * @return CatalogFotoList
      */
-    public function ElementFotoList($data) {
-        if (!$this->IsViewRole()) {
+    public function ElementFotoList($data){
+        if (!$this->IsViewRole()){
             return null;
         }
 
         $elids = array();
-        if ($data instanceof CatalogElementList) {
-            for ($i = 0; $i < $data->Count(); $i++) {
+        if ($data instanceof CatalogElementList){
+            for ($i = 0; $i < $data->Count(); $i++){
                 $el = $data->GetByIndex($i);
                 $elids[] = $el->id;
             }
-        } else if ($data instanceof CatalogElement) {
+        } else if ($data instanceof CatalogElement){
             $elids[] = $data->id;
         }
 
         $fotoList = new CatalogFotoList();
 
         $rows = CatalogDbQuery::ElementFotoList($this->db, $this->pfx, $elids);
-        while (($d = $this->db->fetch_array($rows))) {
+        while (($d = $this->db->fetch_array($rows))){
             $fotoList->Add(new CatalogFoto($d));
         }
         return $fotoList;
@@ -626,20 +626,20 @@ class CatalogModuleManager {
      * @param string $name имя элемента
      * @return CatalogElement
      */
-    public function ElementByName($name, $clearCache = false) {
-        if (!$this->IsViewRole()) {
+    public function ElementByName($name, $clearCache = false){
+        if (!$this->IsViewRole()){
             return null;
         }
 
-        if ($clearCache || !is_array($this->_cacheElementByName)) {
+        if ($clearCache || !is_array($this->_cacheElementByName)){
             $this->_cacheElementByName = array();
         }
-        if (!empty($this->_cacheElementByName[$name])) {
+        if (!empty($this->_cacheElementByName[$name])){
             return $this->_cacheElementByName[$name];
         }
 
         $dbEl = CatalogDbQuery::ElementByName($this->db, $this->pfx, $this->userid, $this->IsAdminRole(), $name);
-        if (empty($dbEl)) {
+        if (empty($dbEl)){
             return null;
         }
 
@@ -659,8 +659,8 @@ class CatalogModuleManager {
      * @param string $sExtOptions дополнительные опции элементов базового типа
      * @return CatalogElementChangeLog
      */
-    public function ElementChangeLogListByName($name, $sExtOptions) {
-        if (!$this->IsViewRole()) {
+    public function ElementChangeLogListByName($name, $sExtOptions){
+        if (!$this->IsViewRole()){
             return null;
         }
 
@@ -668,9 +668,9 @@ class CatalogModuleManager {
         $elTypeBase = $elTypeList->Get(0);
         $optionList = new CatalogElementOptionList();
         $aExtOptions = explode(",", $sExtOptions);
-        foreach ($aExtOptions as $optName) {
+        foreach ($aExtOptions as $optName){
             $option = $elTypeBase->options->GetByName($optName);
-            if (empty($option)) {
+            if (empty($option)){
                 continue;
             }
             $optionList->Add($option);
@@ -678,10 +678,10 @@ class CatalogModuleManager {
 
         $list = new CatalogElementChangeLogList();
         $rows = CatalogDbQuery::ElementChangeLogListByName($this->db, $this->pfx, $name, $optionList);
-        while (($d = $this->db->fetch_array($rows))) {
+        while (($d = $this->db->fetch_array($rows))){
             $chLog = new CatalogElementChangeLog($d);
 
-            for ($i = 0; $i < $optionList->Count(); $i++) {
+            for ($i = 0; $i < $optionList->Count(); $i++){
                 $option = $optionList->GetByIndex($i);
                 $chLog->ext[$option->name] = $d['fld_'.$option->name];
             }
@@ -696,8 +696,8 @@ class CatalogModuleManager {
      *
      * @param string $sExtOptions дополнительные опции элементов базового типа
      */
-    public function ElementChangeLogList($sExtOptions) {
-        if (!$this->IsViewRole()) {
+    public function ElementChangeLogList($sExtOptions){
+        if (!$this->IsViewRole()){
             return null;
         }
 
@@ -705,9 +705,9 @@ class CatalogModuleManager {
         $elTypeBase = $elTypeList->Get(0);
         $optionList = new CatalogElementOptionList();
         $aExtOptions = explode(",", $sExtOptions);
-        foreach ($aExtOptions as $optName) {
+        foreach ($aExtOptions as $optName){
             $option = $elTypeBase->options->GetByName($optName);
-            if (empty($option)) {
+            if (empty($option)){
                 continue;
             }
             $optionList->Add($option);
@@ -715,10 +715,10 @@ class CatalogModuleManager {
 
         $list = new CatalogElementChangeLogList();
         $rows = CatalogDbQuery::ElementChangeLogList($this->db, $this->pfx, $optionList);
-        while (($d = $this->db->fetch_array($rows))) {
+        while (($d = $this->db->fetch_array($rows))){
             $chLog = new CatalogElementChangeLog($d);
 
-            for ($i = 0; $i < $optionList->Count(); $i++) {
+            for ($i = 0; $i < $optionList->Count(); $i++){
                 $option = $optionList->GetByIndex($i);
                 $chLog->ext[$option->name] = $d['fld_'.$option->name];
             }
@@ -736,20 +736,20 @@ class CatalogModuleManager {
      * @param integer $elid идентифиатор элемента
      * @return CatalogElement
      */
-    public function Element($elid, $clearCache = false) {
-        if (!$this->IsViewRole()) {
+    public function Element($elid, $clearCache = false){
+        if (!$this->IsViewRole()){
             return null;
         }
 
-        if ($clearCache || !is_array($this->_cacheElementById)) {
+        if ($clearCache || !is_array($this->_cacheElementById)){
             $this->_cacheElementById = array();
         }
-        if (!empty($this->_cacheElementById[$elid])) {
+        if (!empty($this->_cacheElementById[$elid])){
             return $this->_cacheElementById[$elid];
         }
 
         $dbEl = CatalogDbQuery::Element($this->db, $this->pfx, $elid);
-        if (empty($dbEl)) {
+        if (empty($dbEl)){
             return null;
         }
 
@@ -762,9 +762,9 @@ class CatalogModuleManager {
         return $element;
     }
 
-    public function ElementToAJAX($elid, $clearCache = false) {
+    public function ElementToAJAX($elid, $clearCache = false){
         $element = $this->Element($elid, $clearCache);
-        if (empty($element)) {
+        if (empty($element)){
             return null;
         }
 
@@ -774,9 +774,9 @@ class CatalogModuleManager {
         return $ret;
     }
 
-    public function ElementIdByNameToAJAX($elname) {
+    public function ElementIdByNameToAJAX($elname){
         $element = $this->ElementByName($elname);
-        if (empty($element)) {
+        if (empty($element)){
             return null;
         }
 
@@ -810,8 +810,8 @@ class CatalogModuleManager {
      * @param integer $elid идентификатор элемента
      * @param array|object $d
      */
-    public function ElementSave($elid, $d) {
-        if (!$this->IsOperatorRole()) {
+    public function ElementSave($elid, $d){
+        if (!$this->IsOperatorRole()){
             return null;
         }
 
@@ -825,7 +825,7 @@ class CatalogModuleManager {
         $d->tpid = isset($d->tpid) ? intval($d->tpid) : 0;
         $d->tl = isset($d->tl) ? $utmf->Parser($d->tl) : "";
 
-        if (!$this->cfgElementNameChange || empty($d->nm)) {
+        if (!$this->cfgElementNameChange || empty($d->nm)){
             $d->nm = translateruen($d->tl);
         } else {
             $d->nm = translateruen($d->nm);
@@ -854,27 +854,27 @@ class CatalogModuleManager {
         /**/
         $elTypeList = $this->ElementTypeList();
         $elType = $elTypeList->Get($d->tpid);
-        if (empty($elType)) {
+        if (empty($elType)){
             return null;
         }
 
-        if ($elid == 0 && $d->tpid == 0 && $this->cfgElementCreateBaseTypeDisable) {
+        if ($elid == 0 && $d->tpid == 0 && $this->cfgElementCreateBaseTypeDisable){
             // создание базовых элементов отключено
             return null;
         }
 
         $isNewElementByOperator = false;
 
-        if ($elid == 0) { // добавление нового элемента
+        if ($elid == 0){ // добавление нового элемента
 
             $d->v = 1;
             $d->pelid = 0;
 
-            if ($this->cfgVersionControl) { // проверка существующей версии
+            if ($this->cfgVersionControl){ // проверка существующей версии
                 $curEl = $this->ElementByName($d->nm); // элемент текущей версии
-                if (!empty($curEl)) {
+                if (!empty($curEl)){
 
-                    if ($this->IsOperatorOnlyRole() && ($curEl->userid != $this->userid || $curEl->isModer)) {
+                    if ($this->IsOperatorOnlyRole() && ($curEl->userid != $this->userid || $curEl->isModer)){
                         // оператору можно добавлять новые версии только своим элементам
                         // и если эти элементы уже прошли проверку модератором
                         return null;
@@ -883,7 +883,7 @@ class CatalogModuleManager {
                     $d->pelid = $curEl->id; // новому элементу ссылку на старый
                     $d->v = $curEl->detail->version + 1; // увеличить номер версии нового элемента
 
-                    if ($this->IsAdminRole()) { // Оператор может добавить только на модерацию
+                    if ($this->IsAdminRole()){ // Оператор может добавить только на модерацию
                         // текущую версию переместить в архив
                         CatalogDbQuery::ElementToArhive($this->db, $this->pfx, $curEl->id);
                     }
@@ -891,27 +891,27 @@ class CatalogModuleManager {
             }
 
             $elid = CatalogDbQuery::ElementAppend($this->db, $this->pfx, $this->userid, $this->IsOperatorOnlyRole(), $d);
-            if (empty($elid)) {
+            if (empty($elid)){
                 return null;
             }
 
-            if ($this->IsOperatorOnlyRole()) {
+            if ($this->IsOperatorOnlyRole()){
                 $isNewElementByOperator = true;
             }
 
         } else { // сохранение текущего элемента
 
             $el = $this->Element($elid);
-            if (empty($el)) {
+            if (empty($el)){
                 return null;
             }
 
-            if ($this->IsOperatorOnlyRole() && ($el->userid != $this->userid || !$el->isModer)) {
+            if ($this->IsOperatorOnlyRole() && ($el->userid != $this->userid || !$el->isModer)){
                 // оператору не принадлежит этот элемент или элемент уже прошел модерацию
                 return null;
             }
 
-            if ($this->cfgElementNameUnique) {
+            if ($this->cfgElementNameUnique){
                 // имя элемента уникальное, поэтому изменять его нельзя
                 $d->nm = $el->name;
             }
@@ -919,8 +919,8 @@ class CatalogModuleManager {
             CatalogDbQuery::ElementUpdate($this->db, $this->pfx, $elid, $d);
         }
 
-        if (!empty($d->values)) {
-            foreach ($d->values as $tpid => $opts) {
+        if (!empty($d->values)){
+            foreach ($d->values as $tpid => $opts){
                 $elType = $elTypeList->Get($tpid);
                 CatalogDbQuery::ElementDetailUpdate($this->db, $this->pfx, $this->userid, $this->IsAdminRole(), $elid, $elType, $opts);
             }
@@ -932,7 +932,7 @@ class CatalogModuleManager {
         $this->OptionFileBufferClear();
         $this->FotoBufferClear();
 
-        if ($isNewElementByOperator) {
+        if ($isNewElementByOperator){
             $this->OnElementAppendByOperator($elid);
         }
 
@@ -944,31 +944,31 @@ class CatalogModuleManager {
      *
      * @param integer $elementid
      */
-    protected function OnElementAppendByOperator($elementid) {
+    protected function OnElementAppendByOperator($elementid){
     }
 
-    public function ElementSaveToAJAX($elid, $d) {
+    public function ElementSaveToAJAX($elid, $d){
         $elid = $this->ElementSave($elid, $d);
 
-        if (empty($elid)) {
+        if (empty($elid)){
             return null;
         }
 
         return $this->ElementToAJAX($elid, true);
     }
 
-    public function ElementModer($elid) {
-        if (!$this->IsAdminRole()) {
+    public function ElementModer($elid){
+        if (!$this->IsAdminRole()){
             return null;
         }
 
         $el = $this->Element($elid);
 
-        if (empty($el) || !$el->isModer) {
+        if (empty($el) || !$el->isModer){
             return null;
         }
 
-        if ($this->cfgVersionControl) {
+        if ($this->cfgVersionControl){
             CatalogDbQuery::ElementToArhive($this->db, $this->pfx, $el->detail->pElementId);
             CatalogDbQuery::ElementModer($this->db, $this->pfx, $elid);
         }
@@ -983,29 +983,29 @@ class CatalogModuleManager {
      *
      * @param integer $elementid
      */
-    protected function OnElementModer($elementid) {
+    protected function OnElementModer($elementid){
     }
 
-    public function ElementModerToAJAX($elid) {
+    public function ElementModerToAJAX($elid){
         $elid = $this->ElementModer($elid);
 
-        if (empty($elid)) {
+        if (empty($elid)){
             return null;
         }
 
         return $this->ElementToAJAX($elid, true);
     }
 
-    public function ElementRemove($elid) {
-        if (!$this->IsOperatorRole()) {
+    public function ElementRemove($elid){
+        if (!$this->IsOperatorRole()){
             return null;
         }
 
         $el = $this->Element($elid);
 
-        if ($this->IsOperatorOnlyRole()) {
+        if ($this->IsOperatorOnlyRole()){
 
-            if ($el->userid != $this->userid || !$el->isModer) {
+            if ($el->userid != $this->userid || !$el->isModer){
                 // оператор может удалять только свои записи
                 // не прошедшии модерацию
                 return null;
@@ -1017,19 +1017,19 @@ class CatalogModuleManager {
         return true;
     }
 
-    private function TableCheck($tname) {
+    private function TableCheck($tname){
         $rows = CatalogDbQuery::TableList($this->db);
 
-        while (($row = $this->db->fetch_array($rows, Ab_Database::DBARRAY_NUM))) {
-            if ($row[0] == $tname) {
+        while (($row = $this->db->fetch_array($rows, Ab_Database::DBARRAY_NUM))){
+            if ($row[0] == $tname){
                 return true;
             }
         }
         return false;
     }
 
-    public function ElementTypeTableName($name) {
-        if (empty($name)) {
+    public function ElementTypeTableName($name){
+        if (empty($name)){
             return $this->pfx."element";
         }
         return $this->pfx."eltbl_".$name;
@@ -1049,8 +1049,8 @@ class CatalogModuleManager {
      * @param integer $elTypeId
      * @param array|object $d данные типа элемента
      */
-    public function ElementTypeSave($elTypeId, $d) {
-        if (!$this->IsAdminRole()) {
+    public function ElementTypeSave($elTypeId, $d){
+        if (!$this->IsAdminRole()){
             return null;
         }
 
@@ -1063,7 +1063,7 @@ class CatalogModuleManager {
 
         $eltTypeId = intval($elTypeId);
         $d->tl = $utmf->Parser($d->tl);
-        if (empty($d->tls)) {
+        if (empty($d->tls)){
             $d->tls = $d->tl;
         }
         $d->tls = $utmf->Parser($d->tls);
@@ -1072,7 +1072,7 @@ class CatalogModuleManager {
 
         $tableName = $this->ElementTypeTableName($d->nm);
 
-        if (empty($d->tl) || empty($d->nm)) {
+        if (empty($d->tl) || empty($d->nm)){
             return null;
         }
 
@@ -1080,12 +1080,12 @@ class CatalogModuleManager {
 
         $checkElType = $typeList->GetByName($d->nm);
 
-        if ($eltTypeId == 0) {
-            if (!empty($checkElType)) {
+        if ($eltTypeId == 0){
+            if (!empty($checkElType)){
                 return null;
             } // нельзя создать типы с одинаковыми именами
 
-            if ($this->TableCheck($tableName)) {
+            if ($this->TableCheck($tableName)){
                 return null; // уже есть такая таблица
             }
 
@@ -1094,12 +1094,12 @@ class CatalogModuleManager {
         } else {
 
             $checkElType = $typeList->GetByName($d->nm);
-            if (!$this->TableCheck($tableName)) {
+            if (!$this->TableCheck($tableName)){
                 return null; // такого быть не должно. hacker?
             }
 
-            if ($checkElType->name != $d->nm) { // попытка сменить имя таблицы
-                if ($this->TableCheck($tableName)) {
+            if ($checkElType->name != $d->nm){ // попытка сменить имя таблицы
+                if ($this->TableCheck($tableName)){
                     return null; // уже есть такая таблица
                 }
 
@@ -1113,7 +1113,7 @@ class CatalogModuleManager {
         return $elTypeId;
     }
 
-    public function ElementTypeSaveToAJAX($elTypeId, $d) {
+    public function ElementTypeSaveToAJAX($elTypeId, $d){
         $this->ElementTypeSave($elTypeId, $d);
 
         $this->_cacheElementTypeList = null;
@@ -1121,12 +1121,12 @@ class CatalogModuleManager {
         return $this->ElementTypeListToAJAX();
     }
 
-    public function ElementTypeRemove($elTypeId) {
-        if (!$this->IsAdminRole()) {
+    public function ElementTypeRemove($elTypeId){
+        if (!$this->IsAdminRole()){
             return null;
         }
 
-        if ($elTypeId == 0) {
+        if ($elTypeId == 0){
             return null;
         } // нельзя удалить базовый тип
 
@@ -1134,7 +1134,7 @@ class CatalogModuleManager {
         $elType = $typeList->Get($elTypeId);
 
         $cnt = $elType->options->Count();
-        for ($i = 0; $i < $cnt; $i++) {
+        for ($i = 0; $i < $cnt; $i++){
             $option = $elType->options->GetByIndex($i);
             $this->ElementOptionRemove($elTypeId, $option->id);
         }
@@ -1145,7 +1145,7 @@ class CatalogModuleManager {
         CatalogDbQuery::ElementTypeRemove($this->db, $this->pfx, $elTypeId);
     }
 
-    public function ElementTypeRemoveToAJAX($elTypeId) {
+    public function ElementTypeRemoveToAJAX($elTypeId){
         $this->ElementTypeRemove($elTypeId);
         return $this->ElementTypeListToAJAX(true);
     }
@@ -1155,16 +1155,16 @@ class CatalogModuleManager {
     /**
      * @return CatalogElementTypeList
      */
-    public function ElementTypeList($clearCache = false) {
-        if (!$this->IsViewRole()) {
+    public function ElementTypeList($clearCache = false){
+        if (!$this->IsViewRole()){
             return false;
         }
 
-        if ($clearCache) {
+        if ($clearCache){
             $this->_cacheElementTypeList = null;
         }
 
-        if (isset($this->_cacheElementTypeList)) {
+        if (isset($this->_cacheElementTypeList)){
             return $this->_cacheElementTypeList;
         }
 
@@ -1173,18 +1173,18 @@ class CatalogModuleManager {
         $list->Add($curType);
 
         $rows = CatalogDbQuery::ElementTypeList($this->db, $this->pfx);
-        while (($d = $this->db->fetch_array($rows))) {
+        while (($d = $this->db->fetch_array($rows))){
             $list->Add(new CatalogElementType($d));
         }
 
         $rows = CatalogDbQuery::ElementOptionList($this->db, $this->pfx);
-        while (($d = $this->db->fetch_array($rows))) {
+        while (($d = $this->db->fetch_array($rows))){
 
-            if (empty($curType) || $curType->id != $d['tpid']) {
+            if (empty($curType) || $curType->id != $d['tpid']){
                 $curType = $list->Get($d['tpid']);
             }
 
-            if ($d['tp'] == Catalog::TP_TABLE) {
+            if ($d['tp'] == Catalog::TP_TABLE){
 
                 $option = new CatalogElementOptionTable($d);
 
@@ -1194,7 +1194,7 @@ class CatalogModuleManager {
                 $option = new CatalogElementOption($d);
             }
 
-            if (empty($curType)) {
+            if (empty($curType)){
                 continue; // гипотетически такое невозможно
             }
             $curType->options->Add($option);
@@ -1205,10 +1205,10 @@ class CatalogModuleManager {
         return $list;
     }
 
-    public function ElementTypeListToAJAX($clearCache = false) {
+    public function ElementTypeListToAJAX($clearCache = false){
         $list = $this->ElementTypeList($clearCache);
 
-        if (empty($list)) {
+        if (empty($list)){
             return null;
         }
 
@@ -1223,32 +1223,32 @@ class CatalogModuleManager {
      * @param boolean $clearCache
      * @return CatalogElementOptionGroup
      */
-    public function ElementOptionGroupList($clearCache = false) {
-        if (!$this->IsViewRole()) {
+    public function ElementOptionGroupList($clearCache = false){
+        if (!$this->IsViewRole()){
             return false;
         }
 
-        if ($clearCache) {
+        if ($clearCache){
             $this->_cacheElementOptGroupList = null;
         }
 
-        if (!empty($this->_cacheElementOptGroupList)) {
+        if (!empty($this->_cacheElementOptGroupList)){
             return $this->_cacheElementOptGroupList;
         }
 
         $list = new CatalogElementOptionGroupList();
         $rows = CatalogDbQuery::ElementOptionGroupList($this->db, $this->pfx);
-        while (($d = $this->db->fetch_array($rows))) {
+        while (($d = $this->db->fetch_array($rows))){
             $list->Add(new CatalogElementOptionGroup($d));
         }
         $this->_cacheElementOptGroupList = $list;
         return $list;
     }
 
-    public function ElementOptionGroupListToAJAX($clearCache = false) {
+    public function ElementOptionGroupListToAJAX($clearCache = false){
         $list = $this->ElementOptionGroupList($clearCache);
 
-        if (empty($list)) {
+        if (empty($list)){
             return null;
         }
 
@@ -1264,8 +1264,8 @@ class CatalogModuleManager {
      *
      * @param string $fhash
      */
-    public function FotoAddToBuffer($fhash) {
-        if (!$this->IsAdminRole()) {
+    public function FotoAddToBuffer($fhash){
+        if (!$this->IsAdminRole()){
             return false;
         }
 
@@ -1277,9 +1277,9 @@ class CatalogModuleManager {
     /**
      * Удалить временные фото из буфера
      */
-    public function FotoBufferClear() {
+    public function FotoBufferClear(){
         $mod = Abricos::GetModule('filemanager');
-        if (empty($mod)) {
+        if (empty($mod)){
             return;
         }
         $mod->GetManager();
@@ -1287,7 +1287,7 @@ class CatalogModuleManager {
         $fm->RolesDisable();
 
         $rows = CatalogDbQuery::FotoFreeFromBufferList($this->db, $this->pfx);
-        while (($row = $this->db->fetch_array($rows))) {
+        while (($row = $this->db->fetch_array($rows))){
             $fm->FileRemove($row['fh']);
         }
         $fm->RolesEnable();
@@ -1300,27 +1300,27 @@ class CatalogModuleManager {
      *
      * @param integer $optionid
      */
-    public function OptionFileUploadCheck($optionid) {
-        if (!$this->IsAdminRole()) {
+    public function OptionFileUploadCheck($optionid){
+        if (!$this->IsAdminRole()){
             return false;
         }
 
         $elTypeList = $this->ElementTypeList();
         $option = $elTypeList->GetOptionById($optionid);
 
-        if (empty($option) || $option->type != Catalog::TP_FILES) {
+        if (empty($option) || $option->type != Catalog::TP_FILES){
             return null;
         }
 
         $aFTypes = array();
         $aOPrms = explode(";", $option->param);
-        for ($i = 0; $i < count($aOPrms); $i++) {
+        for ($i = 0; $i < count($aOPrms); $i++){
             $aExp = explode("=", $aOPrms[$i]);
-            switch (strtolower(trim($aExp[0]))) {
+            switch (strtolower(trim($aExp[0]))){
                 case 'ftypes':
 
                     $aft = explode(",", $aExp[1]);
-                    for ($ii = 0; $ii < count($aft); $ii++) {
+                    for ($ii = 0; $ii < count($aft); $ii++){
                         $af = explode(":", $aft[$ii]);
                         $aFTypes[$af[0]] = array(
                             'maxsize' => $af[1]
@@ -1344,8 +1344,8 @@ class CatalogModuleManager {
      * @param string $fhash идентификатор файла
      * @param string $fname имя файла
      */
-    public function OptionFileAddToBuffer($option, $fhash, $fname) {
-        if (!$this->IsAdminRole()) {
+    public function OptionFileAddToBuffer($option, $fhash, $fname){
+        if (!$this->IsAdminRole()){
             return false;
         }
 
@@ -1353,9 +1353,9 @@ class CatalogModuleManager {
         $this->OptionFileBufferClear();
     }
 
-    public function OptionFileBufferClear() {
+    public function OptionFileBufferClear(){
         $mod = Abricos::GetModule('filemanager');
-        if (empty($mod)) {
+        if (empty($mod)){
             return;
         }
         $mod->GetManager();
@@ -1363,7 +1363,7 @@ class CatalogModuleManager {
         $fm->RolesDisable();
 
         $rows = CatalogDbQuery::OptionFileFreeFromBufferList($this->db, $this->pfx);
-        while (($row = $this->db->fetch_array($rows))) {
+        while (($row = $this->db->fetch_array($rows))){
             $fm->FileRemove($row['fh']);
         }
         $fm->RolesEnable();
@@ -1371,8 +1371,8 @@ class CatalogModuleManager {
     }
 
 
-    private function ElementOptionDataFix($d) {
-        switch ($d->tp) {
+    private function ElementOptionDataFix($d){
+        switch ($d->tp){
             case Catalog::TP_BOOLEAN:
                 $d->sz = 1;
                 break;
@@ -1405,8 +1405,8 @@ class CatalogModuleManager {
      * @param integer $optionid идентификатор опции, если 0, то новая опция
      * @param mixed $d
      */
-    public function ElementOptionSave($optionid, $d) {
-        if (!$this->IsAdminRole()) {
+    public function ElementOptionSave($optionid, $d){
+        if (!$this->IsAdminRole()){
             return null;
         }
 
@@ -1419,6 +1419,7 @@ class CatalogModuleManager {
         $d->tp = isset($d->tp) ? intval($d->tp) : 0;
         $d->sz = isset($d->sz) ? $d->sz : '';
         $d->gid = isset($d->gid) ? $d->gid : 0;
+        $d->crcid = isset($d->crcid) ? $d->crcid : 0;
         $d->dsc = isset($d->dsc) ? $d->dsc : '';
         $d->prm = isset($d->prm) ? $d->prm : '';
         $d->ord = isset($d->ord) ? $d->ord : 0;
@@ -1431,14 +1432,14 @@ class CatalogModuleManager {
         $d->tp = intval($d->tp);
         $d->dsc = $utm->Parser($d->dsc);
 
-        if (empty($d->tl) || empty($d->nm)) {
+        if (empty($d->tl) || empty($d->nm)){
             return null;
         }
 
         $typeList = $this->ElementTypeList();
         $elType = $typeList->Get($elTypeId);
 
-        if (empty($elType)) {
+        if (empty($elType)){
             return null;
         }
 
@@ -1446,22 +1447,22 @@ class CatalogModuleManager {
 
         $tableName = $this->ElementTypeTableName($elType->name);
 
-        if ($optionid == 0) {
+        if ($optionid == 0){
             $checkOption = $elType->options->GetByName($d->nm);
-            if (!empty($checkOption)) { // такая опция уже есть
+            if (!empty($checkOption)){ // такая опция уже есть
                 return null; // нельзя добавить опции с одинаковым именем
             }
             $optionid = CatalogDbQuery::ElementOptionAppend($this->db, $this->pfx, $d);
             CatalogDbQuery::ElementOptionFieldCreate($this->db, $this->pfx, $elType, $tableName, $d);
         } else {
             $checkOption = $elType->options->Get($optionid);
-            if (empty($checkOption)) {
+            if (empty($checkOption)){
                 return null;
             }
 
-            if ($checkOption->name != $d->nm) { // попытка изменить имя
+            if ($checkOption->name != $d->nm){ // попытка изменить имя
                 $newCheckOption = $elType->options->GetByName($d->nm);
-                if (!empty($newCheckOption)) { // уже есть опция с таким именем
+                if (!empty($newCheckOption)){ // уже есть опция с таким именем
                     return;
                 }
                 CatalogDbQuery::ElementOptionFieldUpdate($this->db, $this->pfx, $elType, $tableName, $checkOption, $d);
@@ -1471,7 +1472,7 @@ class CatalogModuleManager {
             if ($checkOption->type != $d->tp &&
                 ($checkOption->type == Catalog::TP_CURRENCY || $checkOption->type == Catalog::TP_DOUBLE) &&
                 ($d->tp == Catalog::TP_CURRENCY || $d->tp == Catalog::TP_DOUBLE)
-            ) { // попытка изменить тип поля
+            ){ // попытка изменить тип поля
                 // пока можно менять DOUBLE <=> CURRENCY
                 CatalogDbQuery::ElementOptionTypeUpdate($this->db, $this->pfx, $optionid, $d);
             }
@@ -1479,30 +1480,30 @@ class CatalogModuleManager {
         return $optionid;
     }
 
-    public function ElementOptionSaveToAJAX($optionid, $d) {
+    public function ElementOptionSaveToAJAX($optionid, $d){
         $optionid = $this->ElementOptionSave($optionid, $d);
 
-        if (empty($optionid)) {
+        if (empty($optionid)){
             return null;
         }
 
         return $this->ElementTypeListToAJAX(true);
     }
 
-    public function ElementOptionRemove($elTypeId, $optionid) {
-        if (!$this->IsAdminRole()) {
+    public function ElementOptionRemove($elTypeId, $optionid){
+        if (!$this->IsAdminRole()){
             return null;
         }
 
         $typeList = $this->ElementTypeList();
         $elType = $typeList->Get($elTypeId);
 
-        if (empty($elType)) {
+        if (empty($elType)){
             return null;
         }
 
         $option = $elType->options->Get($optionid);
-        if (empty($option)) {
+        if (empty($option)){
             return null;
         }
 
@@ -1511,37 +1512,37 @@ class CatalogModuleManager {
         CatalogDbQuery::ElementOptionFieldRemove($this->db, $this->pfx, $elType, $option);
     }
 
-    public function ElementOptionRemoveToAJAX($elTypeId, $optionid) {
+    public function ElementOptionRemoveToAJAX($elTypeId, $optionid){
         $this->ElementOptionRemove($elTypeId, $optionid);
 
         return $this->ElementTypeListToAJAX(true);
     }
 
-    public function OptionTableValueSave($eltypeid, $optionid, $valueid, $value) {
-        if (!$this->IsAdminRole()) {
+    public function OptionTableValueSave($eltypeid, $optionid, $valueid, $value){
+        if (!$this->IsAdminRole()){
             return null;
         }
 
         $elTypeList = $this->ElementTypeList();
         $elType = $elTypeList->Get($eltypeid);
 
-        if (empty($elType)) {
+        if (empty($elType)){
             return null;
         }
 
         $option = $elType->options->Get($optionid);
-        if (empty($option)) {
+        if (empty($option)){
             return null;
         }
 
-        if ($option->type != Catalog::TP_TABLE) {
+        if ($option->type != Catalog::TP_TABLE){
             return null;
         }
 
         $utmf = Abricos::TextParser(true);
         $value = $utmf->Parser($value);
 
-        if ($valueid == 0) {
+        if ($valueid == 0){
             $valueid = CatalogDbQuery::OptionTableValueAppend($this->db, $this->pfx, $elType->name, $option->name, $value);
         } else {
             CatalogDbQuery::OptionTableValueUpdate($this->db, $this->pfx, $elType->name, $option->name, $valueid, $value);
@@ -1550,10 +1551,10 @@ class CatalogModuleManager {
         return $valueid;
     }
 
-    public function OptionTableValueSaveToAJAX($eltypeid, $optionid, $valueid, $value) {
+    public function OptionTableValueSaveToAJAX($eltypeid, $optionid, $valueid, $value){
         $valueid = $this->OptionTableValueSave($eltypeid, $optionid, $valueid, $value);
 
-        if (empty($valueid)) {
+        if (empty($valueid)){
             return null;
         }
 
@@ -1571,24 +1572,24 @@ class CatalogModuleManager {
         return $ret;
     }
 
-    public function OptionTableValueRemove($eltypeid, $optionid, $valueid) {
-        if (!$this->IsAdminRole()) {
+    public function OptionTableValueRemove($eltypeid, $optionid, $valueid){
+        if (!$this->IsAdminRole()){
             return null;
         }
 
         $elTypeList = $this->ElementTypeList();
         $elType = $elTypeList->Get($eltypeid);
 
-        if (empty($elType)) {
+        if (empty($elType)){
             return null;
         }
 
         $option = $elType->options->Get($optionid);
-        if (empty($option)) {
+        if (empty($option)){
             return null;
         }
 
-        if ($option->type != Catalog::TP_TABLE) {
+        if ($option->type != Catalog::TP_TABLE){
             return null;
         }
 
@@ -1603,15 +1604,15 @@ class CatalogModuleManager {
         return $ret;
     }
 
-    public function SearchOptionCheck($eFField = '', $eFValue = '') {
+    public function SearchOptionCheck($eFField = '', $eFValue = ''){
         $optValueId = 0;
 
-        if (empty($eFField) || empty($eFValue)) {
+        if (empty($eFField) || empty($eFValue)){
             return 0;
         }
         $elTypeBase = $this->ElementTypeList()->GetByIndex(0);
         $option = $elTypeBase->options->GetByName($eFField);
-        if (!empty($option) && $option->type == Catalog::TP_TABLE && !empty($option->values[$eFValue])) {
+        if (!empty($option) && $option->type == Catalog::TP_TABLE && !empty($option->values[$eFValue])){
             $optValueId = intval($eFValue);
         }
         return $optValueId;
@@ -1622,35 +1623,35 @@ class CatalogModuleManager {
      *
      * @param string $query
      */
-    public function SearchAutoComplete($query, $eFField = '', $eFValue = '') {
+    public function SearchAutoComplete($query, $eFField = '', $eFValue = ''){
         $ret = array();
 
-        if (!$this->IsViewRole()) {
+        if (!$this->IsViewRole()){
             return $ret;
         }
-        if (strlen($query) < 2) {
+        if (strlen($query) < 2){
             return $ret;
         }
 
         $eFValue = $this->SearchOptionCheck($eFField, $eFValue);
 
         $rows = CatalogDbQuery::SearchAutoComplete($this->db, $this->pfx, $query, $eFField, $eFValue);
-        while (($row = $this->db->fetch_array($rows))) {
+        while (($row = $this->db->fetch_array($rows))){
             $ret[] = $row['tl'];
         }
         return $ret;
     }
 
-    public function Search($query, $eFField = '', $eFValue = '') {
+    public function Search($query, $eFField = '', $eFValue = ''){
         $ret = array();
-        if (!$this->IsViewRole()) {
+        if (!$this->IsViewRole()){
             return $ret;
         }
 
         $eFValue = $this->SearchOptionCheck($eFField, $eFValue);
 
         $rows = CatalogDbQuery::Search($this->db, $this->pfx, $query, $eFField, $eFValue);
-        while (($row = $this->db->fetch_array($rows))) {
+        while (($row = $this->db->fetch_array($rows))){
             $ret[] = $row;
         }
         return $ret;
@@ -1662,29 +1663,29 @@ class CatalogModuleManager {
      * @param CatalogElementList|CataloElement $data
      * @return CatalogUserList
      */
-    public function UserList($data) {
+    public function UserList($data){
         $users = new CatalogUserList();
-        if (!$this->IsViewRole()) {
+        if (!$this->IsViewRole()){
             return $users;
         }
 
         $uids = array();
         $ucids = array();
-        if ($data instanceof CatalogElementList) {
-            for ($i = 0; $i < $data->Count(); $i++) {
+        if ($data instanceof CatalogElementList){
+            for ($i = 0; $i < $data->Count(); $i++){
                 $el = $data->GetByIndex($i);
-                if (isset($ucids[$el->userid]) && $ucids[$el->userid]) {
+                if (isset($ucids[$el->userid]) && $ucids[$el->userid]){
                     continue;
                 }
                 $ucids[$el->userid] = true;
                 $uids[] = $el->userid;
             }
-        } else if ($data instanceof CatalogElement) {
+        } else if ($data instanceof CatalogElement){
             $uids[] = $data->userid;
         }
 
         $rows = CatalogDbQuery::UserList($this->db, $uids);
-        while (($d = $this->db->fetch_array($rows))) {
+        while (($d = $this->db->fetch_array($rows))){
             $user = new CatalogUser($d);
             $users->Add($user);
         }
@@ -1697,7 +1698,7 @@ class CatalogModuleManager {
      * @param CatalogElement $element
      * @return CatalogElement
      */
-    public function UserByElement(CatalogElement $element) {
+    public function UserByElement(CatalogElement $element){
         $users = $this->UserList($element);
         return $users->GetByIndex(0);
     }
@@ -1712,29 +1713,29 @@ class CatalogModuleManager {
      * @param CatalogElementList|CataloElement $data
      * @return CatalogFileList
      */
-    public function ElementOptionFileList($data) {
+    public function ElementOptionFileList($data){
         $files = new CatalogFileList();
-        if (!$this->IsViewRole()) {
+        if (!$this->IsViewRole()){
             return $files;
         }
 
         $elids = array();
         $elcids = array();
-        if ($data instanceof CatalogElementList) {
-            for ($i = 0; $i < $data->Count(); $i++) {
+        if ($data instanceof CatalogElementList){
+            for ($i = 0; $i < $data->Count(); $i++){
                 $el = $data->GetByIndex($i);
-                if (isset($elcids[$el->id]) && $elcids[$el->id]) {
+                if (isset($elcids[$el->id]) && $elcids[$el->id]){
                     continue;
                 }
                 $elcids[$el->id] = true;
                 $elids[] = $el->id;
             }
-        } else if ($data instanceof CatalogElement) {
+        } else if ($data instanceof CatalogElement){
             $elids[] = $data->id;
         }
 
         $rows = CatalogDbQuery::ElementOptionFileList($this->db, $this->pfx, $elids);
-        while (($d = $this->db->fetch_array($rows))) {
+        while (($d = $this->db->fetch_array($rows))){
             $file = new CatalogFile($d);
             $files->Add($file);
         }
@@ -1750,23 +1751,23 @@ class CatalogModuleManager {
      * @param boolean $clearCache
      * @return CatalogStatisticElementList
      */
-    public function StatisticElementList($clearCache = false) {
-        if (!$this->IsViewRole()) {
+    public function StatisticElementList($clearCache = false){
+        if (!$this->IsViewRole()){
             return null;
         }
 
-        if ($clearCache) {
+        if ($clearCache){
             $this->_cacheStatElList = null;
         }
 
-        if (!empty($this->_cacheStatElList)) {
+        if (!empty($this->_cacheStatElList)){
             return $this->_cacheStatElList;
         }
 
         $list = new CatalogStatisticElementList();
         $rows = CatalogDbQuery::StatisticElementList($this->db, $this->pfx);
         $i = 0;
-        while (($d = $this->db->fetch_array($rows))) {
+        while (($d = $this->db->fetch_array($rows))){
             $d['id'] = $i + 1;
             $item = new CatalogStatisticElement($d);
             $list->Add($item);
@@ -1776,10 +1777,10 @@ class CatalogModuleManager {
     }
 
 
-    public function CurrencyListToAJAX($clearCache = false) {
+    public function CurrencyListToAJAX($clearCache = false){
         $list = $this->CurrencyList($clearCache);
 
-        if (empty($list)) {
+        if (empty($list)){
             return null;
         }
 
@@ -1793,23 +1794,23 @@ class CatalogModuleManager {
     /**
      * @return CatalogCurrencyList
      */
-    public function CurrencyList($clearCache = false) {
-        if (!$this->IsViewRole()) {
+    public function CurrencyList($clearCache = false){
+        if (!$this->IsViewRole()){
             return false;
         }
 
-        if ($clearCache) {
+        if ($clearCache){
             $this->_cacheCurrencyList = null;
         }
 
-        if (!is_null($this->_cacheCurrencyList)) {
+        if (!is_null($this->_cacheCurrencyList)){
             return $this->_cacheCurrencyList;
         }
 
         $list = new CatalogCurrencyList();
 
         $rows = CatalogDbQuery::CurrencyList($this->db, $this->pfx);
-        while (($d = $this->db->fetch_array($rows))) {
+        while (($d = $this->db->fetch_array($rows))){
             $list->Add(new CatalogCurrency($d));
         }
 
@@ -1818,8 +1819,8 @@ class CatalogModuleManager {
         return $list;
     }
 
-    public function CurrencySave($currencyId, $d) {
-        if (!$this->IsAdminRole()) {
+    public function CurrencySave($currencyId, $d){
+        if (!$this->IsAdminRole()){
             return null;
         }
 
@@ -1834,11 +1835,12 @@ class CatalogModuleManager {
         $d->prefix = $utmf->Parser($d->prefix);
         $d->postfix = $utmf->Parser($d->postfix);
 
-        $d->rateval = 0;
+        $d->rateval = doubleval($d->rateval);
         $d->ratedate = TIMENOW;
+
         $d->ord = 0;
 
-        if ($currencyId == 0) {
+        if ($currencyId == 0){
             $currencyId = CatalogDbQuery::CurrencyAppend($this->db, $this->pfx, $d);
         } else {
             CatalogDbQuery::CurrencyUpdate($this->db, $this->pfx, $d);
@@ -1847,26 +1849,26 @@ class CatalogModuleManager {
         return $currencyId;
     }
 
-    public function CurrencySaveToAJAX($currencyId, $d) {
+    public function CurrencySaveToAJAX($currencyId, $d){
         $this->CurrencySave($currencyId, $d);
 
         return $this->CurrencyListToAJAX(true);
     }
 
-    public function CurrencyRemove($currencyId) {
-        if (!$this->IsAdminRole()) {
+    public function CurrencyRemove($currencyId){
+        if (!$this->IsAdminRole()){
             return null;
         }
 
         CatalogDbQuery::CurrencyRemove($this->db, $this->pfx, $currencyId);
     }
 
-    public function CurrencyRemoveToAJAX($currencyId) {
+    public function CurrencyRemoveToAJAX($currencyId){
         $this->CurrencyRemove($currencyId);
         return $this->CurrencyListToAJAX(true);
     }
 
-    public function CurrencyDefaultToAJAX() {
+    public function CurrencyDefaultToAJAX(){
         $currency = $this->CurrencyDefault();
         $ret = new stdClass();
         $ret->currency = $currency->ToAJAX($this);
@@ -1878,19 +1880,19 @@ class CatalogModuleManager {
     /**
      * @return CatalogCurrency
      */
-    public function CurrencyDefault() {
-        if (isset($this->_cacheCurrencyDefault)) {
+    public function CurrencyDefault(){
+        if (isset($this->_cacheCurrencyDefault)){
             return $this->_cacheCurrencyDefault;
         }
         $list = $this->CurrencyList();
-        if (empty($list) || $list->Count() == 0) {
+        if (empty($list) || $list->Count() == 0){
             $this->_cacheCurrencyDefault = new CatalogCurrency(array());
             return $this->_cacheCurrencyDefault;
         }
 
-        for ($i = 0; $i < $list->Count(); $i++) {
+        for ($i = 0; $i < $list->Count(); $i++){
             $currency = $list->GetByIndex($i);
-            if ($currency->isDefault) {
+            if ($currency->isDefault){
                 $this->_cacheCurrencyDefault = $currency;
                 return $currency;
             }

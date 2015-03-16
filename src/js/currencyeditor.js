@@ -1,8 +1,3 @@
-/*
- @package Abricos
- @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
- */
-
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
@@ -50,6 +45,7 @@ Component.entryPoint = function(NS){
                 'title': currency.title,
                 'codestr': currency.codestr,
                 'codenum': currency.codenum,
+                'rateval': currency.rateval,
                 'prefix': currency.prefix,
                 'postfix': currency.postfix
             });
@@ -94,6 +90,7 @@ Component.entryPoint = function(NS){
                 'title': this.gel('title').value,
                 'codestr': this.gel('codestr').value,
                 'codenum': this.gel('codenum').value,
+                'rateval': this.gel('rateval').value,
                 'prefix': this.gel('prefix').value,
                 'postfix': this.gel('postfix').value,
                 'isdefault': this.gel('def').checked ? 1 : 0
