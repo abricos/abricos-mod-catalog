@@ -6,14 +6,13 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-    var Dom = YAHOO.util.Dom,
-        E = YAHOO.util.Event,
-        L = YAHOO.lang,
+    var Y = Brick.YUI,
+        L = Y.Lang,
         buildTemplate = this.buildTemplate,
         BW = Brick.mod.widget.Widget;
 
     var TypeManagerWidget = function(container, manager, cfg){
-        cfg = L.merge({}, cfg || {});
+        cfg = Y.merge({}, cfg || {});
 
         TypeManagerWidget.superclass.constructor.call(this, container, {
             'buildTemplate': buildTemplate, 'tnames': 'widget'
@@ -116,7 +115,7 @@ Component.entryPoint = function(NS){
 
 
     var TypeListWidget = function(container, manager, cfg){
-        cfg = L.merge({
+        cfg = Y.merge({
             'onRowEditClick': null,
             'onRowCopyClick': null,
             'onRowRemoveClick': null,
@@ -223,7 +222,7 @@ Component.entryPoint = function(NS){
     NS.TypeListWidget = TypeListWidget;
 
     var TypeRowWidget = function(container, manager, elType, cfg){
-        cfg = L.merge({
+        cfg = Y.merge({
             'onEditClick': null,
             'onCopyClick': null,
             'onRemoveClick': null,
@@ -270,13 +269,19 @@ Component.entryPoint = function(NS){
             return false;
         },
         select: function(){
-            Dom.addClass(this.gel('wrap'), 'selected');
+            var el = Y.one(this.gel('wrap'));
+            if (el){
+                el.addClass('selected');
+            }
         },
         unSelect: function(){
-            Dom.removeClass(this.gel('wrap'), 'selected');
+            var el = Y.one(this.gel('wrap'));
+            if (el){
+                el.removeClass('selected');
+            }
         },
         isSelect: function(){
-            return Dom.hasClass(this.gel('wrap'), 'selected');
+            return Y.one(this.gel('wrap')).hasClass('selected');
         }
     });
     NS.TypeRowWidget = TypeRowWidget;
@@ -308,8 +313,8 @@ Component.entryPoint = function(NS){
                     return TM.getEl('removepanel.' + n);
                 },
                 __self = this;
-            Dom.setStyle(gel('btns'), 'display', 'none');
-            Dom.setStyle(gel('bloading'), 'display', '');
+            Y.one(gel('btns')).setStyle('display', 'none');
+            Y.one(gel('bloading')).setStyle('display', '');
             this.manager.elementTypeRemove(this.elType.id, function(){
                 __self.close();
                 NS.life(__self.callback);

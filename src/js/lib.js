@@ -652,11 +652,11 @@ Component.entryPoint = function(NS){
             var lng = this.cfg['language'];
             if (!L.isNull(lng) && L.isFunction(lng.get)){
                 var res = lng.get(path);
-                if (res != path){
+                if (res !== ''){
                     return res;
                 }
             }
-            return LNG.get(path);
+            return LNG.get('lib.' + path);
         },
         ajax: function(data, callback){
             data = data || {};

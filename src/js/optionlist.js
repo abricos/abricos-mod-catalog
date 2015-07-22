@@ -6,15 +6,13 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-    var Dom = YAHOO.util.Dom,
-        E = YAHOO.util.Event,
-        L = YAHOO.lang,
+    var Y = Brick.YUI,
+        L = Y.Lang,
         buildTemplate = this.buildTemplate,
         BW = Brick.mod.widget.Widget;
 
     var OptionListWidget = function(container, manager, list, cfg){
-
-        cfg = L.merge({}, cfg || {});
+        cfg = Y.merge({}, cfg || {});
 
         OptionListWidget.superclass.constructor.call(this, container, {
             'buildTemplate': buildTemplate, 'tnames': 'widget'
@@ -161,7 +159,7 @@ Component.entryPoint = function(NS){
     NS.OptionListWidget = OptionListWidget;
 
     var OptionRowWidget = function(container, manager, option, cfg){
-        cfg = L.merge({
+        cfg = Y.merge({
             'onEditClick': null,
             'onCopyClick': null,
             'onRemoveClick': null,
@@ -236,8 +234,9 @@ Component.entryPoint = function(NS){
                     }
                 });
 
-            Dom.addClass(this.gel('wrap'), 'rborder');
-            Dom.addClass(this.gel('id'), 'rowselect');
+            Y.one(this.gel('wrap')).addClass('rborder');
+            Y.one(this.gel('id')).addClass('rowselect');
+
             this.elHide('menu');
         },
         editorClose: function(){
@@ -245,8 +244,9 @@ Component.entryPoint = function(NS){
                 return;
             }
 
-            Dom.removeClass(this.gel('wrap'), 'rborder');
-            Dom.removeClass(this.gel('id'), 'rowselect');
+            Y.one(this.gel('wrap')).removeClass('rborder');
+            Y.one(this.gel('id')).removeClass('rowselect');
+
             this.elShow('menu');
 
             this.editorWidget.destroy();
@@ -279,11 +279,12 @@ Component.entryPoint = function(NS){
         },
         remove: function(){
             var TM = this._TM, gel = function(n){
-                    return TM.getEl('removepanel.' + n);
+                    return TM.gel('removepanel.' + n);
                 },
                 __self = this;
-            Dom.setStyle(gel('btns'), 'display', 'none');
-            Dom.setStyle(gel('bloading'), 'display', '');
+
+            Y.one(gel('btns')).setStyle('display', 'none');
+            Y.one(gel('bloading')).setStyle('display', '');
             this.manager.optionRemove(this.option.typeid, this.option.id, function(){
                 __self.close();
                 NS.life(__self.callback);
