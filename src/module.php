@@ -38,7 +38,7 @@ class CatalogModule extends Ab_Module {
 
     private $_manager;
 
-    function __construct() {
+    function __construct(){
         CatalogModule::$instance = $this;
         $this->version = "0.3.1";
         $this->name = "catalog";
@@ -50,8 +50,8 @@ class CatalogModule extends Ab_Module {
      *
      * @return CatalogManager
      */
-    public function GetManager() {
-        if (is_null($this->_manager)) {
+    public function GetManager(){
+        if (is_null($this->_manager)){
             require_once 'includes/manager.php';
             $this->_manager = new CatalogManager($this);
         }
@@ -59,29 +59,29 @@ class CatalogModule extends Ab_Module {
     }
 
 
-    public function SetModuleManager($modname) {
+    public function SetModuleManager($modname){
         $this->currentModMan = Abricos::$modules->GetModule($modname);
         $this->GetManager();
         CatalogQuery::PrefixSet(Abricos::$db, $this->currentModMan->catinfo['dbprefix']);
     }
 
-    public function GetContentName() {
+    public function GetContentName(){
         $cname = '';
         $adress = Abricos::$adress;
         $dir = Abricos::$adress->dir;
 
-        switch ($dir[1]) {
+        switch ($dir[1]){
             case 'uploadimg':
             case 'uploadoptfiles';
                 return $dir[1];
         }
 
-        if ($adress->level >= 2) {
+        if ($adress->level >= 2){
 
             $this->SetModuleManager($adress->dir[1]);
 
             $p = $adress->dir[2];
-            if ($p == 'upload') {
+            if ($p == 'upload'){
                 $cname = "upload";
                 $this->uploadStatus = $adress->dir[3] == 'id' ? 1 : 0;
                 $this->uploadId = $adress->dir[4];
@@ -90,8 +90,8 @@ class CatalogModule extends Ab_Module {
         return $cname;
     }
 
-    public static function FotoThumbInfoParse($info) {
-        if (empty($info)) {
+    public static function FotoThumbInfoParse($info){
+        if (empty($info)){
             return array(
                 "fh" => "",
                 "w" => 0,
@@ -108,7 +108,7 @@ class CatalogModule extends Ab_Module {
         );
     }
 
-    public static function FotoThumbLink($fid, $w, $h, $fn) {
+    public static function FotoThumbLink($fid, $w, $h, $fn){
         $arr = array();
         if ($w > 0)
             $arr[] = "w_".$w;
@@ -116,18 +116,18 @@ class CatalogModule extends Ab_Module {
             $arr[] = "h_".$h;
 
         $ret = "/filemanager/i/".$fid."/";
-        if (count($arr) > 0) {
+        if (count($arr) > 0){
             $ret = $ret.implode("-", $arr)."/";
         }
 
         return $ret.$fn;
     }
 
-    private function UpdateModMan() {
-        if (is_null($this->modManInfo)) {
+    private function UpdateModMan(){
+        if (is_null($this->modManInfo)){
             $db = Abricos::$db;
             $rows = CatalogQueryExt::ModuleManagerList($db);
-            while (($row = $db->fetch_array($rows))) {
+            while (($row = $db->fetch_array($rows))){
                 $this->modManInfo[$row['nm']] = $row;
             }
         }
@@ -138,10 +138,10 @@ class CatalogModule extends Ab_Module {
      *
      * @param Ab_Module $modman
      */
-    public function Register(Ab_Module $modman) {
+    public function Register(Ab_Module $modman){
         $this->currentModMan = $modman;
         $this->UpdateModMan();
-        if (empty($this->modManInfo[$modman->name])) {
+        if (empty($this->modManInfo[$modman->name])){
             CatalogQueryExt::ModuleManagerAppend(Abricos::$db, $modman);
             $this->modManInfo = null;
             $this->UpdateModMan();
@@ -151,7 +151,7 @@ class CatalogModule extends Ab_Module {
 
         $svers = $info['vs'];
         $cvers = $this->version;
-        if ($svers == $cvers) {
+        if ($svers == $cvers){
             return;
         }
 
@@ -169,7 +169,7 @@ class CatalogModule extends Ab_Module {
 }
 
 class CatalogQueryExt {
-    public static function ModuleManagerUpdate(Ab_Database $db, $modmanid, $version) {
+    public static function ModuleManagerUpdate(Ab_Database $db, $modmanid, $version){
         $sql = "
 			UPDATE ".$db->prefix."ctg_module
 			SET
@@ -179,7 +179,7 @@ class CatalogQueryExt {
         $db->query_write($sql);
     }
 
-    public static function ModuleManagerAppend(Ab_Database $db, Ab_Module $modman) {
+    public static function ModuleManagerAppend(Ab_Database $db, Ab_Module $modman){
         $sql = "
 			INSERT INTO ".$db->prefix."ctg_module
 			(name, dbprefix, version) VALUES (
@@ -191,7 +191,7 @@ class CatalogQueryExt {
         $db->query_write($sql);
     }
 
-    public static function ModuleManagerList(Ab_Database $db) {
+    public static function ModuleManagerList(Ab_Database $db){
         $sql = "
 			SELECT 
 				moduleid as id,

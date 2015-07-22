@@ -10,22 +10,22 @@ $optionid = Abricos::$adress->dir[3];
 
 $mod = Abricos::GetModule($modname);
 
-if (empty($mod)) {
+if (empty($mod)){
     return;
 }
 
 $man = $mod->GetManager();
 
-if (empty($man) || empty($man->cManager)) {
+if (empty($man) || empty($man->cManager)){
     return;
 }
 
-if (!$man->IsWriteRole()) {
+if (!$man->IsWriteRole()){
     return;
 }
 
 $modFM = Abricos::GetModule('filemanager');
-if (empty($modFM)) {
+if (empty($modFM)){
     return;
 }
 
@@ -39,7 +39,7 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
 ));
 
 $uPrm = $man->cManager->OptionFileUploadCheck($optionid);
-if (empty($uPrm)) {
+if (empty($uPrm)){
     return;
 }
 
@@ -52,12 +52,12 @@ Brick::$builder->LoadBrickS('filemanager', 'accinfo', $brick, array(
 
 // TODO: передать параметры ограничение на кол-во и т.п. в окно загрузчика
 
-if (Abricos::$adress->dir[4] !== "go") {
+if (Abricos::$adress->dir[4] !== "go"){
     return;
 }
 
 $resa = array();
-for ($i = 0; $i < 10; $i++) {
+for ($i = 0; $i < 10; $i++){
 
     $uploadFile = FileManagerModule::$instance->GetManager()->CreateUploadByVar('file'.$i);
 
@@ -72,7 +72,7 @@ for ($i = 0; $i < 10; $i++) {
 
     $error = $uploadFile->Upload();
 
-    if ($i > 0 && $error == UploadError::FILE_NOT_FOUND) {
+    if ($i > 0 && $error == UploadError::FILE_NOT_FOUND){
         continue;
     }
 
@@ -83,7 +83,7 @@ for ($i = 0; $i < 10; $i++) {
 
     $resa[] = $res;
 
-    if ($error > 0) {
+    if ($error > 0){
         continue;
     }
 

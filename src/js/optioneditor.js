@@ -278,7 +278,7 @@ Component.entryPoint = function(NS){
             }
             if (fType == NS.FTYPE['CURRENCY']){
                 this.elShow('fcurrency');
-            }else{
+            } else {
                 this.elHide('fcurrency');
             }
 

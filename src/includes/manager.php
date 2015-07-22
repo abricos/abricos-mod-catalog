@@ -17,7 +17,7 @@ class CatalogManager extends Ab_ModuleManager {
      */
     public $module = null;
 
-    public function __construct(CatalogModule $module) {
+    public function __construct(CatalogModule $module){
         parent::__construct($module);
     }
 }

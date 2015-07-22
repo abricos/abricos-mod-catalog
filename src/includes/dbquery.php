@@ -10,7 +10,7 @@ class CatalogDbQuery {
 
     const FILECLEARTIME = 86400;
 
-    public static function CatalogList(Ab_Database $db, $pfx) {
+    public static function CatalogList(Ab_Database $db, $pfx){
         $sql = "
 			(SELECT
 				0 as id,
@@ -65,8 +65,8 @@ class CatalogDbQuery {
     }
 
 
-    public static function Catalog(Ab_Database $db, $pfx, $catid) {
-        if ($catid == 0) {
+    public static function Catalog(Ab_Database $db, $pfx, $catid){
+        if ($catid == 0){
             $sql = "
 				SELECT
 					0 as id,
@@ -115,7 +115,7 @@ class CatalogDbQuery {
         return $db->query_first($sql);
     }
 
-    public static function CatalogAppend(Ab_Database $db, $pfx, $d) {
+    public static function CatalogAppend(Ab_Database $db, $pfx, $d){
         $sql = "
 			INSERT INTO ".$pfx."catalog
 				(parentcatalogid, title, name, imageid, descript, metatitle, metakeys, metadesc, menudisable, listdisable, ord, language, dateline) VALUES (
@@ -138,7 +138,7 @@ class CatalogDbQuery {
         return $db->insert_id();
     }
 
-    public static function CatalogUpdate(Ab_Database $db, $pfx, $catid, $d) {
+    public static function CatalogUpdate(Ab_Database $db, $pfx, $catid, $d){
         $sql = "
 			UPDATE ".$pfx."catalog
 			SET
@@ -159,7 +159,7 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function CatalogRemove(Ab_Database $db, $pfx, $catid) {
+    public static function CatalogRemove(Ab_Database $db, $pfx, $catid){
         $sql = "
 			UPDATE ".$pfx."catalog
 			SET deldate=".TIMENOW."
@@ -169,12 +169,12 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementChangeLogListByName(Ab_Database $db, $pfx, $elname, CatalogElementOptionList $extOptions) {
+    public static function ElementChangeLogListByName(Ab_Database $db, $pfx, $elname, CatalogElementOptionList $extOptions){
         $extFields = "";
         $cnt = $extOptions->Count();
-        for ($i = 0; $i < $cnt; $i++) {
+        for ($i = 0; $i < $cnt; $i++){
             $option = $extOptions->GetByIndex($i);
-            if ($option->elTypeId > 0) {
+            if ($option->elTypeId > 0){
                 continue;
             }
 
@@ -196,12 +196,12 @@ class CatalogDbQuery {
         return $db->query_read($sql);
     }
 
-    public static function ElementChangeLogList(Ab_Database $db, $pfx, CatalogElementOptionList $extOptions) {
+    public static function ElementChangeLogList(Ab_Database $db, $pfx, CatalogElementOptionList $extOptions){
         $extFields = "";
         $cnt = $extOptions->Count();
-        for ($i = 0; $i < $cnt; $i++) {
+        for ($i = 0; $i < $cnt; $i++){
             $option = $extOptions->GetByIndex($i);
-            if ($option->elTypeId > 0) {
+            if ($option->elTypeId > 0){
                 continue;
             }
 
@@ -224,47 +224,47 @@ class CatalogDbQuery {
         return $db->query_read($sql);
     }
 
-    public static function ElementList(Ab_Database $db, $pfx, $userid, $isAdmin, CatalogElementListConfig $cfg) {
+    public static function ElementList(Ab_Database $db, $pfx, $userid, $isAdmin, CatalogElementListConfig $cfg){
 
         $wCats = array();
-        foreach ($cfg->catids as $catid) {
+        foreach ($cfg->catids as $catid){
             $wCats[] = "e.catalogid=".bkint($catid);
         }
 
         $wEls = array();
-        foreach ($cfg->elids as $elid) {
-            if ($elid == 0) {
+        foreach ($cfg->elids as $elid){
+            if ($elid == 0){
                 continue;
             }
             $wEls[] = "e.elementid=".bkint($elid);
         }
-        foreach ($cfg->elnames as $elname) {
-            if (empty($elname)) {
+        foreach ($cfg->elnames as $elname){
+            if (empty($elname)){
                 continue;
             }
             $wEls[] = "e.name='".bkstr($elname)."'";
         }
-        if (count($cfg->eltpids) > 0) {
-            foreach ($cfg->eltpids as $eltpid) {
+        if (count($cfg->eltpids) > 0){
+            foreach ($cfg->eltpids as $eltpid){
                 $wEls[] = "e.eltypeid=".bkint($eltpid);
             }
         }
 
         $orders = "";
         $cnt = $cfg->orders->Count();
-        for ($i = 0; $i < $cnt; $i++) {
+        for ($i = 0; $i < $cnt; $i++){
             $ord = $cfg->orders->GetByIndex($i);
-            if ($ord->option->elTypeId > 0) {
+            if ($ord->option->elTypeId > 0){
                 continue;
             }
 
-            if ($ord->zeroDesc) {
+            if ($ord->zeroDesc){
                 $fld = "fld_".$ord->option->name;
                 $orders .= ", IF(".$fld.">0, 0, 1), ".$fld;
 
             } else {
                 $orders .= ", fld_".$ord->option->name;
-                if ($ord->isDesc) {
+                if ($ord->isDesc){
                     $orders .= " DESC";
                 }
             }
@@ -274,9 +274,9 @@ class CatalogDbQuery {
 
         $extFields = "";
         $cnt = $cfg->extFields->Count();
-        for ($i = 0; $i < $cnt; $i++) {
+        for ($i = 0; $i < $cnt; $i++){
             $option = $cfg->extFields->GetByIndex($i);
-            if ($option->elTypeId > 0) {
+            if ($option->elTypeId > 0){
                 continue;
             }
 
@@ -285,10 +285,10 @@ class CatalogDbQuery {
 
         $wExt = array();
         $cnt = $cfg->where->Count();
-        for ($i = 0; $i < $cnt; $i++) {
+        for ($i = 0; $i < $cnt; $i++){
             $ord = $cfg->where->GetByIndex($i);
 
-            if ($ord->option->elTypeId > 0) {
+            if ($ord->option->elTypeId > 0){
                 continue;
             }
 
@@ -331,26 +331,26 @@ class CatalogDbQuery {
 		";
 
         $isWhere = false;
-        if (count($wCats) > 0) {
+        if (count($wCats) > 0){
             $sql .= "
 				AND (".implode(" OR ", $wCats).")
 			";
             $isWhere = true;
         }
-        if (count($wEls) > 0) {
+        if (count($wEls) > 0){
             $sql .= "
 				AND (".implode(" OR ", $wEls).")
 			";
             $isWhere = true;
         }
-        if (count($wExt) > 0) {
+        if (count($wExt) > 0){
             $sql .= "
 				AND (".implode(" OR ", $wExt).")
 			";
             $isWhere = true;
         }
 
-        if (!$isWhere) {
+        if (!$isWhere){
             return null;
         }
 
@@ -358,7 +358,7 @@ class CatalogDbQuery {
 		 	ORDER BY mdr DESC, ord DESC".$orders.", e.dateline
 		";
 
-        if ($cfg->limit > 0) {
+        if ($cfg->limit > 0){
             $from = $cfg->limit * (max(1, $cfg->page) - 1);
             $sql .= "
 				LIMIT ".$from.", ".$cfg->limit."
@@ -367,17 +367,17 @@ class CatalogDbQuery {
         return $db->query_read($sql);
     }
 
-    public static function ElementListCount(Ab_Database $db, $pfx, $userid, $isAdmin, CatalogElementListConfig $cfg) {
+    public static function ElementListCount(Ab_Database $db, $pfx, $userid, $isAdmin, CatalogElementListConfig $cfg){
         $wCats = array();
-        foreach ($cfg->catids as $catid) {
+        foreach ($cfg->catids as $catid){
             $wCats[] = "e.catalogid=".bkint($catid);
         }
         $wEls = array();
-        foreach ($cfg->elids as $elid) {
+        foreach ($cfg->elids as $elid){
             $wEls[] = "e.elementid=".bkint($elid);
         }
 
-        if (count($wCats) == 0 && count($wEls) == 0) {
+        if (count($wCats) == 0 && count($wEls) == 0){
             return 0;
         }
 
@@ -392,13 +392,13 @@ class CatalogDbQuery {
 		";
 
         $isWhere = false;
-        if (count($wCats) > 0) {
+        if (count($wCats) > 0){
             $sql .= "
 				AND (".implode(" OR ", $wCats).")
 			";
             $isWhere = true;
         }
-        if (count($wEls) > 0) {
+        if (count($wEls) > 0){
             $sql .= "
 				AND (".implode(" OR ", $wEls).")
 			";
@@ -410,7 +410,7 @@ class CatalogDbQuery {
         return intval($row['cnt']);
     }
 
-    public static function Element(Ab_Database $db, $pfx, $elementid) {
+    public static function Element(Ab_Database $db, $pfx, $elementid){
         $sql = "
 			SELECT
 				e.elementid as id,
@@ -446,7 +446,7 @@ class CatalogDbQuery {
         return $db->query_first($sql);
     }
 
-    public static function ElementByName(Ab_Database $db, $pfx, $userid, $isAdmin, $name) {
+    public static function ElementByName(Ab_Database $db, $pfx, $userid, $isAdmin, $name){
         $sql = "
 			SELECT
 				e.elementid as id,
@@ -490,10 +490,10 @@ class CatalogDbQuery {
     }
 
 
-    public static function ElementDetail(Ab_Database $db, $pfx, $elid, CatalogElementType $elType) {
+    public static function ElementDetail(Ab_Database $db, $pfx, $elid, CatalogElementType $elType){
         $options = $elType->options;
         $fields = array();
-        for ($i = 0; $i < $options->Count(); $i++) {
+        for ($i = 0; $i < $options->Count(); $i++){
             $option = $options->GetByIndex($i);
             $fields[] = "e.fld_".$option->name." as `".$option->name."`";
         }
@@ -508,7 +508,7 @@ class CatalogDbQuery {
         return $db->query_first($sql);
     }
 
-    public static function ElementAppend(Ab_Database $db, $pfx, $userid, $isOperator, $d) {
+    public static function ElementAppend(Ab_Database $db, $pfx, $userid, $isOperator, $d){
         $sql = "
 			INSERT INTO ".$pfx."element
 			(catalogid, eltypeid, userid, title, name, metatitle, metakeys, metadesc, ord, 
@@ -534,7 +534,7 @@ class CatalogDbQuery {
         return $db->insert_id();
     }
 
-    public static function ElementUpdate(Ab_Database $db, $pfx, $elid, $d) {
+    public static function ElementUpdate(Ab_Database $db, $pfx, $elid, $d){
         $sql = "
 			UPDATE ".$pfx."element
 			SET
@@ -554,7 +554,7 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementToArhive(Ab_Database $db, $pfx, $elid) {
+    public static function ElementToArhive(Ab_Database $db, $pfx, $elid){
         $sql = "
 			UPDATE ".$pfx."element
 			SET isarhversion=1
@@ -564,7 +564,7 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementModer(Ab_Database $db, $pfx, $elid) {
+    public static function ElementModer(Ab_Database $db, $pfx, $elid){
         $sql = "
 			UPDATE ".$pfx."element
 			SET ismoder=0
@@ -574,7 +574,7 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementRemove(Ab_Database $db, $pfx, $elid) {
+    public static function ElementRemove(Ab_Database $db, $pfx, $elid){
         $sql = "
 			UPDATE ".$pfx."element
 			SET deldate=".TIMENOW."
@@ -584,7 +584,7 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementListRemoveByCatId(Ab_Database $db, $pfx, $catid) {
+    public static function ElementListRemoveByCatId(Ab_Database $db, $pfx, $catid){
         $sql = "
 			UPDATE ".$pfx."element
 			SET deldate=".TIMENOW."
@@ -602,9 +602,9 @@ class CatalogDbQuery {
      * @param CatalogElementType $elType
      * @param object $d
      */
-    public static function ElementDetailUpdate(Ab_Database $db, $pfx, $userid, $isAdmin, $elid, CatalogElementType $elType, $d) {
+    public static function ElementDetailUpdate(Ab_Database $db, $pfx, $userid, $isAdmin, $elid, CatalogElementType $elType, $d){
         $options = $elType->options;
-        if ($options->Count() == 0) {
+        if ($options->Count() == 0){
             return;
         }
 
@@ -615,13 +615,13 @@ class CatalogDbQuery {
         $utm = Abricos::TextParser();
         $utmf = Abricos::TextParser(true);
 
-        foreach ($d as $optName => $val) {
+        foreach ($d as $optName => $val){
             $option = $options->GetByName($optName);
-            if (empty($option)) {
+            if (empty($option)){
                 continue;
             }
 
-            switch ($option->type) {
+            switch ($option->type){
                 case Catalog::TP_BOOLEAN:
                     $val = empty($val) ? 0 : 1;
                     break;
@@ -646,7 +646,7 @@ class CatalogDbQuery {
                     $cfg->elids = explode(",", $val);
                     $rows = CatalogDbQuery::ElementList($db, $pfx, $userid, $isAdmin, $cfg);
                     $aIds = array();
-                    while (($d = $db->fetch_array($rows))) {
+                    while (($d = $db->fetch_array($rows))){
                         $aIds[] = $d['id'];
                     }
                     $val = "'".implode(",", $aIds)."'";
@@ -656,7 +656,7 @@ class CatalogDbQuery {
                     $cfg->elnames = explode(",", $val);
                     $rows = CatalogDbQuery::ElementList($db, $pfx, $userid, $isAdmin, $cfg);
                     $aNames = array();
-                    while (($d = $db->fetch_array($rows))) {
+                    while (($d = $db->fetch_array($rows))){
                         $aNames[] = $d['nm'];
                     }
                     $val = "'".implode(",", $aNames)."'";
@@ -686,9 +686,9 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementDetailOptionFilesUpdate(Ab_Database $db, $pfx, $elid, CatalogElementOption $option, $files) {
+    public static function ElementDetailOptionFilesUpdate(Ab_Database $db, $pfx, $elid, CatalogElementOption $option, $files){
         $aFiles = explode(",", trim($files));
-        if (count($aFiles) == 0) {
+        if (count($aFiles) == 0){
             return;
         }
 
@@ -703,7 +703,7 @@ class CatalogDbQuery {
 
         // сохранить в список файлов только те файлы, которые выгружены только через этот модуль
         $aWhere = array();
-        for ($i = 0; $i < count($aFiles); $i++) {
+        for ($i = 0; $i < count($aFiles); $i++){
             $afi = explode(":", $aFiles[$i]);
             $aWhere[] = " filehash='".$afi[0]."' ";
         }
@@ -725,13 +725,13 @@ class CatalogDbQuery {
         $rows = $db->query_read($sql);
 
         $nfList = array();
-        while (($row = $db->fetch_array($rows))) {
+        while (($row = $db->fetch_array($rows))){
             $nfList[] = $row['fh'].":".$row['fn'];
         }
         return $nfList;
     }
 
-    public static function ElementOrderUpdate(Ab_Database $db, $pfx, $elid, $order) {
+    public static function ElementOrderUpdate(Ab_Database $db, $pfx, $elid, $order){
         $sql = "
 			UPDATE ".$pfx."element
 			SET ord=".bkint($order)."
@@ -742,21 +742,21 @@ class CatalogDbQuery {
 
     }
 
-    public static function TableList(Ab_Database $db) {
+    public static function TableList(Ab_Database $db){
         $sql = "
 			SHOW TABLES FROM ".$db->database."
 		";
         return $db->query_read($sql);
     }
 
-    public static function ElementTypeTableName($pfx, $name) {
-        if (empty($name)) {
+    public static function ElementTypeTableName($pfx, $name){
+        if (empty($name)){
             return $pfx."element";
         }
         return $pfx."eltbl_".$name;
     }
 
-    public static function ElementTypeTableCreate(Ab_Database $db, $tableName) {
+    public static function ElementTypeTableCreate(Ab_Database $db, $tableName){
         $sql = "
 			CREATE TABLE IF NOT EXISTS `".$tableName."` (
 				`elementid` int(10) unsigned NOT NULL,
@@ -766,21 +766,21 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementTypeTableChange(Ab_Database $db, $oldTableName, $newTableName) {
+    public static function ElementTypeTableChange(Ab_Database $db, $oldTableName, $newTableName){
         $sql = "
 			RENAME TABLE `".$oldTableName."` TO `".$newTableName."`
 		";
         $db->query_write($sql);
     }
 
-    public static function ElementTypeTableRemove(Ab_Database $db, $tableName) {
+    public static function ElementTypeTableRemove(Ab_Database $db, $tableName){
         $sql = "
 			DROP TABLE IF EXISTS `".$tableName."`
 		";
         $db->query_write($sql);
     }
 
-    public static function ElementTypeAppend(Ab_Database $db, $pfx, $d) {
+    public static function ElementTypeAppend(Ab_Database $db, $pfx, $d){
         $sql = "
 			INSERT INTO ".$pfx."eltype
 				(name, title, titlelist, descript, language) VALUES (
@@ -795,7 +795,7 @@ class CatalogDbQuery {
         return $db->insert_id();
     }
 
-    public static function ElementTypeUpdate(Ab_Database $db, $pfx, $elTypeId, $d) {
+    public static function ElementTypeUpdate(Ab_Database $db, $pfx, $elTypeId, $d){
         $sql = "
 			UPDATE ".$pfx."eltype
 			SET
@@ -809,7 +809,7 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementTypeRemove(Ab_Database $db, $pfx, $elTypeId) {
+    public static function ElementTypeRemove(Ab_Database $db, $pfx, $elTypeId){
         $sql = "
 			DELETE FROM ".$pfx."eltype
 			WHERE eltypeid=".bkint($elTypeId)."
@@ -818,7 +818,7 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementTypeList(Ab_Database $db, $pfx) {
+    public static function ElementTypeList(Ab_Database $db, $pfx){
         $sql = "
 			SELECT
 				eltypeid as id,
@@ -832,7 +832,7 @@ class CatalogDbQuery {
         return $db->query_read($sql);
     }
 
-    public static function ElementOptionGroupList(Ab_Database $db, $pfx) {
+    public static function ElementOptionGroupList(Ab_Database $db, $pfx){
         $sql = "
 			SELECT
 				eloptgroupid as id,
@@ -846,7 +846,7 @@ class CatalogDbQuery {
         return $db->query_read($sql);
     }
 
-    public static function ElementOptionRemove(Ab_Database $db, $pfx, $optionid) {
+    public static function ElementOptionRemove(Ab_Database $db, $pfx, $optionid){
         $sql = "
 			DELETE FROM ".$pfx."eloption
 			WHERE eloptionid=".bkint($optionid)."
@@ -855,8 +855,8 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementOptionFieldRemove(Ab_Database $db, $pfx, CatalogElementType $elType, CatalogElementOption $option) {
-        if ($option->type == Catalog::TP_TABLE) {
+    public static function ElementOptionFieldRemove(Ab_Database $db, $pfx, CatalogElementType $elType, CatalogElementOption $option){
+        if ($option->type == Catalog::TP_TABLE){
             $tableName = $pfx."eltbl_".$elType->name."_fld_".$option->name;
             $sql = "DROP TABLE IF EXISTS `".$tableName."`";
             $db->query_write($sql);
@@ -870,7 +870,7 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementOptionAppend(Ab_Database $db, $pfx, $d) {
+    public static function ElementOptionAppend(Ab_Database $db, $pfx, $d){
         $sql = "
 			INSERT INTO ".$pfx."eloption
 			(eltypeid, fieldtype, fieldsize, eloptgroupid, name, title, descript, currencyid, param, language, ord, dateline) VALUES (
@@ -892,7 +892,7 @@ class CatalogDbQuery {
         return $db->insert_id();
     }
 
-    public static function ElementOptionUpdate(Ab_Database $db, $pfx, $optionid, $d) {
+    public static function ElementOptionUpdate(Ab_Database $db, $pfx, $optionid, $d){
         $sql = "
 			UPDATE ".$pfx."eloption
 			SET eloptgroupid=".bkint($d->gid).",
@@ -907,7 +907,7 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementOptionTypeUpdate(Ab_Database $db, $pfx, $optionid, $d) {
+    public static function ElementOptionTypeUpdate(Ab_Database $db, $pfx, $optionid, $d){
         $sql = "
 			UPDATE ".$pfx."eloption
 			SET fieldtype=".bkint($d->tp)."
@@ -916,10 +916,10 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementOptionFieldUpdate(Ab_Database $db, $pfx, CatalogElementType $elType, $tableName, CatalogElementOption $oldOption, $d) {
+    public static function ElementOptionFieldUpdate(Ab_Database $db, $pfx, CatalogElementType $elType, $tableName, CatalogElementOption $oldOption, $d){
         $optionName = bkstr($d->nm);
 
-        if ($d->tp == Catalog::TP_TABLE) {
+        if ($d->tp == Catalog::TP_TABLE){
             $tableName = $pfx."eltbl_".$elType->name."_fld_".$d->nm;
             $oldTableName = $pfx."eltbl_".$elType->name."_fld_".$oldOption;
 
@@ -933,7 +933,7 @@ class CatalogDbQuery {
 			ALTER TABLE ".$tableName." CHANGE `fld_".$oldOption->name."` `fld_".$optionName."`
 		";
 
-        switch ($oldOption->type) {
+        switch ($oldOption->type){
             case Catalog::TP_BOOLEAN:
                 $sql .= "INT(1) UNSIGNED NOT NULL DEFAULT 0";
                 break;
@@ -960,10 +960,10 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementOptionFieldCreate(Ab_Database $db, $pfx, CatalogElementType $elType, $tableName, $d) {
+    public static function ElementOptionFieldCreate(Ab_Database $db, $pfx, CatalogElementType $elType, $tableName, $d){
         $optionName = bkstr($d->nm);
 
-        if ($d->tp == Catalog::TP_TABLE) {
+        if ($d->tp == Catalog::TP_TABLE){
             $fldTableName = $pfx."eltbl_".$elType->name."_fld_".$d->nm;
 
             $sql = "
@@ -977,7 +977,7 @@ class CatalogDbQuery {
         }
 
         $sql = "ALTER TABLE ".$tableName." ADD `fld_".$optionName."` ";
-        switch ($d->tp) {
+        switch ($d->tp){
             case Catalog::TP_BOOLEAN:
                 $sql .= "INT(1) UNSIGNED NOT NULL DEFAULT 0";
                 break;
@@ -1017,7 +1017,7 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementOptionTableCreate(Ab_Database $db, $elTypeTableName, $optionName) {
+    public static function ElementOptionTableCreate(Ab_Database $db, $elTypeTableName, $optionName){
         $optionName = bkstr($optionName);
         $tableName = $elTypeTableName."_fld_".$optionName;
 
@@ -1031,7 +1031,7 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementOptionList(Ab_Database $db, $pfx) {
+    public static function ElementOptionList(Ab_Database $db, $pfx){
         $sql = "
 			SELECT
 				eloptionid as id,
@@ -1055,7 +1055,7 @@ class CatalogDbQuery {
         return $db->query_read($sql);
     }
 
-    public static function OptionTableValueList(Ab_Database $db, $pfx, $tpName, $optName) {
+    public static function OptionTableValueList(Ab_Database $db, $pfx, $tpName, $optName){
         $tbl = $pfx."eltbl_".$tpName."_fld_".$optName;
         $sql = "
 			SELECT
@@ -1067,7 +1067,7 @@ class CatalogDbQuery {
         return $db->query_read($sql);
     }
 
-    public static function OptionTableValueAppend(Ab_Database $db, $pfx, $tpName, $optName, $value) {
+    public static function OptionTableValueAppend(Ab_Database $db, $pfx, $tpName, $optName, $value){
         $tbl = $pfx."eltbl_".$tpName."_fld_".$optName;
         $sql = "
 			INSERT INTO ".$tbl." (title) VALUES (
@@ -1078,7 +1078,7 @@ class CatalogDbQuery {
         return $db->insert_id();
     }
 
-    public static function OptionTableValueUpdate(Ab_Database $db, $pfx, $tpName, $optName, $valueid, $value) {
+    public static function OptionTableValueUpdate(Ab_Database $db, $pfx, $tpName, $optName, $valueid, $value){
         $tbl = $pfx."eltbl_".$tpName."_fld_".$optName;
         $sql = "
 			UPDATE ".$tbl." 
@@ -1089,7 +1089,7 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function OptionTableValueRemove(Ab_Database $db, $pfx, $tpName, $optName, $valueid) {
+    public static function OptionTableValueRemove(Ab_Database $db, $pfx, $tpName, $optName, $valueid){
         $tbl = $pfx."eltbl_".$tpName."_fld_".$optName;
         $sql = "
 			DELETE FROM ".$tbl."
@@ -1099,7 +1099,7 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function FotoAddToBuffer(Ab_Database $db, $pfx, $fhash) {
+    public static function FotoAddToBuffer(Ab_Database $db, $pfx, $fhash){
         $sql = "
 			INSERT INTO ".$pfx."foto (fileid, dateline) VALUES (
 				'".bkstr($fhash)."',
@@ -1109,7 +1109,7 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function FotoFreeFromBufferList(Ab_Database $db, $pfx) {
+    public static function FotoFreeFromBufferList(Ab_Database $db, $pfx){
         $sql = "
 			SELECT
 				fotoid as id, 
@@ -1120,7 +1120,7 @@ class CatalogDbQuery {
         return $db->query_read($sql);
     }
 
-    public static function FotoFreeListClear(Ab_Database $db, $pfx) {
+    public static function FotoFreeListClear(Ab_Database $db, $pfx){
         $sql = "
 			DELETE FROM ".$pfx."foto
 			WHERE elementid=0 AND dateline<".(TIMENOW - CatalogDbQuery::FILECLEARTIME)."
@@ -1128,7 +1128,7 @@ class CatalogDbQuery {
         return $db->query_read($sql);
     }
 
-    public static function OptionFileAddToBuffer(Ab_Database $db, $pfx, $userid, $optionid, $fhash, $fname) {
+    public static function OptionFileAddToBuffer(Ab_Database $db, $pfx, $userid, $optionid, $fhash, $fname){
         $sql = "
 			INSERT INTO ".$pfx."file (userid, eloptionid, filehash, filename, dateline) VALUES (
 				".bkint($userid).",
@@ -1141,7 +1141,7 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function OptionFileFreeFromBufferList(Ab_Database $db, $pfx) {
+    public static function OptionFileFreeFromBufferList(Ab_Database $db, $pfx){
         $sql = "
 			SELECT
 				fileid as id,
@@ -1152,7 +1152,7 @@ class CatalogDbQuery {
         return $db->query_read($sql);
     }
 
-    public static function OptionFileFreeListClear(Ab_Database $db, $pfx) {
+    public static function OptionFileFreeListClear(Ab_Database $db, $pfx){
         $sql = "
 			DELETE FROM ".$pfx."file
 			WHERE elementid=0 AND dateline<".(TIMENOW - CatalogDbQuery::FILECLEARTIME)."
@@ -1170,16 +1170,16 @@ class CatalogDbQuery {
      * @param string $pfx
      * @param integer|array $elid
      */
-    public static function ElementFotoList(Ab_Database $db, $pfx, $elids) {
-        if (!is_array($elids)) {
+    public static function ElementFotoList(Ab_Database $db, $pfx, $elids){
+        if (!is_array($elids)){
             $elid = array($elids);
         }
-        if (count($elids) == 0) {
+        if (count($elids) == 0){
             return null;
         }
 
         $aWh = array();
-        foreach ($elids as $elid) {
+        foreach ($elids as $elid){
             $aWh[] = "f.elementid=".bkint($elid)."";
         }
 
@@ -1201,14 +1201,14 @@ class CatalogDbQuery {
         return $db->query_read($sql);
     }
 
-    public static function FotoRemoveFromBuffer(Ab_Database $db, $pfx, $foto) {
+    public static function FotoRemoveFromBuffer(Ab_Database $db, $pfx, $foto){
         $sql = "
 			DELETE FROM ".$pfx."foto WHERE fileid='".$foto."'
 		";
         $db->query_write($sql);
     }
 
-    public static function ElementFotoUpdate(Ab_Database $db, $pfx, $elementid, $fotos) {
+    public static function ElementFotoUpdate(Ab_Database $db, $pfx, $elementid, $fotos){
 
         // пометить все текущие фотки элемента на потенциальную зачистку (удаление)
         $sql = "
@@ -1220,11 +1220,11 @@ class CatalogDbQuery {
 
         // добавить новые/существующие фотки
         $vals = array();
-        for ($i = 0; $i < count($fotos); $i++) {
+        for ($i = 0; $i < count($fotos); $i++){
             $vals[] = "(".bkint($elementid).", '".bkstr($fotos[$i])."', ".$i.")";
         }
 
-        if (count($vals) == 0) {
+        if (count($vals) == 0){
             return;
         }
 
@@ -1243,8 +1243,8 @@ class CatalogDbQuery {
 			GROUP BY fileid
 		";
         $rows = $db->query_read($sql);
-        while (($row = $db->fetch_array($rows))) {
-            if ($row['cnt'] > 1) {
+        while (($row = $db->fetch_array($rows))){
+            if ($row['cnt'] > 1){
                 $sql = "
 					DELETE FROM ".$pfx."foto
 					WHERE elementid=0 AND fileid='".$row['f']."'
@@ -1254,7 +1254,7 @@ class CatalogDbQuery {
         }
     }
 
-    public static function SearchAutoComplete(Ab_Database $db, $pfx, $query, $eFField = '', $eFValue = 0) {
+    public static function SearchAutoComplete(Ab_Database $db, $pfx, $query, $eFField = '', $eFValue = 0){
         $sql = "
 			SELECT
 				catalogid as id, 
@@ -1273,7 +1273,7 @@ class CatalogDbQuery {
  			FROM ".$pfx."element e
  			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%' AND language='".bkstr(Abricos::$LNG)."'
 		";
-        if ($eFValue > 0) {
+        if ($eFValue > 0){
             $sql .= "
 				AND fld_".bkstr($eFField)."=".bkint($eFValue)."
 			";
@@ -1284,10 +1284,10 @@ class CatalogDbQuery {
         return $db->query_read($sql);
     }
 
-    public static function Search(Ab_Database $db, $pfx, $query, $eFField = '', $eFValue = 0) {
+    public static function Search(Ab_Database $db, $pfx, $query, $eFField = '', $eFValue = 0){
         $sql = "";
 
-        if (!empty($query)) {
+        if (!empty($query)){
             $sql .= "
 				SELECT
 					catalogid as id,
@@ -1309,7 +1309,7 @@ class CatalogDbQuery {
 			FROM ".$pfx."element e
 			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%' AND language='".bkstr(Abricos::$LNG)."'
 		";
-        if ($eFValue > 0) {
+        if ($eFValue > 0){
             $sql .= "
 				AND fld_".bkstr($eFField)."=".bkint($eFValue)."
 			";
@@ -1322,7 +1322,7 @@ class CatalogDbQuery {
         return $db->query_read($sql);
     }
 
-    public static function UserRatingSQLExt(Ab_Database $db) {
+    public static function UserRatingSQLExt(Ab_Database $db){
         $urt = new stdClass();
         $urt->fld = "";
         $urt->tbl = "";
@@ -1330,7 +1330,7 @@ class CatalogDbQuery {
 
         $modURating = Abricos::GetModule("urating");
 
-        if (!empty($modURating) && $userid > 0) {
+        if (!empty($modURating) && $userid > 0){
             $urt->fld .= "
 				,IF(ISNULL(urt.reputation), 0, urt.reputation) as rep,
 				IF(ISNULL(urt.skill), 0, urt.skill) as rtg
@@ -1344,15 +1344,15 @@ class CatalogDbQuery {
     }
 
 
-    public static function UserList(Ab_Database $db, $uids) {
-        if (count($uids) == 0) {
+    public static function UserList(Ab_Database $db, $uids){
+        if (count($uids) == 0){
             return null;
         }
 
         $urt = CatalogDbQuery::UserRatingSQLExt($db);
 
         $aWh = array();
-        foreach ($uids as $uid) {
+        foreach ($uids as $uid){
             $aWh[] = "u.userid=".bkint($uid);
         }
 
@@ -1372,13 +1372,13 @@ class CatalogDbQuery {
         return $db->query_read($sql);
     }
 
-    public static function ElementOptionFileList(Ab_Database $db, $pfx, $elids) {
-        if (count($elids) == 0) {
+    public static function ElementOptionFileList(Ab_Database $db, $pfx, $elids){
+        if (count($elids) == 0){
             return null;
         }
 
         $aWh = array();
-        foreach ($elids as $elid) {
+        foreach ($elids as $elid){
             $aWh[] = "ef.elementid=".bkint($elid);
         }
         $sql = "
@@ -1395,7 +1395,7 @@ class CatalogDbQuery {
         return $db->query_read($sql);
     }
 
-    public static function StatisticElementList(Ab_Database $db, $pfx) {
+    public static function StatisticElementList(Ab_Database $db, $pfx){
         $sql = "
 			SELECT 
 				e.catalogid as catid,
@@ -1412,7 +1412,7 @@ class CatalogDbQuery {
 
     /* * * * * * * * * * * Currency * * * * * * * * * */
 
-    public static function CurrencyList(Ab_Database $db, $pfx) {
+    public static function CurrencyList(Ab_Database $db, $pfx){
         $sql = "
 			SELECT currencyid as id, c.*
 			FROM ".$pfx."currency c
@@ -1421,7 +1421,7 @@ class CatalogDbQuery {
         return $db->query_read($sql);
     }
 
-    public static function CurrencyAppend(Ab_Database $db, $pfx, $d) {
+    public static function CurrencyAppend(Ab_Database $db, $pfx, $d){
         $d = array_to_object($d);
         $sql = "
 			INSERT INTO ".$pfx."currency
@@ -1443,7 +1443,7 @@ class CatalogDbQuery {
         return $db->insert_id();
     }
 
-    public static function CurrencyUpdate(Ab_Database $db, $pfx, $d) {
+    public static function CurrencyUpdate(Ab_Database $db, $pfx, $d){
         if ($d->isdefault){
             $sql = "
                 UPDATE ".$pfx."currency
@@ -1470,7 +1470,7 @@ class CatalogDbQuery {
         $db->query_write($sql);
     }
 
-    public static function CurrencyRemove(Ab_Database $db, $pfx, $currencyId) {
+    public static function CurrencyRemove(Ab_Database $db, $pfx, $currencyId){
         $sql = "
 			DELETE FROM ".$pfx."currency
 			WHERE currencyid=".bkint($currencyId)."

@@ -212,7 +212,7 @@ if ($updateManager->isUpdate('0.2.5.2')){
 
     while (($row = $db->fetch_array($rows))){
         $d = json_decode($row['param']);
-        $d->size = isset($d->size)? $d->size : "";
+        $d->size = isset($d->size) ? $d->size : "";
         $db->query_write("
 			UPDATE ".$pfx."eloption
 			SET fieldsize='".$d->size."'

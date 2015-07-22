@@ -12,10 +12,10 @@ $modFM = Abricos::GetModule('filemanager');
 $manager = $modMan->GetCatalogManager();
 $fmManager = $modFM->GetManager();
 
-if (!$manager->isWriteRole()) {
+if (!$manager->isWriteRole()){
     return;
 }
-if (!$fmManager->IsFileUploadRole()) {
+if (!$fmManager->IsFileUploadRole()){
     return;
 }
 
@@ -23,13 +23,13 @@ $brick = Brick::$builder->brick;
 $brick->param->var['url'] = Abricos::$adress->requestURI;
 
 $p_act = Abricos::CleanGPC('p', 'act', TYPE_STR);
-if ($p_act != "upload") {
+if ($p_act != "upload"){
     return;
 }
 
 $arr = array();
 $errors = array();
-for ($i = 0; $i < 6; $i++) {
+for ($i = 0; $i < 6; $i++){
 
     $uploadFile = FileManagerModule::$instance->GetManager()->CreateUploadByVar('file'.$i);
     // $uploadFile->maxImageWidth = 1024;
@@ -39,7 +39,7 @@ for ($i = 0; $i < 6; $i++) {
     $uploadFile->folderPath = "system/".date("d.m.Y", TIMENOW);
 
     $errornum = $uploadFile->Upload();
-    if (empty($errornum)) {
+    if (empty($errornum)){
         $arr[] = $uploadFile->uploadFileHash;
     } else {
         $errors[] = array(
@@ -48,7 +48,7 @@ for ($i = 0; $i < 6; $i++) {
         );
     }
 }
-if (empty($arr)) {
+if (empty($arr)){
     return;
 }
 
@@ -57,14 +57,14 @@ $newarr = array();
 
 $uploadId = $modCatalog->uploadId;
 
-if ($modCatalog->uploadStatus == 0) {
+if ($modCatalog->uploadStatus == 0){
     // Элемент в процессе добавления, поэтому формируем список загруженных файлов и
     // складываем их в кеш
     CatalogQuery::SessionAppend(Abricos::$db, $uploadId, $json);
     $rows = CatalogQuery::Session(Abricos::$db, $uploadId);
-    while (($row = Abricos::$db->fetch_array($rows))) {
+    while (($row = Abricos::$db->fetch_array($rows))){
         $tarr = json_decode($row['data']);
-        foreach ($tarr as $ta) {
+        foreach ($tarr as $ta){
             $newarr[] = $ta;
         }
     }
@@ -72,7 +72,7 @@ if ($modCatalog->uploadStatus == 0) {
     CatalogQuery::FotoAppend(Abricos::$db, $uploadId, $arr);
 
     $rows = CatalogQuery::FotoList(Abricos::$db, $uploadId);
-    while (($row = Abricos::$db->fetch_array($rows))) {
+    while (($row = Abricos::$db->fetch_array($rows))){
         $newarr[] = $row['fid'];
     }
 }

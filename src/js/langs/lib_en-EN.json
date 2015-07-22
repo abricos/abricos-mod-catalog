@@ -1,0 +1,18 @@
+{
+  "nottitle": "",
+  "catalog": {
+    "title": "Catalog",
+    "button": {
+    }
+  },
+  "element": {
+    "title": "Element",
+    "count": "The number of elements",
+    "button": {
+      "add": "Add element"
+    },
+    "type": {
+      "base": "Base"
+    }
+  }
+}

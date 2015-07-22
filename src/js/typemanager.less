@@ -1,57 +1,68 @@
-.aw-catalog .typeman .brdtable {
-	width: 100%;
-}
-.aw-catalog .typeman .brdtable .brdlcol {
-	width: 300px;
-	border-right: 1px solid #D1D3DC;
-}
-.aw-catalog .typeman .brdtable .brdlcol .explore {
-	width: 300px;
-}
-.aw-catalog .typeman .brdtable .brdrcol {
-	padding-left: 5px;
-}
+.aw-catalog {
+  .typeman .brdtable {
+    width: 100%;
+  }
 
-/* * * * Список типов элемента * * * */
-.aw-catalog .typeman .brdlcol .mangroup {
-	border-bottom: 1px solid #DCDEE4;
-	padding: 10px 0;
-	text-align: right;
-}
+  .typeman .brdtable .brdlcol {
+    width: 300px;
+    border-right: 1px solid #D1D3DC;
+  }
 
-.aw-catalog .typelist .elrow {
-	min-height: 22px;
-	position: relative;
-}
-.aw-catalog .typelist .elrow:hover {
-	background-color: #FFF0C6;
-}
-.aw-catalog .typelist .elrow .tl {
-	cursor: pointer;
+  .typeman .brdtable .brdlcol .explore {
+    width: 300px;
+  }
+
+  .typeman .brdtable .brdrcol {
+    padding-left: 5px;
+  }
+
+  /* * * * Список типов элемента * * * */
+  .typeman .brdlcol .mangroup {
+    border-bottom: 1px solid #DCDEE4;
+    padding: 10px 0;
+    text-align: right;
+  }
+
+  .typelist .elrow {
+    min-height: 22px;
+    position: relative;
+  }
+
+  .typelist .elrow:hover {
+    background-color: #FFF0C6;
+  }
+
+  .typelist .elrow .tl {
+    cursor: pointer;
     margin: 0 10px 0 5px;
     overflow: hidden;
-    padding: 3px; 
+    padding: 3px;
     position: relative;
     white-space: nowrap;
-}
-.aw-catalog .typelist .elrow .rborder {
-	border: 1px solid #D1D3DC;
-	border-radius: 5px;
-}
+  }
 
-/* * * Menu * * */
-.aw-catalog .typelist .elrow .elrmenu {
-	position: absolute;
+  .typelist .elrow .rborder {
+    border: 1px solid #D1D3DC;
+    border-radius: 5px;
+  }
+
+  /* * * Menu * * */
+  .typelist .elrow .elrmenu {
+    position: absolute;
     display: none;
     right: 0px;
     top: -1px;
-}
-.aw-catalog .typelist .elrow:hover .elrmenu {
-	display: block;
-}
-.aw-catalog .typelist .elrow .itemline:hover .elrmenu {
-	display: block;
-}
-.aw-catalog .typelist .elrow .selected {
-	font-weight: bold;
+  }
+
+  .typelist .elrow:hover .elrmenu {
+    display: block;
+  }
+
+  .typelist .elrow .itemline:hover .elrmenu {
+    display: block;
+  }
+
+  .typelist .elrow .selected {
+    font-weight: bold;
+  }
 }
