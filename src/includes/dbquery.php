@@ -31,7 +31,7 @@ class CatalogDbQuery {
 					GROUP BY e.catalogid
 				) as ecnt
 			FROM ".$pfx."catalog cat
-			LEFT JOIN ".$pfx."element e ON e.catalogid=0 AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+			LEFT JOIN ".$pfx."element e ON e.catalogid=0 AND e.deldate=0
 			GROUP BY e.catalogid
 			LIMIT 1)
 							
@@ -52,12 +52,12 @@ class CatalogDbQuery {
 				(
 					SELECT count(*) as cnt
 					FROM ".$pfx."element e
-					WHERE e.catalogid=cat.catalogid AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+					WHERE e.catalogid=cat.catalogid AND e.deldate=0
 					GROUP BY e.catalogid
 				) as ecnt
 			FROM ".$pfx."catalog cat
 			LEFT JOIN ".$db->prefix."fm_file f ON cat.imageid=f.filehash 
-			WHERE cat.deldate=0 AND cat.language='".bkstr(Abricos::$LNG)."'
+			WHERE cat.deldate=0
 			)
 			ORDER BY ord DESC, tl
 		";
@@ -80,7 +80,7 @@ class CatalogDbQuery {
 					0 as ord,
 					count(*) as ecnt
 				FROM ".$pfx."element e
-				WHERE e.catalogid=0 AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+				WHERE e.catalogid=0 AND e.deldate=0
 			";
         } else {
             $sql = "
@@ -108,7 +108,7 @@ class CatalogDbQuery {
 					cat.metadesc as mdsc
 					 
 				FROM ".$pfx."catalog cat
-				WHERE catalogid=".bkint($catid)." AND cat.deldate=0 AND cat.language='".bkstr(Abricos::$LNG)."'
+				WHERE catalogid=".bkint($catid)." AND cat.deldate=0
 				LIMIT 1
 			";
         }
@@ -118,7 +118,7 @@ class CatalogDbQuery {
     public static function CatalogAppend(Ab_Database $db, $pfx, $d){
         $sql = "
 			INSERT INTO ".$pfx."catalog
-				(parentcatalogid, title, name, imageid, descript, metatitle, metakeys, metadesc, menudisable, listdisable, ord, language, dateline) VALUES (
+				(parentcatalogid, title, name, imageid, descript, metatitle, metakeys, metadesc, menudisable, listdisable, ord, dateline) VALUES (
 				".bkint($d->pid).",
 				'".bkstr($d->tl)."',
 				'".bkstr($d->nm)."',
@@ -130,7 +130,6 @@ class CatalogDbQuery {
 				".bkint($d->mdsb).",
 				".bkint($d->ldsb).",
 				".bkint($d->ord).",
-				'".bkstr(Abricos::$LNG)."',
 				".TIMENOW."
 			)
 		";
@@ -190,7 +189,7 @@ class CatalogDbQuery {
 				e.changelog as chlg
 				".$extFields."
 			FROM ".$pfx."element e
-			WHERE e.ismoder=0 AND e.name='".bkstr($elname)."' AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+			WHERE e.ismoder=0 AND e.name='".bkstr($elname)."' AND e.deldate=0
 			ORDER BY e.version DESC
 		";
         return $db->query_read($sql);
@@ -217,7 +216,7 @@ class CatalogDbQuery {
 				e.changelog as chlg
 				".$extFields."
 			FROM ".$pfx."element e
-			WHERE e.ismoder=0 AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+			WHERE e.ismoder=0 AND e.deldate=0
 			ORDER BY e.dateline DESC, e.version DESC
 			LIMIT 100
 		";
@@ -327,7 +326,7 @@ class CatalogDbQuery {
 					".($isAdmin ? "e.ismoder=1" : "(e.ismoder=1 AND userid=".bkint($userid).")")."
 				) 
 				AND e.isarhversion=0 
-				AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+				AND e.deldate=0
 		";
 
         $isWhere = false;
@@ -388,7 +387,7 @@ class CatalogDbQuery {
 					".($isAdmin ? "e.ismoder=1" : "(e.ismoder=1 AND userid=".bkint($userid).")")."
 				) 
 				AND e.isarhversion=0 
-				AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+				AND e.deldate=0
 		";
 
         $isWhere = false;
@@ -483,7 +482,7 @@ class CatalogDbQuery {
 					".($isAdmin ? "e.ismoder=1" : "(e.ismoder=1 AND userid=".bkint($userid).")")."
 				) 
 				AND e.isarhversion=0 AND e.name='".bkstr($name)."'
-				AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+				AND e.deldate=0
 			LIMIT 1
 		";
         return $db->query_first($sql);
@@ -512,7 +511,7 @@ class CatalogDbQuery {
         $sql = "
 			INSERT INTO ".$pfx."element
 			(catalogid, eltypeid, userid, title, name, metatitle, metakeys, metadesc, ord, 
-				version, prevelementid, changelog, ismoder, language, dateline) VALUES (
+				version, prevelementid, changelog, ismoder, dateline) VALUES (
 				".bkint($d->catid).",
 				".bkint($d->tpid).",
 				".bkint($userid).",
@@ -526,7 +525,6 @@ class CatalogDbQuery {
 				".bkint($d->pelid).",
 				'".bkstr($d->chlg)."',
 				".($isOperator ? 1 : 0).",
-				'".bkstr(Abricos::$LNG)."',
 				".TIMENOW."
 			)
 		";
@@ -783,12 +781,11 @@ class CatalogDbQuery {
     public static function ElementTypeAppend(Ab_Database $db, $pfx, $d){
         $sql = "
 			INSERT INTO ".$pfx."eltype
-				(name, title, titlelist, descript, language) VALUES (
+				(name, title, titlelist, descript) VALUES (
 				'".bkstr($d->nm)."',
 				'".bkstr($d->tl)."',
 				'".bkstr($d->tls)."',
-				'".bkstr($d->dsc)."',
-				'".bkstr(Abricos::$LNG)."'
+				'".bkstr($d->dsc)."'
 			)
 		";
         $db->query_write($sql);
@@ -827,7 +824,7 @@ class CatalogDbQuery {
 				name as nm,
 				descript as dsc
 			FROM ".$pfx."eltype t
-			WHERE t.deldate=0 AND t.language='".bkstr(Abricos::$LNG)."'
+			WHERE t.deldate=0
 		";
         return $db->query_read($sql);
     }
@@ -840,7 +837,6 @@ class CatalogDbQuery {
 				name as nm,
 				eltypeid as tpid
 			FROM ".$pfx."eloptgroup
-			WHERE language='".bkstr(Abricos::$LNG)."'
 			ORDER BY ord DESC, title
 		";
         return $db->query_read($sql);
@@ -873,7 +869,7 @@ class CatalogDbQuery {
     public static function ElementOptionAppend(Ab_Database $db, $pfx, $d){
         $sql = "
 			INSERT INTO ".$pfx."eloption
-			(eltypeid, fieldtype, fieldsize, eloptgroupid, name, title, descript, currencyid, param, language, ord, dateline) VALUES (
+			(eltypeid, fieldtype, fieldsize, eloptgroupid, name, title, descript, currencyid, param, ord, dateline) VALUES (
 				".bkint($d->tpid).",
 				".bkint($d->tp).",
 				'".bkstr($d->sz)."',
@@ -883,7 +879,6 @@ class CatalogDbQuery {
 				'".bkstr($d->dsc)."',
 				".bkint($d->crcid).",
 				'".bkstr($d->prm)."',
-				'".bkstr(Abricos::$LNG)."',
 				".bkint($d->ord).",
 				".TIMENOW."
 			)
@@ -1049,7 +1044,7 @@ class CatalogDbQuery {
 				eltitlesource as ets,
 				disable as dsb
 			FROM ".$pfx."eloption
-			WHERE deldate=0 AND language='".bkstr(Abricos::$LNG)."'
+			WHERE deldate=0
 			ORDER BY tpid, ord DESC, tl
 		";
         return $db->query_read($sql);
@@ -1261,7 +1256,7 @@ class CatalogDbQuery {
  				title as tl,
  				'c' as tp
  			FROM ".$pfx."catalog
- 			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%' AND language='".bkstr(Abricos::$LNG)."'
+ 			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%'
  			LIMIT 3
  			
  			UNION
@@ -1271,7 +1266,7 @@ class CatalogDbQuery {
  				title as tl,
  				'e' as tp
  			FROM ".$pfx."element e
- 			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%' AND language='".bkstr(Abricos::$LNG)."'
+ 			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%'
 		";
         if ($eFValue > 0){
             $sql .= "
@@ -1294,7 +1289,7 @@ class CatalogDbQuery {
 					title as tl,
 					'c' as tp
 				FROM ".$pfx."catalog
-				WHERE deldate=0 AND title LIKE '%".bkstr($query)."%' AND language='".bkstr(Abricos::$LNG)."'
+				WHERE deldate=0 AND title LIKE '%".bkstr($query)."%'
 				LIMIT 3
 			
 				UNION
@@ -1307,7 +1302,7 @@ class CatalogDbQuery {
 				title as tl,
 				'e' as tp
 			FROM ".$pfx."element e
-			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%' AND language='".bkstr(Abricos::$LNG)."'
+			WHERE deldate=0 AND title LIKE '%".bkstr($query)."%'
 		";
         if ($eFValue > 0){
             $sql .= "
@@ -1404,7 +1399,7 @@ class CatalogDbQuery {
 			FROM ".$pfx."element e
 			WHERE e.ismoder=0
 				AND e.isarhversion=0 
-				AND e.deldate=0 AND e.language='".bkstr(Abricos::$LNG)."'
+				AND e.deldate=0
 			GROUP BY e.catalogid, e.eltypeid
 		";
         return $db->query_read($sql);
@@ -1416,7 +1411,7 @@ class CatalogDbQuery {
         $sql = "
 			SELECT currencyid as id, c.*
 			FROM ".$pfx."currency c
-			WHERE c.deldate=0 AND c.language='".bkstr(Abricos::$LNG)."'
+			WHERE c.deldate=0
 		";
         return $db->query_read($sql);
     }
@@ -1425,7 +1420,7 @@ class CatalogDbQuery {
         $d = array_to_object($d);
         $sql = "
 			INSERT INTO ".$pfx."currency
-				(isdefault, title, codestr, codenum, rateval, ratedate, prefix, postfix, ord, dateline, language) VALUES (
+				(isdefault, title, codestr, codenum, rateval, ratedate, prefix, postfix, ord, dateline) VALUES (
 				".intval($d->isdefault).",
 				'".bkstr($d->title)."',
 				'".bkstr($d->codestr)."',
@@ -1435,8 +1430,7 @@ class CatalogDbQuery {
 				'".bkstr($d->prefix)."',
 				'".bkstr($d->postfix)."',
 				".intval($d->ord).",
-				".TIMENOW.",
-				'".bkstr(Abricos::$LNG)."'
+				".TIMENOW."
 			)
 		";
         $db->query_write($sql);
@@ -1448,7 +1442,7 @@ class CatalogDbQuery {
             $sql = "
                 UPDATE ".$pfx."currency
                 SET isdefault=0
-                WHERE currencyid<>".bkint($d->id)." AND language='".bkstr(Abricos::$LNG)."'
+                WHERE currencyid<>".bkint($d->id)."
             ";
             $db->query_write($sql);
         }
