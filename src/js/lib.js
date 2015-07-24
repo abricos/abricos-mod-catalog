@@ -1,17 +1,27 @@
 var Component = new Brick.Component();
 Component.requires = {
+    yui: ['model', 'model-list'],
     yahoo: ['dom', 'event'],
     mod: [
-        {name: 'sys', files: ['item.js', 'container.js']},
+        {name: 'sys', files: ['application.js', 'form.js', 'item.js', 'container.js']},
         {name: 'widget', files: ['notice.js', 'lib.js']}
     ]
 };
 Component.entryPoint = function(NS){
 
-    var L = YAHOO.lang,
-        CE = YAHOO.util.CustomEvent;
+    var Y = Brick.YUI,
+        L = Y.Lang,
+        COMPONENT = this,
+        SYS = Brick.mod.sys;
 
-    var SysNS = Brick.mod.sys;
+    SYS.Application.build(COMPONENT, {
+    }, {
+        initializer: function(){
+            this.initCallbackFire();
+        }
+    });
+
+    var CE = YAHOO.util.CustomEvent;
     var LNG = this.language;
 
     var buildTemplate = this.buildTemplate;
@@ -25,8 +35,8 @@ Component.entryPoint = function(NS){
         f = NS.lif(f);
         f(p1, p2, p3, p4, p5, p6, p7);
     };
-    NS.Item = SysNS.Item;
-    NS.ItemList = SysNS.ItemList;
+    NS.Item = SYS.Item;
+    NS.ItemList = SYS.ItemList;
 
     NS.FTYPE = {
         'BOOLEAN': 0,
@@ -43,12 +53,12 @@ Component.entryPoint = function(NS){
     };
 
     var Dict = function(d){
-        d = L.merge({
+        d = Y.merge({
             'tl': ''
         }, d || {});
         Dict.superclass.constructor.call(this, d);
     };
-    YAHOO.extend(Dict, SysNS.Item, {
+    YAHOO.extend(Dict, SYS.Item, {
         update: function(d){
             this.title = d['tl'];
         }
@@ -58,12 +68,12 @@ Component.entryPoint = function(NS){
     var DictList = function(d){
         DictList.superclass.constructor.call(this, d, Dict);
     };
-    YAHOO.extend(DictList, SysNS.ItemList, {});
+    YAHOO.extend(DictList, SYS.ItemList, {});
     NS.DictList = DictList;
 
     var CatalogItem = function(manager, d){
         this.manager = manager;
-        d = L.merge({
+        d = Y.merge({
             'pid': 0,
             'tl': '', // заголовок
             'nm': '', // имя (URL)
@@ -76,7 +86,7 @@ Component.entryPoint = function(NS){
         }, d || {});
         CatalogItem.superclass.constructor.call(this, d);
     };
-    YAHOO.extend(CatalogItem, SysNS.Item, {
+    YAHOO.extend(CatalogItem, SYS.Item, {
         init: function(d){
             this.detail = null;
             this.parent = null;
@@ -117,7 +127,7 @@ Component.entryPoint = function(NS){
     NS.CatalogItem = CatalogItem;
 
     var CatalogDetail = function(d){
-        d = L.merge({
+        d = Y.merge({
             'dsc': '',
             'mtl': '',
             'mks': '',
@@ -125,7 +135,7 @@ Component.entryPoint = function(NS){
         }, d || {});
         CatalogDetail.superclass.constructor.call(this, d);
     };
-    YAHOO.extend(CatalogDetail, SysNS.Item, {
+    YAHOO.extend(CatalogDetail, SYS.Item, {
         update: function(d){
             this.descript = d['dsc'];
             this.metaTitle = d['mtl'];
@@ -137,12 +147,12 @@ Component.entryPoint = function(NS){
 
     var CatalogList = function(manager, d, catalogItemClass, cfg){
         this.manager = manager;
-        cfg = L.merge({
+        cfg = Y.merge({
             'order': '!order,title'
         }, cfg || {});
         CatalogList.superclass.constructor.call(this, d, catalogItemClass, cfg);
     };
-    YAHOO.extend(CatalogList, SysNS.ItemList, {
+    YAHOO.extend(CatalogList, SYS.ItemList, {
         createItem: function(di){
             return this.manager.newCatalogItem(di);
         },
@@ -167,7 +177,7 @@ Component.entryPoint = function(NS){
 
     var Element = function(manager, d){
         this.manager = manager;
-        d = L.merge({
+        d = Y.merge({
             'catid': 0,
             'uid': 0,
             'tpid': 0,
@@ -179,7 +189,7 @@ Component.entryPoint = function(NS){
         }, d || {});
         Element.superclass.constructor.call(this, d);
     };
-    YAHOO.extend(Element, SysNS.Item, {
+    YAHOO.extend(Element, SYS.Item, {
         init: function(d){
             this.detail = null;
             Element.superclass.init.call(this, d);
@@ -221,7 +231,7 @@ Component.entryPoint = function(NS){
     NS.Element = Element;
 
     var ElementDetail = function(manager, owner, d){
-        d = L.merge({
+        d = Y.merge({
             'fotos': [],
             'mtl': '',
             'mdsc': '',
@@ -296,7 +306,7 @@ Component.entryPoint = function(NS){
         this.catid = catid;
         ElementList.superclass.constructor.call(this, d, elementClass, cfg);
     };
-    YAHOO.extend(ElementList, SysNS.ItemList, {
+    YAHOO.extend(ElementList, SYS.ItemList, {
         createItem: function(di){
             return this.manager.newElement(di);
         },
@@ -328,7 +338,7 @@ Component.entryPoint = function(NS){
 
     var ElementOption = function(manager, d){
         this.manager = manager;
-        d = L.merge({
+        d = Y.merge({
             'tl': '',
             'nm': '',
             'prm': '',
@@ -341,7 +351,7 @@ Component.entryPoint = function(NS){
         }, d || {});
         ElementOption.superclass.constructor.call(this, d);
     };
-    YAHOO.extend(ElementOption, SysNS.Item, {
+    YAHOO.extend(ElementOption, SYS.Item, {
         update: function(d){
             this.title = d['tl'];
             this.name = d['nm'];
@@ -357,7 +367,7 @@ Component.entryPoint = function(NS){
     NS.ElementOption = ElementOption;
 
     var ElementOptionTable = function(manager, d){
-        d = L.merge({
+        d = Y.merge({
             'values': {}
         }, d || {});
         ElementOptionTable.superclass.constructor.call(this, manager, d);
@@ -392,13 +402,13 @@ Component.entryPoint = function(NS){
         this.manager = manager;
         elementOptionItemClass = elementOptionItemClass || ElementOption;
 
-        cfg = L.merge({
+        cfg = Y.merge({
             'order': '!order,title'
         }, cfg || {});
 
         ElementOptionList.superclass.constructor.call(this, d, elementOptionItemClass, cfg);
     };
-    YAHOO.extend(ElementOptionList, SysNS.ItemList, {
+    YAHOO.extend(ElementOptionList, SYS.ItemList, {
         createItem: function(di){
             if (di['tp'] == NS.FTYPE['TABLE']){
                 var opt = new ElementOptionTable(this.manager, di);
@@ -412,7 +422,7 @@ Component.entryPoint = function(NS){
     var ElementType = function(manager, d){
         this.manager = manager;
 
-        d = L.merge({
+        d = Y.merge({
             'tl': '',
             'tls': '',
             'nm': '',
@@ -420,7 +430,7 @@ Component.entryPoint = function(NS){
         }, d || {});
         ElementType.superclass.constructor.call(this, d);
     };
-    YAHOO.extend(ElementType, SysNS.Item, {
+    YAHOO.extend(ElementType, SYS.Item, {
         update: function(d){
             this.title = d['tl'];
             this.titleList = d['tls'];
@@ -436,7 +446,7 @@ Component.entryPoint = function(NS){
         this.manager = manager;
         ElementTypeList.superclass.constructor.call(this, d, elementTypeClass, cfg);
     };
-    YAHOO.extend(ElementTypeList, SysNS.ItemList, {
+    YAHOO.extend(ElementTypeList, SYS.ItemList, {
         createItem: function(di){
             return this.manager.newElementType(di);
         },
@@ -458,7 +468,7 @@ Component.entryPoint = function(NS){
     var ElementOptionGroup = function(manager, d){
         this.manager = manager;
 
-        d = L.merge({
+        d = Y.merge({
             'tpid': 0,
             'tl': '',
             'nm': '',
@@ -466,7 +476,7 @@ Component.entryPoint = function(NS){
         }, d || {});
         ElementOptionGroup.superclass.constructor.call(this, d);
     };
-    YAHOO.extend(ElementOptionGroup, SysNS.Item, {
+    YAHOO.extend(ElementOptionGroup, SYS.Item, {
         update: function(d){
             this.elTypeId = d['tpid'] | 0;
             this.title = d['tl'];
@@ -479,7 +489,7 @@ Component.entryPoint = function(NS){
         this.manager = manager;
         ElementOptionGroupList.superclass.constructor.call(this, d, elementTypeClass, cfg);
     };
-    YAHOO.extend(ElementOptionGroupList, SysNS.ItemList, {
+    YAHOO.extend(ElementOptionGroupList, SYS.ItemList, {
         createItem: function(di){
             return this.manager.newElementOptionGroup(di);
         }
@@ -490,7 +500,7 @@ Component.entryPoint = function(NS){
     var Currency = function(manager, d){
         this.manager = manager;
 
-        d = L.merge({
+        d = Y.merge({
             'isdefault': 0,
             'title': '',
             'codestr': '',
@@ -503,7 +513,7 @@ Component.entryPoint = function(NS){
         }, d || {});
         Currency.superclass.constructor.call(this, d);
     };
-    YAHOO.extend(Currency, SysNS.Item, {
+    YAHOO.extend(Currency, SYS.Item, {
         update: function(d){
             this.isDefault = d['isdefault'] | 0 > 0;
             this.title = d['title'];
@@ -522,7 +532,7 @@ Component.entryPoint = function(NS){
         this.manager = manager;
         CurrencyList.superclass.constructor.call(this, d, currencyClass, cfg);
     };
-    YAHOO.extend(CurrencyList, SysNS.ItemList, {
+    YAHOO.extend(CurrencyList, SYS.ItemList, {
         createItem: function(di){
             return this.manager.newCurrency(di);
         }
@@ -533,7 +543,7 @@ Component.entryPoint = function(NS){
     NS.managers = {};
 
     var Manager = function(modname, callback, cfg){
-        cfg = L.merge({
+        cfg = Y.merge({
             'roles': {},
             'CatalogItemClass': NS.CatalogItem,
             'CatalogListClass': NS.CatalogList,
@@ -554,7 +564,7 @@ Component.entryPoint = function(NS){
             'versionControl': false
         }, cfg || {});
 
-        cfg['roles'] = L.merge({
+        cfg['roles'] = Y.merge({
             'isView': false,
             'isWrite': false,
             'isOperator': false,
@@ -771,7 +781,7 @@ Component.entryPoint = function(NS){
         },
         // вся информация по каталогу включая его элементы
         catalogLoad: function(catid, callback, cfg){
-            cfg = L.merge({
+            cfg = Y.merge({
                 'elementlist': false
             }, cfg || {});
 

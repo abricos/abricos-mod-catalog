@@ -7,129 +7,72 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-    var E = YAHOO.util.Event,
-        L = YAHOO.lang,
-        buildTemplate = this.buildTemplate,
-        BW = Brick.mod.widget.Widget;
+    var Y = Brick.YUI,
+        L = Y.Lang,
+        COMPONENT = this,
+        SYS = Brick.mod.sys;
 
-    var TypeEditorWidget = function(container, manager, elType, cfg){
-        cfg = L.merge({
-            'fromElement': null,
-            'onCancelClick': null,
-            'onSave': null
-        }, cfg || {});
-        TypeEditorWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'widget'
-        }, manager, elType, cfg);
-    };
-    YAHOO.extend(TypeEditorWidget, BW, {
-        init: function(manager, elType, cfg){
-            this.manager = manager;
-            this.elType = elType;
-            this.cfg = cfg;
+    NS.TypeEditorWidget = Y.Base.create('typeEditorWidget', SYS.AppWidget, [
+        SYS.Form,
+        SYS.FormAction
+    ], {
+        initializer: function(){
+            this.publish('onCancelClick');
+            this.publish('onSave');
         },
-        onLoad: function(manager, elType){
-            var cfg = this.cfg, fel = cfg['fromElement'];
-            if (!L.isNull(fel)){
-                /*
-                 if (!L.isNull(fel.detail)){
-                 this._onLoadElement(fel.copy());
-                 }else{
-                 var __self = this;
-                 manager.typeLoad(fel.id, function(fel){
-                 __self._onLoadElement(fel.copy());
-                 }, fel);
-                 }
-                 /**/
-            }
-
-            this.elHide('loading');
-            this.elShow('view');
-
-            var __self = this;
-
-            this.elSetValue({
-                'tl': elType.title,
-                'tls': elType.titleList,
-                'nm': elType.name
-            });
-
-            var keypress = function(e){
-                if (e.keyCode != 13){
-                    return false;
-                }
-                __self.save();
-                return true;
-            };
-            E.on(this.gel('tl'), 'keypress', keypress);
-
-            E.on(this.gel('nm'), 'focus', function(e){
-                __self.nameTranslate();
-            });
-
-            var elTitle = this.gel('tl');
-            setTimeout(function(){
-                try {
-                    elTitle.focus();
-                } catch (e) {
-                }
-            }, 100);
+        onInitAppWidget: function(err, appInstance){
+            Y.one(this.gel('name')).on('focus', this.nameTranslate, this);
+            this.set('model', new Y.Model(this.get('elType')));
         },
         nameTranslate: function(){
-            var tl = L.trim(this.gel('tl').value),
-                nm = L.trim(this.gel('nm').value);
+            this.updateModelFromUI();
+            var tp = this.template,
+                tl = L.trim(tp.gel('title').value),
+                nm = L.trim(tp.gel('name').value);
             if (nm.length == 0){
                 nm = Brick.util.Translite.ruen(tl);
             }
-
-            this.elSetValue({
-                'nm': Brick.util.Translite.ruen(nm)
-            });
+            this.get('model').set('name', Brick.util.Translite.ruen(nm));
         },
-        _wsClear: function(){
-            var ws = this.wsOptions;
-            for (var i = 0; i < ws.length; i++){
-                ws[i].destroy();
-            }
-            this.wsOptions = [];
-        },
-        onClick: function(el, tp){
-            switch (el.id) {
-                case tp['bsave']:
-                case tp['bsavec']:
-                    this.save();
-                    return true;
-                case tp['bcancel']:
-                case tp['bcancelc']:
-                    this.onCancelClick();
-                    return true;
-            }
-            return false;
-        },
-        onCancelClick: function(){
-            NS.life(this.cfg['onCancelClick'], this);
+        onSubmitFormAction: function(){
+            this.save();
         },
         save: function(){
             this.nameTranslate();
 
-            var cfg = this.cfg, elType = this.elType;
-            var sd = {
-                'tl': this.gel('tl').value,
-                'tls': this.gel('tls').value,
-                'nm': this.gel('nm').value,
-                'dsc': ''
-            };
+            var attrs = this.get('model').toJSON(),
+                elType = this.get('elType'),
+                sd = {
+                    'tl': attrs.title,
+                    'tls': attrs.titleList,
+                    'nm': attrs.name,
+                    'dsc': ''
+                };
 
-            this.elHide('btnsc,btnscc');
-            this.elShow('btnpc,btnpcc');
+            this.set('waiting', true);
 
             var __self = this;
-            this.manager.elementTypeSave(elType.id, sd, function(elType){
-                __self.elShow('btnsc,btnscc');
-                __self.elHide('btnpc,btnpcc');
-                NS.life(cfg['onSave'], __self, elType);
-            }, elType);
+            this.get('manager').elementTypeSave(elType.id, sd, function(elType){
+                __self.set('waiting', false);
+                __self.fire('onSave', elType);
+            });
+        },
+        onClick: function(e){
+            switch (e.dataClick) {
+                case 'cancel':
+                    this.fire('onCancelClick');
+                    return true;
+            }
+        }
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'widget'},
+            manager: {value: null},
+            elType: {value: null},
+            fromElement: {value: null},
+            formFocusField: {value: 'title'}
         }
     });
-    NS.TypeEditorWidget = TypeEditorWidget;
+
 };

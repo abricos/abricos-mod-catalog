@@ -70,18 +70,19 @@ Component.entryPoint = function(NS){
                 return;
             }
 
-            var man = this.manager, __self = this;
+            var man = this.manager;
             var elType = elTypeId == 0 ? man.newElementType() : man.typeList.get(elTypeId);
-            this.elTypeEditor =
-                new NS.TypeEditorWidget(this.gel('eltypeeditor'), man, elType, {
-                    // 'fromElement': fel || null,
-                    'onCancelClick': function(wEditor){
-                        __self.closeElTypeEditor();
-                    },
-                    'onSave': function(wEditor){
-                        __self.render();
-                    }
-                });
+
+            var div = Y.Node.create('<div></div>');
+            Y.one(this.gel('eltypeeditor')).append(div);
+            this.elTypeEditor = new NS.TypeEditorWidget({
+                boundingBox: div,
+                manager: man,
+                elType: elType,
+            });
+            this.elTypeEditor.on('onCancelClick', this.closeElTypeEditor, this);
+            this.elTypeEditor.on('onSave', this.render, this);
+
             this.elHide('eltypeviewer');
             this.elShow('eltypeeditor');
         },
@@ -90,7 +91,7 @@ Component.entryPoint = function(NS){
                 return;
             }
 
-            this.elTypeEditor.destroy();
+            this.elTypeEditor.destroy(true);
             this.elTypeEditor = null;
 
             this.elShow('eltypeviewer');
