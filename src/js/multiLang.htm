@@ -1,2 +1,13 @@
 <!--{widget}-->
-<div id="{i#id}"></div>
+<div id="{i#id}" class="multiLang">
+</div>
+
+<!--{input}-->
+<div class="input-group">
+    <div class="input-group-addon">
+        {v#lang}
+    </div>
+    <input name="{v#name}" type="text"
+           class="form-control"
+           onfocus="this.select();"/>
+</div>

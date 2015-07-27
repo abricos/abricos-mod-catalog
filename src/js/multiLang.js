@@ -11,27 +11,37 @@ Component.entryPoint = function(NS){
         SYS = Brick.mod.sys;
 
     NS.MultiLangInputWidget = Y.Base.create('multiLangInputWidget', SYS.AppWidget, [], {
+        /*
+         initializer: function(){
+         this.after('fieldNameChange', this._afterFieldNameChange, this);
+         },
+         _afterFieldNameChange: function(){
+
+         },
+         /**/
         onInitAppWidget: function(err, appInstance){
-            console.log(this);
-            /*
-            this.publish('layerChange');
+            var tp = this.template,
+                lst = "",
+                langs = Brick.env.languages,
+                fieldName = this.get('fieldName');
 
-            this.set('waiting', true);
-
-            appInstance.fullData(function(err, result){
-                this.set('waiting', false);
-                if (!err){
-                    this.set('layerList', result.layerList);
-                }
-                this.onLoadMapData();
-            }, this);
-            /**/
+            for (var i = 0; i < langs.length; i++){
+                var lang = langs[i];
+                lst += tp.replace('input', {
+                    lang: lang,
+                    name: fieldName + '_' + lang
+                });
+            }
+            tp.gel('id').innerHTML = lst;
         }
     }, {
         ATTRS: {
             component: {value: COMPONENT},
             templateBlockName: {
-                value: 'widget'
+                value: 'widget,input'
+            },
+            fieldName: {
+                value: null
             }
         }
     });
