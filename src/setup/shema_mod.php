@@ -95,13 +95,8 @@ if ($updateManager->isInstall()){
 		CREATE TABLE IF NOT EXISTS ".$pfx."eltype (
 			eltypeid INT(5) UNSIGNED NOT NULL auto_increment,
 			name VARCHAR(250) NOT NULL default '',
-			title VARCHAR(250) NOT NULL default '' COMMENT 'Название',
-			titlelist VARCHAR(250) NOT NULL default '' COMMENT 'Название списка',
-			descript text NOT NULL COMMENT 'Описание',
 			fotouse int(1) UNSIGNED NOT NULL default '0' COMMENT 'В опциях элемента есть фотографии, по умолчанию - нет',
 
-			language CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
-			
 			dateline int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
 			deldate int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
 		

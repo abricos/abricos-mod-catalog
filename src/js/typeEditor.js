@@ -1,7 +1,7 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
-        {name: 'sys', files: ['old-form.js', 'editor.js']},
+        {name: 'sys', files: ['form.js']},
         {name: '{C#MODNAME}', files: ['multiLang.js', 'lib.js']}
     ]
 };
@@ -21,16 +21,17 @@ Component.entryPoint = function(NS){
             this.publish('onSave');
         },
         onInitAppWidget: function(err, appInstance){
-            Y.one(this.gel('name')).on('focus', this.nameTranslate, this);
-
             var tp  = this.template;
 
             this.titleInputWidget = new NS.MultiLangInputWidget({
                 boundingBox: tp.gel('title'),
-                fieldName: 'title'
+                fieldName: 'title',
+                appInstance: appInstance
             });
 
-            this.set('model', new Y.Model(this.get('elType')));
+            this.set('model', this.get('elType'));
+
+            Y.one(this.gel('name')).on('focus', this.nameTranslate, this);
         },
         nameTranslate: function(){
             this.updateModelFromUI();

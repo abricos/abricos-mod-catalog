@@ -483,6 +483,9 @@ class CatalogUserList extends AbricosList {
 
 class CatalogElementType extends CatalogItem {
 
+    protected $_structModule = 'catalog';
+    protected $_structName = 'elementType';
+
     /**
      * Название
      *
@@ -512,11 +515,6 @@ class CatalogElementType extends CatalogItem {
 
     public function __construct($d = array()){
         parent::__construct($d);
-
-        $this->title = isset($d['tl']) ? strval($d['tl']) : '';
-        $this->titleList = isset($d['tls']) ? strval($d['tls']) : '';
-        $this->name = isset($d['nm']) ? strval($d['nm']) : '';
-
         $this->options = new CatalogElementOptionList();
 
         $this->tableName = "element";
@@ -527,12 +525,7 @@ class CatalogElementType extends CatalogItem {
 
     public function ToAJAX(){
         $man = func_get_arg(0);
-
-        $ret = new stdClass();
-        $ret->id = $this->id;
-        $ret->tl = $this->title;
-        $ret->tls = $this->titleList;
-        $ret->nm = $this->name;
+        $ret = parent::ToJSON();
 
         if ($this->options->Count() > 0){
             $ret->options = $this->options->ToAJAX($man);
@@ -544,7 +537,7 @@ class CatalogElementType extends CatalogItem {
 /**
  * Тип элемента
  */
-class CatalogElementTypeList extends CatalogItemList {
+class CatalogElementTypeList extends AbricosModelList {
 
     public function Add($item){
         parent::Add($item);
@@ -597,6 +590,7 @@ class CatalogElementTypeList extends CatalogItemList {
         return parent::Get($id);
     }
 
+    /*
     public function ToAJAX(){
         $man = null;
         if (func_num_args() > 0){
@@ -609,6 +603,7 @@ class CatalogElementTypeList extends CatalogItemList {
         }
         return $ret;
     }
+    /**/
 }
 
 class CatalogElementOptionGroup extends CatalogItem {
@@ -1404,18 +1399,7 @@ class CatalogElementOrderOptionList extends CatalogItemList {
     }
 }
 
-class CatalogItem {
-    public $id;
-
-    public function __construct($d){
-        $this->id = isset($d['id']) ? intval($d['id']) : 0;
-    }
-
-    public function ToAJAX(){
-        $ret = new stdClass();
-        $ret->id = $this->id;
-        return $ret;
-    }
+class CatalogItem extends AbricosModel {
 }
 
 class CatalogItemList {
@@ -1475,7 +1459,7 @@ class CatalogItemList {
         $list = array();
         $count = $this->Count();
         for ($i = 0; $i < $count; $i++){
-            $list[] = $this->GetByIndex($i)->ToAJAX();
+            $list[] = $this->GetByIndex($i)->ToJSON();
         }
 
         $ret = new stdClass();

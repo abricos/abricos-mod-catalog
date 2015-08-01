@@ -1,0 +1,75 @@
+<!--{widget}-->
+<div id="{i#id}" class="aw-catalog">
+    <div class="typeman">
+
+        <table class="brdtable">
+            <tbody>
+            <tr>
+
+                <td class="brdlcol">
+
+                    <div id="{i#mangroup}" class="mangroup">
+                        <a data-click="create" class="habtn" href="#">Создать новый тип элемента</a>
+                    </div>
+
+                    <div id="{i#list}"></div>
+                </td>
+                <td class="brdrcol">
+                    <div id="{i#eltypeeditor}"></div>
+                    <div id="{i#eltypeviewer}"></div>
+                </td>
+
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!--{list}-->
+<div id="{i#id}" class="typelist">
+    <div id="{i#list}"></div>
+</div>
+
+<!--{row}-->
+<div id="{i#id}" class="elrow">
+    <div id="{i#wrap}">
+        <div id="{i#dtl}" class="tl">
+            <a href="#" data-click="select">{v#title}</a>
+        </div>
+
+        <div id="{i#menu}" class="boxbutton elrmenu">
+            <div data-click="edit" class="b" title="Редактировать">
+                <div class="bedit bc"></div>
+            </div>
+            <div data-click="copy" class="b bcp" title="Копировать" style="display: none">
+                <div class="bcopy bc"></div>
+            </div>
+            <div data-click="remove" class="b" title="Удалить">
+                <div  class="bremove bc"></div>
+            </div>
+        </div>
+
+        <div id="{i#easyeditor}"></div>
+    </div>
+</div>
+
+<!--{removepanel}-->
+<div class='hd'>Удаление</div>
+<div class='bd aw-company'>
+    <div id="{i#dialogremove}" class="field">
+        <p>
+            Вы действительно хотите удалить тип элемента со всем его содержимым?
+        </p>
+
+        <div class="buttons right">
+			<span id="{i#btns}">
+				<input id="{i#bremove}" value="Удалить" type="button"/>
+				<input id="{i#bcancel}" value="Отмена" type="button"/>
+			</span>
+			<span id="{i#bloading}" style="display: none">
+				<img src="/images/loading.gif"/> Удаление...
+			</span>
+        </div>
+    </div>
+</div>

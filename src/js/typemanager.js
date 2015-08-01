@@ -19,27 +19,7 @@ Component.entryPoint = function(NS){
         }, manager, cfg);
     };
     YAHOO.extend(TypeManagerWidget, BW, {
-        init: function(manager, cfg){
-            this.manager = manager;
-            this.cfg = cfg;
-            this.elTypeEditor = null;
-            this.elTypeViewer = null;
-        },
-        onLoad: function(manager, cfg){
-            var __self = this;
-            this.typeListWidget = new NS.TypeListWidget(this.gel('list'), manager, {
-                'onRowEditClick': function(w){
-                    __self.showElTypeEditor(w.elType.id);
-                },
-                'onRowRemoveClick': function(w){
-                    __self.showRemoveElTypePanel(w.elType.id);
-                },
-                'onRowSelect': function(w){
-                    __self.showElTypeViewer(w.elType.id);
-                }
-            });
-            this.typeListWidget.select(0);
-        },
+
         render: function(){
             this.closeElTypeEditor();
             this.typeListWidget.render();

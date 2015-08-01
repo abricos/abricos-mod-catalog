@@ -494,7 +494,7 @@ class CatalogDbQuery {
         $fields = array();
         for ($i = 0; $i < $options->Count(); $i++){
             $option = $options->GetByIndex($i);
-            $fields[] = "e.fld_".$option->name." as `".$option->name."`";
+            $fields[] = "e.fld_".$option->name." as ".$option->name."";
         }
         $sql = "
 			SELECT
@@ -756,9 +756,9 @@ class CatalogDbQuery {
 
     public static function ElementTypeTableCreate(Ab_Database $db, $tableName){
         $sql = "
-			CREATE TABLE IF NOT EXISTS `".$tableName."` (
-				`elementid` int(10) unsigned NOT NULL,
-				PRIMARY KEY  (`elementid`)
+			CREATE TABLE IF NOT EXISTS ".$tableName." (
+				elementid int(10) unsigned NOT NULL,
+				PRIMARY KEY  (elementid)
 			) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'
 		";
         $db->query_write($sql);
@@ -766,14 +766,14 @@ class CatalogDbQuery {
 
     public static function ElementTypeTableChange(Ab_Database $db, $oldTableName, $newTableName){
         $sql = "
-			RENAME TABLE `".$oldTableName."` TO `".$newTableName."`
+			RENAME TABLE ".$oldTableName." TO ".$newTableName."
 		";
         $db->query_write($sql);
     }
 
     public static function ElementTypeTableRemove(Ab_Database $db, $tableName){
         $sql = "
-			DROP TABLE IF EXISTS `".$tableName."`
+			DROP TABLE IF EXISTS ".$tableName."
 		";
         $db->query_write($sql);
     }
@@ -817,12 +817,7 @@ class CatalogDbQuery {
 
     public static function ElementTypeList(Ab_Database $db, $pfx){
         $sql = "
-			SELECT
-				eltypeid as id,
-				title as tl,
-				titlelist as tls,
-				name as nm,
-				descript as dsc
+			SELECT t.eltypeid as id, t.*
 			FROM ".$pfx."eltype t
 			WHERE t.deldate=0
 		";
@@ -854,14 +849,13 @@ class CatalogDbQuery {
     public static function ElementOptionFieldRemove(Ab_Database $db, $pfx, CatalogElementType $elType, CatalogElementOption $option){
         if ($option->type == Catalog::TP_TABLE){
             $tableName = $pfx."eltbl_".$elType->name."_fld_".$option->name;
-            $sql = "DROP TABLE IF EXISTS `".$tableName."`";
-            $db->query_write($sql);
+            $db->query_write("DROP TABLE IF EXISTS ".$tableName);
             return;
         }
 
         $tableName = CatalogDbQuery::ElementTypeTableName($pfx, $elType->name);
         $sql = "
-			ALTER TABLE `".$tableName."` DROP `fld_".$option->name."`
+			ALTER TABLE ".$tableName." DROP fld_".$option->name."
 		";
         $db->query_write($sql);
     }
@@ -925,7 +919,7 @@ class CatalogDbQuery {
             return;
         }
         $sql = "
-			ALTER TABLE ".$tableName." CHANGE `fld_".$oldOption->name."` `fld_".$optionName."`
+			ALTER TABLE ".$tableName." CHANGE fld_".$oldOption->name." fld_".$optionName."
 		";
 
         switch ($oldOption->type){
@@ -962,16 +956,16 @@ class CatalogDbQuery {
             $fldTableName = $pfx."eltbl_".$elType->name."_fld_".$d->nm;
 
             $sql = "
-				CREATE TABLE IF NOT EXISTS `".$fldTableName."` (
-					`".$optionName."id` int(10) unsigned NOT NULL auto_increment,
-					`title` varchar(250) NOT NULL default '',
-					PRIMARY KEY  (`".$optionName."id`)
+				CREATE TABLE IF NOT EXISTS ".$fldTableName." (
+					".$optionName."id int(10) unsigned NOT NULL auto_increment,
+					title varchar(250) NOT NULL default '',
+					PRIMARY KEY  (".$optionName."id)
 				) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'
 			";
             $db->query_write($sql);
         }
 
-        $sql = "ALTER TABLE ".$tableName." ADD `fld_".$optionName."` ";
+        $sql = "ALTER TABLE ".$tableName." ADD fld_".$optionName." ";
         switch ($d->tp){
             case Catalog::TP_BOOLEAN:
                 $sql .= "INT(1) UNSIGNED NOT NULL DEFAULT 0";
@@ -1017,10 +1011,10 @@ class CatalogDbQuery {
         $tableName = $elTypeTableName."_fld_".$optionName;
 
         $sql = "
-			CREATE TABLE IF NOT EXISTS `".$tableName."` (
-				`".$optionName."id` int(10) unsigned NOT NULL auto_increment,
-				`title` varchar(250) NOT NULL default '',
-				 PRIMARY KEY  (`".$optionName."id`)
+			CREATE TABLE IF NOT EXISTS ".$tableName." (
+				".$optionName."id int(10) unsigned NOT NULL auto_increment,
+				title varchar(250) NOT NULL default '',
+				 PRIMARY KEY  (".$optionName."id)
 			) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'
 		";
         $db->query_write($sql);

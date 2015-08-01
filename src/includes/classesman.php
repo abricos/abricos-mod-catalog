@@ -132,13 +132,17 @@ class CatalogModuleManager {
         return false;
     }
 
-
     public function AJAX($d){
-        // TODO: идея объеденять запросы в один
-        // например $d->do = "cataloglist|elementtypelist"
         switch ($d->do){
+            case "appStructure":
+                return $this->AppStructureToJSON();
+            case "elementTypeList":
+                return $this->ElementTypeListToJSON();
+
+            // old funcitons
+
             case "cataloginitdata":
-                return $this->CatalogInitDataToAJAX();
+                return $this->CatalogInitDataToJSON();
             case "cataloglist":
                 return $this->CatalogListToAJAX();
             case "catalog":
@@ -169,8 +173,6 @@ class CatalogModuleManager {
                 return $this->ElementOptionSaveToAJAX($d->optionid, $d->savedata);
             case "elementoptionremove":
                 return $this->ElementOptionRemoveToAJAX($d->eltypeid, $d->optionid);
-            case "elementtypelist":
-                return $this->ElementTypeListToAJAX();
             case "optiontablevaluesave":
                 return $this->OptionTableValueSaveToAJAX($d->eltypeid, $d->optionid, $d->valueid, $d->value);
             case "optiontablevalueremove":
@@ -182,6 +184,7 @@ class CatalogModuleManager {
             case "currencyremove":
                 return $this->CurrencyRemoveToAJAX($d->currencyid);
         }
+
         return null;
     }
 
@@ -223,7 +226,24 @@ class CatalogModuleManager {
         return $o;
     }
 
-    public function CatalogInitDataToAJAX(){
+    public function AppStructureToJSON(){
+        if (!$this->IsViewRole()){
+            return 403;
+        }
+
+        $modelManager = AbricosModelManager::GetManager('catalog');
+
+        $res = $modelManager->ToJSON('elementType');
+        if (empty($res)){
+            return null;
+        }
+
+        $ret = new stdClass();
+        $ret->appStructure = $res;
+        return $ret;
+    }
+
+    public function CatalogInitDataToJSON(){
         if (!$this->IsViewRole()){
             return false;
         }
@@ -233,8 +253,8 @@ class CatalogModuleManager {
         $ajaxCatalogs = $this->CatalogListToAJAX();
         $ret->catalogs = $ajaxCatalogs->catalogs;
 
-        $ajaxElTypes = $this->ElementTypeListToAJAX();
-        $ret->eltypes = $ajaxElTypes->eltypes;
+        $ajaxElTypes = $this->ElementTypeListToJSON();
+        $ret->elementTypeList = $ajaxElTypes->elementTypeList;
 
         $ajaxOptGroups = $this->ElementOptionGroupListToAJAX();
         $ret->eloptgroups = $ajaxOptGroups->eloptgroups;
@@ -1118,7 +1138,7 @@ class CatalogModuleManager {
 
         $this->_cacheElementTypeList = null;
 
-        return $this->ElementTypeListToAJAX();
+        return $this->ElementTypeListToJSON();
     }
 
     public function ElementTypeRemove($elTypeId){
@@ -1147,7 +1167,7 @@ class CatalogModuleManager {
 
     public function ElementTypeRemoveToAJAX($elTypeId){
         $this->ElementTypeRemove($elTypeId);
-        return $this->ElementTypeListToAJAX(true);
+        return $this->ElementTypeListToJSON(true);
     }
 
     private $_cacheElementTypeList;
@@ -1169,7 +1189,8 @@ class CatalogModuleManager {
         }
 
         $list = new CatalogElementTypeList();
-        $curType = new CatalogElementType();
+        $curType = new CatalogElementType(array('name' => '__base'));
+
         $list->Add($curType);
 
         $rows = CatalogDbQuery::ElementTypeList($this->db, $this->pfx);
@@ -1205,7 +1226,7 @@ class CatalogModuleManager {
         return $list;
     }
 
-    public function ElementTypeListToAJAX($clearCache = false){
+    public function ElementTypeListToJSON($clearCache = false){
         $list = $this->ElementTypeList($clearCache);
 
         if (empty($list)){
@@ -1213,7 +1234,7 @@ class CatalogModuleManager {
         }
 
         $ret = new stdClass();
-        $ret->eltypes = $list->ToAJAX($this);
+        $ret->elementTypeList = $list->ToJSON();
         return $ret;
     }
 
@@ -1487,7 +1508,7 @@ class CatalogModuleManager {
             return null;
         }
 
-        return $this->ElementTypeListToAJAX(true);
+        return $this->ElementTypeListToJSON(true);
     }
 
     public function ElementOptionRemove($elTypeId, $optionid){
@@ -1515,7 +1536,7 @@ class CatalogModuleManager {
     public function ElementOptionRemoveToAJAX($elTypeId, $optionid){
         $this->ElementOptionRemove($elTypeId, $optionid);
 
-        return $this->ElementTypeListToAJAX(true);
+        return $this->ElementTypeListToJSON(true);
     }
 
     public function OptionTableValueSave($eltypeid, $optionid, $valueid, $value){

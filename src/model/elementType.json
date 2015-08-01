@@ -1,0 +1,25 @@
+{
+  "version": "0.1.0",
+  "idField": "name",
+  "fields": {
+    "title": {
+      "type": "multilang",
+      "json": "tl"
+    },
+    "titleList": {
+      "type": "multilang",
+      "json": "tls"
+    },
+    "descript": {
+      "type": "multilang",
+      "json": "dsc"
+    },
+    "name": {
+      "json": "nm"
+    },
+    "options": {
+      "type": "array",
+      "arrayType"
+    }
+  }
+}
