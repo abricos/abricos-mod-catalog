@@ -481,10 +481,13 @@ class CatalogUserList extends AbricosList {
     }
 }
 
+/**
+ * Class CatalogElementType
+ */
 class CatalogElementType extends CatalogItem {
 
     protected $_structModule = 'catalog';
-    protected $_structName = 'elementType';
+    protected $_structName = 'ElementType';
 
     /**
      * Название
@@ -535,7 +538,7 @@ class CatalogElementType extends CatalogItem {
 }
 
 /**
- * Тип элемента
+ * Class CatalogElementTypeList
  */
 class CatalogElementTypeList extends AbricosModelList {
 
@@ -547,9 +550,11 @@ class CatalogElementTypeList extends AbricosModelList {
      * @param integer $id
      * @return CatalogElementType
      */
+    /*
     public function GetByIndex($i){
         return parent::GetByIndex($i);
     }
+    /**/
 
     /**
      * @param string $name
@@ -590,20 +595,6 @@ class CatalogElementTypeList extends AbricosModelList {
         return parent::Get($id);
     }
 
-    /*
-    public function ToAJAX(){
-        $man = null;
-        if (func_num_args() > 0){
-            $man = func_get_arg(0);
-        }
-
-        $ret = array();
-        for ($i = 0; $i < $this->Count(); $i++){
-            $ret[] = $this->GetByIndex($i)->ToAJAX($man);
-        }
-        return $ret;
-    }
-    /**/
 }
 
 class CatalogElementOptionGroup extends CatalogItem {
@@ -682,6 +673,8 @@ class CatalogElementOptionGroupList extends CatalogItemList {
  * Опция элемента
  */
 class CatalogElementOption extends CatalogItem {
+    protected $_structModule = 'catalog';
+    protected $_structName = 'elementOption';
 
     public $elTypeId;
     public $type;
@@ -692,55 +685,9 @@ class CatalogElementOption extends CatalogItem {
     public $param;
     public $currencyid;
     public $order;
-
-    public function __construct($d){
-        parent::__construct($d);
-        $this->elTypeId = intval($d['tpid']);
-        $this->type = intval($d['tp']);
-        $this->size = strval($d['sz']);
-        $this->groupid = intval($d['gid']);
-        $this->title = strval($d['tl']);
-        $this->name = strval($d['nm']);
-        $this->param = strval($d['prm']);
-        $this->order = intval($d['ord']);
-        $this->currencyid = intval($d['crcid']);
-    }
-
-    public function ToAJAX(){
-        $ret = new stdClass();
-        $ret->id = $this->id;
-        $ret->tpid = $this->elTypeId;
-        $ret->tp = $this->type;
-        $ret->sz = $this->size;
-        $ret->gid = $this->groupid;
-        $ret->tl = $this->title;
-        $ret->nm = $this->name;
-        $ret->prm = $this->param;
-        $ret->crcid = $this->currencyid;
-        $ret->ord = $this->order;
-        return $ret;
-    }
+    public $values;
 }
 
-/**
- * Опция - тип поля таблица
- */
-class CatalogElementOptionTable extends CatalogElementOption {
-
-    public $values = array();
-
-    public function __construct($d){
-        parent::__construct($d);
-    }
-
-    public function ToAJAX(){
-        $man = func_get_arg(0);
-
-        $ret = parent::ToAJAX($man);
-        $ret->values = $this->values;
-        return $ret;
-    }
-}
 
 class CatalogElementOptionList extends CatalogItemList {
 
@@ -1399,7 +1346,7 @@ class CatalogElementOrderOptionList extends CatalogItemList {
     }
 }
 
-class CatalogItem extends AbricosModel {
+class CatalogItem extends AbricosItem {
 }
 
 class CatalogItemList {

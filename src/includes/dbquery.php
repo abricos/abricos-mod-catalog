@@ -1022,24 +1022,10 @@ class CatalogDbQuery {
 
     public static function ElementOptionList(Ab_Database $db, $pfx){
         $sql = "
-			SELECT
-				eloptionid as id,
-				eltypeid as tpid,
-				fieldtype as tp,
-				fieldsize as sz,
-				eloptgroupid as gid,
-				name as nm,
-				title as tl,
-				descript as dsc,
-				ord as ord,
-				eloptgroupid as gpid,
-				currencyid as crcid,
-				param as prm,
-				eltitlesource as ets,
-				disable as dsb
-			FROM ".$pfx."eloption
-			WHERE deldate=0
-			ORDER BY tpid, ord DESC, tl
+			SELECT o.eloptionid as id, o.*
+			FROM ".$pfx."eloption o
+			WHERE o.deldate=0
+			ORDER BY o.eltypeid, o.ord DESC, o.title
 		";
         return $db->query_read($sql);
     }

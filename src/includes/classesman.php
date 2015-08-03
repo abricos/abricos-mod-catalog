@@ -66,10 +66,21 @@ class CatalogModuleManager {
      */
     public $cfgVersionControl = false;
 
+    /**
+     * @var AbricosModelManager
+     */
+    public $models;
+
     public function __construct($dbPrefix){
         $this->db = Abricos::$db;
         $this->pfx = $this->db->prefix."ctg_".$dbPrefix."_";
         $this->userid = Abricos::$user->id;
+        $models = $this->models = AbricosModelManager::GetManager('catalog');
+
+        $models->RegisterClass('ElementType', 'CatalogElementType');
+        $models->RegisterClass('ElementTypeList', 'CatalogElementTypeList');
+        $models->RegisterClass('ElementOption', 'CatalogElementOption');
+        $models->RegisterClass('ElementOptionList', 'CatalogElementOptionList');
     }
 
     /**
@@ -1188,38 +1199,45 @@ class CatalogModuleManager {
             return $this->_cacheElementTypeList;
         }
 
-        $list = new CatalogElementTypeList();
-        $curType = new CatalogElementType(array('name' => '__base'));
+        $models = $this->models;
+
+        /** @var CatalogElementTypeList $list */
+        $list = $models->InstanceClass('ElementTypeList');
+        $curType = $models->InstanceClass('ElementType', array(
+            'id' => 0,
+            'name' => ''
+        ));
 
         $list->Add($curType);
 
         $rows = CatalogDbQuery::ElementTypeList($this->db, $this->pfx);
         while (($d = $this->db->fetch_array($rows))){
-            $list->Add(new CatalogElementType($d));
+            $item = $models->InstanceClass('ElementType', $d);
+            $list->Add($item);
         }
 
         $rows = CatalogDbQuery::ElementOptionList($this->db, $this->pfx);
         while (($d = $this->db->fetch_array($rows))){
 
-            if (empty($curType) || $curType->id != $d['tpid']){
-                $curType = $list->Get($d['tpid']);
-            }
+            /** @var CatalogElementOption $option */
+            $option = $models->InstanceClass('ElementOption', $d);
 
-            if ($d['tp'] == Catalog::TP_TABLE){
-
-                $option = new CatalogElementOptionTable($d);
-
-                $rtbs = CatalogDbQuery::OptionTableValueList($this->db, $this->pfx, $curType->name, $option->name);
-                $option->values = $this->ToArrayId($rtbs);
-            } else {
-                $option = new CatalogElementOption($d);
+            if (empty($curType) || $curType->id !== $option->elTypeId){
+                $curType = $list->Get($option->elTypeId);
             }
 
             if (empty($curType)){
-                continue; // гипотетически такое невозможно
+                continue;
             }
+
+            if ($option->type === Catalog::TP_TABLE){
+                $rtbs = CatalogDbQuery::OptionTableValueList($this->db, $this->pfx, $curType->name, $option->name);
+                $option->values = $this->ToArrayId($rtbs);
+            }
+
             $curType->options->Add($option);
         }
+        print_r($list->Get(0)->ToJSON()); exit;
 
         $this->_cacheElementTypeList = $list;
 

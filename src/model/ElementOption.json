@@ -1,0 +1,48 @@
+{
+  "version": "0.1.0",
+  "fields": {
+    "elTypeId": {
+      "dbField": "eltypeid",
+      "type": "int",
+      "json": "tpid"
+    },
+    "type": {
+      "dbField": "fieldtype",
+      "type": "string",
+      "json": "tp"
+    },
+    "size": {
+      "dbField": "fieldsize",
+      "type": "string",
+      "json": "sz"
+    },
+    "name": {
+      "json": "nm"
+    },
+    "title": {
+      "type": "multilang",
+      "json": "tl"
+    },
+    "param": {
+      "type": "string",
+      "json": "prm"
+    },
+    "currencyid": {
+      "type": "int",
+      "json": "crcid"
+    },
+    "groupid": {
+      "dbField": "eloptgroupid",
+      "type": "int",
+      "json": "gid"
+    },
+    "order": {
+      "dbField": "ord",
+      "type": "int",
+      "json": "ord"
+    },
+    "values": {
+      "type": "array"
+    }
+  }
+}

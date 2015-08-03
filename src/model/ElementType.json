@@ -1,25 +1,26 @@
 {
   "version": "0.1.0",
-  "idField": "name",
   "fields": {
+    "id": {
+      "type": "int"
+    },
     "title": {
-      "type": "multilang",
+      "type": "multiLang",
       "json": "tl"
     },
     "titleList": {
-      "type": "multilang",
+      "type": "multiLang",
       "json": "tls"
     },
     "descript": {
-      "type": "multilang",
+      "type": "multiLang",
       "json": "dsc"
     },
     "name": {
       "json": "nm"
     },
     "options": {
-      "type": "array",
-      "arrayType"
+      "type": "modelList:ElementOptionList"
     }
   }
 }
