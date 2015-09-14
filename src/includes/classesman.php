@@ -245,6 +245,18 @@ class CatalogModuleManager {
         return $ret;
     }
 
+    public function CacheClear(){
+        $this->_cacheCatalogList = null;
+        $this->_cacheCatalogListLine = null;
+        $this->_cacheCatalog = array();
+        $this->_cacheElementByName = array();
+        $this->_cacheElementById = array();
+        $this->_cacheElementTypeList = null;
+        $this->_cacheElementOptGroupList = null;
+        $this->_cacheStatElList = null;
+        $this->_cacheCurrencyList = null;
+    }
+
     private $_cacheCatalogList;
 
     /**
