@@ -390,8 +390,6 @@ if ($updateManager->isUpdate('0.3.0')){
 
 		)".$charset);
 
-    require_once 'dbquery.php';
-
     CatalogDbQuery::CurrencyAppend($db, $pfx, array(
         "isdefault" => true,
         "title" => "Российский рубль",

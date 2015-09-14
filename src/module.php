@@ -161,6 +161,7 @@ class CatalogModule extends Ab_Module {
         ));
 
         $this->updateShemaModule = new Ab_UpdateManager($modman, $modInfo);
+        require_once 'includes/dbquery.php';
         require("setup/shema_mod.php");
         CatalogQueryExt::ModuleManagerUpdate(Abricos::$db, $info['id'], $this->version);
         $this->updateShemaModule = null;
