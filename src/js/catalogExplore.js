@@ -6,57 +6,58 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-    var Dom = YAHOO.util.Dom,
-        L = YAHOO.lang,
-        buildTemplate = this.buildTemplate,
-        BW = Brick.mod.widget.Widget;
+    var Y = Brick.YUI,
+        COMPONENT = this,
+        SYS = Brick.mod.sys;
 
-    var CatalogTreeWidget = function(container, manager, list, cfg){
-        cfg = L.merge({}, cfg || {});
+    NS.CatalogTreeWidget = Y.Base.create('catalogTreeWidget', SYS.AppWidget, [], {
+        onInitAppWidget: function(err, appInstance){
+            this.publish('editClickEvent');
+            this.publish('addChildClickEvent');
+            this.publish('selectedItemEvent');
 
-        CatalogTreeWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'widget,table,row'
-        }, manager, list, cfg);
-    };
-    YAHOO.extend(CatalogTreeWidget, BW, {
-        init: function(manager, list, cfg){
-            this.manager = manager;
-            this.list = list;
-            this.config = cfg;
-            this.selectedItem = null;
-
-            this.editClickEvent = new YAHOO.util.CustomEvent('editClickEvent');
-            this.addChildClickEvent = new YAHOO.util.CustomEvent('addChildClickEvent');
-            this.selectedItemEvent = new YAHOO.util.CustomEvent('selectedItemEvent');
+            appInstance.catalogList(function(err, result){
+                this.renderCatalogList();
+            }, this);
         },
-        render: function(){
-            this.elSetHTML('table', this.buildRows(null, this.list, 0));
-            this._selectPath(this.selectedItem);
+        destructor: function(){
+            if (this.treeWidget){
+                this.treeWidget.destroy();
+            }
+            if (this.catViewWidget){
+                this.catViewWidget.destroy();
+            }
+            if (this.elementListWidget){
+                this.elementListWidget.destroy();
+            }
         },
-        buildRows: function(pcat, list, level){
-            var __self = this, lst = "", i = 0;
-            list.foreach(function(cat){
-                lst += __self.buildRow(cat, level, i == 0, i == list.count() - 1);
+        _buildRows: function(parentCatalog, level){
+            var lst = "",
+                i = 0,
+                listCount = this.get('catalogList').size();
+
+            this.get('catalogList').each(function(catalog){
+                lst += this._buildRow(catalog, level, i === 0, i === listCount - 1);
                 i++;
-            });
+            }, this);
 
-            if (lst == ""){
+            if (lst === ""){
                 return "";
             }
 
             var sRow = {
-                'pid': 0,
-                'clshide': '',
-                'rows': lst
+                pid: 0,
+                clshide: '',
+                rows: lst
             };
-            if (!L.isNull(pcat)){
-                sRow['pid'] = pcat.id;
-                sRow['clshide'] = pcat.expanded ? '' : 'hide';
+            if (parentCatalog){
+                sRow['pid'] = parentCatalog.get('id');
+                // sRow['clshide'] = parent.get('expanded') ? '' : 'hide';
             }
 
-            return this._TM.replace('table', sRow);
+            return this.template.replace('table', sRow);
         },
-        buildRow: function(cat, level, first, islast){
+        _buildRow: function(catalog, level, first, islast){
             var sChild = cat.childs.count() > 0 ? this.buildRows(cat, cat.childs, level + 1) : '';
 
             var goPageURL = cat.url();
@@ -73,6 +74,48 @@ Component.entryPoint = function(NS){
                 'showgopage': L.isNull(goPageURL) ? 'none' : ''
             });
         },
+        renderCatalogList: function(){
+            var catalogList = this.get('appInstance').get('catalogList');
+            if (!catalogList){
+                return;
+            }
+            var tp = this.template;
+            tp.setHTML({
+                table: this._buildRows(null, 0)
+            });
+            this._selectPath(this.selectedItem);
+        },
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'widget,table,row'},
+            catalogList: {
+                readOnly: true,
+                getter: function(){
+                    return this.get('appInstance').get('catalogList');
+                }
+            }
+        }
+    });
+
+    return; // TODO: REMOVE OLD FUNCTIONS
+
+    var Dom = YAHOO.util.Dom,
+        L = YAHOO.lang,
+        buildTemplate = this.buildTemplate,
+        BW = Brick.mod.widget.Widget;
+
+    YAHOO.extend(CatalogTreeWidget, BW, {
+        init: function(manager, list, cfg){
+            this.manager = manager;
+            this.list = list;
+            this.config = cfg;
+            this.selectedItem = null;
+        },
+        render: function(){
+            this.elSetHTML('table', this.buildRows(null, this.list, 0));
+        },
+
         onClick: function(el){
             var TId = this._TId,
                 prefix = el.id.replace(/([0-9]+$)/, ''),

@@ -9,57 +9,32 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-    var Y = Brick.YUI,
-        L = Y.Lang,
-        COMPONENT = this,
-        SYS = Brick.mod.sys;
+    var Y = Brick.YUI;
 
     NS.Application = {
-        ajaxes: {
+        ATTRS: {
+            isLoadAppStructure: {
+                value: true
+            },
+            CatalogItem: {value: NS.CatalogItem},
+            CatalogList: {value: NS.CatalogList},
+            ElementType: {value: NS.ElementType},
+            ElementTypeList: {value: NS.ElementTypeList},
+        },
+        REQS: {
+            catalogList: {
+                attribute: true,
+                type: 'modelList:CatalogList',
+            },
             elementTypeList: {
-                cache: 'elementTypeList',
-                response: function(d){
-                    return new (this.get('ElementTypeList'))({
-                        appInstance: this,
-                        items: d.list
-                    });
-                }
-            }
-        },
-        px: {
-            initializer: function(){
-                this.initCallbackFire();
-            }
-        },
-        sx: {
-            ATTRS: {
-                ElementType: {
-                    value: NS.ElementType
-                },
-                ElementTypeList: {
-                    value: NS.ElementTypeList
-                },
-                isLoadAppStructure: {
-                    value: true
-                }
+                attribute: true,
+                type: 'modelList:ElementTypeList',
             }
         }
     };
 
-    var CE = YAHOO.util.CustomEvent;
-    var LNG = this.language;
+    return; /* * * * * * * * * TODO: OLD FUNCTIONS * * * * * * */
 
-    var buildTemplate = this.buildTemplate;
-    buildTemplate({}, '');
-
-    NS.lif = function(f){
-        return L.isFunction(f) ? f : function(){
-        };
-    };
-    NS.life = function(f, p1, p2, p3, p4, p5, p6, p7){
-        f = NS.lif(f);
-        f(p1, p2, p3, p4, p5, p6, p7);
-    };
 
     NS.managers = {};
 

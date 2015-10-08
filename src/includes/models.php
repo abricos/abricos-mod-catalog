@@ -1,17 +1,12 @@
 <?php
+
 /**
  * @package Abricos
  * @subpackage Catalog
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
-
-require_once 'dbquery.php';
-
-/**
- * Раздел каталога
- */
-class Catalog extends CatalogItem {
+class CatalogType {
 
     /**
      * Логический тип
@@ -77,90 +72,35 @@ class Catalog extends CatalogItem {
      * @var integer
      */
     const TP_CURRENCY = 12;
+}
 
-    /**
-     * @var Catalog
-     */
-    public $parent = null;
 
-    public $parentid;
+/**
+ * Раздел каталога
+ *
+ * @property int $parentid Parent Catalog ID
+ * @property string $title Title
+ * @property string $name Name
+ * @property string $foto Image ID of filemanager module
+ * @property string $fotoExt Image Extension
+ * @property boolean $menuDisable
+ * @property boolean $listDisable
+ * @property int $order
+ * @property int $dateline Create Date
+ * @property int $elementCount Count of Element in this catalog
+ *
+ * @property string $descript
+ * @property string $metaTitle
+ * @property string $metaKeys
+ * @property string $metaDescript
+ *
+ */
+class Catalog extends AbricosModel {
 
-    public $title;
-    public $name;
-    public $menuDisable;
-    public $listDisable;
-    public $order;
-
-    /**
-     * Идентификатор файла картинки менеджера файлов
-     *
-     * @var string
-     */
-    public $foto;
-
-    /**
-     * Расширение картинки (png, jpg и т.п.)
-     *
-     * @var string
-     */
-    public $fotoExt;
-
-    public $dateline;
-
-    public $elementCount;
-
-    /**
-     * @var CatalogList
-     */
-    public $childs;
-
-    /**
-     * @var CatalogDetail
-     */
-    public $detail = null;
-
-    public function __construct($d){
-        parent::__construct($d);
-
-        $this->parentid = intval($d['pid']);
-        $this->title = strval($d['tl']);
-        $this->name = strval($d['nm']);
-        $this->foto = isset($d['foto']) ? strval($d['foto']) : '';
-        $this->fotoExt = isset($d['fext']) ? strval($d['fext']) : '';
-        $this->menuDisable = isset($d['mdsb']) ? intval($d['mdsb']) > 0 : false;
-        $this->listDisable = isset($d['ldsb']) ? intval($d['ldsb']) > 0 : false;
-        $this->order = isset($d['ord']) ? intval($d['ord']) : 0;
-        $this->elementCount = isset($d['ecnt']) ? intval($d['ecnt']) : 0;
-
-        $this->childs = new CatalogList($this);
-    }
-
-    public function ToAJAX(){
-        $man = func_get_arg(0);
-
-        $ret = parent::ToAJAX();
-        $ret->pid = $this->parentid;
-        $ret->tl = $this->title;
-        $ret->nm = $this->name;
-        $ret->foto = $this->foto;
-        $ret->mdsb = $this->menuDisable;
-        $ret->ldsb = $this->listDisable;
-        $ret->ord = $this->order;
-        $ret->ecnt = $this->elementCount;
-
-        $ret->dtl = null;
-        if (!empty($this->detail)){
-            $ret->dtl = $this->detail->ToAJAX($man);
-        }
-
-        if ($this->childs->Count() > 0){
-            $ret->childs = $this->childs->ToAJAX($man);
-        }
-        return $ret;
-    }
+    protected $_structModule = 'catalog';
+    protected $_structName = 'Catalog';
 
     public function FotoSrc($w = 0, $h = 0){
-
         if (empty($this->foto)){
             return "/images/empty.gif";
         }
@@ -183,124 +123,16 @@ class Catalog extends CatalogItem {
     public function URI(){
         return "";
     }
-
 }
+
 
 /**
- * Подробная информация по разделу каталога
+ * Class CatalogList
+ *
+ * @method Catalog GetByIndex(int $index)
+ * @method Catalog Get(int $catalogid)
  */
-class CatalogDetail {
-
-    public $descript;
-    public $metaTitle;
-    public $metaKeys;
-    public $metaDescript;
-
-    public function __construct($d){
-        $d = array_merge(array(
-            'dsc' => '',
-            'mtl' => '',
-            'mks' => '',
-            'mdsc' => ''
-        ), $d);
-
-        $this->descript = strval($d['dsc']);
-        $this->metaTitle = strval($d['mtl']);
-        $this->metaKeys = strval($d['mks']);
-        $this->metaDescript = strval($d['mdsc']);
-    }
-
-    public function ToAJAX(){
-        $man = func_get_arg(0);
-
-        $ret = new stdClass();
-        $ret->dsc = $this->descript;
-        if ($man->IsAdminRole()){
-            $ret->mtl = $this->metaTitle;
-            $ret->mks = $this->metaKeys;
-            $ret->mdsc = $this->metaDescript;
-        }
-        return $ret;
-    }
-}
-
-class CatalogList extends CatalogItemList {
-
-    /**
-     * @var Catalog
-     */
-    public $owner;
-
-    public function __construct($cat){
-        parent::__construct();
-
-        $this->owner = $cat;
-    }
-
-    public function Add($item){
-
-        $notChangeParent = func_num_args() > 1 ? func_get_arg(1) : false;
-
-        parent::Add($item);
-        if (!$notChangeParent){
-            $item->parent = $this->owner;
-        }
-    }
-
-
-    /**
-     * Получить раздел каталога по индексу
-     *
-     * @param integer $index
-     * @return Catalog
-     */
-    public function GetByIndex($index){
-        return parent::GetByIndex($index);
-    }
-
-    /**
-     * Получить раздел каталога по идентификатору
-     *
-     * @param integer $id
-     * @return Catalog
-     */
-    public function Get($id){
-        return parent::Get($id);
-    }
-
-    /**
-     * Поиск элемента по списку, включая поиск по дочерним элементам
-     *
-     * @param integer $id
-     * @return Catalog
-     */
-    public function Find($id){
-        $id = intval($id);
-        $item = $this->Get($id);
-        if (!empty($item)){
-            return $item;
-        }
-
-        $count = $this->Count();
-        for ($i = 0; $i < $count; $i++){
-            $item = $this->GetByIndex($i)->childs->Find($id);
-            if (!empty($item)){
-                return $item;
-            }
-        }
-
-        return null;
-    }
-
-    public function ToAJAX(){
-        $man = func_get_arg(0);
-
-        $ret = array();
-        for ($i = 0; $i < $this->Count(); $i++){
-            $ret[] = $this->GetByIndex($i)->ToAJAX($man);
-        }
-        return $ret;
-    }
+class CatalogList extends AbricosModelList {
 }
 
 
@@ -1347,73 +1179,6 @@ class CatalogElementOrderOptionList extends CatalogItemList {
 }
 
 class CatalogItem extends AbricosItem {
-}
-
-class CatalogItemList {
-
-    protected $_list = array();
-    protected $_map = array();
-
-    protected $isCheckDouble = false;
-
-    public function __construct(){
-        $this->_list = array();
-        $this->_map = array();
-    }
-
-    public function Add($item){
-        if (empty($item)){
-            return;
-        }
-
-        if ($this->isCheckDouble){
-            $checkItem = $this->Get($item->id);
-            if (!empty($checkItem)){
-                return;
-            }
-        }
-
-        $index = count($this->_list);
-        $this->_list[$index] = $item;
-        $this->_map[$item->id] = $index;
-    }
-
-    public function Count(){
-        return count($this->_list);
-    }
-
-    /**
-     * @param integer $index
-     * @return CatalogItem
-     */
-    public function GetByIndex($index){
-        return $this->_list[$index];
-    }
-
-    /**
-     * @param integer $id
-     * @return CatalogItem
-     */
-    public function Get($id){
-        if (!isset($this->_map[$id])){
-            return null;
-        }
-        $index = $this->_map[$id];
-        return $this->_list[$index];
-    }
-
-    public function ToAJAX(){
-        $list = array();
-        $count = $this->Count();
-        for ($i = 0; $i < $count; $i++){
-            $list[] = $this->GetByIndex($i)->ToJSON();
-        }
-
-        $ret = new stdClass();
-        $ret->list = $list;
-
-        return $ret;
-    }
 }
 
 class CatalogStatisticElement extends AbricosItem {

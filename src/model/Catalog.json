@@ -1,0 +1,80 @@
+{
+  "version": "0.1.0",
+  "fields": {
+    "id": {
+      "dbField": "catalogid",
+      "type": "int"
+    },
+    "parentid": {
+      "dbField": "pid",
+      "type": "int",
+      "json": "pid"
+    },
+    "title": {
+      "type": "string",
+      "dbField": "tl",
+      "json": "tl"
+    },
+    "name": {
+      "type": "string",
+      "dbField": "nm",
+      "json": "nm"
+    },
+    "descript": {
+      "type": "string",
+      "dbField": "dsc",
+      "json": "dsc"
+    },
+    "metaTitle": {
+      "type": "string",
+      "rolefn": "IsAdminRole",
+      "dbField": "mtl",
+      "json": "mtl"
+    },
+    "metaKeys": {
+      "type": "string",
+      "rolefn": "IsAdminRole",
+      "dbField": "mks",
+      "json": "mks"
+    },
+    "metaDescript": {
+      "type": "string",
+      "rolefn": "IsAdminRole",
+      "dbField": "mdsc",
+      "json": "mdsc"
+    },
+    "foto": {
+      "type": "string"
+    },
+    "fotoExt": {
+      "type": "string",
+      "dbField": "fext",
+      "json": "fext"
+    },
+    "menuDisable": {
+      "type": "bool",
+      "dbField": "mdsb",
+      "json": "mdsb"
+    },
+    "listDisable": {
+      "type": "bool",
+      "dbField": "ldsb",
+      "json": "ldsb"
+    },
+    "elementCount": {
+      "type": "int",
+      "dbField": "ecnt",
+      "json": "ecnt"
+    },
+    "order": {
+      "type": "int",
+      "dbField": "ord",
+      "json": "ord"
+    },
+    "dateline": {
+      "type": "date",
+      "dbField": "dl",
+      "json": "dl"
+    },
+  }
+}

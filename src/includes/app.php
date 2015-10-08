@@ -1,20 +1,55 @@
 <?php
+
 /**
  * @package Abricos
  * @subpackage Catalog
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
+class CatalogAppConfig {
+
+    /**
+     * Разрешить изменять имя элемента
+     *
+     * @var boolean
+     */
+    public $elementNameChange = false;
+
+    /**
+     * Имя элемента является уникальным
+     *
+     * @var boolean
+     */
+    public $elementNameUnique = false;
+
+    /**
+     * Отключить создание базовых элементов
+     *
+     * @var boolean
+     */
+    public $elementCreateBaseTypeDisable = false;
+
+    /**
+     * Контроль версии элементов
+     *
+     * По умолчанию - отключен
+     *
+     * @var boolean
+     */
+    public $versionControl = false;
+
+    public $dbPrefix;
+
+    public function __construct($dbPrefix){
+        $this->dbPrefix = $dbPrefix;
+    }
+
+}
 
 /**
  * Менеджер каталога для управляющего модуля
  */
-class CatalogModuleManager {
-
-    /**
-     * @var Ab_Database $db
-     */
-    public $db;
+abstract class CatalogApp extends AbricosApplication {
 
     /**
      * Префикс таблиц модуля
@@ -24,63 +59,86 @@ class CatalogModuleManager {
     private $pfx;
 
     /**
-     * Идентификатор текущего пользователя
-     *
-     * @var integer
+     * @var CatalogAppConfig
      */
-    private $userid;
+    protected $config;
 
-    public $CatalogClass = 'Catalog';
-    public $CatalogListClass = 'CatalogList';
+    public function __construct(Ab_ModuleManager $manager, CatalogAppConfig $config){
+        parent::__construct($manager, array('catalog'));
 
-    public $CatalogElementClass = 'CatalogElement';
-    public $CatalogElementListClass = 'CatalogElementList';
+        $this->config = $config;
+        $this->pfx = $manager->db->prefix."ctg_".$config->dbPrefix."_";
+    }
 
-    /**
-     * Разрешить изменять имя элемента
-     *
-     * @var boolean
-     */
-    public $cfgElementNameChange = false;
+    protected function GetClasses(){
+        return array(
+            'Catalog' => 'Catalog',
+            'CatalogList' => 'CatalogList',
+            'ElementType' => 'CatalogElementType',
+            'ElementTypeList' => 'CatalogElementTypeList',
+            'ElementOption' => 'CatalogElementOption',
+            'ElementOptionList' => 'CatalogElementOptionList'
+        );
+    }
 
-    /**
-     * Имя элемента является уникальным
-     *
-     * @var boolean
-     */
-    public $cfgElementNameUnique = false;
+    protected function GetStructures(){
+        return 'ElementType,ElementOption';
+    }
 
-    /**
-     * Отключить создание базовых элементов
-     *
-     * @var boolean
-     */
-    public $cfgElementCreateBaseTypeDisable = false;
 
-    /**
-     * Контроль версии элементов
-     *
-     * По умолчанию - отключен
-     *
-     * @var boolean
-     */
-    public $cfgVersionControl = false;
+    public function ResponseToJSON($d){
+        switch ($d->do){
+            case "catalogList":
+                return $this->CatalogListToJSON();
+            case "elementTypeList":
+                return $this->ElementTypeListToJSON();
 
-    /**
-     * @var AbricosModelManager
-     */
-    public $models;
+            // old funcitons
+            /*
+            case "cataloginitdata":
+                return $this->CatalogInitDataToJSON();
+            case "catalog":
+                return $this->CatalogToAJAX($d->catid, $d->elementlist);
+            case "catalogsave":
+                return $this->CatalogSaveToAJAX($d->catid, $d->savedata);
+            case "catalogremove":
+                return $this->CatalogRemove($d->catid);
+            case "elementlist":
+                return $this->ElementListToAJAX($d->catid);
+            case "elementlistordersave":
+                return $this->ElementListOrderSave($d->catid, $d->orders);
+            case "element":
+                return $this->ElementToAJAX($d->elementid);
+            case "elementidbyname":
+                return $this->ElementIdByNameToAJAX($d->elname);
+            case "elementsave":
+                return $this->ElementSaveToAJAX($d->elementid, $d->savedata);
+            case "elementmoder":
+                return $this->ElementModerToAJAX($d->elementid);
+            case "elementremove":
+                return $this->ElementRemove($d->elementid);
+            case "elementtypesave":
+                return $this->ElementTypeSaveToAJAX($d->eltypeid, $d->savedata);
+            case "elementtyperemove":
+                return $this->ElementTypeRemoveToAJAX($d->eltypeid);
+            case "elementoptionsave":
+                return $this->ElementOptionSaveToAJAX($d->optionid, $d->savedata);
+            case "elementoptionremove":
+                return $this->ElementOptionRemoveToAJAX($d->eltypeid, $d->optionid);
+            case "optiontablevaluesave":
+                return $this->OptionTableValueSaveToAJAX($d->eltypeid, $d->optionid, $d->valueid, $d->value);
+            case "optiontablevalueremove":
+                return $this->OptionTableValueRemove($d->eltypeid, $d->optionid, $d->valueid);
+            case "currencylist":
+                return $this->CurrencyListToAJAX();
+            case "currencysave":
+                return $this->CurrencySaveToAJAX($d->currencyid, $d->savedata);
+            case "currencyremove":
+                return $this->CurrencyRemoveToAJAX($d->currencyid);
+            /**/
+        }
 
-    public function __construct($dbPrefix){
-        $this->db = Abricos::$db;
-        $this->pfx = $this->db->prefix."ctg_".$dbPrefix."_";
-        $this->userid = Abricos::$user->id;
-        $models = $this->models = AbricosModelManager::GetManager('catalog');
-
-        $models->RegisterClass('ElementType', 'CatalogElementType');
-        $models->RegisterClass('ElementTypeList', 'CatalogElementTypeList');
-        $models->RegisterClass('ElementOption', 'CatalogElementOption');
-        $models->RegisterClass('ElementOptionList', 'CatalogElementOptionList');
+        return null;
     }
 
     /**
@@ -143,138 +201,36 @@ class CatalogModuleManager {
         return false;
     }
 
-    public function AJAX($d){
-        switch ($d->do){
-            case "appStructure":
-                return $this->AppStructureToJSON();
-            case "elementTypeList":
-                return $this->ElementTypeListToJSON();
+    protected $_cache = array();
 
-            // old funcitons
-
-            case "cataloginitdata":
-                return $this->CatalogInitDataToJSON();
-            case "cataloglist":
-                return $this->CatalogListToAJAX();
-            case "catalog":
-                return $this->CatalogToAJAX($d->catid, $d->elementlist);
-            case "catalogsave":
-                return $this->CatalogSaveToAJAX($d->catid, $d->savedata);
-            case "catalogremove":
-                return $this->CatalogRemove($d->catid);
-            case "elementlist":
-                return $this->ElementListToAJAX($d->catid);
-            case "elementlistordersave":
-                return $this->ElementListOrderSave($d->catid, $d->orders);
-            case "element":
-                return $this->ElementToAJAX($d->elementid);
-            case "elementidbyname":
-                return $this->ElementIdByNameToAJAX($d->elname);
-            case "elementsave":
-                return $this->ElementSaveToAJAX($d->elementid, $d->savedata);
-            case "elementmoder":
-                return $this->ElementModerToAJAX($d->elementid);
-            case "elementremove":
-                return $this->ElementRemove($d->elementid);
-            case "elementtypesave":
-                return $this->ElementTypeSaveToAJAX($d->eltypeid, $d->savedata);
-            case "elementtyperemove":
-                return $this->ElementTypeRemoveToAJAX($d->eltypeid);
-            case "elementoptionsave":
-                return $this->ElementOptionSaveToAJAX($d->optionid, $d->savedata);
-            case "elementoptionremove":
-                return $this->ElementOptionRemoveToAJAX($d->eltypeid, $d->optionid);
-            case "optiontablevaluesave":
-                return $this->OptionTableValueSaveToAJAX($d->eltypeid, $d->optionid, $d->valueid, $d->value);
-            case "optiontablevalueremove":
-                return $this->OptionTableValueRemove($d->eltypeid, $d->optionid, $d->valueid);
-            case "currencylist":
-                return $this->CurrencyListToAJAX();
-            case "currencysave":
-                return $this->CurrencySaveToAJAX($d->currencyid, $d->savedata);
-            case "currencyremove":
-                return $this->CurrencyRemoveToAJAX($d->currencyid);
-        }
-
-        return null;
+    public function CacheClear(){
+        $this->_cache = array();
     }
 
-    public function ToArray($rows, &$ids1 = "", $fnids1 = 'uid', &$ids2 = "", $fnids2 = '', &$ids3 = "", $fnids3 = ''){
-        $ret = array();
-        while (($row = $this->db->fetch_array($rows))){
-            $ret[] = $row;
-            if (is_array($ids1)){
-                $ids1[$row[$fnids1]] = $row[$fnids1];
-            }
-            if (is_array($ids2)){
-                $ids2[$row[$fnids2]] = $row[$fnids2];
-            }
-            if (is_array($ids3)){
-                $ids3[$row[$fnids3]] = $row[$fnids3];
-            }
-        }
-        return $ret;
-    }
 
-    public function ToArrayId($rows, $field = "id"){
-        $ret = array();
-        while (($row = $this->db->fetch_array($rows))){
-            $ret[$row[$field]] = $row;
-        }
-        return $ret;
-    }
-
-    public function ParamToObject($o){
-        if (is_array($o)){
-            $ret = new stdClass();
-            foreach ($o as $key => $value){
-                $ret->$key = $value;
-            }
-            return $ret;
-        } else if (!is_object($o)){
-            return new stdClass();
-        }
-        return $o;
-    }
-
-    public function AppStructureToJSON(){
+    public function CatalogList(){
         if (!$this->IsViewRole()){
             return 403;
         }
 
-        $modelManager = AbricosModelManager::GetManager('catalog');
-
-        $res = $modelManager->ToJSON('elementType');
-        if (empty($res)){
-            return null;
+        if (isset($this->_cache['CatalogList'])){
+            return $this->_cache['CatalogList'];
         }
 
-        $ret = new stdClass();
-        $ret->appStructure = $res;
-        return $ret;
-    }
+        $models = $this->models;
 
-    public function CatalogInitDataToJSON(){
-        if (!$this->IsViewRole()){
-            return false;
+        /** @var CatalogList $list */
+        $list = $models->InstanceClass('CatalogList');
+        $rows = CatalogDbQuery::CatalogList($this->db, $this->pfx);
+        while (($d = $this->db->fetch_array($rows))){
+            $list->Add($models->InstanceClass('Catalog', $d));
         }
 
-        $ret = new stdClass();
-
-        $ajaxCatalogs = $this->CatalogListToAJAX();
-        $ret->catalogs = $ajaxCatalogs->catalogs;
-
-        $ajaxElTypes = $this->ElementTypeListToJSON();
-        $ret->elementTypeList = $ajaxElTypes->elementTypeList;
-
-        $ajaxOptGroups = $this->ElementOptionGroupListToAJAX();
-        $ret->eloptgroups = $ajaxOptGroups->eloptgroups;
-
-        $ajaxCurrencies = $this->CurrencyListToAJAX();
-        $ret->currencies = $ajaxCurrencies->currencies;
-
-        return $ret;
+        return $this->_cache['CatalogList'] = $list;
     }
+
+
+    /* * * * * * * * * OLD FUNCTION TODO: REMOVE * * * * * * */
 
     private $_cacheCatalogList;
 
@@ -284,7 +240,7 @@ class CatalogModuleManager {
      * @param boolean $clearCache
      * @return CatalogList
      */
-    public function CatalogList($clearCache = false){
+    public function oldCatalogList($clearCache = false){
         if (!$this->IsViewRole()){
             return false;
         }
@@ -1237,7 +1193,8 @@ class CatalogModuleManager {
 
             $curType->options->Add($option);
         }
-        print_r($list->Get(0)->ToJSON()); exit;
+        print_r($list->Get(0)->ToJSON());
+        exit;
 
         $this->_cacheElementTypeList = $list;
 

@@ -1,63 +1,52 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
-        {name: '{C#MODNAME}', files: ['catalogexplore.js', 'catalogview.js', 'elementlist.js']}
+        {name: '{C#MODNAME}', files: ['catalogExplore.js', 'catalogView.js', 'elementList.js']}
     ]
 };
 Component.entryPoint = function(NS){
 
-    var Dom = YAHOO.util.Dom,
-        L = YAHOO.lang,
-        LNG = this.language,
-        buildTemplate = this.buildTemplate;
+    var Y = Brick.YUI,
+        COMPONENT = this,
+        SYS = Brick.mod.sys;
 
-    var CatalogManagerWidget = function(container, manager, cfg){
-        cfg = L.merge({
-            'catid': 0
-        }, cfg || {});
-        CatalogManagerWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'widget'
-        }, manager, cfg);
-    };
+    NS.CatalogManagerWidget = Y.Base.create('catalogManagerWidget', SYS.AppWidget, [], {
+        onInitAppWidget: function(err, appInstance){
+            var tp = this.template;
+
+            var treeWidget = this.treeWidget = new NS.CatalogTreeWidget({
+                srcNode: tp.gel('explore'),
+                appInstance: appInstance
+            });
+
+            treeWidget.on('selectedItemEvent', this.onSelectedCatalogItem, this);
+            treeWidget.on('addChildClickEvent', this.onAddChildClickCatalogItem, this);
+            treeWidget.on('editClickEvent', this.onEditClickCatalogItem, this);
+
+            /*
+             this.showCatalogViewWidget(cfg['catid']);
+
+             man.catalogChangedEvent.subscribe(this.onCatalogChanged, this, true);
+             man.catalogCreatedEvent.subscribe(this.onCatalogCreated, this, true);
+             man.catalogRemovedEvent.subscribe(this.onCatalogRemoved, this, true);
+             /**/
+        },
+        destructor: function(){
+        },
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'widget'},
+            catalogid: {value: 0}
+        }
+    });
+
+    return;
+
     YAHOO.extend(CatalogManagerWidget, Brick.mod.widget.Widget, {
-        init: function(manager, cfg){
-            this.manager = manager;
-            this.cfg = cfg;
-
-            this.treeWidget = null;
-            this.catViewWidget = null;
-            this.elementListWidget = null;
-        },
-        destroy: function(){
-            if (!L.isNull(this.treeWidget)){
-                this.treeWidget.destroy();
-            }
-            if (!L.isNull(this.catViewWidget)){
-                this.catViewWidget.destroy();
-            }
-            if (!L.isNull(this.elementListWidget)){
-                this.elementListWidget.destroy();
-            }
-
-            var man = this.manager;
-            man.catalogCreatedEvent.unsubscribe(this.onCatalogCreated);
-            man.catalogChangedEvent.unsubscribe(this.onCatalogChanged);
-            man.catalogRemovedEvent.unsubscribe(this.onCatalogRemoved);
-
-            CatalogManagerWidget.superclass.destroy.call(this);
-        },
         onLoad: function(man, cfg){
             this.elHide('loading');
-            this.treeWidget = new NS.CatalogTreeWidget(this.gel('explore'), man, man.catalogList);
-            this.treeWidget.selectedItemEvent.subscribe(this.onSelectedCatalogItem, this, true);
-            this.treeWidget.addChildClickEvent.subscribe(this.onAddChildClickCatalogItem, this, true);
-            this.treeWidget.editClickEvent.subscribe(this.onEditClickCatalogItem, this, true);
 
-            this.showCatalogViewWidget(cfg['catid']);
-
-            man.catalogChangedEvent.subscribe(this.onCatalogChanged, this, true);
-            man.catalogCreatedEvent.subscribe(this.onCatalogCreated, this, true);
-            man.catalogRemovedEvent.subscribe(this.onCatalogRemoved, this, true);
         },
         onCatalogChanged: function(){
             this.treeWidget.render();
