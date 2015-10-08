@@ -75,6 +75,6 @@
       "type": "date",
       "dbField": "dl",
       "json": "dl"
-    },
+    }
   }
 }
