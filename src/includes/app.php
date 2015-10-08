@@ -211,6 +211,10 @@ abstract class CatalogApp extends AbricosApplication {
         $this->_cache = array();
     }
 
+    public function CatalogListToJSON(){
+        $ret = $this->CatalogList();
+        return $this->ResultToJSON('catalogList', $ret);
+    }
 
     public function CatalogList(){
         if (!$this->IsViewRole()){

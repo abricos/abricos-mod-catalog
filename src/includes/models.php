@@ -190,7 +190,7 @@ class CatalogCurrency extends CatalogItem {
     }
 }
 
-class CatalogCurrencyList extends CatalogItemList {
+class CatalogCurrencyList extends AbricosModelList {
 
     /**
      * @return CatalogCurrency
@@ -457,7 +457,7 @@ class CatalogElementOptionGroup extends CatalogItem {
 
 }
 
-class CatalogElementOptionGroupList extends CatalogItemList {
+class CatalogElementOptionGroupList extends AbricosModelList {
 
     public function Add($item){
         parent::Add($item);
@@ -525,7 +525,7 @@ class CatalogElementOption extends CatalogItem {
 }
 
 
-class CatalogElementOptionList extends CatalogItemList {
+class CatalogElementOptionList extends AbricosModelList {
 
     public function __construct(){
         parent::__construct();
@@ -794,7 +794,7 @@ class CatalogElementDetail {
     }
 }
 
-class CatalogElementList extends CatalogItemList {
+class CatalogElementList extends AbricosModelList {
 
     /**
      * @var CatalogElementListConfig
@@ -1086,7 +1086,7 @@ class CatalogElementWhereOption extends CatalogItem {
     }
 }
 
-class CatalogElementWhereOptionList extends CatalogItemList {
+class CatalogElementWhereOptionList extends AbricosModelList {
 
     public function __construct(){
         parent::__construct();
@@ -1147,7 +1147,7 @@ class CatalogElementOrderOption extends CatalogItem {
     }
 }
 
-class CatalogElementOrderOptionList extends CatalogItemList {
+class CatalogElementOrderOptionList extends AbricosModelList {
 
     public function __construct(){
         parent::__construct();
@@ -1239,7 +1239,5 @@ class CatalogStatisticElementList extends AbricosList {
 
     }
 }
-
-require_once 'classesman.php';
 
 ?>

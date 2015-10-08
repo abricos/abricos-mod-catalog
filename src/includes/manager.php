@@ -7,8 +7,6 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
-require_once 'classes.php';
-
 /**
  * Class CatalogManager
  *
@@ -16,6 +14,11 @@ require_once 'classes.php';
  */
 class CatalogManager extends Ab_ModuleManager {
 
+    public function AppClassesRequire(){
+        require_once 'models.php';
+        require_once 'dbquery.php';
+        require_once 'app.php';
+    }
 }
 
 ?>
