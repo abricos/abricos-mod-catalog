@@ -235,87 +235,6 @@ class CatalogFileList extends AbricosList {
     }
 }
 
-class CatalogUser extends AbricosItem {
-    public $userName;
-    public $avatar;
-    public $firstName;
-    public $lastName;
-
-    /**
-     * Почта пользователя
-     *
-     * Для внутреннего использования
-     *
-     * @var string
-     */
-    public $email;
-
-    public function __construct($d){
-        $this->id = intval(isset($d['uid']) && intval($d['uid']) > 0 ? $d['uid'] : $d['id']);
-        $this->userName = strval($d['unm']);
-        $this->avatar = strval($d['avt']);
-        $this->firstName = strval($d['fnm']);
-        $this->lastName = strval($d['lnm']);
-        $this->email = strval($d['eml']);
-    }
-
-    public function ToAJAX(){
-        $ret = new stdClass();
-        $ret->id = $this->id;
-        $ret->unm = $this->userName;
-        $ret->avt = $this->avatar;
-        $ret->fnm = $this->firstName;
-        $ret->lnm = $this->lastName;
-        return $ret;
-    }
-
-    public function GetUserName(){
-        if (!empty($this->firstName) && !empty($this->lastName)){
-            return $this->firstName." ".$this->lastName;
-        }
-        return $this->userName;
-    }
-
-    public function URL(){
-        $mod = Abricos::GetModule('uprofile');
-        if (empty($mod)){
-            return "#";
-        }
-        return '/uprofile/'.$this->id.'/';
-    }
-
-    private function Avatar($size){
-        $url = empty($this->avatar) ?
-            '/modules/uprofile/images/nofoto'.$size.'.gif' :
-            '/filemanager/i/'.$this->avatar.'/w_'.$size.'-h_'.$size.'/avatar.gif';
-        return '<img src="'.$url.'">';
-    }
-
-    public function Avatar24(){
-        return $this->Avatar(24);
-    }
-
-    public function Avatar90(){
-        return $this->Avatar(90);
-    }
-}
-
-class CatalogUserList extends AbricosList {
-
-    /**
-     * @return CatalogUser
-     */
-    public function Get($id){
-        return parent::Get($id);
-    }
-
-    /**
-     * @return CatalogUser
-     */
-    public function GetByIndex($i){
-        return parent::GetByIndex($i);
-    }
-}
 
 /**
  * Class CatalogElementType
@@ -578,92 +497,37 @@ class CatalogElementOptionList extends AbricosModelList {
     }
 }
 
-class CatalogElement extends CatalogItem {
+/**
+ * Class CatalogElement
+ *
+ * @property int $catalogid Catalog ID
+ * @property int $elTypeId Element Type ID
+ * @property int $userid User ID
+ * @property string $title Title
+ * @property string $name Name
+ * @property string $foto Image ID of filemanager module
+ * @property string $fotoExt Image Extension
+ *
+ * @property string $version System Version of Element
+ * @property int $pElementId Prev Version Element ID
+ * @property string $changelog
+ *
+ * @property int $order
+ * @property bool $isModer
+ * @property int $dateline Create Date
+ * @property int $upddate Update Date
+ *
+ * @property string $metaTitle
+ * @property string $metaKeys
+ * @property string $metaDescript
+ *
+ */
+class CatalogElement extends AbricosModel {
 
-    public $catid;
-    public $elTypeId;
+    protected $_structModule = 'catalog';
+    protected $_structName = 'Element';
 
-    public $title;
-    public $name;
-
-    public $order;
-
-    public $foto;
-    public $fotoExt;
-
-    public $ext = array();
-
-    /**
-     * @var CatalogElementDetail
-     */
-    public $detail = null;
-
-    /**
-     * Идентификатор пользователя добавивший элемент
-     *
-     * @var integer
-     */
-    public $userid = 0;
-
-    /**
-     * Дата добавления
-     *
-     * @var integer
-     */
-    public $dateline = 0;
-    /**
-     * Дата обновления
-     *
-     * @var integer
-     */
-    public $upddate = 0;
-
-    /**
-     * True - ожидает модерацию
-     *
-     * @var boolean
-     */
-    public $isModer = false;
-
-    /**
-     * @param array $d
-     * @param CatalogElementOptionList $extFields
-     */
-    public function __construct($d){
-        parent::__construct($d);
-
-        $d = array_merge(array(
-            'catid' => 0,
-            'tpid' => 0,
-            'tl' => '',
-            'nm' => '',
-            'ord' => 0,
-            'uid' => 0,
-            'dl' => 0,
-            'upd' => 0,
-            'mdr' => 0,
-            'foto' => '',
-            'ext' => null
-        ), $d);
-
-        $this->catid = intval($d['catid']);
-        $this->elTypeId = intval($d['tpid']);
-        $this->title = strval($d['tl']);
-        $this->name = strval($d['nm']);
-        $this->order = intval($d['ord']);
-        $this->userid = intval($d['uid']);
-        $this->dateline = intval($d['dl']);
-        $this->upddate = intval($d['upd']);
-        $this->isModer = intval($d['mdr']) > 0;
-
-        $afoto = explode("/", strval($d['foto']));
-        $this->foto = isset($afoto[0]) ? $afoto[0] : '';
-        $this->fotoExt = isset($afoto[1]) ? $afoto[1] : '';
-
-        if (is_array($d['ext'])){
-            $this->ext = $d['ext'];
-        }
-    }
+    // public $ext = array(); // TODO: extension release
 
     public function FotoSrc($w = 0, $h = 0){
 
@@ -686,32 +550,6 @@ class CatalogElement extends CatalogItem {
         return $ret;
     }
 
-    public function ToAJAX(){
-        $man = func_get_arg(0);
-
-        $ret = new stdClass();
-        $ret->id = $this->id;
-        $ret->catid = $this->catid;
-        $ret->uid = $this->userid;
-        $ret->tpid = $this->elTypeId;
-        $ret->tl = $this->title;
-        $ret->nm = $this->name;
-        $ret->ord = $this->order;
-        $ret->foto = $this->foto;
-        $ret->mdr = $this->isModer ? 1 : 0;
-
-        $ret->dtl = null;
-        if (!empty($this->detail)){
-            $ret->dtl = $this->detail->ToAJAX($man);
-        }
-
-        if (count($this->ext) > 0){
-            $ret->ext = $this->ext;
-        }
-
-        return $ret;
-    }
-
     public function URI(){
         return "";
     }
@@ -721,7 +559,7 @@ class CatalogElement extends CatalogItem {
 /**
  * Подробная информация по элементу
  */
-class CatalogElementDetail {
+class old_CatalogElementDetail {
 
     public $metaTitle;
     public $metaKeys;
@@ -744,20 +582,6 @@ class CatalogElementDetail {
      */
     public $fotoList;
 
-    /**
-     * Системная версия элемента
-     *
-     * @var integer
-     */
-    public $version;
-
-    /**
-     * Идентификатор элемента предыдущей версии
-     *
-     * @var integer
-     */
-    public $pElementId;
-    public $changeLog;
 
     public function __construct($d, $dOptBase, $dOptPers, $fotos, CatalogFotoList $fotoList){
         $this->metaTitle = strval($d['mtl']);

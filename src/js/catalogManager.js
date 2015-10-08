@@ -12,19 +12,37 @@ Component.entryPoint = function(NS){
 
     NS.CatalogManagerWidget = Y.Base.create('catalogManagerWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
-            var tp = this.template;
+            var tp = this.template,
+                catalogid = this.get('catalogid');
 
             var treeWidget = this.treeWidget = new NS.CatalogTreeWidget({
-                srcNode: tp.gel('explore'),
-                appInstance: appInstance
+                appInstance: appInstance,
+                srcNode: tp.gel('explore')
             });
 
             treeWidget.on('selectedItemEvent', this.onSelectedCatalogItem, this);
             treeWidget.on('addChildClickEvent', this.onAddChildClickCatalogItem, this);
             treeWidget.on('editClickEvent', this.onEditClickCatalogItem, this);
 
+            this.elementListWidget = new NS.ElementListWidget({
+                appInstance: appInstance,
+                srcNode: tp.gel('ellist'),
+                catalogid: catalogid
+
+            });
+
             /*
-             this.showCatalogViewWidget(cfg['catid']);
+             this.catalogViewWidget = new NS.CatalogViewWidget(this.gel('catview'), this.manager, cat, {
+             'addElementClick': function(){
+             __self.elementListWidget.showNewEditor();
+             }
+             });
+
+
+
+             // this.showCatalogViewWidget(this.get('catalogid'));
+
+             /*
 
              man.catalogChangedEvent.subscribe(this.onCatalogChanged, this, true);
              man.catalogCreatedEvent.subscribe(this.onCatalogCreated, this, true);
@@ -32,7 +50,10 @@ Component.entryPoint = function(NS){
              /**/
         },
         destructor: function(){
-        },
+            if (this.treeWidget){
+                treeWidget.destroy();
+            }
+        }
     }, {
         ATTRS: {
             component: {value: COMPONENT},
@@ -41,7 +62,7 @@ Component.entryPoint = function(NS){
         }
     });
 
-    return;
+    return; ////////// TODO: remove old functions
 
     YAHOO.extend(CatalogManagerWidget, Brick.mod.widget.Widget, {
         onLoad: function(man, cfg){
@@ -77,36 +98,7 @@ Component.entryPoint = function(NS){
             var cat = prms[0];
             this.showCatalogViewWidget(cat.id);
         },
-        showCatalogViewWidget: function(catid, callback){
-            this.elShow('colloading');
-            this.elHide('colview');
-            var __self = this;
-            this.manager.catalogLoad(catid, function(cat, elList){
-                __self._onLoadCatalogDetail(cat, elList);
-                NS.life(callback);
-            }, {'elementlist': true});
-        },
-        _onLoadCatalogDetail: function(cat, elList){
-            this.elHide('colloading');
-            this.elShow('colview');
 
-            var __self = this;
-            if (L.isNull(this.catViewWidget)){
-                this.catViewWidget = new NS.CatalogViewWidget(this.gel('catview'), this.manager, cat, {
-                    'addElementClick': function(){
-                        __self.elementListWidget.showNewEditor();
-                    }
-                });
-            } else {
-                this.catViewWidget.setCatalog(cat);
-            }
-
-            if (L.isNull(this.elementListWidget)){
-                this.elementListWidget = new NS.ElementListWidget(this.gel('ellist'), this.manager, elList);
-            } else {
-                this.elementListWidget.setList(elList);
-            }
-        }
     });
     NS.CatalogManagerWidget = CatalogManagerWidget;
 };

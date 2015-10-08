@@ -78,6 +78,8 @@ abstract class CatalogApp extends AbricosApplication {
         return array(
             'Catalog' => 'Catalog',
             'CatalogList' => 'CatalogList',
+            'Element' => 'CatalogElement',
+            'ElementList' => 'CatalogElementList',
             'ElementType' => 'CatalogElementType',
             'ElementTypeList' => 'CatalogElementTypeList',
             'ElementOption' => 'CatalogElementOption',
@@ -86,7 +88,7 @@ abstract class CatalogApp extends AbricosApplication {
     }
 
     protected function GetStructures(){
-        return 'ElementType,ElementOption';
+        return 'Catalog,Element,ElementType,ElementOption';
     }
 
 
@@ -94,6 +96,8 @@ abstract class CatalogApp extends AbricosApplication {
         switch ($d->do){
             case "catalogList":
                 return $this->CatalogListToJSON();
+            case "elementList":
+                return $this->ElementListToJSON($d->catalogid);
             case "elementTypeList":
                 return $this->ElementTypeListToJSON();
 
@@ -235,6 +239,15 @@ abstract class CatalogApp extends AbricosApplication {
         }
 
         return $this->_cache['CatalogList'] = $list;
+    }
+
+    public function ElementListToJSON($config){
+        $ret = $this->ElementList($config);
+        return $this->ResultToJSON('elementList', $ret);
+    }
+
+    public function ElementList($config){
+
     }
 
 
@@ -485,7 +498,7 @@ abstract class CatalogApp extends AbricosApplication {
         return true;
     }
 
-    public function ElementList($param){
+    public function old_ElementList($param){
         if (!$this->IsViewRole()){
             return false;
         }

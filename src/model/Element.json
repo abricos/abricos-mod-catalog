@@ -1,0 +1,95 @@
+{
+  "version": "0.1.0",
+  "fields": {
+    "id": {
+      "dbField": "elementid",
+      "type": "int"
+    },
+    "catalogid": {
+      "type": "int",
+      "dbField": "catid",
+      "json": "catid"
+    },
+    "userid": {
+      "type": "int",
+      "dbField": "uid",
+      "rolefn": "IsAdminRole",
+      "json": "uid"
+    },
+    "title": {
+      "type": "string",
+      "dbField": "tl",
+      "json": "tl"
+    },
+    "name": {
+      "type": "string",
+      "dbField": "nm",
+      "json": "nm"
+    },
+    "foto": {
+      "type": "string"
+    },
+    "fotoExt": {
+      "type": "string",
+      "dbField": "fext",
+      "json": "fext"
+    },
+    "order": {
+      "type": "int",
+      "dbField": "ord",
+      "json": "ord"
+    },
+    "isModer": {
+      "type": "bool",
+      "dbField": "mdr",
+      "json": "mdr"
+    },
+
+    "version": {
+      "type": "string",
+      "rolefn": "IsAdminRole",
+      "dbField": "v",
+      "json": "v"
+    },
+    "pElementId": {
+      "type": "int",
+      "rolefn": "IsAdminRole",
+      "dbField": "pelid",
+      "json": "pelid"
+    },
+    "changelog": {
+      "type": "string",
+      "dbField": "chlg",
+      "json": "chlg"
+    },
+    "metaTitle": {
+      "type": "string",
+      "rolefn": "IsAdminRole",
+      "dbField": "mtl",
+      "json": "mtl"
+    },
+    "metaKeys": {
+      "type": "string",
+      "rolefn": "IsAdminRole",
+      "dbField": "mks",
+      "json": "mks"
+    },
+    "metaDesc": {
+      "type": "string",
+      "dbField": "mdsc",
+      "json": "mdsc"
+    },
+
+
+    "dateline": {
+      "type": "date",
+      "dbField": "dl",
+      "json": "dl"
+    },
+    "upddate": {
+      "type": "date",
+      "dbField": "upd",
+      "json": "upd"
+    }
+  }
+}

@@ -1,58 +1,92 @@
 var Component = new Brick.Component();
 Component.requires = {
-    yahoo: ['animation', 'dragdrop'],
     mod: [
         {name: '{C#MODNAME}', files: ['elementeditor.js']}
     ]
 };
 Component.entryPoint = function(NS){
 
-    var Dom = YAHOO.util.Dom,
-        E = YAHOO.util.Event,
-        L = YAHOO.lang,
-        buildTemplate = this.buildTemplate,
-        BW = Brick.mod.widget.Widget;
+    var Y = Brick.YUI,
+        COMPONENT = this,
+        SYS = Brick.mod.sys;
 
-    var DDM = YAHOO.util.DragDropMgr;
+    NS.ElementListWidget = Y.Base.create('elementListWidget', SYS.AppWidget, [], {
+        onInitAppWidget: function(err, appInstance){
+            this._widgetList = [];
 
-    var UID = Brick.env.user.id;
+            var tp = this.template,
+                catalogid = this.get('catalogid');
 
-    var ElementListWidget = function(container, manager, list, cfg){
-        cfg = L.merge({}, cfg || {});
 
-        ElementListWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'widget'
-        }, manager, list, cfg);
-    };
-    YAHOO.extend(ElementListWidget, BW, {
-        init: function(manager, list, cfg){
-            this.manager = manager;
-            this.list = list;
-            this.config = cfg;
-            this.wsList = [];
-
-            this.newEditorWidget = null;
+            appInstance.elementList(catalogid, function(err, result){
+                if (!err){
+                    this.set('elementList', result.elementList);
+                }
+                this.renderElementList();
+            }, this);
         },
-        destroy: function(){
+        destructor: function(){
             this.clearList();
-            ElementListWidget.superclass.destroy.call(this);
         },
         clearList: function(){
-            var ws = this.wsList;
+            var ws = this._widgetList;
             for (var i = 0; i < ws.length; i++){
                 ws[i].destroy();
             }
-            this.elSetHTML('list', '');
+            this.template.setHTML('list', '');
         },
+        renderElementList: function(){
+            var elementList = this.get('elementList');
+            if (!elementList){
+                return;
+            }
+            this.clearList();
+
+            var tp = this.template,
+                ws = this._widgetList;
+
+            elementList.each(function(element){
+                var w = new NS.ElementListWidget.RowWidget({
+                    srcNode: tp.append('list', '<div></div>'),
+                    element: element
+                });
+                ws[ws.length] = w;
+            }, this);
+        },
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'widget'},
+            elementList: {},
+            catalogid: {value: 0}
+        }
+    });
+
+    NS.ElementListWidget.RowWidget = Y.Base.create('elementRowWidget', SYS.AppWidget, [], {
+        onInitAppWidget: function(err, appInstance){
+
+        },
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'row'},
+            element: {}
+        }
+    });
+
+
+    return; ////////// TODO: remove old functions
+
+    YAHOO.extend(ElementListWidget, BW, {
+
         setList: function(list){
             this.list = list;
             this.allEditorClose();
             this.render();
         },
         render: function(){
-            this.clearList();
 
-            var elList = this.gel('list'), ws = this.wsList,
+            var elList = this.gel('list'), ws = this._widgetList,
                 __self = this, man = this.manager;
 
             var list = this.list;
@@ -126,7 +160,7 @@ Component.entryPoint = function(NS){
             if (!L.isFunction(f)){
                 return;
             }
-            var ws = this.wsList;
+            var ws = this._widgetList;
             for (var i = 0; i < ws.length; i++){
                 if (f(ws[i])){
                     return;
