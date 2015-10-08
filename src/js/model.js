@@ -10,6 +10,14 @@ Component.entryPoint = function(NS){
         L = Y.Lang,
         SYS = Brick.mod.sys;
 
+    NS.Catalog = Y.Base.create('catalog', SYS.AppModel, [], {
+        structureName: 'catalog'
+    });
+
+    NS.CatalogList = Y.Base.create('catalogList', SYS.AppModelList, [], {
+        appItem: NS.Catalog
+    });
+
     NS.ElementType = Y.Base.create('elementType', SYS.AppModel, [], {
         appInstance: null,
         structureName: 'elementType'
@@ -24,7 +32,8 @@ Component.entryPoint = function(NS){
         idField: 'name'
     });
 
-    
+    return; /* * * * * * * * * TODO: OLD FUNCTIONS * * * * * * */
+
     var old_ElementType = function(manager, d){
         this.manager = manager;
 

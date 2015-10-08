@@ -83,8 +83,48 @@ Component.entryPoint = function(NS){
             tp.setHTML({
                 table: this._buildRows(null, 0)
             });
-            this._selectPath(this.selectedItem);
+            // this._selectPath(this.selectedItem);
         },
+        selectItem: function(id){
+            var cat = this.list.find(id);
+            if (this.selectedItem == cat){
+                return;
+            }
+
+            this._selectPath(cat);
+            this.onSelectedItem(cat);
+        },
+        _unSelectPathMethod: function(list){
+            var TId = this._TId, gel = function(n, id){
+                return Dom.get(TId[n]['title'] + '-' + id);
+            };
+            var __self = this;
+            list.foreach(function(cat){
+                Dom.removeClass(gel('row', cat.id), 'select');
+                __self._unSelectPathMethod(cat.childs);
+            });
+        },
+        _selectPath: function(cat){
+            this.selectedItem = cat;
+            this._unSelectPathMethod(this.list);
+            this._selectPathMethod(cat);
+        },
+        _selectPathMethod: function(cat){
+            if (L.isNull(cat)){
+                return;
+            }
+            var TId = this._TId, gel = function(n, id){
+                return Dom.get(TId[n]['title'] + '-' + id);
+            };
+
+            Dom.addClass(gel('row', cat.id), 'select');
+
+            if ((L.isNull(cat.parent) && cat.parentTaskId > 0) || (cat.parentTaskId == 0 && cat.userid != UID)){
+                Dom.addClass(gel('rowuser', cat.userid), 'select');
+            }
+
+            this._selectPathMethod(cat.parent);
+        }
     }, {
         ATTRS: {
             component: {value: COMPONENT},
@@ -177,46 +217,7 @@ Component.entryPoint = function(NS){
             var url = cat.url();
             window.open(url);
         },
-        selectItem: function(id){
-            var cat = this.list.find(id);
-            if (this.selectedItem == cat){
-                return;
-            }
 
-            this._selectPath(cat);
-            this.onSelectedItem(cat);
-        },
-        _unSelectPathMethod: function(list){
-            var TId = this._TId, gel = function(n, id){
-                return Dom.get(TId[n]['title'] + '-' + id);
-            };
-            var __self = this;
-            list.foreach(function(cat){
-                Dom.removeClass(gel('row', cat.id), 'select');
-                __self._unSelectPathMethod(cat.childs);
-            });
-        },
-        _selectPath: function(cat){
-            this.selectedItem = cat;
-            this._unSelectPathMethod(this.list);
-            this._selectPathMethod(cat);
-        },
-        _selectPathMethod: function(cat){
-            if (L.isNull(cat)){
-                return;
-            }
-            var TId = this._TId, gel = function(n, id){
-                return Dom.get(TId[n]['title'] + '-' + id);
-            };
-
-            Dom.addClass(gel('row', cat.id), 'select');
-
-            if ((L.isNull(cat.parent) && cat.parentTaskId > 0) || (cat.parentTaskId == 0 && cat.userid != UID)){
-                Dom.addClass(gel('rowuser', cat.userid), 'select');
-            }
-
-            this._selectPathMethod(cat.parent);
-        }
     });
     NS.CatalogTreeWidget = CatalogTreeWidget;
 

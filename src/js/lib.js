@@ -16,7 +16,7 @@ Component.entryPoint = function(NS){
             isLoadAppStructure: {
                 value: true
             },
-            CatalogItem: {value: NS.CatalogItem},
+            Catalog: {value: NS.Catalog},
             CatalogList: {value: NS.CatalogList},
             ElementType: {value: NS.ElementType},
             ElementTypeList: {value: NS.ElementTypeList},

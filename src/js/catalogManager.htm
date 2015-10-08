@@ -1,33 +1,34 @@
 <!--{widget}-->
-<div id="{i#id}" class="aw-catalog">
-	<div id="{i#wrap}" class="catalogman">
-		<div id="{i#loading}" class="loading">
-			<img src="/images/loading.gif" /> Идет загрузка данных <br /> Пожалуйста, подождите...
-		</div>
-	
-		<div id="{i#view}">
-			<table class="brdtable">
-			<tbody><tr>
-			
-			<td class="brdlcol">
-				<div id="{i#explore}"></div>
-			</td>
-			<td class="brdrcol">
-				<div id="{i#colloading}" class="loading">
-					<img src="/images/loading.gif" /> Идет загрузка данных <br /> Пожалуйста, подождите...
-				</div>
-			
-				<div id="{i#colview}">
-					<div id="{i#catview}"></div>
-					
-					<div id="{i#subcatedit}"></div>
-					
-					<div id="{i#ellist}"></div>
-				</div>
-			</td>
-			
-			</tr></tbody>
-			</table>
-		</div>
-	</div>
+<div class="aw-catalog">
+    <div id="{i#wrap}" class="catalogman">
+
+        <div data-wait="show" class="loading">
+            <img src="/images/loading.gif"/>
+            Идет загрузка данных <br/> Пожалуйста, подождите...
+        </div>
+
+        <div data-wait="hide">
+            <table class="brdtable">
+                <tbody>
+                <tr>
+
+                    <td class="brdlcol">
+                        <div id="{i#explore}"></div>
+                    </td>
+                    <td class="brdrcol">
+
+                        <div id="{i#colview}">
+                            <div id="{i#catview}"></div>
+
+                            <div id="{i#subcatedit}"></div>
+
+                            <div id="{i#ellist}"></div>
+                        </div>
+                    </td>
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
