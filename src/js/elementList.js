@@ -72,6 +72,14 @@ Component.entryPoint = function(NS){
 
     NS.ElementListWidget.RowWidget = Y.Base.create('elementRowWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
+            var tp = this.template,
+                element = this.get('element');
+
+            tp.setHTML({
+                idval: element.get('id'),
+                nm: element.get('name'),
+                tl: element.get('title')
+            });
 
         },
     }, {

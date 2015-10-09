@@ -12,7 +12,18 @@ Component.entryPoint = function(NS){
 
     NS.CatalogManagerWidget = Y.Base.create('catalogManagerWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
+            appInstance.catalogList(function(){
+                this.onLoadCatalogList();
+            }, this);
+        },
+        destructor: function(){
+            if (this.treeWidget){
+                treeWidget.destroy();
+            }
+        },
+        onLoadCatalogList: function(){
             var tp = this.template,
+                appInstance = this.get('appInstance'),
                 catalogid = this.get('catalogid');
 
             var treeWidget = this.treeWidget = new NS.CatalogTreeWidget({
@@ -48,11 +59,7 @@ Component.entryPoint = function(NS){
              man.catalogCreatedEvent.subscribe(this.onCatalogCreated, this, true);
              man.catalogRemovedEvent.subscribe(this.onCatalogRemoved, this, true);
              /**/
-        },
-        destructor: function(){
-            if (this.treeWidget){
-                treeWidget.destroy();
-            }
+
         }
     }, {
         ATTRS: {

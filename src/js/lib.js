@@ -13,11 +13,11 @@ Component.entryPoint = function(NS){
 
     NS.Application = {
         ATTRS: {
-            isLoadAppStructure: {
-                value: true
-            },
+            isLoadAppStructure: {value: true},
             Catalog: {value: NS.Catalog},
             CatalogList: {value: NS.CatalogList},
+            Element: {value: NS.Element},
+            ElementList: {value: NS.ElementList},
             ElementType: {value: NS.ElementType},
             ElementTypeList: {value: NS.ElementTypeList},
         },
@@ -38,7 +38,8 @@ Component.entryPoint = function(NS){
         }
     };
 
-    return; /* * * * * * * * * TODO: OLD FUNCTIONS * * * * * * */
+    return;
+    /* * * * * * * * * TODO: OLD FUNCTIONS * * * * * * */
 
 
     NS.managers = {};

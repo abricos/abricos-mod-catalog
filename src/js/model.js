@@ -11,23 +11,26 @@ Component.entryPoint = function(NS){
         SYS = Brick.mod.sys;
 
     NS.Catalog = Y.Base.create('catalog', SYS.AppModel, [], {
-        structureName: 'catalog'
+        structureName: 'Catalog'
     });
 
     NS.CatalogList = Y.Base.create('catalogList', SYS.AppModelList, [], {
         appItem: NS.Catalog
     });
 
+    NS.Element = Y.Base.create('element', SYS.AppModel, [], {
+        structureName: 'Element'
+    });
+
+    NS.ElementList = Y.Base.create('elementList', SYS.AppModelList, [], {
+        appItem: NS.Element
+    });
+
     NS.ElementType = Y.Base.create('elementType', SYS.AppModel, [], {
-        appInstance: null,
-        structureName: 'elementType'
-    }, {
-        ATTRS: {
-        }
+        structureName: 'ElementType'
     });
 
     NS.ElementTypeList = Y.Base.create('elementTypeList', SYS.AppModelList, [], {
-        appInstance: null,
         appItem: NS.ElementType,
         idField: 'name'
     });
