@@ -17,7 +17,7 @@ abstract class CatalogApp extends AbricosApplication {
      *
      * @var string
      */
-    protected $pfx;
+    public $pfx;
 
     /**
      * @var CatalogAppConfig
@@ -230,6 +230,10 @@ abstract class CatalogApp extends AbricosApplication {
         return $this->ResultToJSON('elementList', $ret);
     }
 
+    /**
+     * @param mixed $configData
+     * @return CatalogElementList|int
+     */
     public function ElementList($configData){
         if (!$this->IsViewRole()){
             return 403;
@@ -238,11 +242,16 @@ abstract class CatalogApp extends AbricosApplication {
         if (empty($config)){
             return 500;
         }
-        print_r($config->ToJSON()); exit;
 
-        return $config;
+        $models = $this->models;
+
+        $list = $models->InstanceClass('ElementList');
+        $rows = CatalogDbQuery::ElementList($this, $config);
+        while (($d = $this->db->fetch_array($rows))){
+            $list->Add($models->InstanceClass('Element', $d));
+        }
+        return $list;
     }
-
 
     /* * * * * * * * * OLD FUNCTION TODO: REMOVE * * * * * * */
 

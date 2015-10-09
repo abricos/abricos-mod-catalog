@@ -129,6 +129,20 @@ class CatalogELConfig extends AbricosModel {
 
     public function SetConfig($d){
         $this->filters = isset($d->filter) ? $d->filter : array();
+
+        $aFFields = explode(',', $this->filterFields);
+
+        for ($i = 0; $i < $this->filters->Count(); $i++){
+            $filter = $this->filters->GetByIndex($i);
+            $valid = false;
+            for ($ii = 0; $ii < count($aFFields); $ii++){
+                if ($filter->field === $aFFields[$ii]){
+                    $valid = true;
+                    break;
+                }
+            }
+            $filter->isValid = $valid;
+        }
     }
 }
 
@@ -149,6 +163,11 @@ class CatalogELConfigList extends AbricosModelList {
 class CatalogELConfigFilter extends AbricosModel {
     protected $_structModule = 'catalog';
     protected $_structName = 'ELConfigFilter';
+
+    /**
+     * @var bool
+     */
+    public $isValid = false;
 }
 
 /**

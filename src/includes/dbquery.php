@@ -227,7 +227,55 @@ class CatalogDbQuery {
         return $db->query_read($sql);
     }
 
-    public static function ElementList(Ab_Database $db, $pfx, $userid, $isAdmin, CatalogElementListConfig $cfg){
+    /**
+     * @param CatalogApp $app
+     * @param CatalogELConfig $config
+     */
+    public static function ElementList($app, $config){
+        $db = $app->db;
+
+        $extFields = "";
+
+        $sql = "
+			SELECT
+				e.elementid as id,
+				e.catalogid as catid,
+				e.eltypeid as tpid,
+				e.title as tl,
+				e.name as nm,
+				e.ord as ord,
+				e.userid as uid,
+				e.dateline as dl,
+				e.upddate as upd,
+
+				e.version as v,
+				e.prevelementid as pelid,
+				e.changelog as chlg,
+
+				e.ismoder as mdr,
+
+				(
+					SELECT CONCAT(f.fileid,'/',fm.extension)
+					FROM ".$app->pfx."foto f
+					LEFT JOIN ".$db->prefix."fm_file fm ON f.fileid=fm.filehash
+					WHERE f.elementid=e.elementid
+					ORDER BY ord
+					LIMIT 1
+				) as foto
+				".$extFields."
+			FROM ".$app->pfx."element e
+			WHERE (e.ismoder=0 OR
+					".($app->IsAdminRole() ? "e.ismoder=1" : "(e.ismoder=1 AND userid=".bkint(Abricos::$user->id).")")."
+				)
+				AND e.isarhversion=0
+				AND e.deldate=0
+		";
+
+        return $db->query_read($sql);
+    }
+
+    // TODO: remove
+    public static function old_ElementList(Ab_Database $db, $pfx, $userid, $isAdmin, CatalogElementListConfig $cfg){
 
         $wCats = array();
         foreach ($cfg->catids as $catid){
