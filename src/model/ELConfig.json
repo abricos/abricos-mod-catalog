@@ -1,0 +1,14 @@
+{
+  "version": "0.1.0",
+  "fields": {
+    "id": {
+      "type": "string"
+    },
+    "filterFields": {
+      "type": "string"
+    },
+    "filters": {
+      "type": "modelList:ELConfigFilterList"
+    }
+  }
+}

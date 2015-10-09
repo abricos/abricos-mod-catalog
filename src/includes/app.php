@@ -8,49 +8,6 @@
  */
 
 /**
- * Class CatalogAppConfig
- */
-class CatalogAppConfig {
-
-    /**
-     * Разрешить изменять имя элемента
-     *
-     * @var boolean
-     */
-    public $elementNameChange = false;
-
-    /**
-     * Имя элемента является уникальным
-     *
-     * @var boolean
-     */
-    public $elementNameUnique = false;
-
-    /**
-     * Отключить создание базовых элементов
-     *
-     * @var boolean
-     */
-    public $elementCreateBaseTypeDisable = false;
-
-    /**
-     * Контроль версии элементов
-     *
-     * По умолчанию - отключен
-     *
-     * @var boolean
-     */
-    public $versionControl = false;
-
-    public $dbPrefix;
-
-    public function __construct($dbPrefix){
-        $this->dbPrefix = $dbPrefix;
-    }
-
-}
-
-/**
  * Менеджер каталога для управляющего модуля
  */
 abstract class CatalogApp extends AbricosApplication {
@@ -60,7 +17,7 @@ abstract class CatalogApp extends AbricosApplication {
      *
      * @var string
      */
-    private $pfx;
+    protected $pfx;
 
     /**
      * @var CatalogAppConfig
@@ -76,6 +33,10 @@ abstract class CatalogApp extends AbricosApplication {
 
     protected function GetClasses(){
         return array(
+            'ELConfig' => 'CatalogELConfig',
+            'ELConfigList' => 'CatalogELConfigList',
+            'ELConfigFilter' => 'CatalogELConfigFilter',
+            'ELConfigFilterList' => 'CatalogELConfigFilterList',
             'Catalog' => 'Catalog',
             'CatalogList' => 'CatalogList',
             'Element' => 'CatalogElement',
@@ -91,13 +52,12 @@ abstract class CatalogApp extends AbricosApplication {
         return 'Catalog,Element,ElementType,ElementOption';
     }
 
-
     public function ResponseToJSON($d){
         switch ($d->do){
             case "catalogList":
                 return $this->CatalogListToJSON();
             case "elementList":
-                return $this->ElementListToJSON($d->catalogid);
+                return $this->ElementListToJSON($d->config);
             case "elementTypeList":
                 return $this->ElementTypeListToJSON();
 
@@ -241,13 +201,46 @@ abstract class CatalogApp extends AbricosApplication {
         return $this->_cache['CatalogList'] = $list;
     }
 
+    /**
+     * @var CatalogELConfigList
+     */
+    private $_elsConfigs;
+
+    protected function GetElementListConfig($d){
+        if (!is_object($d)){
+            $d = new stdClass();
+        }
+        $d->id = isset($d->id) ? $d->id : 'default';
+
+        if (empty($this->_elsConfigs)){
+            $this->_elsConfigs = $this->models->InstanceClass('ELConfigList');
+        }
+
+        /** @var CatalogELConfig $config */
+        $config = $this->_elsConfigs->Get($d->id);
+        if (empty($config)){
+            return null;
+        }
+        $config->SetConfig($d);
+        return $config;
+    }
+
     public function ElementListToJSON($config){
         $ret = $this->ElementList($config);
         return $this->ResultToJSON('elementList', $ret);
     }
 
-    public function ElementList($config){
+    public function ElementList($configData){
+        if (!$this->IsViewRole()){
+            return 403;
+        }
+        $config = $this->GetElementListConfig($configData);
+        if (empty($config)){
+            return 500;
+        }
+        print_r($config->ToJSON()); exit;
 
+        return $config;
     }
 
 
@@ -1919,5 +1912,49 @@ abstract class CatalogApp extends AbricosApplication {
     }
 
 }
+
+/**
+ * Class CatalogAppConfig
+ */
+class CatalogAppConfig {
+
+    /**
+     * Разрешить изменять имя элемента
+     *
+     * @var boolean
+     */
+    public $elementNameChange = false;
+
+    /**
+     * Имя элемента является уникальным
+     *
+     * @var boolean
+     */
+    public $elementNameUnique = false;
+
+    /**
+     * Отключить создание базовых элементов
+     *
+     * @var boolean
+     */
+    public $elementCreateBaseTypeDisable = false;
+
+    /**
+     * Контроль версии элементов
+     *
+     * По умолчанию - отключен
+     *
+     * @var boolean
+     */
+    public $versionControl = false;
+
+    public $dbPrefix;
+
+    public function __construct($dbPrefix){
+        $this->dbPrefix = $dbPrefix;
+    }
+
+}
+
 
 ?>

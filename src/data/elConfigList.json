@@ -1,0 +1,8 @@
+{
+  "items": [
+    {
+      "id": "default",
+      "filterFields": "catalogid"
+    }
+  ]
+}

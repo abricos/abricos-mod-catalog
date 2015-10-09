@@ -29,6 +29,11 @@ Component.entryPoint = function(NS){
             elementTypeList: {
                 attribute: true,
                 type: 'modelList:ElementTypeList',
+            },
+            elementList: {
+                args: ['config'],
+                attribute: false,
+                type: 'modelList:ElementList'
             }
         }
     };

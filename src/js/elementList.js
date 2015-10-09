@@ -14,11 +14,19 @@ Component.entryPoint = function(NS){
         onInitAppWidget: function(err, appInstance){
             this._widgetList = [];
 
-            var tp = this.template,
-                catalogid = this.get('catalogid');
+            // var tp = this.template;
 
+            var listConfig = {
+                id: 'default',
+                filter: [{
+                    id: 1,
+                    field: 'catalogid',
+                    exp: '=',
+                    value: this.get('catalogid')
+                }]
+            };
 
-            appInstance.elementList(catalogid, function(err, result){
+            appInstance.elementList(listConfig, function(err, result){
                 if (!err){
                     this.set('elementList', result.elementList);
                 }

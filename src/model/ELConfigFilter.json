@@ -1,0 +1,22 @@
+{
+  "version": "0.1.0",
+  "fields": {
+    "id": {
+      "type": "int"
+    },
+    "optionType": {
+      "type": "string"
+    },
+    "field": {
+      "type": "string"
+    },
+    "exp": {
+      "type": "string",
+      "default": "=",
+      "valid": "<,<=,=,>,>=,<>"
+    },
+    "value": {
+      "type": "string"
+    }
+  }
+}
