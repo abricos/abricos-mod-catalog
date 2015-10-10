@@ -14,6 +14,7 @@ Component.entryPoint = function(NS){
     NS.Application = {
         ATTRS: {
             isLoadAppStructure: {value: true},
+            Config: {value: NS.Config},
             Catalog: {value: NS.Catalog},
             CatalogList: {value: NS.CatalogList},
             Element: {value: NS.Element},
@@ -22,6 +23,10 @@ Component.entryPoint = function(NS){
             ElementTypeList: {value: NS.ElementTypeList},
         },
         REQS: {
+            config: {
+                attribute: true,
+                type: 'model:Config',
+            },
             catalogList: {
                 attribute: true,
                 type: 'modelList:CatalogList',

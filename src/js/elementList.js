@@ -172,17 +172,6 @@ Component.entryPoint = function(NS){
 
             new YAHOO.util.DDTarget(elList);
         },
-        foreach: function(f){
-            if (!L.isFunction(f)){
-                return;
-            }
-            var ws = this._widgetList;
-            for (var i = 0; i < ws.length; i++){
-                if (f(ws[i])){
-                    return;
-                }
-            }
-        },
         allEditorClose: function(wExclude){
             this.newEditorClose();
             this.foreach(function(w){
@@ -371,31 +360,6 @@ Component.entryPoint = function(NS){
                 }
             }
         },
-        onClick: function(el, tp){
-            switch (el.id) {
-                case tp['bgopage']:
-                case tp['bgopagec']:
-                    this.goPage();
-                    return true;
-                case tp['bedit']:
-                case tp['beditc']:
-                    this.onEditClick();
-                    return true;
-                case tp['bcopy']:
-                case tp['bcopyc']:
-                    this.onCopyClick();
-                    return true;
-                case tp['bremove']:
-                case tp['bremovec']:
-                    this.onRemoveClick();
-                    return true;
-                case tp['dtl']:
-                case tp['tl']:
-                    this.onSelectClick();
-                    return true;
-            }
-            return false;
-        },
         goPage: function(catid){
             var url = this.catel.url();
             window.open(url);
@@ -449,42 +413,5 @@ Component.entryPoint = function(NS){
         }
     });
     NS.ElementRowWidget = ElementRowWidget;
-
-    var ElementRemovePanel = function(manager, catel, callback){
-        this.manager = manager;
-        this.catel = catel;
-        this.callback = callback;
-        ElementRemovePanel.superclass.constructor.call(this, {fixedcenter: true});
-    };
-    YAHOO.extend(ElementRemovePanel, Brick.widget.Dialog, {
-        initTemplate: function(){
-            return buildTemplate(this, 'removepanel').replace('removepanel');
-        },
-        onClick: function(el){
-            var tp = this._TId['removepanel'];
-            switch (el.id) {
-                case tp['bcancel']:
-                    this.close();
-                    return true;
-                case tp['bremove']:
-                    this.remove();
-                    return true;
-            }
-            return false;
-        },
-        remove: function(){
-            var TM = this._TM, gel = function(n){
-                    return TM.getEl('removepanel.' + n);
-                },
-                __self = this;
-            Dom.setStyle(gel('btns'), 'display', 'none');
-            Dom.setStyle(gel('bloading'), 'display', '');
-            this.manager.elementRemove(this.catel.id, function(){
-                __self.close();
-                NS.life(__self.callback);
-            });
-        }
-    });
-    NS.ElementRemovePanel = ElementRemovePanel;
 
 };

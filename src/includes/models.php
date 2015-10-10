@@ -8,6 +8,20 @@
  */
 
 /**
+ * Class CatalogConfig
+ *
+ * @property bool $dbPrefix
+ * @property bool $elementNameChange Allow to change the name of the element
+ * @property bool $elementNameUnique Element Name is unique
+ * @property bool $elementCreateBaseTypeDisable Disable the creation of basic elements
+ * @property bool $versionControl Version Control
+ */
+class CatalogConfig extends AbricosModel{
+    protected $_structModule = 'catalog';
+    protected $_structName = 'Config';
+}
+
+/**
  * Class CatalogType
  */
 class CatalogType {

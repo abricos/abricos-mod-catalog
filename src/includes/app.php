@@ -13,26 +13,20 @@
 abstract class CatalogApp extends AbricosApplication {
 
     /**
-     * Префикс таблиц модуля
+     * Catalog datatable prefix
      *
      * @var string
+     * @deprecated
      */
-    public $pfx;
+    private $pfx;
 
-    /**
-     * @var CatalogAppConfig
-     */
-    protected $config;
-
-    public function __construct(Ab_ModuleManager $manager, CatalogAppConfig $config){
+    public function __construct(Ab_ModuleManager $manager){
         parent::__construct($manager, array('catalog'));
-
-        $this->config = $config;
-        $this->pfx = $manager->db->prefix."ctg_".$config->dbPrefix."_";
     }
 
     protected function GetClasses(){
         return array(
+            'Config' => 'CatalogConfig',
             'ELConfig' => 'CatalogELConfig',
             'ELConfigList' => 'CatalogELConfigList',
             'ELConfigFilter' => 'CatalogELConfigFilter',
@@ -49,7 +43,7 @@ abstract class CatalogApp extends AbricosApplication {
     }
 
     protected function GetStructures(){
-        return 'Catalog,Element,ElementType,ElementOption';
+        return 'Config,Catalog,Element,ElementType,ElementOption';
     }
 
     public function ResponseToJSON($d){
@@ -60,6 +54,8 @@ abstract class CatalogApp extends AbricosApplication {
                 return $this->ElementListToJSON($d->config);
             case "elementTypeList":
                 return $this->ElementTypeListToJSON();
+            case "config":
+                return $this->ConfigToJSON();
 
             // old funcitons
             /*
@@ -193,7 +189,7 @@ abstract class CatalogApp extends AbricosApplication {
 
         /** @var CatalogList $list */
         $list = $models->InstanceClass('CatalogList');
-        $rows = CatalogDbQuery::CatalogList($this->db, $this->pfx);
+        $rows = CatalogDbQuery::CatalogList($this);
         while (($d = $this->db->fetch_array($rows))){
             $list->Add($models->InstanceClass('Catalog', $d));
         }
@@ -251,6 +247,37 @@ abstract class CatalogApp extends AbricosApplication {
             $list->Add($models->InstanceClass('Element', $d));
         }
         return $list;
+    }
+
+    public function GetDBPrefix(){
+        $config = $this->Config();
+        return $this->db->prefix."ctg_".$config->dbPrefix."_";
+    }
+
+    public function ConfigToJSON(){
+        $ret = $this->Config();
+        return $this->ResultToJSON('config', $ret);
+    }
+
+    /**
+     * @var CatalogConfig
+     */
+    private $_config;
+
+    /**
+     * @return CatalogConfig|int
+     */
+    public function Config(){
+        if (!empty($this->_config)){
+            return $this->_config;
+        }
+        if (!$this->IsViewRole()){
+            return 403;
+        }
+
+        $this->_config = $this->models->InstanceClass('Config');
+
+        return $this->_config;
     }
 
     /* * * * * * * * * OLD FUNCTION TODO: REMOVE * * * * * * */
@@ -1918,49 +1945,6 @@ abstract class CatalogApp extends AbricosApplication {
         }
         $this->_cacheCurrencyDefault = $list->GetByIndex(0);
         return $this->_cacheCurrencyDefault;
-    }
-
-}
-
-/**
- * Class CatalogAppConfig
- */
-class CatalogAppConfig {
-
-    /**
-     * Разрешить изменять имя элемента
-     *
-     * @var boolean
-     */
-    public $elementNameChange = false;
-
-    /**
-     * Имя элемента является уникальным
-     *
-     * @var boolean
-     */
-    public $elementNameUnique = false;
-
-    /**
-     * Отключить создание базовых элементов
-     *
-     * @var boolean
-     */
-    public $elementCreateBaseTypeDisable = false;
-
-    /**
-     * Контроль версии элементов
-     *
-     * По умолчанию - отключен
-     *
-     * @var boolean
-     */
-    public $versionControl = false;
-
-    public $dbPrefix;
-
-    public function __construct($dbPrefix){
-        $this->dbPrefix = $dbPrefix;
     }
 
 }

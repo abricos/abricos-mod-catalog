@@ -10,6 +10,10 @@ Component.entryPoint = function(NS){
         L = Y.Lang,
         SYS = Brick.mod.sys;
 
+    NS.Config = Y.Base.create('config', SYS.AppModel, [], {
+        structureName: 'Config'
+    });
+
     NS.Catalog = Y.Base.create('catalog', SYS.AppModel, [], {
         structureName: 'Catalog'
     });

@@ -12,8 +12,8 @@ Component.entryPoint = function(NS){
 
     NS.CatalogManagerWidget = Y.Base.create('catalogManagerWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
-            appInstance.catalogList(function(){
-                this.onLoadCatalogList();
+            appInstance.config(function(){
+                this.onLoadConfig();
             }, this);
         },
         destructor: function(){
@@ -21,7 +21,7 @@ Component.entryPoint = function(NS){
                 treeWidget.destroy();
             }
         },
-        onLoadCatalogList: function(){
+        onLoadConfig: function(){
             var tp = this.template,
                 appInstance = this.get('appInstance'),
                 catalogid = this.get('catalogid');

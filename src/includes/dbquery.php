@@ -14,7 +14,13 @@ class CatalogDbQuery {
 
     const FILECLEARTIME = 86400;
 
-    public static function CatalogList(Ab_Database $db, $pfx){
+    /**
+     * @param CatalogApp $app
+     */
+    public static function CatalogList($app){
+        $db = $app->db;
+        $pfx = $app->GetDBPrefix();
+
         $sql = "
 			(SELECT
 				0 as id,
@@ -233,7 +239,7 @@ class CatalogDbQuery {
      */
     public static function ElementList($app, $config){
         $db = $app->db;
-
+        $pfx = $app->GetDBPrefix();
         $extFields = "";
 
         $sql = "
@@ -256,14 +262,14 @@ class CatalogDbQuery {
 
 				(
 					SELECT CONCAT(f.fileid,'/',fm.extension)
-					FROM ".$app->pfx."foto f
+					FROM ".$pfx."foto f
 					LEFT JOIN ".$db->prefix."fm_file fm ON f.fileid=fm.filehash
 					WHERE f.elementid=e.elementid
 					ORDER BY ord
 					LIMIT 1
 				) as foto
 				".$extFields."
-			FROM ".$app->pfx."element e
+			FROM ".$pfx."element e
 			WHERE (e.ismoder=0 OR
 					".($app->IsAdminRole() ? "e.ismoder=1" : "(e.ismoder=1 AND userid=".bkint(Abricos::$user->id).")")."
 				)

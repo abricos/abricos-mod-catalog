@@ -1,0 +1,25 @@
+{
+  "version": "0.1.0",
+  "fields": {
+    "dbPrefix": {
+      "type": "string",
+      "rolefn": "IsAdminRole"
+    },
+    "elementNameChange": {
+      "type": "bool",
+      "default": false
+    },
+    "elementNameUnique": {
+      "type": "bool",
+      "default": false
+    },
+    "elementCreateBaseTypeDisable": {
+      "type": "bool",
+      "default": false
+    },
+    "versionControl": {
+      "type": "bool",
+      "default": false
+    }
+  }
+}
