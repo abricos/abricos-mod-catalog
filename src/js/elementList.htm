@@ -1,60 +1,46 @@
 <!--{widget}-->
-<div class="elementlist">
+<div class="elementList">
 
     <div id="{i#neweditor}" class="elneweditor"></div>
 
-    <div id="{i#list}"></div>
+    <div id="{i#list}" class="list-group"></div>
 </div>
+
+<!--{rowwrap}-->
+<div class="list-group-item"></div>
 
 <!--{row}-->
-<div class="elrow">
-    <div id="{i#wrap}">
-        <div class="id col" title="Уникальный идентификатор элемента">
-            <span id="{i#idval}"></span>
+<div class="elementRow">
+    <div class="row">
+        <div class="col-sm-1">
+            <div id="{i#id}" title="Уникальный идентификатор элемента"></div>
         </div>
-        <div id="{i#colnm}" class="nm col" title="Имя элемента" style="display: none">
-            <span id="{i#nm}"></span>
-        </div>
-        <div id="{i#dtl}" class="tl col">
-            <a id="{i#tl}" href="#"></a>
-        </div>
-        <div class="clearfix"></div>
+        <div class="col-sm-11">
+            <span id="{i#name}" title="Имя элемента" class="hide"> </span>
+            <span id="{i#title}"></span>
 
-        <div id="{i#menu}" class="boxbutton elrmenu">
-            <div id="{i#bgopage}" class="b" title="Открыть просмотр каталога в новом окне">
-                <div id="{i#bgopagec}" class="bgopage bc"></div>
+            <div class="pull-right btn-group">
+                <button class="btn btn-default btn-xs"
+                        data-click="go"
+                        title="Открыть для просмотра в новом окне">
+                    <i class="fa fa-arrow-right"></i>
+                </button>
+                <button class="btn btn-default btn-xs"
+                        data-click="edit"
+                        title="Редактировать">
+                    <i class="fa fa-pencil-square-o"></i>
+                </button>
+                <button class="btn btn-default btn-xs"
+                        data-click="copy"
+                        title="Копировать">
+                    <i class="fa fa-files-o"></i>
+                </button>
+                <button class="btn btn-default btn-xs"
+                        data-click="remove"
+                        title="Удалить">
+                    <i class="fa fa-trash-o"></i>
+                </button>
             </div>
-            <div id="{i#bedit}" class="b" title="Редактировать" style="display: none">
-                <div id="{i#beditc}" class="bedit bc"></div>
-            </div>
-            <div id="{i#bcopy}" class="b bcp" title="Копировать" style="display: none">
-                <div id="{i#bcopyc}" class="bcopy bc"></div>
-            </div>
-            <div id="{i#bremove}" class="b" title="Удалить" style="display: none">
-                <div id="{i#bremovec}" class="bremove bc"></div>
-            </div>
-        </div>
-
-        <div id="{i#easyeditor}"></div>
-    </div>
-</div>
-
-<!--{removepanel}-->
-<div class='hd'>Удаление</div>
-<div class='bd aw-company'>
-    <div id="{i#dialogremove}" class="field">
-        <p>
-            Вы действительно хотите удалить элемент со всем его содержимым?
-        </p>
-
-        <div class="buttons right">
-			<span id="{i#btns}">
-				<input id="{i#bremove}" value="Удалить" type="button"/>
-				<input id="{i#bcancel}" value="Отмена" type="button"/>
-			</span>
-			<span id="{i#bloading}" style="display: none">
-				<img src="/images/loading.gif"/> Удаление...
-			</span>
         </div>
     </div>
 </div>

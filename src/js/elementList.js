@@ -55,7 +55,7 @@ Component.entryPoint = function(NS){
 
             elementList.each(function(element){
                 var w = new NS.ElementListWidget.RowWidget({
-                    srcNode: tp.append('list', '<div></div>'),
+                    boundingBox: tp.append('list', tp.replace('rowwrap')),
                     element: element
                 });
                 ws[ws.length] = w;
@@ -64,7 +64,7 @@ Component.entryPoint = function(NS){
     }, {
         ATTRS: {
             component: {value: COMPONENT},
-            templateBlockName: {value: 'widget'},
+            templateBlockName: {value: 'widget,rowwrap'},
             elementList: {},
             catalogid: {value: 0}
         }
@@ -76,9 +76,9 @@ Component.entryPoint = function(NS){
                 element = this.get('element');
 
             tp.setHTML({
-                idval: element.get('id'),
-                nm: element.get('name'),
-                tl: element.get('title')
+                id: element.get('id'),
+                name: element.get('name'),
+                title: element.get('title')
             });
 
         },
