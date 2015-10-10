@@ -7,10 +7,13 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
-$updateManager = CatalogModule::$instance->updateShemaModule;
-$db = Abricos::$db;
-$modPrefix = $updateManager->module->catinfo['dbprefix']."_";
-$pfx = Abricos::$db->prefix."ctg_".$modPrefix;
+$updateManager = CatalogApp::$updateShemaModule;
+
+/** @var CatalogApp $app */
+$app = $updateManager->module->GetManager()->GetApp();
+
+$db = $app->db;
+$pfx = $app->Config()->dbPrefix;
 
 if ($updateManager->isUpdateLanguage('0.3.2')){
     $db->query_write("

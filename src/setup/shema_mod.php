@@ -8,11 +8,13 @@
  */
 
 $charset = "CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'";
-Abricos::GetModule('catalog');
-$updateManager = CatalogModule::$instance->updateShemaModule;
-$db = Abricos::$db;
-$modPrefix = $updateManager->module->catinfo['dbprefix']."_";
-$pfx = Abricos::$db->prefix."ctg_".$modPrefix;
+$updateManager = CatalogApp::$updateShemaModule;
+
+/** @var CatalogApp $app */
+$app = $updateManager->module->GetManager()->GetApp();
+
+$db = $app->db;
+$pfx = $app->Config()->dbPrefix;
 
 if ($updateManager->isInstall()){
 

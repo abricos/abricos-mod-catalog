@@ -10,7 +10,57 @@
 /**
  * Class CatalogDbQuery
  */
-class CatalogDbQuery {
+class CatalogQuery {
+
+    public static function ModuleManagerList(Ab_Database $db){
+        $sql = "
+			SELECT *
+			FROM ".$db->prefix."ctg_module
+		";
+        return $db->query_read($sql);
+    }
+
+    public static function ModuleManagerUpdate(Ab_Database $db, $name, $version){
+        $sql = "
+			UPDATE ".$db->prefix."ctg_module
+			SET version='".$version."'
+			WHERE name='".bkstr($name)."'
+		";
+        $db->query_write($sql);
+    }
+
+    public static function ModuleManagerAppend(Ab_Database $db, Ab_Module $modman){
+        $sql = "
+			INSERT INTO ".$db->prefix."ctg_module
+			(name, dbprefix, version) VALUES (
+				'".$modman->name."',
+				'".$modman->catinfo['dbprefix']."',
+				'0.0.0'
+			)
+		";
+        $db->query_write($sql);
+    }
+
+    public static function ModuleManagerUpdateLanguage(Ab_Database $db, $name, $version){
+        $findCol = false;
+        $lngId = 'language_'.Abricos::$LNG;
+        $sql = "SHOW COLUMNS FROM ".$db->prefix."ctg_module";
+        $rows = $db->query_read($sql);
+        while (($row = $db->fetch_array($rows))){
+            if ($row['Field'] === $lngId){
+                $findCol = true;
+            }
+        }
+        if (!$findCol){
+            $db->query_write("ALTER TABLE ".$db->prefix."ctg_module ADD ".$lngId." varchar(20) NOT NULL default '0.0'");
+        }
+        $db->query_write("
+			UPDATE ".$db->prefix."ctg_module
+			SET ".$lngId."='".bkstr($version)."'
+			WHERE name='".bkstr($name)."'
+		");
+    }
+
 
     const FILECLEARTIME = 86400;
 

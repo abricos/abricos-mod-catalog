@@ -44,8 +44,6 @@ class CatalogModule extends Ab_Module {
      */
     public $updateShemaModule = null;
 
-    private $_manager;
-
     function __construct(){
         CatalogModule::$instance = $this;
         $this->version = "0.3.2";
@@ -53,9 +51,9 @@ class CatalogModule extends Ab_Module {
         $this->takelink = "catalogbase";
     }
 
+    private $_manager;
+
     /**
-     * Получить менеджер
-     *
      * @return CatalogManager
      */
     public function GetManager(){
@@ -129,124 +127,6 @@ class CatalogModule extends Ab_Module {
         }
 
         return $ret.$fn;
-    }
-
-    private function UpdateModMan($isClear = false){
-        if ($isClear){
-            $this->modManInfo = null;
-        }
-        if (is_null($this->modManInfo)){
-            $db = Abricos::$db;
-            $rows = CatalogQueryExt::ModuleManagerList($db);
-            while (($row = $db->fetch_array($rows))){
-                $this->modManInfo[$row['name']] = $row;
-            }
-        }
-    }
-
-    private function _UpdateModuleDbStructure(Ab_Module $modman, Ab_ModuleInfo $modInfo){
-        if ($modInfo->version === $this->version){
-            return false;
-        }
-
-        $this->updateShemaModule = new Ab_UpdateManager($modman, $modInfo);
-        require("setup/shema_mod.php");
-        CatalogQueryExt::ModuleManagerUpdate(Abricos::$db, $modInfo->name, $this->version);
-
-        return true;
-    }
-
-    private function _UpdateModuleDbLanguage(Ab_Module $modman, Ab_ModuleInfo $modInfo){
-        if ($modInfo->languageVersion === $this->version){
-            return false;
-        }
-        $this->updateShemaModule = new Ab_UpdateManager($modman, $modInfo);
-        require("setup/shema_mod_lang.php");
-        CatalogQueryExt::ModuleManagerUpdateLanguage(Abricos::$db, $modInfo->name, $this->version);
-
-        return true;
-    }
-
-    /**
-     * Регистрация модуля
-     *
-     * @param Ab_Module $modman
-     */
-    public function Register(Ab_Module $modman){
-        $this->currentModMan = $modman;
-        $this->UpdateModMan();
-
-        if (empty($this->modManInfo[$modman->name])){
-            CatalogQueryExt::ModuleManagerAppend(Abricos::$db, $modman);
-            $this->UpdateModMan(true);
-        }
-
-        $modInfo = new Ab_ModuleInfo($this->modManInfo[$modman->name]);
-
-        $isUpdate = $this->_UpdateModuleDbStructure($modman, $modInfo);
-
-        $this->_UpdateModuleDbLanguage($modman, $modInfo);
-
-        if ($isUpdate){
-            $this->updateShemaModule = new Ab_UpdateManager($modman, $modInfo);
-            require("setup/shema_mod_after.php");
-            CatalogQueryExt::ModuleManagerUpdate(Abricos::$db, $modInfo->name, $this->version);
-        }
-
-        $this->updateShemaModule = null;
-    }
-
-}
-
-class CatalogQueryExt {
-    public static function ModuleManagerUpdate(Ab_Database $db, $name, $version){
-        $sql = "
-			UPDATE ".$db->prefix."ctg_module
-			SET version='".$version."'
-			WHERE name='".bkstr($name)."'
-		";
-        $db->query_write($sql);
-    }
-
-    public static function ModuleManagerAppend(Ab_Database $db, Ab_Module $modman){
-        $sql = "
-			INSERT INTO ".$db->prefix."ctg_module
-			(name, dbprefix, version) VALUES (
-				'".$modman->name."',
-				'".$modman->catinfo['dbprefix']."',
-				'0.0.0'
-			)
-		";
-        $db->query_write($sql);
-    }
-
-    public static function ModuleManagerUpdateLanguage(Ab_Database $db, $name, $version){
-        $findCol = false;
-        $lngId = 'language_'.Abricos::$LNG;
-        $sql = "SHOW COLUMNS FROM ".$db->prefix."ctg_module";
-        $rows = $db->query_read($sql);
-        while (($row = $db->fetch_array($rows))){
-            if ($row['Field'] === $lngId){
-                $findCol = true;
-            }
-        }
-        if (!$findCol){
-            $db->query_write("ALTER TABLE ".$db->prefix."ctg_module ADD ".$lngId." varchar(20) NOT NULL default '0.0'");
-        }
-        $db->query_write("
-			UPDATE ".$db->prefix."ctg_module
-			SET ".$lngId."='".bkstr($version)."'
-			WHERE name='".bkstr($name)."'
-		");
-    }
-
-
-    public static function ModuleManagerList(Ab_Database $db){
-        $sql = "
-			SELECT *
-			FROM ".$db->prefix."ctg_module
-		";
-        return $db->query_read($sql);
     }
 }
 

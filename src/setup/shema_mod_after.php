@@ -7,10 +7,13 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
-$updateManager = CatalogModule::$instance->updateShemaModule;
-$db = Abricos::$db;
-$modPrefix = $updateManager->module->catinfo['dbprefix']."_";
-$pfx = Abricos::$db->prefix."ctg_".$modPrefix;
+$updateManager = CatalogApp::$updateShemaModule;
+
+/** @var CatalogApp $app */
+$app = $updateManager->module->GetManager()->GetApp();
+
+$db = $app->db;
+$pfx = $app->Config()->dbPrefix;
 
 if ($updateManager->isUpdate('0.3.2') && !$updateManager->isInstall()){
     $db->query_write("

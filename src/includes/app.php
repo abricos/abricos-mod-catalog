@@ -24,6 +24,88 @@ abstract class CatalogApp extends AbricosApplication {
         parent::__construct($manager, array('catalog'));
     }
 
+    private static $_ownerAppList = nul;
+
+    private static function OwnerAppList($isClear = false){
+        if ($isClear){
+            CatalogApp::$_ownerAppList = null;
+        }
+        if (!is_null(CatalogApp::$_ownerAppList)){
+            return CatalogApp::$_ownerAppList;
+        }
+        CatalogApp::$_ownerAppList = array();
+        $db = Abricos::$db;
+        $rows = CatalogQuery::ModuleManagerList($db);
+        while (($row = $db->fetch_array($rows))){
+            CatalogApp::$_ownerAppList[$row['name']] = $row;
+        }
+        return CatalogApp::$_ownerAppList;
+    }
+
+    /**
+     * @var Ab_UpdateManager
+     */
+    public static $updateShemaModule;
+
+    private static function OwnerAppDbUpdate(Ab_Module $module, Ab_ModuleInfo $modInfo){
+        $catalogModule = Abricos::GetModule('catalog');
+        if ($modInfo->version === $catalogModule->version){
+            return false;
+        }
+
+        CatalogApp::$updateShemaModule = new Ab_UpdateManager($module, $modInfo);
+        $catalogModule->ScriptRequire("setup/shema_mod.php");
+        CatalogQuery::ModuleManagerUpdate(Abricos::$db, $modInfo->name, $catalogModule->version);
+
+        return true;
+    }
+
+    private static function OwnerAppDbLanguageUpdate(Ab_Module $module, Ab_ModuleInfo $modInfo){
+        $catalogModule = Abricos::GetModule('catalog');
+        if ($modInfo->languageVersion === $catalogModule->version){
+            return false;
+        }
+        CatalogApp::$updateShemaModule = new Ab_UpdateManager($module, $modInfo);
+
+        $catalogModule->ScriptRequire("setup/shema_mod_lang.php");
+        CatalogQuery::ModuleManagerUpdateLanguage(Abricos::$db, $modInfo->name, $catalogModule->version);
+
+        return true;
+    }
+
+    private $_isSetup = false;
+
+    protected function Setup(){
+        if ($this->_isSetup){
+            return;
+        }
+        $this->_isSetup = true;
+
+        $module = $this->manager->module;
+        $name = $module->name;
+
+        $ownerAppList = CatalogApp::OwnerAppList();
+        if (!isset($ownerAppList[$name])){
+            CatalogQuery::ModuleManagerAppend(Abricos::$db, $name);
+            $ownerAppList = CatalogApp::OwnerAppList(true);
+        }
+        $modInfo = new Ab_ModuleInfo($ownerAppList[$name]);
+
+        $isUpdate = CatalogApp::OwnerAppDbUpdate($module, $modInfo);
+        CatalogApp::OwnerAppDbLanguageUpdate($module, $modInfo);
+
+        $catalogModule = Abricos::GetModule('catalog');
+
+        if ($isUpdate){
+            CatalogApp::$updateShemaModule = new Ab_UpdateManager($module, $modInfo);
+            $catalogModule->ScriptRequire("setup/shema_mod_after.php");
+            CatalogQuery::ModuleManagerUpdate(Abricos::$db, $modInfo->name, $catalogModule->version);
+        }
+
+        $this->updateShemaModule = null;
+
+    }
+
     protected function GetClasses(){
         return array(
             'Config' => 'CatalogConfig',
