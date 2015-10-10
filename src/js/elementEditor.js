@@ -8,13 +8,51 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-    var Dom = YAHOO.util.Dom,
-        E = YAHOO.util.Event,
-        L = YAHOO.lang,
-        buildTemplate = this.buildTemplate,
-        BW = Brick.mod.widget.Widget;
 
-    var UID = Brick.env.user.id;
+    var Y = Brick.YUI,
+        COMPONENT = this,
+        SYS = Brick.mod.sys;
+
+    NS.ElementEditorWidget = Y.Base.create('elementEditorWidget', SYS.AppWidget, [], {
+        onInitAppWidget: function(err, appInstance){
+
+            var elementid = this.get('elementid');
+            if (elementid === 0){
+                var Element = appInstance.get('Element'),
+                    element = new Element({
+                        appInstance: appInstance
+                    });
+                this.set('element', element);
+                this.renderEditor();
+            } else {
+                appInstance.element(elementid, function(err, result){
+                    if (!err){
+                        this.set('element', result.element);
+                    }
+                    this.renderEditor();
+                }, this);
+            }
+        },
+        destructor: function(){
+
+        },
+        renderEditor: function(){
+            var element = this.get('element');
+            if (!element){
+                return;
+            }
+        }
+    }, {
+        ATTRS: {
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'widget,tpwidget,tplist,tprow,optnumber,nofoto'},
+            elementid: {value: 0},
+            element: {}
+        }
+    });
+
+    return; ////////// TODO: remove old functions
+
 
     var ElementEditBooleanWidget = function(container, option, value, cfg){
         cfg = L.merge({}, cfg || {});

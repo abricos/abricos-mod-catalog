@@ -1,7 +1,7 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
-        {name: '{C#MODNAME}', files: ['elementeditor.js']}
+        {name: '{C#MODNAME}', files: ['elementEditor.js']}
     ]
 };
 Component.entryPoint = function(NS){
@@ -50,11 +50,13 @@ Component.entryPoint = function(NS){
             }
             this.clearList();
 
-            var tp = this.template,
+            var appInstance = this.get('appInstance'),
+                tp = this.template,
                 ws = this._widgetList;
 
             elementList.each(function(element){
                 var w = new NS.ElementListWidget.RowWidget({
+                    appInstance: appInstance,
                     boundingBox: tp.append('list', tp.replace('rowwrap')),
                     element: element
                 });
@@ -81,6 +83,8 @@ Component.entryPoint = function(NS){
                 title: element.get('title')
             });
 
+            var config = appInstance.get('config');
+            tp.toggleView(config.get('elementNameUnique'), 'name');
         },
     }, {
         ATTRS: {
