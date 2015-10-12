@@ -107,7 +107,7 @@ class CatalogFileList extends AbricosList {
 /**
  * Class CatalogElementTypeList
  */
-class CatalogElementTypeList extends AbricosModelList {
+class old_CatalogElementTypeList extends AbricosModelList {
 
     public function Add($item){
         parent::Add($item);
@@ -239,7 +239,7 @@ class CatalogElementOptionGroupList extends AbricosModelList {
 /**
  * Опция элемента
  */
-class CatalogElementOption extends CatalogItem {
+class old_CatalogElementOption extends CatalogItem {
     protected $_structModule = 'catalog';
     protected $_structName = 'elementOption';
 

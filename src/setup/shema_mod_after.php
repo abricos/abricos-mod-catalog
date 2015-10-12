@@ -13,7 +13,7 @@ $updateManager = CatalogApp::$updateShemaModule;
 $app = $updateManager->module->GetManager()->GetApp();
 
 $db = $app->db;
-$pfx = $app->Config()->dbPrefix;
+$pfx = $app->GetDBPrefix();
 
 if ($updateManager->isUpdate('0.3.2') && !$updateManager->isInstall()){
     $db->query_write("

@@ -16,7 +16,7 @@
  * @property bool $elementCreateBaseTypeDisable Disable the creation of basic elements
  * @property bool $versionControl Version Control
  */
-class CatalogConfig extends AbricosModel{
+class CatalogConfig extends AbricosModel {
     protected $_structModule = 'catalog';
     protected $_structName = 'Config';
 }
@@ -97,8 +97,8 @@ class CatalogType {
  * Раздел каталога
  *
  * @property int $parentid Parent Catalog ID
- * @property string $title Title
  * @property string $name Name
+ * @property string $title Title
  * @property string $foto Image ID of filemanager module
  * @property string $fotoExt Image Extension
  * @property boolean $menuDisable
@@ -154,81 +154,35 @@ class CatalogList extends AbricosModelList {
 }
 
 
-
 /**
  * Class CatalogElementType
+ *
+ * @property AbricosMultiLangValue $title
+ * @property AbricosMultiLangValue $titles
+ * @property AbricosMultiLangValue $descript
+ * @property string $name
+ * @property CatalogElementOptionList $options
  */
-class CatalogElementType extends AbricosItem {
-
+class CatalogElementType extends AbricosModel {
     protected $_structModule = 'catalog';
     protected $_structName = 'ElementType';
 
-    /**
-     * Название
-     *
-     * @var string
-     */
-    public $title;
-    /**
-     * Название в множественном числе
-     *
-     * @var string
-     */
-    public $titleList;
-
-    /**
-     * Имя (используется в качестве идентификатора)
-     *
-     * @var string
-     */
-    public $name;
-
-    public $tableName = "";
-
-    /**
-     * @var CatalogElementOptionList
-     */
-    public $options;
-
-    public function __construct($d = array()){
-        parent::__construct($d);
-        $this->options = new CatalogElementOptionList();
-
-        $this->tableName = "element";
-        if ($this->id > 0){
-            $this->tableName = "eltbl_".$this->name;
+    public static function GetTableName(CatalogApp $app, CatalogElementType $elType){
+        $name = $elType->name;
+        if (empty($name)){
+            return $app->GetDBPrefix()."element";
         }
-    }
-
-    public function ToAJAX(){
-        $man = func_get_arg(0);
-        $ret = parent::ToJSON();
-
-        if ($this->options->Count() > 0){
-            $ret->options = $this->options->ToAJAX($man);
-        }
-        return $ret;
+        return $app->GetDBPrefix()."eltbl_".$name;
     }
 }
 
 /**
  * Class CatalogElementTypeList
+ *
+ * @method CatalogElementType Get($id)
+ * @method CatalogElementType GetByIndex($index)
  */
 class CatalogElementTypeList extends AbricosModelList {
-
-    public function Add($item){
-        parent::Add($item);
-    }
-
-    /**
-     * @param integer $id
-     * @return CatalogElementType
-     */
-    /*
-    public function GetByIndex($i){
-        return parent::GetByIndex($i);
-    }
-    /**/
 
     /**
      * @param string $name
@@ -260,69 +214,74 @@ class CatalogElementTypeList extends AbricosModelList {
         }
         return null;
     }
-
-    /**
-     * @param integer $id
-     * @return CatalogElementType
-     */
-    public function Get($id){
-        return parent::Get($id);
-    }
-
 }
 
 /**
- * Опция элемента
+ * Class CatalogElementOption
+ *
+ * @property int $elTypeId
+ * @property int $type Option Type (CatalogType::TP_*)
+ * @property int $size Size in db field
+ * @property string $name Name
+ * @property AbricosMultiLangValue $title Title
+ * @property AbricosMultiLangValue $descript Description
+ * @property int $currencyid
+ * @property array $values
+ * @property int $groupid
+ * @property int $order
  */
 class CatalogElementOption extends AbricosItem {
     protected $_structModule = 'catalog';
     protected $_structName = 'elementOption';
 
-    public $elTypeId;
-    public $type;
-    public $size;
-    public $groupid;
-    public $title;
-    public $name;
-    public $param;
-    public $currencyid;
-    public $order;
-    public $values;
+    public static function DataFix(CatalogElementOption $option){
+        switch ($option->type){
+            case CatalogType::TP_BOOLEAN:
+                $option->size = 1;
+                return;
+            case CatalogType::TP_NUMBER:
+                $option->size = min(max(intval($option->size), 1), 10);
+                break;
+            case CatalogType::TP_STRING:
+                $option->size = min(max(intval($option->size), 2), 255);
+                break;
+            case CatalogType::TP_DOUBLE:
+            case CatalogType::TP_CURRENCY:
+                $asz = explode(",", $option->size);
+                $asz[0] = min(max(intval($asz[0]), 3), 10);
+                $asz[1] = min(max(intval($asz[1]), 0), 5);
+                $option->size = $asz[0].",".$asz[1];
+                return;
+            case CatalogType::TP_TEXT:
+            case CatalogType::TP_ELDEPENDS:
+            case CatalogType::TP_ELDEPENDSNAME:
+            case CatalogType::TP_FILES:
+                $option->size = 0;
+                break;
+        }
+    }
+
+    public static function GetTableName(CatalogApp $app, CatalogElementType $elType, CatalogElementOption $option){
+        $tableName = CatalogElementType::GetTableName($app, $elType);
+        return $tableName."_fld_".$option->name;
+    }
 }
 
-
+/**
+ * Class CatalogElementOptionList
+ *
+ * @method CatalogElementOption Get($optionid)
+ * @method CatalogElementOption GetByIndex($index)
+ */
 class CatalogElementOptionList extends AbricosModelList {
 
-    public function __construct(){
-        parent::__construct();
-        $this->isCheckDouble = true;
-    }
-
-    public function Add($item){
-        parent::Add($item);
-    }
+    protected $isCheckDouble = true;
 
     /**
-     * @param integer $id
+     * @param string $name
      * @return CatalogElementOption
-     */
-    public function GetByIndex($i){
-        return parent::GetByIndex($i);
-    }
-
-    /**
-     * @param integer $id
-     * @return CatalogElementOption
-     */
-    public function Get($id){
-        return parent::Get($id);
-    }
-
-    /**
-     * @param CatalogElementOption $name
      */
     public function GetByName($name){
-
         $cnt = $this->Count();
         for ($i = 0; $i < $cnt; $i++){
             $item = $this->GetByIndex($i);
@@ -333,6 +292,7 @@ class CatalogElementOptionList extends AbricosModelList {
         return null;
     }
 
+    /*
     public function ToAJAX(){
         $man = func_get_arg(0);
 
@@ -342,6 +302,7 @@ class CatalogElementOptionList extends AbricosModelList {
         }
         return $ret;
     }
+    /**/
 }
 
 

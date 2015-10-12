@@ -8,8 +8,9 @@
       "type": "multiLang",
       "json": "tl"
     },
-    "titleList": {
+    "titles": {
       "type": "multiLang",
+      "dbField": "titlelist",
       "json": "tls"
     },
     "descript": {
@@ -17,6 +18,7 @@
       "json": "dsc"
     },
     "name": {
+      "type": "string",
       "json": "nm"
     },
     "options": {

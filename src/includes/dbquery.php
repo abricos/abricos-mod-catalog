@@ -733,26 +733,26 @@ class CatalogQuery {
             }
 
             switch ($option->type){
-                case Catalog::TP_BOOLEAN:
+                case CatalogType::TP_BOOLEAN:
                     $val = empty($val) ? 0 : 1;
                     break;
-                case Catalog::TP_NUMBER:
+                case CatalogType::TP_NUMBER:
                     $val = bkint($val);
                     break;
-                case Catalog::TP_DOUBLE:
-                case Catalog::TP_CURRENCY:
+                case CatalogType::TP_DOUBLE:
+                case CatalogType::TP_CURRENCY:
                     $val = doubleval($val);
                     break;
-                case Catalog::TP_STRING:
+                case CatalogType::TP_STRING:
                     $val = "'".bkstr($utmf->Parser($val))."'";
                     break;
-                case Catalog::TP_TABLE:
+                case CatalogType::TP_TABLE:
                     $val = bkint($val);
                     break;
-                case Catalog::TP_TEXT:
+                case CatalogType::TP_TEXT:
                     $val = "'".bkstr($utm->Parser($val))."'";
                     break;
-                case Catalog::TP_ELDEPENDS:
+                case CatalogType::TP_ELDEPENDS:
                     $cfg = new CatalogElementListConfig();
                     $cfg->elids = explode(",", $val);
                     $rows = CatalogQuery::ElementList($db, $pfx, $userid, $isAdmin, $cfg);
@@ -762,7 +762,7 @@ class CatalogQuery {
                     }
                     $val = "'".implode(",", $aIds)."'";
                     break;
-                case Catalog::TP_ELDEPENDSNAME:
+                case CatalogType::TP_ELDEPENDSNAME:
                     $cfg = new CatalogElementListConfig();
                     $cfg->elnames = explode(",", $val);
                     $rows = CatalogQuery::ElementList($db, $pfx, $userid, $isAdmin, $cfg);
@@ -772,7 +772,7 @@ class CatalogQuery {
                     }
                     $val = "'".implode(",", $aNames)."'";
                     break;
-                case Catalog::TP_FILES:
+                case CatalogType::TP_FILES:
                     $aFiles = CatalogQuery::ElementDetailOptionFilesUpdate($db, $pfx, $elid, $option, $val);
 
                     $val = "'".implode(",", $aFiles)."'";
@@ -867,11 +867,13 @@ class CatalogQuery {
         return $pfx."eltbl_".$name;
     }
 
-    public static function ElementTypeTableCreate(Ab_Database $db, $tableName){
+    public static function ElementTypeTableCreate(CatalogApp $app, CatalogElementType $elType){
+        $tableName = CatalogElementType::GetTableName($app, $elType);
+        $db = $app->db;
         $sql = "
 			CREATE TABLE IF NOT EXISTS ".$tableName." (
 				elementid int(10) unsigned NOT NULL,
-				PRIMARY KEY  (elementid)
+				PRIMARY KEY (elementid)
 			) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'
 		";
         $db->query_write($sql);
@@ -891,14 +893,16 @@ class CatalogQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementTypeAppend(Ab_Database $db, $pfx, $d){
+    public static function ElementTypeAppend(CatalogApp $app, CatalogElementType $elType){
+        $db = $app->db;
+        $pfx = $app->GetDBPrefix();
         $sql = "
 			INSERT INTO ".$pfx."eltype
 				(name, title, titlelist, descript) VALUES (
-				'".bkstr($d->nm)."',
-				'".bkstr($d->tl)."',
-				'".bkstr($d->tls)."',
-				'".bkstr($d->dsc)."'
+				'".bkstr($elType->name)."',
+				'".bkstr($elType->title->Get())."',
+				'".bkstr($elType->titles->Get())."',
+				'".bkstr($elType->descript->Get())."'
 			)
 		";
         $db->query_write($sql);
@@ -928,7 +932,9 @@ class CatalogQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementTypeList(Ab_Database $db, $pfx){
+    public static function ElementTypeList(CatalogApp $app){
+        $db = $app->db;
+        $pfx = $app->GetDBPrefix();
         $sql = "
 			SELECT t.eltypeid as id, t.*
 			FROM ".$pfx."eltype t
@@ -960,7 +966,7 @@ class CatalogQuery {
     }
 
     public static function ElementOptionFieldRemove(Ab_Database $db, $pfx, CatalogElementType $elType, CatalogElementOption $option){
-        if ($option->type == Catalog::TP_TABLE){
+        if ($option->type == CatalogType::TP_TABLE){
             $tableName = $pfx."eltbl_".$elType->name."_fld_".$option->name;
             $db->query_write("DROP TABLE IF EXISTS ".$tableName);
             return;
@@ -973,20 +979,21 @@ class CatalogQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementOptionAppend(Ab_Database $db, $pfx, $d){
+    public static function ElementOptionAppend(CatalogApp $app, CatalogElementOption $option){
+        $db = $app->db;
+        $pfx = $app->GetDBPrefix();
         $sql = "
 			INSERT INTO ".$pfx."eloption
-			(eltypeid, fieldtype, fieldsize, eloptgroupid, name, title, descript, currencyid, param, ord, dateline) VALUES (
-				".bkint($d->tpid).",
-				".bkint($d->tp).",
-				'".bkstr($d->sz)."',
-				".bkint($d->gid).",
-				'".bkstr($d->nm)."',
-				'".bkstr($d->tl)."',
-				'".bkstr($d->dsc)."',
-				".bkint($d->crcid).",
-				'".bkstr($d->prm)."',
-				".bkint($d->ord).",
+			(eltypeid, fieldtype, fieldsize, eloptgroupid, name, title, descript, currencyid, ord, dateline) VALUES (
+				".bkint($option->elTypeId).",
+				".bkint($option->type).",
+				'".bkstr($option->size)."',
+				".bkint($option->groupid).",
+				'".bkstr($option->name)."',
+				'".bkstr($option->title->Get())."',
+				'".bkstr($option->descript->Get())."',
+				".bkint($option->currencyid).",
+				".bkint($option->order).",
 				".TIMENOW."
 			)
 		";
@@ -1021,7 +1028,7 @@ class CatalogQuery {
     public static function ElementOptionFieldUpdate(Ab_Database $db, $pfx, CatalogElementType $elType, $tableName, CatalogElementOption $oldOption, $d){
         $optionName = bkstr($d->nm);
 
-        if ($d->tp == Catalog::TP_TABLE){
+        if ($d->tp == CatalogType::TP_TABLE){
             $tableName = $pfx."eltbl_".$elType->name."_fld_".$d->nm;
             $oldTableName = $pfx."eltbl_".$elType->name."_fld_".$oldOption;
 
@@ -1036,86 +1043,90 @@ class CatalogQuery {
 		";
 
         switch ($oldOption->type){
-            case Catalog::TP_BOOLEAN:
+            case CatalogType::TP_BOOLEAN:
                 $sql .= "INT(1) UNSIGNED NOT NULL DEFAULT 0";
                 break;
-            case Catalog::TP_NUMBER:
+            case CatalogType::TP_NUMBER:
                 $sql .= "INT(".$oldOption->size.") NOT NULL DEFAULT 0";
                 break;
-            case Catalog::TP_DOUBLE:
-            case Catalog::TP_CURRENCY:
+            case CatalogType::TP_DOUBLE:
+            case CatalogType::TP_CURRENCY:
                 $sql .= "DOUBLE(".$oldOption->size.") NOT NULL DEFAULT 0";
                 break;
-            case Catalog::TP_STRING:
+            case CatalogType::TP_STRING:
                 $sql .= "VARCHAR(".$oldOption->size.") NOT NULL DEFAULT ''";
                 break;
-            case Catalog::TP_TABLE:
+            case CatalogType::TP_TABLE:
                 $sql .= "INT(10) NOT NULL DEFAULT 0";
                 break;
-            case Catalog::TP_TEXT:
-            case Catalog::TP_ELDEPENDS:
-            case Catalog::TP_ELDEPENDSNAME:
-            case Catalog::TP_FILES:
+            case CatalogType::TP_TEXT:
+            case CatalogType::TP_ELDEPENDS:
+            case CatalogType::TP_ELDEPENDSNAME:
+            case CatalogType::TP_FILES:
                 $sql .= "TEXT NOT NULL ";
                 break;
         }
         $db->query_write($sql);
     }
 
-    public static function ElementOptionFieldCreate(Ab_Database $db, $pfx, CatalogElementType $elType, $tableName, $d){
-        $optionName = bkstr($d->nm);
+    public static function ElementOptionFieldCreate(CatalogApp $app, CatalogElementType $elType, CatalogElementOption $option){
+        $db = $app->db;
+        $pfx = $app->GetDBPrefix();
 
-        if ($d->tp == Catalog::TP_TABLE){
-            $fldTableName = $pfx."eltbl_".$elType->name."_fld_".$d->nm;
+        if ($option->type === CatalogType::TP_TABLE){
+
+            $fldTableName = CatalogElementOption::GetTableName($app, $elType, $option);
 
             $sql = "
 				CREATE TABLE IF NOT EXISTS ".$fldTableName." (
-					".$optionName."id int(10) unsigned NOT NULL auto_increment,
+					".$option->name."id int(10) unsigned NOT NULL auto_increment,
 					title varchar(250) NOT NULL default '',
-					PRIMARY KEY  (".$optionName."id)
+					PRIMARY KEY  (".$option->name."id)
 				) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'
 			";
             $db->query_write($sql);
         }
 
-        $sql = "ALTER TABLE ".$tableName." ADD fld_".$optionName." ";
-        switch ($d->tp){
-            case Catalog::TP_BOOLEAN:
+        $tableName = CatalogElementType::GetTableName($app, $elType);
+
+        $sql = "ALTER TABLE ".$tableName." ADD fld_".$option->name." ";
+        switch ($option->type){
+            case CatalogType::TP_BOOLEAN:
                 $sql .= "INT(1) UNSIGNED NOT NULL DEFAULT 0";
                 break;
-            case Catalog::TP_NUMBER:
-                $sql .= "INT(".$d->sz.") NOT NULL DEFAULT 0";
+            case CatalogType::TP_NUMBER:
+                $sql .= "INT(".$option->size.") NOT NULL DEFAULT 0";
                 break;
-            case Catalog::TP_DOUBLE:
-            case Catalog::TP_CURRENCY:
-                $sql .= "DOUBLE(".$d->sz.") NOT NULL DEFAULT 0";
+            case CatalogType::TP_DOUBLE:
+            case CatalogType::TP_CURRENCY:
+                $sql .= "DOUBLE(".$option->size.") NOT NULL DEFAULT 0";
                 break;
-            case Catalog::TP_STRING:
-                $sql .= "VARCHAR(".$d->sz.") NOT NULL DEFAULT ''";
+            case CatalogType::TP_STRING:
+                $sql .= "VARCHAR(".$option->size.") NOT NULL DEFAULT ''";
                 break;
-            case Catalog::TP_TEXT:
+            case CatalogType::TP_TEXT:
                 $sql .= "TEXT NOT NULL ";
                 break;
-            case Catalog::TP_TABLE:
+            case CatalogType::TP_TABLE:
                 $sql .= "INT(10) NOT NULL DEFAULT 0";
                 break;
-            case Catalog::TP_ELDEPENDS:
+            case CatalogType::TP_ELDEPENDS:
                 // содержит в себе кеш идентификаторов элементов  через запятую
                 // основная таблица зависимых модулей - eldepends
                 $sql .= "TEXT NOT NULL ";
                 break;
-            case Catalog::TP_ELDEPENDSNAME:
+            case CatalogType::TP_ELDEPENDSNAME:
                 // содержит в себе кеш имен элементов через запятую
                 // основная таблица зависимых модулей - eldependsname
                 $sql .= "TEXT NOT NULL ";
                 break;
-            case Catalog::TP_FILES:
+            case CatalogType::TP_FILES:
                 // содержит в себе кеш идентификаторов файлов через запятую
                 // основная таблица зависимых модулей - file
                 $sql .= "TEXT NOT NULL ";
                 break;
         }
-        $sql .= " COMMENT '".bkstr($d->tl)."'";
+        $sql .= " COMMENT '".bkstr($option->title->Get())."'";
         $db->query_write($sql);
     }
 
@@ -1133,7 +1144,9 @@ class CatalogQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementOptionList(Ab_Database $db, $pfx){
+    public static function ElementOptionList(CatalogApp $app){
+        $db = $app->db;
+        $pfx = $app->GetDBPrefix();
         $sql = "
 			SELECT o.eloptionid as id, o.*
 			FROM ".$pfx."eloption o
@@ -1143,7 +1156,10 @@ class CatalogQuery {
         return $db->query_read($sql);
     }
 
-    public static function OptionTableValueList(Ab_Database $db, $pfx, $tpName, $optName){
+    public static function OptionTableValueList(CatalogApp $app, $tpName, $optName){
+        $db = $app->db;
+        $pfx = $app->GetDBPrefix();
+
         $tbl = $pfx."eltbl_".$tpName."_fld_".$optName;
         $sql = "
 			SELECT

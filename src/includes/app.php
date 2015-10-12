@@ -24,89 +24,6 @@ abstract class CatalogApp extends AbricosApplication {
         parent::__construct($manager, array('catalog'));
     }
 
-    private static $_ownerAppList = nul;
-
-    private static function OwnerAppList($isClear = false){
-        if ($isClear){
-            CatalogApp::$_ownerAppList = null;
-        }
-        if (!is_null(CatalogApp::$_ownerAppList)){
-            return CatalogApp::$_ownerAppList;
-        }
-        CatalogApp::$_ownerAppList = array();
-        $db = Abricos::$db;
-        $rows = CatalogQuery::ModuleManagerList($db);
-        while (($row = $db->fetch_array($rows))){
-            CatalogApp::$_ownerAppList[$row['name']] = $row;
-        }
-        return CatalogApp::$_ownerAppList;
-    }
-
-    /**
-     * @var Ab_UpdateManager
-     */
-    public static $updateShemaModule;
-
-    private static function OwnerAppDbUpdate(CatalogApp $app, Ab_ModuleInfo $modInfo){
-        $module = $app->manager->module;
-        $catalogModule = Abricos::GetModule('catalog');
-        if ($modInfo->version === $catalogModule->version){
-            return false;
-        }
-
-        CatalogApp::$updateShemaModule = new Ab_UpdateManager($module, $modInfo);
-        $catalogModule->ScriptRequire("setup/shema_mod.php");
-        CatalogQuery::ModuleManagerUpdate($app, $catalogModule->version);
-
-        return true;
-    }
-
-    private static function OwnerAppDbLanguageUpdate(CatalogApp $app, Ab_ModuleInfo $modInfo){
-        $module = $app->manager->module;
-        $catalogModule = Abricos::GetModule('catalog');
-        if ($modInfo->languageVersion === $catalogModule->version){
-            return false;
-        }
-        CatalogApp::$updateShemaModule = new Ab_UpdateManager($module, $modInfo);
-
-        $catalogModule->ScriptRequire("setup/shema_mod_lang.php");
-        CatalogQuery::ModuleManagerUpdateLanguage($app, $catalogModule->version);
-
-        return true;
-    }
-
-    private $_isSetup;
-
-    public function Setup(){
-        if ($this->_isSetup){
-            return;
-        }
-        $this->_isSetup = true;
-
-        $module = $this->manager->module;
-        $name = $module->name;
-
-        $ownerAppList = CatalogApp::OwnerAppList();
-        if (!isset($ownerAppList[$name])){
-            CatalogQuery::ModuleManagerAppend($this);
-            $ownerAppList = CatalogApp::OwnerAppList(true);
-        }
-        $modInfo = new Ab_ModuleInfo($ownerAppList[$name]);
-
-        $isUpdate = CatalogApp::OwnerAppDbUpdate($this, $modInfo);
-        CatalogApp::OwnerAppDbLanguageUpdate($this, $modInfo);
-
-        $catalogModule = Abricos::GetModule('catalog');
-
-        if ($isUpdate){
-            CatalogApp::$updateShemaModule = new Ab_UpdateManager($module, $modInfo);
-            $catalogModule->ScriptRequire("setup/shema_mod_after.php");
-            CatalogQuery::ModuleManagerUpdate($this, $catalogModule->version);
-        }
-
-        CatalogApp::$updateShemaModule = null;
-    }
-
     protected function GetClasses(){
         return array(
             'Config' => 'CatalogConfig',
@@ -248,6 +165,89 @@ abstract class CatalogApp extends AbricosApplication {
         return false;
     }
 
+    private static $_ownerAppList = nul;
+
+    private static function OwnerAppList($isClear = false){
+        if ($isClear){
+            CatalogApp::$_ownerAppList = null;
+        }
+        if (!is_null(CatalogApp::$_ownerAppList)){
+            return CatalogApp::$_ownerAppList;
+        }
+        CatalogApp::$_ownerAppList = array();
+        $db = Abricos::$db;
+        $rows = CatalogQuery::ModuleManagerList($db);
+        while (($row = $db->fetch_array($rows))){
+            CatalogApp::$_ownerAppList[$row['name']] = $row;
+        }
+        return CatalogApp::$_ownerAppList;
+    }
+
+    /**
+     * @var Ab_UpdateManager
+     */
+    public static $updateShemaModule;
+
+    private static function OwnerAppDbUpdate(CatalogApp $app, Ab_ModuleInfo $modInfo){
+        $module = $app->manager->module;
+        $catalogModule = Abricos::GetModule('catalog');
+        if ($modInfo->version === $catalogModule->version){
+            return false;
+        }
+
+        CatalogApp::$updateShemaModule = new Ab_UpdateManager($module, $modInfo);
+        $catalogModule->ScriptRequire("setup/shema_mod.php");
+        CatalogQuery::ModuleManagerUpdate($app, $catalogModule->version);
+
+        return true;
+    }
+
+    private static function OwnerAppDbLanguageUpdate(CatalogApp $app, Ab_ModuleInfo $modInfo){
+        $module = $app->manager->module;
+        $catalogModule = Abricos::GetModule('catalog');
+        if ($modInfo->languageVersion === $catalogModule->version){
+            return false;
+        }
+        CatalogApp::$updateShemaModule = new Ab_UpdateManager($module, $modInfo);
+
+        $catalogModule->ScriptRequire("setup/shema_mod_lang.php");
+        CatalogQuery::ModuleManagerUpdateLanguage($app, $catalogModule->version);
+
+        return true;
+    }
+
+    private $_isSetup;
+
+    public function Setup(){
+        if ($this->_isSetup){
+            return;
+        }
+        $this->_isSetup = true;
+
+        $module = $this->manager->module;
+        $name = $module->name;
+
+        $ownerAppList = CatalogApp::OwnerAppList();
+        if (!isset($ownerAppList[$name])){
+            CatalogQuery::ModuleManagerAppend($this);
+            $ownerAppList = CatalogApp::OwnerAppList(true);
+        }
+        $modInfo = new Ab_ModuleInfo($ownerAppList[$name]);
+
+        $isUpdate = CatalogApp::OwnerAppDbUpdate($this, $modInfo);
+        CatalogApp::OwnerAppDbLanguageUpdate($this, $modInfo);
+
+        $catalogModule = Abricos::GetModule('catalog');
+
+        if ($isUpdate){
+            CatalogApp::$updateShemaModule = new Ab_UpdateManager($module, $modInfo);
+            $catalogModule->ScriptRequire("setup/shema_mod_after.php");
+            CatalogQuery::ModuleManagerUpdate($this, $catalogModule->version);
+        }
+
+        CatalogApp::$updateShemaModule = null;
+    }
+
     protected $_cache = array();
 
     public function CacheClear(){
@@ -260,12 +260,12 @@ abstract class CatalogApp extends AbricosApplication {
     }
 
     public function CatalogList(){
-        if (!$this->IsViewRole()){
-            return 403;
-        }
-
         if (isset($this->_cache['CatalogList'])){
             return $this->_cache['CatalogList'];
+        }
+
+        if (!$this->IsViewRole()){
+            return 403;
         }
 
         $models = $this->models;
@@ -1145,69 +1145,61 @@ abstract class CatalogApp extends AbricosApplication {
         return false;
     }
 
-    public function ElementTypeTableName($name){
-        if (empty($name)){
-            return $this->pfx."element";
-        }
-        return $this->pfx."eltbl_".$name;
+    public function ElementTypeSaveToJSON($elTypeId, $d){
+        /*
+        $this->ElementTypeSave($elTypeId, $d);
+
+        $this->_cacheElementTypeList = null;
+
+        return $this->ElementTypeListToJSON();
+        /**/
     }
 
     /**
-     * Создать/сохранить тип элемента
-     *
-     * Если $elTypeId=0, то создать тип элемента
-     *
-     * В качестве параметра $d необходимо передать именованный массив
-     * или объект с полями:
-     * nm - уникальное имя латиницей,
-     * tl - название,
-     * dsc - описание
-     *
-     * @param integer $elTypeId
-     * @param array|object $d данные типа элемента
+     * @param mixed $d
+     * @return int|null
      */
-    public function ElementTypeSave($elTypeId, $d){
+    public function ElementTypeSave($d){
         if (!$this->IsAdminRole()){
-            return null;
+            return 403;
         }
 
-        $d = array_to_object($d);
-
-        $d->dsc = isset($d->dsc) ? $d->dsc : '';
+        /** @var CatalogElementType $elType */
+        $elType = $this->models->InstanceClass('ElementType', $d);
+        $elType->name = strtolower(translateruen($elType->name));
 
         $utm = Abricos::TextParser();
         $utmf = Abricos::TextParser(true);
 
-        $eltTypeId = intval($elTypeId);
-        $d->tl = $utmf->Parser($d->tl);
-        if (empty($d->tls)){
-            $d->tls = $d->tl;
-        }
-        $d->tls = $utmf->Parser($d->tls);
-        $d->nm = strtolower(translateruen($d->nm));
-        $d->dsc = $utm->Parser($d->dsc);
+        $title = $elType->title;
+        $title->Set($utmf->Parser($title->Get()));
+        $sTitle = $title->Get();
 
-        $tableName = $this->ElementTypeTableName($d->nm);
-
-        if (empty($d->tl) || empty($d->nm)){
-            return null;
+        $titles = $elType->titles;
+        $sTitles = $titles->Get();
+        if (empty($sTitles)){
+            $titles->Set($title->Get());
+        } else {
+            $titles->Set($utmf->Parser($titles->Get()));
         }
 
-        $typeList = $this->ElementTypeList();
+        $descript = $elType->descript;
+        $descript->Set($utm->Parser($descript->Get()));
 
-        $checkElType = $typeList->GetByName($d->nm);
+        $elTypeList = $this->ElementTypeList();
 
-        if ($eltTypeId == 0){
+        if (empty($sTitle) || empty($elType->name)){
+            return 400;
+        }
+
+        if ($elType->id === 0){
+            $checkElType = $elTypeList->GetByName($elType->name);
             if (!empty($checkElType)){
-                return null;
-            } // нельзя создать типы с одинаковыми именами
-
-            if ($this->TableCheck($tableName)){
-                return null; // уже есть такая таблица
+                return 400;
             }
 
-            CatalogQuery::ElementTypeTableCreate($this->db, $tableName);
-            $elTypeId = CatalogQuery::ElementTypeAppend($this->db, $this->pfx, $d);
+            CatalogQuery::ElementTypeTableCreate($this, $elType);
+            $elTypeId = CatalogQuery::ElementTypeAppend($this, $elType);
         } else {
 
             $checkElType = $typeList->GetByName($d->nm);
@@ -1228,14 +1220,6 @@ abstract class CatalogApp extends AbricosApplication {
         }
 
         return $elTypeId;
-    }
-
-    public function ElementTypeSaveToAJAX($elTypeId, $d){
-        $this->ElementTypeSave($elTypeId, $d);
-
-        $this->_cacheElementTypeList = null;
-
-        return $this->ElementTypeListToJSON();
     }
 
     public function ElementTypeRemove($elTypeId){
@@ -1267,22 +1251,21 @@ abstract class CatalogApp extends AbricosApplication {
         return $this->ElementTypeListToJSON(true);
     }
 
-    private $_cacheElementTypeList;
+    public function ElementTypeListToJSON(){
+        $ret = $this->ElementTypeList();
+        return $this->ResultToJSON('elementTypeList', $ret);
+    }
 
     /**
-     * @return CatalogElementTypeList
+     * @return CatalogElementTypeList|int
      */
-    public function ElementTypeList($clearCache = false){
+    public function ElementTypeList(){
+        if (isset($this->_cache['ElementTypeList'])){
+            return $this->_cache['ElementTypeList'];
+        }
+
         if (!$this->IsViewRole()){
-            return false;
-        }
-
-        if ($clearCache){
-            $this->_cacheElementTypeList = null;
-        }
-
-        if (isset($this->_cacheElementTypeList)){
-            return $this->_cacheElementTypeList;
+            return 403;
         }
 
         $models = $this->models;
@@ -1296,13 +1279,13 @@ abstract class CatalogApp extends AbricosApplication {
 
         $list->Add($curType);
 
-        $rows = CatalogQuery::ElementTypeList($this->db, $this->pfx);
+        $rows = CatalogQuery::ElementTypeList($this);
         while (($d = $this->db->fetch_array($rows))){
             $item = $models->InstanceClass('ElementType', $d);
             $list->Add($item);
         }
 
-        $rows = CatalogQuery::ElementOptionList($this->db, $this->pfx);
+        $rows = CatalogQuery::ElementOptionList($this);
         while (($d = $this->db->fetch_array($rows))){
 
             /** @var CatalogElementOption $option */
@@ -1316,31 +1299,15 @@ abstract class CatalogApp extends AbricosApplication {
                 continue;
             }
 
-            if ($option->type === Catalog::TP_TABLE){
-                $rtbs = CatalogQuery::OptionTableValueList($this->db, $this->pfx, $curType->name, $option->name);
+            if ($option->type === CatalogType::TP_TABLE){
+                $rtbs = CatalogQuery::OptionTableValueList($this, $curType->name, $option->name);
                 $option->values = $this->ToArrayId($rtbs);
             }
 
             $curType->options->Add($option);
         }
-        print_r($list->Get(0)->ToJSON());
-        exit;
 
-        $this->_cacheElementTypeList = $list;
-
-        return $list;
-    }
-
-    public function ElementTypeListToJSON($clearCache = false){
-        $list = $this->ElementTypeList($clearCache);
-
-        if (empty($list)){
-            return null;
-        }
-
-        $ret = new stdClass();
-        $ret->elementTypeList = $list->ToJSON();
-        return $ret;
+        return $this->_cache['ElementTypeList'] = $list;
     }
 
     private $_cacheElementOptGroupList;
@@ -1434,7 +1401,7 @@ abstract class CatalogApp extends AbricosApplication {
         $elTypeList = $this->ElementTypeList();
         $option = $elTypeList->GetOptionById($optionid);
 
-        if (empty($option) || $option->type != Catalog::TP_FILES){
+        if (empty($option) || $option->type != CatalogType::TP_FILES){
             return null;
         }
 
@@ -1497,34 +1464,6 @@ abstract class CatalogApp extends AbricosApplication {
     }
 
 
-    private function ElementOptionDataFix($d){
-        switch ($d->tp){
-            case Catalog::TP_BOOLEAN:
-                $d->sz = 1;
-                break;
-            case Catalog::TP_NUMBER:
-                $d->sz = min(max(intval($d->sz), 1), 10);
-                break;
-            case Catalog::TP_STRING:
-                $d->sz = min(max(intval($d->sz), 2), 255);
-                break;
-            case Catalog::TP_DOUBLE:
-            case Catalog::TP_CURRENCY:
-                $asz = explode(",", $d->sz);
-                $asz[0] = min(max(intval($asz[0]), 3), 10);
-                $asz[1] = min(max(intval($asz[1]), 0), 5);
-                $d->sz = $asz[0].",".$asz[1];
-                break;
-            case Catalog::TP_TEXT:
-            case Catalog::TP_ELDEPENDS:
-            case Catalog::TP_ELDEPENDSNAME:
-            case Catalog::TP_FILES:
-                $d->sz = 0;
-                break;
-        }
-        return $d;
-    }
-
     /**
      * Сохранение опции элемента
      *
@@ -1533,52 +1472,45 @@ abstract class CatalogApp extends AbricosApplication {
      */
     public function ElementOptionSave($optionid, $d){
         if (!$this->IsAdminRole()){
-            return null;
+            return 403;
         }
 
-        $d = array_to_object($d);
+        /** @var CatalogElementOption $option */
+        $option = $this->models->InstanceClass('ElementOption', $d);
 
-        $utm = Abricos::TextParser();
         $utmf = Abricos::TextParser(true);
 
-        $d->tpid = isset($d->tpid) ? $d->tpid : 0;
-        $d->tp = isset($d->tp) ? intval($d->tp) : 0;
-        $d->sz = isset($d->sz) ? $d->sz : '';
-        $d->gid = isset($d->gid) ? $d->gid : 0;
-        $d->crcid = isset($d->crcid) ? $d->crcid : 0;
-        $d->dsc = isset($d->dsc) ? $d->dsc : '';
-        $d->prm = isset($d->prm) ? $d->prm : '';
-        $d->ord = isset($d->ord) ? $d->ord : 0;
+        $title = $option->title;
+        $title->Set($utmf->Parser($title->Get()));
 
-        $optionid = intval($optionid);
-        $elTypeId = intval($d->tpid);
+        $option->name = strtolower(translateruen($option->name));
 
-        $d->tl = $utmf->Parser($d->tl);
-        $d->nm = strtolower(translateruen($d->nm));
-        $d->tp = intval($d->tp);
-        $d->dsc = $utm->Parser($d->dsc);
-
-        if (empty($d->tl) || empty($d->nm)){
-            return null;
+        $sTitle = $title->Get();
+        if (empty($sTitle) || empty($option->name)){
+            return 400;
         }
+
+        $utm = Abricos::TextParser();
+        $descript = $option->descript;
+        $descript->Set($utm->Parser($descript->Get()));
 
         $typeList = $this->ElementTypeList();
-        $elType = $typeList->Get($elTypeId);
+        $elType = $typeList->Get($option->elTypeId);
 
         if (empty($elType)){
-            return null;
+            return 400;
         }
 
-        $d = $this->ElementOptionDataFix($d);
+        CatalogElementOption::DataFix($option);
 
         $tableName = $this->ElementTypeTableName($elType->name);
 
-        if ($optionid == 0){
+        if ($option->id === 0){
             $checkOption = $elType->options->GetByName($d->nm);
             if (!empty($checkOption)){ // такая опция уже есть
                 return null; // нельзя добавить опции с одинаковым именем
             }
-            $optionid = CatalogQuery::ElementOptionAppend($this->db, $this->pfx, $d);
+            $optionid = CatalogQuery::ElementOptionAppend($this, $option);
             CatalogQuery::ElementOptionFieldCreate($this->db, $this->pfx, $elType, $tableName, $d);
         } else {
             $checkOption = $elType->options->Get($optionid);
@@ -1596,8 +1528,8 @@ abstract class CatalogApp extends AbricosApplication {
             CatalogQuery::ElementOptionUpdate($this->db, $this->pfx, $optionid, $d);
 
             if ($checkOption->type != $d->tp &&
-                ($checkOption->type == Catalog::TP_CURRENCY || $checkOption->type == Catalog::TP_DOUBLE) &&
-                ($d->tp == Catalog::TP_CURRENCY || $d->tp == Catalog::TP_DOUBLE)
+                ($checkOption->type == CatalogType::TP_CURRENCY || $checkOption->type == CatalogType::TP_DOUBLE) &&
+                ($d->tp == CatalogType::TP_CURRENCY || $d->tp == CatalogType::TP_DOUBLE)
             ){ // попытка изменить тип поля
                 // пока можно менять DOUBLE <=> CURRENCY
                 CatalogQuery::ElementOptionTypeUpdate($this->db, $this->pfx, $optionid, $d);
@@ -1661,7 +1593,7 @@ abstract class CatalogApp extends AbricosApplication {
             return null;
         }
 
-        if ($option->type != Catalog::TP_TABLE){
+        if ($option->type != CatalogType::TP_TABLE){
             return null;
         }
 
@@ -1715,7 +1647,7 @@ abstract class CatalogApp extends AbricosApplication {
             return null;
         }
 
-        if ($option->type != Catalog::TP_TABLE){
+        if ($option->type != CatalogType::TP_TABLE){
             return null;
         }
 
@@ -1738,7 +1670,7 @@ abstract class CatalogApp extends AbricosApplication {
         }
         $elTypeBase = $this->ElementTypeList()->GetByIndex(0);
         $option = $elTypeBase->options->GetByName($eFField);
-        if (!empty($option) && $option->type == Catalog::TP_TABLE && !empty($option->values[$eFValue])){
+        if (!empty($option) && $option->type == CatalogType::TP_TABLE && !empty($option->values[$eFValue])){
             $optValueId = intval($eFValue);
         }
         return $optValueId;

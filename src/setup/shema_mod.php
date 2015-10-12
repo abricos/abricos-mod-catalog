@@ -14,7 +14,7 @@ $updateManager = CatalogApp::$updateShemaModule;
 $app = $updateManager->module->GetManager()->GetApp();
 
 $db = $app->db;
-$pfx = $app->Config()->dbPrefix;
+$pfx = $app->GetDBPrefix();
 
 if ($updateManager->isInstall()){
 
@@ -39,7 +39,7 @@ if ($updateManager->isInstall()){
 			dateline int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
 			deldate int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
 			
-			PRIMARY KEY  (catalogid),
+			PRIMARY KEY (catalogid),
 			KEY deldate (deldate)
 		)".$charset);
 
@@ -85,7 +85,7 @@ if ($updateManager->isInstall()){
 			upddate int(10) UNSIGNED NOT NULL default '0' COMMENT 'Дата обновления',
 			deldate int(10) UNSIGNED NOT NULL default '0' COMMENT 'Дата удаления',
 		
-			PRIMARY KEY  (elementid),
+			PRIMARY KEY (elementid),
 			KEY name (name),
 			KEY catalogid (catalogid),
 			KEY element (language, ismoder, isarhversion, deldate),
@@ -103,8 +103,8 @@ if ($updateManager->isInstall()){
 			dateline int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
 			deldate int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
 		
-			PRIMARY KEY  (eltypeid),
-			KEY eltype (language, deldate)
+			PRIMARY KEY (eltypeid),
+			KEY eltype (deldate)
 		)".$charset);
 
     // группа опций типа элемента каталога
@@ -148,7 +148,7 @@ if ($updateManager->isInstall()){
 			dateline int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
 			deldate int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
 			
-			PRIMARY KEY  (eloptionid),
+			PRIMARY KEY (eloptionid),
 			KEY eloption (language, deldate)
 		)".$charset);
 

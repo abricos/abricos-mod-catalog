@@ -1,6 +1,10 @@
 {
   "version": "0.1.0",
   "fields": {
+    "id": {
+      "type": "int",
+      "dbField": "optionid"
+    },
     "elTypeId": {
       "dbField": "eltypeid",
       "type": "int",
@@ -8,7 +12,7 @@
     },
     "type": {
       "dbField": "fieldtype",
-      "type": "string",
+      "type": "int",
       "json": "tp"
     },
     "size": {
@@ -17,15 +21,16 @@
       "json": "sz"
     },
     "name": {
+      "type": "string",
       "json": "nm"
     },
     "title": {
       "type": "multilang",
       "json": "tl"
     },
-    "param": {
-      "type": "string",
-      "json": "prm"
+    "descript": {
+      "type": "multilang",
+      "json": "dsc"
     },
     "currencyid": {
       "type": "int",
