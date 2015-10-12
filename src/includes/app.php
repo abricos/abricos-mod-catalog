@@ -47,7 +47,8 @@ abstract class CatalogApp extends AbricosApplication {
      */
     public static $updateShemaModule;
 
-    private static function OwnerAppDbUpdate(Ab_Module $module, Ab_ModuleInfo $modInfo){
+    private static function OwnerAppDbUpdate(CatalogApp $app, Ab_ModuleInfo $modInfo){
+        $module = $app->manager->module;
         $catalogModule = Abricos::GetModule('catalog');
         if ($modInfo->version === $catalogModule->version){
             return false;
@@ -55,12 +56,13 @@ abstract class CatalogApp extends AbricosApplication {
 
         CatalogApp::$updateShemaModule = new Ab_UpdateManager($module, $modInfo);
         $catalogModule->ScriptRequire("setup/shema_mod.php");
-        CatalogQuery::ModuleManagerUpdate(Abricos::$db, $modInfo->name, $catalogModule->version);
+        CatalogQuery::ModuleManagerUpdate($app, $catalogModule->version);
 
         return true;
     }
 
-    private static function OwnerAppDbLanguageUpdate(Ab_Module $module, Ab_ModuleInfo $modInfo){
+    private static function OwnerAppDbLanguageUpdate(CatalogApp $app, Ab_ModuleInfo $modInfo){
+        $module = $app->manager->module;
         $catalogModule = Abricos::GetModule('catalog');
         if ($modInfo->languageVersion === $catalogModule->version){
             return false;
@@ -68,14 +70,14 @@ abstract class CatalogApp extends AbricosApplication {
         CatalogApp::$updateShemaModule = new Ab_UpdateManager($module, $modInfo);
 
         $catalogModule->ScriptRequire("setup/shema_mod_lang.php");
-        CatalogQuery::ModuleManagerUpdateLanguage(Abricos::$db, $modInfo->name, $catalogModule->version);
+        CatalogQuery::ModuleManagerUpdateLanguage($app, $catalogModule->version);
 
         return true;
     }
 
-    private $_isSetup = false;
+    private $_isSetup;
 
-    protected function Setup(){
+    public function Setup(){
         if ($this->_isSetup){
             return;
         }
@@ -86,24 +88,23 @@ abstract class CatalogApp extends AbricosApplication {
 
         $ownerAppList = CatalogApp::OwnerAppList();
         if (!isset($ownerAppList[$name])){
-            CatalogQuery::ModuleManagerAppend(Abricos::$db, $name);
+            CatalogQuery::ModuleManagerAppend($this);
             $ownerAppList = CatalogApp::OwnerAppList(true);
         }
         $modInfo = new Ab_ModuleInfo($ownerAppList[$name]);
 
-        $isUpdate = CatalogApp::OwnerAppDbUpdate($module, $modInfo);
-        CatalogApp::OwnerAppDbLanguageUpdate($module, $modInfo);
+        $isUpdate = CatalogApp::OwnerAppDbUpdate($this, $modInfo);
+        CatalogApp::OwnerAppDbLanguageUpdate($this, $modInfo);
 
         $catalogModule = Abricos::GetModule('catalog');
 
         if ($isUpdate){
             CatalogApp::$updateShemaModule = new Ab_UpdateManager($module, $modInfo);
             $catalogModule->ScriptRequire("setup/shema_mod_after.php");
-            CatalogQuery::ModuleManagerUpdate(Abricos::$db, $modInfo->name, $catalogModule->version);
+            CatalogQuery::ModuleManagerUpdate($this, $catalogModule->version);
         }
 
-        $this->updateShemaModule = null;
-
+        CatalogApp::$updateShemaModule = null;
     }
 
     protected function GetClasses(){
@@ -271,7 +272,7 @@ abstract class CatalogApp extends AbricosApplication {
 
         /** @var CatalogList $list */
         $list = $models->InstanceClass('CatalogList');
-        $rows = CatalogDbQuery::CatalogList($this);
+        $rows = CatalogQuery::CatalogList($this);
         while (($d = $this->db->fetch_array($rows))){
             $list->Add($models->InstanceClass('Catalog', $d));
         }
@@ -324,7 +325,7 @@ abstract class CatalogApp extends AbricosApplication {
         $models = $this->models;
 
         $list = $models->InstanceClass('ElementList');
-        $rows = CatalogDbQuery::ElementList($this, $config);
+        $rows = CatalogQuery::ElementList($this, $config);
         while (($d = $this->db->fetch_array($rows))){
             $list->Add($models->InstanceClass('Element', $d));
         }
@@ -337,7 +338,7 @@ abstract class CatalogApp extends AbricosApplication {
     }
 
     public function ConfigToJSON(){
-        $ret = $this->Config();
+        $ret = $this->IsViewRole() ? $this->Config() : 403;
         return $this->ResultToJSON('config', $ret);
     }
 
@@ -352,9 +353,6 @@ abstract class CatalogApp extends AbricosApplication {
     public function Config(){
         if (!empty($this->_config)){
             return $this->_config;
-        }
-        if (!$this->IsViewRole()){
-            return 403;
         }
 
         $this->_config = $this->models->InstanceClass('Config');
@@ -386,7 +384,7 @@ abstract class CatalogApp extends AbricosApplication {
         }
 
         $list = array();
-        $rows = CatalogDbQuery::CatalogList($this->db, $this->pfx);
+        $rows = CatalogQuery::CatalogList($this->db, $this->pfx);
         while (($d = $this->db->fetch_array($rows))){
             $list[] = new $this->CatalogClass($d);
         }
@@ -506,7 +504,7 @@ abstract class CatalogApp extends AbricosApplication {
             return $this->_cacheCatalog[$catid];
         }
 
-        $d = CatalogDbQuery::Catalog($this->db, $this->pfx, $catid);
+        $d = CatalogQuery::Catalog($this->db, $this->pfx, $catid);
         if (empty($d)){
             return null;
         }
@@ -564,17 +562,17 @@ abstract class CatalogApp extends AbricosApplication {
 
         if ($catid == 0){ // добавление нового
 
-            $catid = CatalogDbQuery::CatalogAppend($this->db, $this->pfx, $d);
+            $catid = CatalogQuery::CatalogAppend($this->db, $this->pfx, $d);
             if (empty($catid)){
                 return null;
             }
 
             $this->_cacheCatalogList = null;
         } else { // сохранение текущего
-            CatalogDbQuery::CatalogUpdate($this->db, $this->pfx, $catid, $d);
+            CatalogQuery::CatalogUpdate($this->db, $this->pfx, $catid, $d);
         }
 
-        CatalogDbQuery::FotoRemoveFromBuffer($this->db, $this->pfx, $d->foto);
+        CatalogQuery::FotoRemoveFromBuffer($this->db, $this->pfx, $d->foto);
 
         return $catid;
     }
@@ -603,8 +601,8 @@ abstract class CatalogApp extends AbricosApplication {
             $this->CatalogRemove($ccat->id);
         }
 
-        CatalogDbQuery::ElementListRemoveByCatId($this->db, $this->pfx, $catid);
-        CatalogDbQuery::CatalogRemove($this->db, $this->pfx, $catid);
+        CatalogQuery::ElementListRemoveByCatId($this->db, $this->pfx, $catid);
+        CatalogQuery::CatalogRemove($this->db, $this->pfx, $catid);
 
         return true;
     }
@@ -627,7 +625,7 @@ abstract class CatalogApp extends AbricosApplication {
         $list = new $this->CatalogElementListClass();
         $list->cfg = $cfg;
 
-        $rows = CatalogDbQuery::ElementList($this->db, $this->pfx, $this->userid, $this->IsAdminRole(), $cfg);
+        $rows = CatalogQuery::ElementList($this->db, $this->pfx, $this->userid, $this->IsAdminRole(), $cfg);
         while (($d = $this->db->fetch_array($rows))){
 
             $cnt = $cfg->extFields->Count();
@@ -641,7 +639,7 @@ abstract class CatalogApp extends AbricosApplication {
 
             $list->Add(new $this->CatalogElementClass($d));
         }
-        $list->total = CatalogDbQuery::ElementListCount($this->db, $this->pfx, $this->userid, $this->IsAdminRole(), $cfg);
+        $list->total = CatalogQuery::ElementListCount($this->db, $this->pfx, $this->userid, $this->IsAdminRole(), $cfg);
 
         return $list;
     }
@@ -670,7 +668,7 @@ abstract class CatalogApp extends AbricosApplication {
             $elid = $el->id;
             $order = $orders->$elid;
 
-            CatalogDbQuery::ElementOrderUpdate($this->db, $this->pfx, $el->id, $order);
+            CatalogQuery::ElementOrderUpdate($this->db, $this->pfx, $el->id, $order);
         }
 
         return $this->ElementListToAJAX($catid);
@@ -685,13 +683,13 @@ abstract class CatalogApp extends AbricosApplication {
         $elTypeList = $this->ElementTypeList();
 
         $tpBase = $elTypeList->Get(0);
-        $dbOptionsBase = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $element->id, $tpBase);
+        $dbOptionsBase = CatalogQuery::ElementDetail($this->db, $this->pfx, $element->id, $tpBase);
 
         $dbOptionsPers = array();
         if ($element->elTypeId > 0){
             $tpPers = $elTypeList->Get($element->elTypeId);
             if (!empty($tpPers)){
-                $dbOptionsPers = CatalogDbQuery::ElementDetail($this->db, $this->pfx, $element->id, $tpPers);
+                $dbOptionsPers = CatalogQuery::ElementDetail($this->db, $this->pfx, $element->id, $tpPers);
             }
         }
 
@@ -732,7 +730,7 @@ abstract class CatalogApp extends AbricosApplication {
 
         $fotoList = new CatalogFotoList();
 
-        $rows = CatalogDbQuery::ElementFotoList($this->db, $this->pfx, $elids);
+        $rows = CatalogQuery::ElementFotoList($this->db, $this->pfx, $elids);
         while (($d = $this->db->fetch_array($rows))){
             $fotoList->Add(new CatalogFoto($d));
         }
@@ -757,7 +755,7 @@ abstract class CatalogApp extends AbricosApplication {
             return $this->_cacheElementByName[$name];
         }
 
-        $dbEl = CatalogDbQuery::ElementByName($this->db, $this->pfx, $this->userid, $this->IsAdminRole(), $name);
+        $dbEl = CatalogQuery::ElementByName($this->db, $this->pfx, $this->userid, $this->IsAdminRole(), $name);
         if (empty($dbEl)){
             return null;
         }
@@ -796,7 +794,7 @@ abstract class CatalogApp extends AbricosApplication {
         }
 
         $list = new CatalogElementChangeLogList();
-        $rows = CatalogDbQuery::ElementChangeLogListByName($this->db, $this->pfx, $name, $optionList);
+        $rows = CatalogQuery::ElementChangeLogListByName($this->db, $this->pfx, $name, $optionList);
         while (($d = $this->db->fetch_array($rows))){
             $chLog = new CatalogElementChangeLog($d);
 
@@ -833,7 +831,7 @@ abstract class CatalogApp extends AbricosApplication {
         }
 
         $list = new CatalogElementChangeLogList();
-        $rows = CatalogDbQuery::ElementChangeLogList($this->db, $this->pfx, $optionList);
+        $rows = CatalogQuery::ElementChangeLogList($this->db, $this->pfx, $optionList);
         while (($d = $this->db->fetch_array($rows))){
             $chLog = new CatalogElementChangeLog($d);
 
@@ -867,7 +865,7 @@ abstract class CatalogApp extends AbricosApplication {
             return $this->_cacheElementById[$elid];
         }
 
-        $dbEl = CatalogDbQuery::Element($this->db, $this->pfx, $elid);
+        $dbEl = CatalogQuery::Element($this->db, $this->pfx, $elid);
         if (empty($dbEl)){
             return null;
         }
@@ -1004,12 +1002,12 @@ abstract class CatalogApp extends AbricosApplication {
 
                     if ($this->IsAdminRole()){ // Оператор может добавить только на модерацию
                         // текущую версию переместить в архив
-                        CatalogDbQuery::ElementToArhive($this->db, $this->pfx, $curEl->id);
+                        CatalogQuery::ElementToArhive($this->db, $this->pfx, $curEl->id);
                     }
                 }
             }
 
-            $elid = CatalogDbQuery::ElementAppend($this->db, $this->pfx, $this->userid, $this->IsOperatorOnlyRole(), $d);
+            $elid = CatalogQuery::ElementAppend($this->db, $this->pfx, $this->userid, $this->IsOperatorOnlyRole(), $d);
             if (empty($elid)){
                 return null;
             }
@@ -1035,18 +1033,18 @@ abstract class CatalogApp extends AbricosApplication {
                 $d->nm = $el->name;
             }
 
-            CatalogDbQuery::ElementUpdate($this->db, $this->pfx, $elid, $d);
+            CatalogQuery::ElementUpdate($this->db, $this->pfx, $elid, $d);
         }
 
         if (!empty($d->values)){
             foreach ($d->values as $tpid => $opts){
                 $elType = $elTypeList->Get($tpid);
-                CatalogDbQuery::ElementDetailUpdate($this->db, $this->pfx, $this->userid, $this->IsAdminRole(), $elid, $elType, $opts);
+                CatalogQuery::ElementDetailUpdate($this->db, $this->pfx, $this->userid, $this->IsAdminRole(), $elid, $elType, $opts);
             }
         }
 
         // обновление фоток
-        CatalogDbQuery::ElementFotoUpdate($this->db, $this->pfx, $elid, $d->fotos);
+        CatalogQuery::ElementFotoUpdate($this->db, $this->pfx, $elid, $d->fotos);
 
         $this->OptionFileBufferClear();
         $this->FotoBufferClear();
@@ -1088,8 +1086,8 @@ abstract class CatalogApp extends AbricosApplication {
         }
 
         if ($this->cfgVersionControl){
-            CatalogDbQuery::ElementToArhive($this->db, $this->pfx, $el->detail->pElementId);
-            CatalogDbQuery::ElementModer($this->db, $this->pfx, $elid);
+            CatalogQuery::ElementToArhive($this->db, $this->pfx, $el->detail->pElementId);
+            CatalogQuery::ElementModer($this->db, $this->pfx, $elid);
         }
 
         $this->OnElementModer($elid);
@@ -1131,13 +1129,13 @@ abstract class CatalogApp extends AbricosApplication {
             }
         }
 
-        CatalogDbQuery::ElementRemove($this->db, $this->pfx, $elid);
+        CatalogQuery::ElementRemove($this->db, $this->pfx, $elid);
 
         return true;
     }
 
     private function TableCheck($tname){
-        $rows = CatalogDbQuery::TableList($this->db);
+        $rows = CatalogQuery::TableList($this->db);
 
         while (($row = $this->db->fetch_array($rows, Ab_Database::DBARRAY_NUM))){
             if ($row[0] == $tname){
@@ -1208,8 +1206,8 @@ abstract class CatalogApp extends AbricosApplication {
                 return null; // уже есть такая таблица
             }
 
-            CatalogDbQuery::ElementTypeTableCreate($this->db, $tableName);
-            $elTypeId = CatalogDbQuery::ElementTypeAppend($this->db, $this->pfx, $d);
+            CatalogQuery::ElementTypeTableCreate($this->db, $tableName);
+            $elTypeId = CatalogQuery::ElementTypeAppend($this->db, $this->pfx, $d);
         } else {
 
             $checkElType = $typeList->GetByName($d->nm);
@@ -1224,9 +1222,9 @@ abstract class CatalogApp extends AbricosApplication {
 
                 $oldTableName = $this->ElementTypeTableName($checkElType->name);
 
-                CatalogDbQuery::ElementTypeTableChange($this->db, $oldTableName, $tableName);
+                CatalogQuery::ElementTypeTableChange($this->db, $oldTableName, $tableName);
             }
-            CatalogDbQuery::ElementTypeUpdate($this->db, $this->pfx, $elTypeId, $d);
+            CatalogQuery::ElementTypeUpdate($this->db, $this->pfx, $elTypeId, $d);
         }
 
         return $elTypeId;
@@ -1260,8 +1258,8 @@ abstract class CatalogApp extends AbricosApplication {
 
         $tableName = $this->ElementTypeTableName($elType->name);
 
-        CatalogDbQuery::ElementTypeTableRemove($this->db, $tableName);
-        CatalogDbQuery::ElementTypeRemove($this->db, $this->pfx, $elTypeId);
+        CatalogQuery::ElementTypeTableRemove($this->db, $tableName);
+        CatalogQuery::ElementTypeRemove($this->db, $this->pfx, $elTypeId);
     }
 
     public function ElementTypeRemoveToAJAX($elTypeId){
@@ -1298,13 +1296,13 @@ abstract class CatalogApp extends AbricosApplication {
 
         $list->Add($curType);
 
-        $rows = CatalogDbQuery::ElementTypeList($this->db, $this->pfx);
+        $rows = CatalogQuery::ElementTypeList($this->db, $this->pfx);
         while (($d = $this->db->fetch_array($rows))){
             $item = $models->InstanceClass('ElementType', $d);
             $list->Add($item);
         }
 
-        $rows = CatalogDbQuery::ElementOptionList($this->db, $this->pfx);
+        $rows = CatalogQuery::ElementOptionList($this->db, $this->pfx);
         while (($d = $this->db->fetch_array($rows))){
 
             /** @var CatalogElementOption $option */
@@ -1319,7 +1317,7 @@ abstract class CatalogApp extends AbricosApplication {
             }
 
             if ($option->type === Catalog::TP_TABLE){
-                $rtbs = CatalogDbQuery::OptionTableValueList($this->db, $this->pfx, $curType->name, $option->name);
+                $rtbs = CatalogQuery::OptionTableValueList($this->db, $this->pfx, $curType->name, $option->name);
                 $option->values = $this->ToArrayId($rtbs);
             }
 
@@ -1365,7 +1363,7 @@ abstract class CatalogApp extends AbricosApplication {
         }
 
         $list = new CatalogElementOptionGroupList();
-        $rows = CatalogDbQuery::ElementOptionGroupList($this->db, $this->pfx);
+        $rows = CatalogQuery::ElementOptionGroupList($this->db, $this->pfx);
         while (($d = $this->db->fetch_array($rows))){
             $list->Add(new CatalogElementOptionGroup($d));
         }
@@ -1397,7 +1395,7 @@ abstract class CatalogApp extends AbricosApplication {
             return false;
         }
 
-        CatalogDbQuery::FotoAddToBuffer($this->db, $this->pfx, $fhash);
+        CatalogQuery::FotoAddToBuffer($this->db, $this->pfx, $fhash);
 
         $this->FotoBufferClear();
     }
@@ -1414,13 +1412,13 @@ abstract class CatalogApp extends AbricosApplication {
         $fm = FileManager::$instance;
         $fm->RolesDisable();
 
-        $rows = CatalogDbQuery::FotoFreeFromBufferList($this->db, $this->pfx);
+        $rows = CatalogQuery::FotoFreeFromBufferList($this->db, $this->pfx);
         while (($row = $this->db->fetch_array($rows))){
             $fm->FileRemove($row['fh']);
         }
         $fm->RolesEnable();
 
-        CatalogDbQuery::FotoFreeListClear($this->db, $this->pfx);
+        CatalogQuery::FotoFreeListClear($this->db, $this->pfx);
     }
 
     /**
@@ -1477,7 +1475,7 @@ abstract class CatalogApp extends AbricosApplication {
             return false;
         }
 
-        CatalogDbQuery::OptionFileAddToBuffer($this->db, $this->pfx, $this->userid, $option->id, $fhash, $fname);
+        CatalogQuery::OptionFileAddToBuffer($this->db, $this->pfx, $this->userid, $option->id, $fhash, $fname);
         $this->OptionFileBufferClear();
     }
 
@@ -1490,12 +1488,12 @@ abstract class CatalogApp extends AbricosApplication {
         $fm = FileManager::$instance;
         $fm->RolesDisable();
 
-        $rows = CatalogDbQuery::OptionFileFreeFromBufferList($this->db, $this->pfx);
+        $rows = CatalogQuery::OptionFileFreeFromBufferList($this->db, $this->pfx);
         while (($row = $this->db->fetch_array($rows))){
             $fm->FileRemove($row['fh']);
         }
         $fm->RolesEnable();
-        CatalogDbQuery::OptionFileFreeListClear($this->db, $this->pfx);
+        CatalogQuery::OptionFileFreeListClear($this->db, $this->pfx);
     }
 
 
@@ -1580,8 +1578,8 @@ abstract class CatalogApp extends AbricosApplication {
             if (!empty($checkOption)){ // такая опция уже есть
                 return null; // нельзя добавить опции с одинаковым именем
             }
-            $optionid = CatalogDbQuery::ElementOptionAppend($this->db, $this->pfx, $d);
-            CatalogDbQuery::ElementOptionFieldCreate($this->db, $this->pfx, $elType, $tableName, $d);
+            $optionid = CatalogQuery::ElementOptionAppend($this->db, $this->pfx, $d);
+            CatalogQuery::ElementOptionFieldCreate($this->db, $this->pfx, $elType, $tableName, $d);
         } else {
             $checkOption = $elType->options->Get($optionid);
             if (empty($checkOption)){
@@ -1593,16 +1591,16 @@ abstract class CatalogApp extends AbricosApplication {
                 if (!empty($newCheckOption)){ // уже есть опция с таким именем
                     return;
                 }
-                CatalogDbQuery::ElementOptionFieldUpdate($this->db, $this->pfx, $elType, $tableName, $checkOption, $d);
+                CatalogQuery::ElementOptionFieldUpdate($this->db, $this->pfx, $elType, $tableName, $checkOption, $d);
             }
-            CatalogDbQuery::ElementOptionUpdate($this->db, $this->pfx, $optionid, $d);
+            CatalogQuery::ElementOptionUpdate($this->db, $this->pfx, $optionid, $d);
 
             if ($checkOption->type != $d->tp &&
                 ($checkOption->type == Catalog::TP_CURRENCY || $checkOption->type == Catalog::TP_DOUBLE) &&
                 ($d->tp == Catalog::TP_CURRENCY || $d->tp == Catalog::TP_DOUBLE)
             ){ // попытка изменить тип поля
                 // пока можно менять DOUBLE <=> CURRENCY
-                CatalogDbQuery::ElementOptionTypeUpdate($this->db, $this->pfx, $optionid, $d);
+                CatalogQuery::ElementOptionTypeUpdate($this->db, $this->pfx, $optionid, $d);
             }
         }
         return $optionid;
@@ -1635,9 +1633,9 @@ abstract class CatalogApp extends AbricosApplication {
             return null;
         }
 
-        CatalogDbQuery::ElementOptionRemove($this->db, $this->pfx, $optionid);
+        CatalogQuery::ElementOptionRemove($this->db, $this->pfx, $optionid);
 
-        CatalogDbQuery::ElementOptionFieldRemove($this->db, $this->pfx, $elType, $option);
+        CatalogQuery::ElementOptionFieldRemove($this->db, $this->pfx, $elType, $option);
     }
 
     public function ElementOptionRemoveToAJAX($elTypeId, $optionid){
@@ -1671,9 +1669,9 @@ abstract class CatalogApp extends AbricosApplication {
         $value = $utmf->Parser($value);
 
         if ($valueid == 0){
-            $valueid = CatalogDbQuery::OptionTableValueAppend($this->db, $this->pfx, $elType->name, $option->name, $value);
+            $valueid = CatalogQuery::OptionTableValueAppend($this->db, $this->pfx, $elType->name, $option->name, $value);
         } else {
-            CatalogDbQuery::OptionTableValueUpdate($this->db, $this->pfx, $elType->name, $option->name, $valueid, $value);
+            CatalogQuery::OptionTableValueUpdate($this->db, $this->pfx, $elType->name, $option->name, $valueid, $value);
         }
 
         return $valueid;
@@ -1690,7 +1688,7 @@ abstract class CatalogApp extends AbricosApplication {
         $elType = $elTypeList->Get($eltypeid);
         $option = $elType->options->Get($optionid);
 
-        $rtbs = CatalogDbQuery::OptionTableValueList($this->db, $this->pfx, $elType->name, $option->name);
+        $rtbs = CatalogQuery::OptionTableValueList($this->db, $this->pfx, $elType->name, $option->name);
         $option->values = $this->ToArrayId($rtbs);
 
         $ret = new stdClass();
@@ -1721,9 +1719,9 @@ abstract class CatalogApp extends AbricosApplication {
             return null;
         }
 
-        CatalogDbQuery::OptionTableValueRemove($this->db, $this->pfx, $elType->name, $option->name, $valueid);
+        CatalogQuery::OptionTableValueRemove($this->db, $this->pfx, $elType->name, $option->name, $valueid);
 
-        $rtbs = CatalogDbQuery::OptionTableValueList($this->db, $this->pfx, $elType->name, $option->name);
+        $rtbs = CatalogQuery::OptionTableValueList($this->db, $this->pfx, $elType->name, $option->name);
         $option->values = $this->ToArrayId($rtbs);
 
         $ret = new stdClass();
@@ -1763,7 +1761,7 @@ abstract class CatalogApp extends AbricosApplication {
 
         $eFValue = $this->SearchOptionCheck($eFField, $eFValue);
 
-        $rows = CatalogDbQuery::SearchAutoComplete($this->db, $this->pfx, $query, $eFField, $eFValue);
+        $rows = CatalogQuery::SearchAutoComplete($this->db, $this->pfx, $query, $eFField, $eFValue);
         while (($row = $this->db->fetch_array($rows))){
             $ret[] = $row['tl'];
         }
@@ -1778,7 +1776,7 @@ abstract class CatalogApp extends AbricosApplication {
 
         $eFValue = $this->SearchOptionCheck($eFField, $eFValue);
 
-        $rows = CatalogDbQuery::Search($this->db, $this->pfx, $query, $eFField, $eFValue);
+        $rows = CatalogQuery::Search($this->db, $this->pfx, $query, $eFField, $eFValue);
         while (($row = $this->db->fetch_array($rows))){
             $ret[] = $row;
         }
@@ -1812,7 +1810,7 @@ abstract class CatalogApp extends AbricosApplication {
             $uids[] = $data->userid;
         }
 
-        $rows = CatalogDbQuery::UserList($this->db, $uids);
+        $rows = CatalogQuery::UserList($this->db, $uids);
         while (($d = $this->db->fetch_array($rows))){
             $user = new CatalogUser($d);
             $users->Add($user);
@@ -1862,7 +1860,7 @@ abstract class CatalogApp extends AbricosApplication {
             $elids[] = $data->id;
         }
 
-        $rows = CatalogDbQuery::ElementOptionFileList($this->db, $this->pfx, $elids);
+        $rows = CatalogQuery::ElementOptionFileList($this->db, $this->pfx, $elids);
         while (($d = $this->db->fetch_array($rows))){
             $file = new CatalogFile($d);
             $files->Add($file);
@@ -1893,7 +1891,7 @@ abstract class CatalogApp extends AbricosApplication {
         }
 
         $list = new CatalogStatisticElementList();
-        $rows = CatalogDbQuery::StatisticElementList($this->db, $this->pfx);
+        $rows = CatalogQuery::StatisticElementList($this->db, $this->pfx);
         $i = 0;
         while (($d = $this->db->fetch_array($rows))){
             $d['id'] = $i + 1;
@@ -1937,7 +1935,7 @@ abstract class CatalogApp extends AbricosApplication {
 
         $list = new CatalogCurrencyList();
 
-        $rows = CatalogDbQuery::CurrencyList($this->db, $this->pfx);
+        $rows = CatalogQuery::CurrencyList($this->db, $this->pfx);
         while (($d = $this->db->fetch_array($rows))){
             $list->Add(new CatalogCurrency($d));
         }
@@ -1969,9 +1967,9 @@ abstract class CatalogApp extends AbricosApplication {
         $d->ord = 0;
 
         if ($currencyId == 0){
-            $currencyId = CatalogDbQuery::CurrencyAppend($this->db, $this->pfx, $d);
+            $currencyId = CatalogQuery::CurrencyAppend($this->db, $this->pfx, $d);
         } else {
-            CatalogDbQuery::CurrencyUpdate($this->db, $this->pfx, $d);
+            CatalogQuery::CurrencyUpdate($this->db, $this->pfx, $d);
         }
 
         return $currencyId;
@@ -1988,7 +1986,7 @@ abstract class CatalogApp extends AbricosApplication {
             return null;
         }
 
-        CatalogDbQuery::CurrencyRemove($this->db, $this->pfx, $currencyId);
+        CatalogQuery::CurrencyRemove($this->db, $this->pfx, $currencyId);
     }
 
     public function CurrencyRemoveToAJAX($currencyId){
@@ -2028,8 +2026,6 @@ abstract class CatalogApp extends AbricosApplication {
         $this->_cacheCurrencyDefault = $list->GetByIndex(0);
         return $this->_cacheCurrencyDefault;
     }
-
 }
-
 
 ?>

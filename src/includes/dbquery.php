@@ -8,7 +8,7 @@
  */
 
 /**
- * Class CatalogDbQuery
+ * Class CatalogQuery
  */
 class CatalogQuery {
 
@@ -20,28 +20,33 @@ class CatalogQuery {
         return $db->query_read($sql);
     }
 
-    public static function ModuleManagerUpdate(Ab_Database $db, $name, $version){
+    public static function ModuleManagerUpdate(CatalogApp $app, $version){
+        $db = $app->db;
+        $name = $app->manager->module->name;
+
         $sql = "
 			UPDATE ".$db->prefix."ctg_module
-			SET version='".$version."'
+			SET version='".bkstr($version)."'
 			WHERE name='".bkstr($name)."'
 		";
         $db->query_write($sql);
     }
 
-    public static function ModuleManagerAppend(Ab_Database $db, Ab_Module $modman){
+    public static function ModuleManagerAppend(CatalogApp $app){
         $sql = "
-			INSERT INTO ".$db->prefix."ctg_module
+			INSERT INTO ".$app->db->prefix."ctg_module
 			(name, dbprefix, version) VALUES (
-				'".$modman->name."',
-				'".$modman->catinfo['dbprefix']."',
+				'".bkstr($app->manager->module->name)."',
+				'".$app->Config()->dbPrefix."',
 				'0.0.0'
 			)
 		";
-        $db->query_write($sql);
+        $app->db->query_write($sql);
     }
 
-    public static function ModuleManagerUpdateLanguage(Ab_Database $db, $name, $version){
+    public static function ModuleManagerUpdateLanguage(CatalogApp $app, $version){
+        $db = $app->db;
+        $name = $app->manager->module->name;
         $findCol = false;
         $lngId = 'language_'.Abricos::$LNG;
         $sql = "SHOW COLUMNS FROM ".$db->prefix."ctg_module";
@@ -750,7 +755,7 @@ class CatalogQuery {
                 case Catalog::TP_ELDEPENDS:
                     $cfg = new CatalogElementListConfig();
                     $cfg->elids = explode(",", $val);
-                    $rows = CatalogDbQuery::ElementList($db, $pfx, $userid, $isAdmin, $cfg);
+                    $rows = CatalogQuery::ElementList($db, $pfx, $userid, $isAdmin, $cfg);
                     $aIds = array();
                     while (($d = $db->fetch_array($rows))){
                         $aIds[] = $d['id'];
@@ -760,7 +765,7 @@ class CatalogQuery {
                 case Catalog::TP_ELDEPENDSNAME:
                     $cfg = new CatalogElementListConfig();
                     $cfg->elnames = explode(",", $val);
-                    $rows = CatalogDbQuery::ElementList($db, $pfx, $userid, $isAdmin, $cfg);
+                    $rows = CatalogQuery::ElementList($db, $pfx, $userid, $isAdmin, $cfg);
                     $aNames = array();
                     while (($d = $db->fetch_array($rows))){
                         $aNames[] = $d['nm'];
@@ -768,7 +773,7 @@ class CatalogQuery {
                     $val = "'".implode(",", $aNames)."'";
                     break;
                 case Catalog::TP_FILES:
-                    $aFiles = CatalogDbQuery::ElementDetailOptionFilesUpdate($db, $pfx, $elid, $option, $val);
+                    $aFiles = CatalogQuery::ElementDetailOptionFilesUpdate($db, $pfx, $elid, $option, $val);
 
                     $val = "'".implode(",", $aFiles)."'";
                     break;
@@ -961,7 +966,7 @@ class CatalogQuery {
             return;
         }
 
-        $tableName = CatalogDbQuery::ElementTypeTableName($pfx, $elType->name);
+        $tableName = CatalogQuery::ElementTypeTableName($pfx, $elType->name);
         $sql = "
 			ALTER TABLE ".$tableName." DROP fld_".$option->name."
 		";
@@ -1198,7 +1203,7 @@ class CatalogQuery {
 				fotoid as id, 
 				fileid as fh
 			FROM ".$pfx."foto
-			WHERE elementid=0 AND dateline<".(TIMENOW - CatalogDbQuery::FILECLEARTIME)."
+			WHERE elementid=0 AND dateline<".(TIMENOW - CatalogQuery::FILECLEARTIME)."
 		";
         return $db->query_read($sql);
     }
@@ -1206,7 +1211,7 @@ class CatalogQuery {
     public static function FotoFreeListClear(Ab_Database $db, $pfx){
         $sql = "
 			DELETE FROM ".$pfx."foto
-			WHERE elementid=0 AND dateline<".(TIMENOW - CatalogDbQuery::FILECLEARTIME)."
+			WHERE elementid=0 AND dateline<".(TIMENOW - CatalogQuery::FILECLEARTIME)."
 		";
         return $db->query_read($sql);
     }
@@ -1230,7 +1235,7 @@ class CatalogQuery {
 				fileid as id,
 				filehash as fh
 			FROM ".$pfx."file
-			WHERE elementid=0 AND dateline<".(TIMENOW - CatalogDbQuery::FILECLEARTIME)."
+			WHERE elementid=0 AND dateline<".(TIMENOW - CatalogQuery::FILECLEARTIME)."
 		";
         return $db->query_read($sql);
     }
@@ -1238,7 +1243,7 @@ class CatalogQuery {
     public static function OptionFileFreeListClear(Ab_Database $db, $pfx){
         $sql = "
 			DELETE FROM ".$pfx."file
-			WHERE elementid=0 AND dateline<".(TIMENOW - CatalogDbQuery::FILECLEARTIME)."
+			WHERE elementid=0 AND dateline<".(TIMENOW - CatalogQuery::FILECLEARTIME)."
 		";
         return $db->query_read($sql);
     }
@@ -1432,7 +1437,7 @@ class CatalogQuery {
             return null;
         }
 
-        $urt = CatalogDbQuery::UserRatingSQLExt($db);
+        $urt = CatalogQuery::UserRatingSQLExt($db);
 
         $aWh = array();
         foreach ($uids as $uid){
