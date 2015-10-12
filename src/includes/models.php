@@ -230,9 +230,9 @@ class CatalogElementTypeList extends AbricosModelList {
  * @property int $groupid
  * @property int $order
  */
-class CatalogElementOption extends AbricosItem {
+class CatalogElementOption extends AbricosModel {
     protected $_structModule = 'catalog';
-    protected $_structName = 'elementOption';
+    protected $_structName = 'ElementOption';
 
     public static function DataFix(CatalogElementOption $option){
         switch ($option->type){
@@ -285,24 +285,12 @@ class CatalogElementOptionList extends AbricosModelList {
         $cnt = $this->Count();
         for ($i = 0; $i < $cnt; $i++){
             $item = $this->GetByIndex($i);
-            if ($name == $item->name){
+            if ($name === $item->name){
                 return $item;
             }
         }
         return null;
     }
-
-    /*
-    public function ToAJAX(){
-        $man = func_get_arg(0);
-
-        $ret = array();
-        for ($i = 0; $i < $this->Count(); $i++){
-            $ret[] = $this->GetByIndex($i)->ToAJAX($man);
-        }
-        return $ret;
-    }
-    /**/
 }
 
 

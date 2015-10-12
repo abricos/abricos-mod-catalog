@@ -256,7 +256,7 @@ class old_CatalogElementOption extends CatalogItem {
 }
 
 
-class CatalogElementOptionList extends AbricosModelList {
+class old_CatalogElementOptionList extends AbricosModelList {
 
     public function __construct(){
         parent::__construct();

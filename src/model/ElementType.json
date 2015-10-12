@@ -22,7 +22,8 @@
       "json": "nm"
     },
     "options": {
-      "type": "modelList:ElementOptionList"
+      "type": "modelList:ElementOptionList",
+      "notNULL": true
     }
   }
 }

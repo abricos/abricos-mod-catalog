@@ -1164,8 +1164,6 @@ abstract class CatalogApp extends AbricosApplication {
             return 403;
         }
 
-        print_r($d);
-
         /** @var CatalogElementType $elType */
         $elType = $this->models->InstanceClass('ElementType', $d);
         $elType->name = strtolower(translateruen($elType->name));
@@ -1194,8 +1192,6 @@ abstract class CatalogApp extends AbricosApplication {
         $descript->Set($utm->Parser($descript->Get()));
 
         $elTypeList = $this->ElementTypeList();
-
-        print_r($elType->ToJSON());
 
         if ($elType->id === 0){
             $checkElType = $elTypeList->GetByName($elType->name);
@@ -1279,6 +1275,7 @@ abstract class CatalogApp extends AbricosApplication {
 
         /** @var CatalogElementTypeList $list */
         $list = $models->InstanceClass('ElementTypeList');
+        /** @var CatalogElementType $curType */
         $curType = $models->InstanceClass('ElementType', array(
             'id' => 0,
             'name' => ''
@@ -1477,7 +1474,7 @@ abstract class CatalogApp extends AbricosApplication {
      * @param integer $optionid идентификатор опции, если 0, то новая опция
      * @param mixed $d
      */
-    public function ElementOptionSave($optionid, $d){
+    public function ElementOptionSave($d){
         if (!$this->IsAdminRole()){
             return 403;
         }
@@ -1510,15 +1507,13 @@ abstract class CatalogApp extends AbricosApplication {
 
         CatalogElementOption::DataFix($option);
 
-        $tableName = $this->ElementTypeTableName($elType->name);
-
         if ($option->id === 0){
-            $checkOption = $elType->options->GetByName($d->nm);
-            if (!empty($checkOption)){ // такая опция уже есть
-                return null; // нельзя добавить опции с одинаковым именем
+            $checkOption = $elType->options->GetByName($option->name);
+            if (!empty($checkOption)){
+                return 400;
             }
             $optionid = CatalogQuery::ElementOptionAppend($this, $option);
-            CatalogQuery::ElementOptionFieldCreate($this->db, $this->pfx, $elType, $tableName, $d);
+            CatalogQuery::ElementOptionFieldCreate($this, $elType, $option);
         } else {
             $checkOption = $elType->options->Get($optionid);
             if (empty($checkOption)){
@@ -1542,7 +1537,10 @@ abstract class CatalogApp extends AbricosApplication {
                 CatalogQuery::ElementOptionTypeUpdate($this->db, $this->pfx, $optionid, $d);
             }
         }
-        return $optionid;
+
+        $ret = new stdClass();
+        $ret->optionid = $optionid;
+        return $ret;
     }
 
     public function ElementOptionSaveToAJAX($optionid, $d){

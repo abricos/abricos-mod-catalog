@@ -25,11 +25,11 @@
       "json": "nm"
     },
     "title": {
-      "type": "multilang",
+      "type": "multiLang",
       "json": "tl"
     },
     "descript": {
-      "type": "multilang",
+      "type": "multiLang",
       "json": "dsc"
     },
     "currencyid": {
