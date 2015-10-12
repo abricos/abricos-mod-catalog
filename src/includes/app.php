@@ -165,7 +165,7 @@ abstract class CatalogApp extends AbricosApplication {
         return false;
     }
 
-    private static $_ownerAppList = nul;
+    private static $_ownerAppList = null;
 
     private static function OwnerAppList($isClear = false){
         if ($isClear){
@@ -1164,33 +1164,38 @@ abstract class CatalogApp extends AbricosApplication {
             return 403;
         }
 
+        print_r($d);
+
         /** @var CatalogElementType $elType */
         $elType = $this->models->InstanceClass('ElementType', $d);
         $elType->name = strtolower(translateruen($elType->name));
 
-        $utm = Abricos::TextParser();
         $utmf = Abricos::TextParser(true);
 
         $title = $elType->title;
         $title->Set($utmf->Parser($title->Get()));
         $sTitle = $title->Get();
 
+        if ($sTitle === '' || $elType->name === ''){
+            return 400;
+        }
+
         $titles = $elType->titles;
         $sTitles = $titles->Get();
         if (empty($sTitles)){
-            $titles->Set($title->Get());
+            $titles->Set($sTitle);
         } else {
-            $titles->Set($utmf->Parser($titles->Get()));
+            $titles->Set($utmf->Parser($sTitles));
         }
+
+        $utm = Abricos::TextParser();
 
         $descript = $elType->descript;
         $descript->Set($utm->Parser($descript->Get()));
 
         $elTypeList = $this->ElementTypeList();
 
-        if (empty($sTitle) || empty($elType->name)){
-            return 400;
-        }
+        print_r($elType->ToJSON());
 
         if ($elType->id === 0){
             $checkElType = $elTypeList->GetByName($elType->name);
@@ -1219,7 +1224,9 @@ abstract class CatalogApp extends AbricosApplication {
             CatalogQuery::ElementTypeUpdate($this->db, $this->pfx, $elTypeId, $d);
         }
 
-        return $elTypeId;
+        $ret = new stdClass();
+        $ret->elTypeId = $elTypeId;
+        return $ret;
     }
 
     public function ElementTypeRemove($elTypeId){
@@ -1486,7 +1493,7 @@ abstract class CatalogApp extends AbricosApplication {
         $option->name = strtolower(translateruen($option->name));
 
         $sTitle = $title->Get();
-        if (empty($sTitle) || empty($option->name)){
+        if ($sTitle === '' || $option->name === ''){
             return 400;
         }
 
