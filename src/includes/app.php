@@ -355,10 +355,17 @@ abstract class CatalogApp extends AbricosApplication {
             return $this->_config;
         }
 
-        $this->_config = $this->models->InstanceClass('Config');
+        /** @var CatalogConfig $config */
+        $config = $this->InstanceClass('Config');
+        $this->Configure($config);
 
-        return $this->_config;
+        return $this->_config = $config;
     }
+
+    /**
+     * @param CatalogConfig $config
+     */
+    protected abstract function Configure($config);
 
     /* * * * * * * * * OLD FUNCTION TODO: REMOVE * * * * * * */
 

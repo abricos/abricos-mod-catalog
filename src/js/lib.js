@@ -21,9 +21,12 @@ Component.entryPoint = function(NS){
             ElementList: {value: NS.ElementList},
             ElementType: {value: NS.ElementType},
             ElementTypeList: {value: NS.ElementTypeList},
+            ElementOption: {value: NS.ElementOption},
+            ElementOptionList: {value: NS.ElementOptionList},
         },
         REQS: {
             config: {
+                attach: 'elementTypeList',
                 attribute: true,
                 type: 'model:Config',
             },
@@ -36,6 +39,7 @@ Component.entryPoint = function(NS){
                 type: 'modelList:ElementTypeList',
             },
             elementList: {
+                attach: 'elementTypeList',
                 args: ['config'],
                 attribute: false,
                 type: 'modelList:ElementList'
@@ -67,7 +71,7 @@ Component.entryPoint = function(NS){
             'language': null,
             'elementNameChange': false,
             'elementNameUnique': false,
-            'elementCreateBaseTypeDisable': false,
+            'elementBaseTypeDisable': false,
             'versionControl': false
         }, cfg || {});
 

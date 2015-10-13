@@ -10,6 +10,11 @@
       "dbField": "catid",
       "json": "catid"
     },
+    "elTypeId": {
+      "type": "int",
+      "dbField": "tpid",
+      "json": "tpid"
+    },
     "userid": {
       "type": "int",
       "dbField": "uid",

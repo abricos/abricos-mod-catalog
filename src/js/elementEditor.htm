@@ -1,286 +1,46 @@
 <!--{widget}-->
-<div id="{i#id}" class="easyeditor">
-	<div id="{i#loading}">
-		<div id="{i#loading}" class="loading">
-			<img src="/images/loading.gif" />
-		</div>
-	</div>
-	<div id="{i#view}" class="editform" style="display: none">
-		<div id="{i#newflagtl}" class="newflagtl" style="display: none">Новый</div>
-	
-		<div class="btnsc">
-			<span id="{i#btnscc}">
-				<a id="{i#bmoderc}" href="#" class="habtn" style="display: none" title="Включить элемент в каталог">Разрешить</a>
-				<a id="{i#bcreatec}" href="#" class="habtn" style="display: none">Сохранить</a>
-				<a id="{i#bsavec}" href="#" class="habtn" style="display: none">Сохранить изменения</a>
-				<a id="{i#bsavenewvc}" href="#" class="habtn" style="display: none">Сохранить как новую версию</a>
-				<a id="{i#bcancelc}" href="#" class="habtn">Отмена</a>
-			</span>
-			<span id="{i#btnpcc}" style="display: none">
-				<img src="/images/loading.gif" /> Сохранение...
-			</span>
-			<div class="clear"></div>
-		</div>
-	
-		{v#typelist}
-		
-		<div class="r">
-			<dl>
-				<dt>Название</dt>
-				<dd>
-					<input id="{i#tl}" class="inp" type="text" placeholder="Введите название" onfocus="this.select();" />
-				</dd>
-			</dl>
-			<dl id="{i#fnm}" style="display: none">
-				<dt>Имя</dt>
-				<dd>
-					<div class="elnmline">
-						<input id="{i#nm}" class="inp" type="text" placeholder="Введите имя" onfocus="this.select();" />
-						<img id="{i#uniquenameloading}" src="/images/loading.gif" class="uniquenameloading" style="display: none" />
-					</div>
-				</dd>
-			</dl>
-			<dl id="{i#fcatalog}">
-				<dt>Размещение</dt>
-				<dd>
-					<div id="{i#catalog}"></div>
-				</dd>
-			</dl>
-		</div>
-		
-		<div class="r" id="{i#fotos}"></div>
-		
-		<div class="rtl"></div>
-		
-		<div class="r mext">
-			<input id="{i#nm}" class="inp fldtl" type="text" />
-		</div>
-		
-		<div id="{i#more}">
-		
-			<div id="{i#optlist}"></div>
-			
-			<dl id="{i#ford}" style="display: none">
-				<dt>Сортировка</dt>
-				<dd>
-					<input id="{i#ord}" type="text" class="inp"/>
-					<div class="dsc">Чем больше значение, тем выше позиция</div>
-				</dd>
-			</dl>
-			
-			<div id="{i#versioncontrol}" style="display: none">
-				<div class="rtl">Контроль версий</div>
-				
-				<dl>
-					<dt>Список изменений</dt>
-					<dd>
-						<textarea id="{i#chlg}" class="inp"></textarea>
-					</dd>
-				</dl>
-			</div>
-		
-			<div id="{i#seo}" style="display: none">
-				<div class="rtl">Мета-теги</div>
-				
-				<dl>
-					<dt>Тег Title</dt>
-					<dd>
-						<input id="{i#mtl}" type="text" class="inp" onfocus="this.select();"/>
-					</dd>
-				</dl>
-				<dl>
-					<dt>Тег Keywords</dt>
-					<dd>
-						<input id="{i#mks}" type="text" class="inp" onfocus="this.select();"/>
-					</dd>
-				</dl>
-				<dl>
-					<dt>Тег Description</dt>
-					<dd>
-						<input id="{i#mdsc}" type="text" class="inp" onfocus="this.select();"/>
-					</dd>
-				</dl>
-			</div>
-		</div>
-		
-		<div class="btns right r">
-			<span id="{i#btnsc}">
-				<a id="{i#bmoder}" href="#" class="habtn" style="display: none" title="Включить элемент в каталог">Разрешить</a>
-				<a id="{i#bcreate}" href="#" class="habtn" style="display: none">Сохранить</a>
-				<a id="{i#bsave}" href="#" class="habtn" style="display: none">Сохранить изменения</a>
-				<a id="{i#bsavenewv}" href="#" class="habtn" style="display: none">Сохранить как новую версию</a>
-				<a id="{i#bcancel}" href="#" class="habtn">Отмена</a>
-			</span>
-			<span id="{i#btnpc}" style="display: none">
-				<img src="/images/loading.gif" /> Сохранение...
-			</span>
-			<div class="clear"></div>
-		</div>
-	</div>
-</div>
+<div class="panel panel-default elementEditor">
+    <div class="panel-heading">
 
-<!--{tpwidget}-->
-<div class="r">
-	<dl>
-		<dt>Тип</dt>
-		<dd>
-			{v#tplist}
-		</dd>
-	</dl>
-</div>
+        <div class="panel-title pull-left">
+            <span data-isedit="hide">Создание элемента</span>
+            <span data-isedit="show">Редактор элемента</span>
 
-<!--{tplist}-->
-<select id="{i#id}" class="inp">{v#rows}</select>
+            <span data-wait="show">
+                <img src="/images/loading.gif"/> Загрузка...
+            </span>
+        </div>
+        <div class="clearfix"></div>
+    </div>
 
-<!--{tprow}-->
-<option value="{v#id}">{v#tl}</option>
+    <div class="panel-body">
+        <div class="form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Название</label>
 
-<!--{optboolean}-->
-<div id="{i#id}" class="r">
-    <dl>
-        <dt>{v#tl}</dt>
-        <dd>
-            <input id="{i#val}" type="checkbox" />
-        </dd>
-    </dl>
-</div>
+                <div class="col-sm-10">
+                    <input id="{i#title}" class="form-control"
+                           type="text" data-wait="disable">
+                </div>
+            </div>
+        </div>
 
-<!--{optnumber}-->
-<div id="{i#id}" class="r">
-	<dl>
-		<dt>{v#tl}</dt>
-		<dd>
-			<input id="{i#val}" type="text" class="inp" onfocus="this.select();" />
-		</dd>
-	</dl>
-</div>
+        <div id="{i#options}" class="form-horizontal">
 
-<!--{optstring}-->
-<div id="{i#id}" class="r">
-	<dl>
-		<dt>{v#tl}</dt>
-		<dd>
-			<input id="{i#val}" type="text" class="inp" onfocus="this.select();"/>
-		</dd>
-	</dl>
-</div>
+        </div>
+    </div>
 
-<!--{optdouble}-->
-<div id="{i#id}" class="r">
-    <dl>
-        <dt>{v#tl}</dt>
-        <dd>
-            <input id="{i#val}" type="text" class="inp" onfocus="this.select();"/>
-        </dd>
-    </dl>
-</div>
+    <div class="panel-footer">
+        <div class="pull-right btn-toolbar">
+            <button data-click="save" class="btn btn-sm btn-default" data-wait="disable" type="button">
+                <span data-isedit="hide">Создать</span>
+                <span data-isedit="show">Сохранить</span>
+            </button>
 
-<!--{optcurrency}-->
-<div id="{i#id}" class="r">
-    <dl>
-        <dt>{v#tl}</dt>
-        <dd>
-            <input id="{i#val}" type="text" class="inp" onfocus="this.select();"/>
-        </dd>
-    </dl>
-</div>
-
-<!--{opttable}-->
-<div id="{i#id}" class="r opttable">
-	<dl>
-		<dt>{v#tl}</dt>
-		<dd>
-			<div id="{i#view}">
-				<div id="{i#table}" class="fldtable"></div>
-				
-				<div id="{i#menu}" class="boxbutton">
-					<div id="{i#badd}" class="b" title="Добавить новое значение">
-						<div id="{i#baddc}" class="badd bc"></div>
-					</div>
-					<div id="{i#bedit}" class="b" title="Редактировать">
-						<div id="{i#beditc}" class="bedit bc"></div>
-					</div>
-					<div id="{i#bremove}" class="b" title="Удалить">
-						<div id="{i#bremovec}" class="bremove bc"></div>
-					</div>
-				</div>
-				
-				<div class="clear"></div>
-			</div>
-			<div id="{i#editor}" style="display: none;">
-			
-				<input id="{i#input}" type="text" class="inp" onfocus="this.select();"/>
-				
-				<span id="{i#edbtns}">
-					<a id="{i#bedadd}" href="#" class="habtn">Добавить</a>
-					<a id="{i#bedsave}" href="#" class="habtn">Сохранить</a>
-					<a id="{i#bedcancel}" href="#" class="habtn">Отмена</a>
-				</span>
-				<span id="{i#process}" style="display: none">
-					<img src="/images/loading.gif" /> Сохранение...
-				</span>
-			</div>
-			<div id="{i#remove}" class="rempanel" style="display: none;">
-				Удалить «<span id="{i#remtl}" class="remtl"></span>»?
-				
-				<span id="{i#rembtns}">
-					<a id="{i#bremok}" href="#" class="habtn">Да</a>
-					<a id="{i#bremcancel}" href="#" class="habtn">Отмена</a>
-				</span>
-				
-				<span id="{i#remprocess}" style="display: none">
-					<img src="/images/loading.gif" /> Удаление...
-				</span>
-				
-			</div>
-		</dd>
-	</dl>
-</div>
-
-<!--{opttablelist}-->
-<select id="{i#id}" class="inp">{v#rows}</select>
-
-<!--{opttablerow}-->
-<option value="{v#id}">{v#tl}</option>
-
-<!--{opttext}-->
-<div id="{i#id}" class="r opttext visualeditor">
-	<dl>
-		<dt>{v#tl}</dt>
-		<dd>
-			<textarea id="{i#text}" class="fldtext" style="width: 650px; height: 200px;"></textarea>
-		</dd>
-	</dl>
-</div>
-
-<!--{opteldepends}-->
-<div id="{i#id}" class="r">
-	<dl>
-		<dt>{v#tl}</dt>
-		<dd>
-			<input id="{i#val}" type="text" class="inp" onfocus="this.select();"/>
-			<div class="dsc">Идентификаторы элементов каталога через запятую</div>
-		</dd>
-	</dl>
-</div>
-
-<!--{opteldependsname}-->
-<div id="{i#id}" class="r">
-	<dl>
-		<dt>{v#tl}</dt>
-		<dd>
-			<input id="{i#val}" type="text" class="inp" onfocus="this.select();"/>
-			<div class="dsc">Имена элементов каталога через запятую</div>
-		</dd>
-	</dl>
-</div>
-
-<!--{optfiles}-->
-<div id="{i#id}" class="r">
-	<dl>
-		<dt>{v#tl}</dt>
-		<dd>
-			<div id="{i#files}"></div>
-		</dd>
-	</dl>
+            <button data-click="cancel" class="btn btn-sm btn-default" data-wait="disable" type="button">
+                Отмена
+            </button>
+        </div>
+        <div class="clearfix"></div>
+    </div>
 </div>

@@ -7,19 +7,24 @@
     },
     "elementNameChange": {
       "type": "bool",
-      "default": false
+      "default": false,
+      "json": "enCh"
     },
     "elementNameUnique": {
       "type": "bool",
-      "default": false
+      "default": false,
+      "json": "enUn"
     },
-    "elementCreateBaseTypeDisable": {
+    "elementBaseTypeDisable": {
       "type": "bool",
-      "default": false
+      "default": false,
+      "rolefn": "IsAdminRole",
+      "json": "eBTDis"
     },
     "versionControl": {
       "type": "bool",
-      "default": false
+      "default": false,
+      "json": "vc"
     }
   }
 }
