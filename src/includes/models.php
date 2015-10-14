@@ -262,7 +262,7 @@ class CatalogElementTypeList extends AbricosModelList {
  * @property AbricosMultiLangValue $title Title
  * @property AbricosMultiLangValue $descript Description
  * @property int $currencyid
- * @property array $values
+ * @property object $values
  * @property int $groupid
  * @property int $order
  */
@@ -326,7 +326,7 @@ class CatalogElementOption extends AbricosModel {
 
     public function FixElementValue($element){
         $name = $this->name;
-        $val = isset($element->values[$name]) ? $element->values[$name] : null;
+        $val = isset($element->values->$name) ? $element->values->$name : null;
 
         switch ($this->type){
             case CatalogType::TP_BOOLEAN:
@@ -382,7 +382,7 @@ class CatalogElementOption extends AbricosModel {
                 break;
         }
 
-        $element->values[$name] = $val;
+        $element->values->$name = $val;
         return $val;
     }
 
@@ -391,7 +391,7 @@ class CatalogElementOption extends AbricosModel {
      */
     public function GetElementValue($element){
         $name = $this->name;
-        return isset($element->values[$name]) ? $element->values[$name] : null;
+        return isset($element->values->$name) ? $element->values->$name : null;
     }
 }
 

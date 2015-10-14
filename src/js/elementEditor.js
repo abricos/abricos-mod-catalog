@@ -112,14 +112,16 @@ Component.entryPoint = function(NS){
         },
         toJSON: function(){
             var ws = this._optionsWidgets,
+                element = this.get('element'),
                 values = {};
 
             for (var i = 0; i < ws.length; i++){
                 values = Y.merge(values, ws[i].toJSON());
             }
             return {
-                id: this.get('element').get('id'),
+                id: element.get('id'),
                 elTypeId: this._typeSelectWidget.get('selected'),
+                catalogid: element.get('catalogid'),
                 values: values
             };
         },
@@ -178,7 +180,11 @@ Component.entryPoint = function(NS){
 
     OWS[NS.FTYPE.STRING] = Y.Base.create('optionWidget', SYS.AppWidget, [
         OWS.OptionWidgetExt
-    ], {}, {
+    ], {
+        getValue: function(){
+            return this.template.getValue('value');
+        }
+    }, {
         ATTRS: {
             templateBlockName: {value: 'optionString'},
         }

@@ -68,15 +68,15 @@ class CatalogElement extends AbricosModel {
         return "";
     }
 
-    public function GetValue($optionName){
-        if (!isset($this->values[$optionName])){
+    public function GetValue($name){
+        if (!isset($this->values->$name)){
             return;
         }
-        return $this->values[$optionName];
+        return $this->values->$name;
     }
 
-    public function SetValue($optionName, $value){
-        $this->values[$optionName] = $value;
+    public function SetValue($name, $value){
+        $this->values->$name = $value;
     }
 }
 

@@ -748,7 +748,7 @@ class CatalogQuery {
                     break;
                 case CatalogType::TP_STRING:
                 case CatalogType::TP_TEXT:
-                    $val = "''".bkstr($val)."''";
+                    $val = "'".bkstr($val)."'";
                     break;
                 default:
                     continue;
@@ -788,7 +788,7 @@ class CatalogQuery {
         foreach ($sqlData as $elTypeId => $d){
             $elType = $elTypeList->Get($elTypeId);
 
-            $tableName = CatalogElementOption::GetTableName($app, $elType);
+            $tableName = CatalogElementType::GetTableName($app, $elType);
 
             $sql = "
                 INSERT INTO ".$tableName."

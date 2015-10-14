@@ -32,7 +32,7 @@
       "json": "nm"
     },
     "values": {
-      "type": "array"
+      "type": "object"
     },
     "foto": {
       "type": "string"

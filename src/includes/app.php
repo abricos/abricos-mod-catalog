@@ -346,7 +346,7 @@ abstract class CatalogApp extends AbricosApplication {
         $this->ElementTitleComposite($element);
         $config = $this->Config();
         if ($d->id === 0){
-            if ($config->elementBaseTypeDisable){
+            if ($config->elementBaseTypeDisable && $elType->id === 0){
                 return 400;
             }
 
