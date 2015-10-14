@@ -55,20 +55,6 @@ Component.entryPoint = function(NS){
     NS.Item = SYS.Item;
     NS.ItemList = SYS.ItemList;
 
-    NS.FTYPE = {
-        'BOOLEAN': 0,
-        'NUMBER': 1,
-        'DOUBLE': 2,
-        'STRING': 3,
-        // 'LIST':		4,
-        'TABLE': 5,
-        'TEXT': 7,
-        'ELDEPENDS': 9,
-        'ELDEPENDSNAME': 10,
-        'FILES': 11,
-        'CURRENCY': 12
-    };
-
     var Dict = function(d){
         d = Y.merge({
             'tl': ''

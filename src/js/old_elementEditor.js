@@ -512,65 +512,10 @@ Component.entryPoint = function(NS){
             this.fotosWidget = null;
             this.wsOptions = [];
         },
-        buildTData: function(manager, element, cfg){
-            var sTypeList = "", TM = this._TM;
-            var tpList = manager.typeList;
-
-            if (tpList.count() > 1){
-                var lst = "";
-                tpList.foreach(function(tp){
-                    if (manager.cfg.elementBaseTypeDisable && tp.id == 0){
-                        return;
-                    }
-                    lst += TM.replace('tprow', {
-                        'id': tp.id, 'tl': tp.title
-                    });
-                });
-                sTypeList = TM.replace('tpwidget', {'tplist': TM.replace('tplist', {'rows': lst})});
-            }
-            return {'typelist': sTypeList};
-        },
-        destroy: function(){
-            if (YAHOO.util.DragDropMgr){
-                YAHOO.util.DragDropMgr.unlock();
-            }
-            ElementEditorWidget.superclass.destroy.call(this);
-        },
-        onLoad: function(manager, element){
-            var cfg = this.cfg, fel = cfg['fromElement'];
-            if (!L.isNull(fel)){
-                if (!L.isNull(fel.detail)){
-                    this._onLoadElement(fel.copy());
-                } else {
-                    var __self = this;
-                    manager.elementLoad(fel.id, function(fel){
-                        __self._onLoadElement(fel.copy());
-                    }, fel);
-                }
-            } else {
-                if (!L.isNull(element.detail)){
-                    this._onLoadElement(element);
-                } else {
-                    var __self = this;
-                    manager.elementLoad(element.id, function(element){
-                        __self._onLoadElement(element);
-                    }, element);
-                }
-            }
-            if (YAHOO.util.DragDropMgr){
-                YAHOO.util.DragDropMgr.lock();
-            }
-        },
         _onLoadElement: function(element){
             this.element = element;
 
             var man = this.manager;
-
-            if (element.id == 0){
-                this.elShow('bcreate,bcreatec,newflagtl');
-            } else {
-                this.elShow('bsave,bsavec');
-            }
 
             if (man.cfg['elementNameChange']){
                 this.elShow('fnm');
@@ -721,50 +666,6 @@ Component.entryPoint = function(NS){
                 ws[i].destroy();
             }
             this.wsOptions = [];
-        },
-        renderOptions: function(){
-            this._wsClear();
-            var ws = [], elList = this.gel('optlist');
-            var man = this.manager;
-
-            this.element.detail.foreach(function(option, value){
-                var div = document.createElement('div');
-                elList.appendChild(div);
-
-                switch (option.type) {
-                    case NS.FTYPE['BOOLEAN']:
-                        ws[ws.length] = new NS.ElementEditBooleanWidget(div, option, value);
-                        break;
-                    case NS.FTYPE['CURRENCY']:
-                        ws[ws.length] = new NS.ElementEditCurrencyWidget(div, option, value);
-                        break;
-                    case NS.FTYPE['NUMBER']:
-                        ws[ws.length] = new NS.ElementEditNumberWidget(div, option, value);
-                        break;
-                    case NS.FTYPE['STRING']:
-                        ws[ws.length] = new NS.ElementEditStringWidget(div, option, value);
-                        break;
-                    case NS.FTYPE['DOUBLE']:
-                        ws[ws.length] = new NS.ElementEditDoubleWidget(div, option, value);
-                        break;
-                    case NS.FTYPE['TABLE']:
-                        ws[ws.length] = new NS.ElementEditTableWidget(div, man, option, value);
-                        break;
-                    case NS.FTYPE['TEXT']:
-                        ws[ws.length] = new NS.ElementEditTextWidget(div, option, value);
-                        break;
-                    case NS.FTYPE['ELDEPENDS']:
-                        ws[ws.length] = new NS.ElementEditElDependsWidget(div, man, option, value);
-                        break;
-                    case NS.FTYPE['ELDEPENDSNAME']:
-                        ws[ws.length] = new NS.ElementEditElDependsNameWidget(div, man, option, value);
-                        break;
-                    case NS.FTYPE['FILES']:
-                        ws[ws.length] = new NS.ElementEditFilesWidget(div, man, option, value);
-                        break;
-                }
-            });
-            this.wsOptions = ws;
         },
         elementTypeChange: function(){
             var tpid = this.gel('tplist.id').value | 0;

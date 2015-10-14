@@ -41,6 +41,10 @@ Component.entryPoint = function(NS){
             }, this);
             tp.setHTML('id', lst);
             tp.setValue('id', this.get('selected'));
+
+            tp.one('id').on('change', function(){
+                this.set('selected', tp.getValue('id'));
+            }, this);
         }
     }, {
         ATTRS: {

@@ -9,6 +9,20 @@ Component.entryPoint = function(NS){
     var Y = Brick.YUI,
         SYS = Brick.mod.sys;
 
+    NS.FTYPE = {
+        BOOLEAN:        0,
+        NUMBER:         1,
+        DOUBLE:         2,
+        STRING:         3,
+        // 'LIST':		4,
+        TABLE:          5,
+        TEXT:           7,
+        ELDEPENDS:      9,
+        ELDEPENDSNAME:  10,
+        FILES:          11,
+        CURRENCY:       12
+    };
+
     NS.Config = Y.Base.create('config', SYS.AppModel, [], {
         structureName: 'Config'
     });

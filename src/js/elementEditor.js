@@ -15,6 +15,7 @@ Component.entryPoint = function(NS){
 
     NS.ElementEditorWidget = Y.Base.create('elementEditorWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
+            this._optionsWidgets = [];
             this.set('waiting', true);
             appInstance.config(function(err, result){
                 var elementid = this.get('elementid');
@@ -38,23 +39,23 @@ Component.entryPoint = function(NS){
                             elTypeId: elTypeId
                         });
                     this.set('element', element);
-                    this.renderEditor();
+                    this._renderEditor();
                 } else {
                     appInstance.element(elementid, function(err, result){
                         if (!err){
                             this.set('element', result.element);
                         }
-                        this.renderEditor();
+                        this._renderEditor();
                     }, this);
                 }
             }, this);
         },
         destructor: function(){
-            if (this.typeSelectWidget){
-                this.typeSelectWidget.destroy();
+            if (this._typeSelectWidget){
+                this._typeSelectWidget.destroy();
             }
         },
-        renderEditor: function(){
+        _renderEditor: function(){
             this.set('waiting', false);
 
             var appInstance = this.get('appInstance'),
@@ -65,19 +66,45 @@ Component.entryPoint = function(NS){
             if (!element){
                 return;
             }
-            var tp = this.template;
+            var tp = this.template,
+                elType = elementTypeList.getById(element.get('elTypeId'));
 
-            this.typeSelectWidget = new NS.ElementTypeSelectWidget({
+            this._typeSelectWidget = new NS.ElementTypeSelectWidget({
                 appInstance: appInstance,
                 srcNode: tp.one('typeSelect'),
-                selected: element.get('elTypeId')
+                selected: elType.get('id')
             });
+            this._typeSelectWidget.after('selectedChange', this._renderOptions, this);
+            this._renderOptions();
+        },
+        _cleanOptionWidgets: function(){
+            var ws = this._optionsWidgets;
+            for (var i = 0; i < ws.length; i++){
+                ws[i].destroy();
+            }
+            return this._optionsWidgets = [];
+        },
+        _renderOptions: function(){
+            var tp = this.template,
+                appInstance = this.get('appInstance'),
+                elementTypeList = appInstance.get('elementTypeList'),
+                elTypeId = this._typeSelectWidget.get('selected'),
+                elType = elementTypeList.getById(elTypeId),
+                element = this.get('element'),
+                ws = this._cleanOptionWidgets()
 
-            console.log(config.toJSON());
-            console.log(element.toJSON());
+            elType.get('options').each(function(option){
+                var type = option.get('type'),
+                    OptionWidget = OWS[type];
 
-            elementTypeList.each(function(elementType){
-
+                if (!OptionWidget){
+                    return;
+                }
+                ws[ws.length] = new OptionWidget({
+                    appInstance: appInstance,
+                    srcNode: tp.append('options', '<div></div>'),
+                    option: option
+                });
             }, this);
         }
     }, {
@@ -86,6 +113,38 @@ Component.entryPoint = function(NS){
             templateBlockName: {value: 'widget'},
             elementid: {value: 0},
             element: {}
+        }
+    });
+
+    var OWS = NS.ElementEditorWidget.OptionWidgets = {};
+
+    var OptionWidgetExt = function(){
+
+    };
+    OptionWidgetExt.NAME = 'optionWidget';
+    OptionWidgetExt.ATTRS = {
+        component: {value: COMPONENT},
+        option: {}
+    };
+    OptionWidgetExt.prototype = {
+        buildTData: function(){
+            var option = this.get('option');
+            return {
+                title: option.get('title').get()
+            };
+        },
+        onInitAppWidget: function(err, appInstance){
+            var tp = this.template,
+                option = this.get('option');
+        }
+    };
+    OWS.OptionWidgetExt = OptionWidgetExt;
+
+    OWS[NS.FTYPE.STRING] = Y.Base.create('optionWidget', SYS.AppWidget, [
+        OWS.OptionWidgetExt
+    ], {}, {
+        ATTRS: {
+            templateBlockName: {value: 'optionString'},
         }
     });
 };
