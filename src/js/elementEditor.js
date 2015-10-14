@@ -3,7 +3,7 @@ Component.requires = {
     mod: [
         {name: 'sys', files: ['editor.js']},
         {name: 'filemanager', files: ['attachment.js']},
-        {name: '{C#MODNAME}', files: ['fotoeditor.js', 'lib.js']}
+        {name: '{C#MODNAME}', files: ['typeList.js', 'fotoeditor.js', 'lib.js']}
     ]
 };
 Component.entryPoint = function(NS){
@@ -20,12 +20,22 @@ Component.entryPoint = function(NS){
                 var elementid = this.get('elementid');
                 if (elementid === 0){
 
-                    var config = result.config,
-                        elementTypeId = 0;
+                    var elementTypeList = appInstance.get('elementTypeList'),
+                        config = result.config,
+                        elTypeId = 0;
+
+                    if (config.get('elementBaseTypeDisable')){
+                        var elType = elementTypeList.item(1);
+                        if (!elType){
+                            throw 'ElementTypeList is empty';
+                        }
+                        elTypeId = elType.get('id');
+                    }
 
                     var Element = appInstance.get('Element'),
                         element = new Element({
-                            appInstance: appInstance
+                            appInstance: appInstance,
+                            elTypeId: elTypeId
                         });
                     this.set('element', element);
                     this.renderEditor();
@@ -40,7 +50,9 @@ Component.entryPoint = function(NS){
             }, this);
         },
         destructor: function(){
-
+            if (this.typeSelectWidget){
+                this.typeSelectWidget.destroy();
+            }
         },
         renderEditor: function(){
             this.set('waiting', false);
@@ -53,13 +65,19 @@ Component.entryPoint = function(NS){
             if (!element){
                 return;
             }
+            var tp = this.template;
+
+            this.typeSelectWidget = new NS.ElementTypeSelectWidget({
+                appInstance: appInstance,
+                srcNode: tp.one('typeSelect'),
+                selected: element.get('elTypeId')
+            });
 
             console.log(config.toJSON());
             console.log(element.toJSON());
 
-
             elementTypeList.each(function(elementType){
-                console.log(elementType.toJSON());
+
             }, this);
         }
     }, {
