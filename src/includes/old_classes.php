@@ -334,7 +334,7 @@ class old_CatalogElementOptionList extends AbricosModelList {
  * @property string $metaDescript
  *
  */
-class CatalogElement extends AbricosModel {
+class old_CatalogElement extends AbricosModel {
 
     protected $_structModule = 'catalog';
     protected $_structName = 'Element';

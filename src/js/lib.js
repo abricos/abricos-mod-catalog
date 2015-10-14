@@ -38,6 +38,9 @@ Component.entryPoint = function(NS){
                 attribute: true,
                 type: 'modelList:ElementTypeList',
             },
+            elementSave: {
+                args: ['elementData']
+            },
             elementList: {
                 attach: 'elementTypeList',
                 args: ['config'],

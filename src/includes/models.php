@@ -168,6 +168,8 @@ class CatalogElementType extends AbricosModel {
     protected $_structModule = 'catalog';
     protected $_structName = 'ElementType';
 
+    public $_cacheCompositeVars;
+
     public static function GetTableName(CatalogApp $app, CatalogElementType $elType){
         $name = $elType->name;
         if (empty($name)){
@@ -214,6 +216,39 @@ class CatalogElementTypeList extends AbricosModelList {
             }
         }
         return null;
+    }
+
+    private $_cacheOptions = array();
+
+    /**
+     * @param int $elTypeId
+     * @return CatalogElementOptionList
+     */
+    public function GetFullOptionList($elTypeId){
+        if (isset($this->_cacheOptions[$elTypeId])){
+            return $this->_cacheOptions[$elTypeId];
+        }
+
+        if ($elTypeId === 0){
+            return $this->_cacheOptions[$elTypeId] = $this->Get(0)->options;
+        }
+
+        /** @var CatalogElementOptionList $list */
+        $list = $this->app->InstanceClass('ElementOptionList');
+
+        $elType = $this->Get(0);
+        while ($elType){
+            $count = $elType->options->Count();
+            for ($i = 0; $i < $count; $i++){
+                $list->Add($elType->options->GetByIndex($i));
+            }
+
+            if ($elType->id === $elTypeId){
+                break;
+            }
+            $elType = $this->Get($elTypeId);
+        }
+        return $this->_cacheOptions[$elTypeId] = $list;
     }
 }
 
@@ -265,6 +300,98 @@ class CatalogElementOption extends AbricosModel {
     public static function GetTableName(CatalogApp $app, CatalogElementType $elType, CatalogElementOption $option){
         $tableName = CatalogElementType::GetTableName($app, $elType);
         return $tableName."_fld_".$option->name;
+    }
+
+    protected static $_utm;
+    protected static $_utmf;
+
+    /**
+     * @return Ab_UserText
+     */
+    protected static function GetTextParser($isFull){
+        if ($isFull){
+            if (!empty(CatalogElementOption::$_utmf)){
+                return CatalogElementOption::$_utmf;
+            }
+            CatalogElementOption::$_utmf = Abricos::TextParser(true);
+            return CatalogElementOption::$_utmf;
+        } else {
+            if (!empty(CatalogElementOption::$_utm)){
+                return CatalogElementOption::$_utm;
+            }
+            CatalogElementOption::$_utm = Abricos::TextParser();
+            return CatalogElementOption::$_utm;
+        }
+    }
+
+    public function FixElementValue($element){
+        $name = $this->name;
+        $val = isset($element->values[$name]) ? $element->values[$name] : null;
+
+        switch ($this->type){
+            case CatalogType::TP_BOOLEAN:
+                $val = empty($val) ? 0 : 1;
+                break;
+            case CatalogType::TP_NUMBER:
+                $val = bkint($val);
+                break;
+            case CatalogType::TP_DOUBLE:
+            case CatalogType::TP_CURRENCY:
+                $val = doubleval($val);
+                break;
+            case CatalogType::TP_STRING:
+                $val = CatalogElementOption::GetTextParser(true)->Parser($val);
+                break;
+            case CatalogType::TP_TEXT:
+                $val = CatalogElementOption::GetTextParser()->Parser($val);
+                break;
+            case CatalogType::TP_TABLE:
+                $val = bkint($val);
+                break;
+
+            // TODO: release
+            /*
+            case CatalogType::TP_ELDEPENDS:
+                $cfg = new CatalogElementListConfig();
+                $cfg->elids = explode(",", $val);
+                $rows = CatalogQuery::ElementList($db, $pfx, $userid, $isAdmin, $cfg);
+                $aIds = array();
+                while (($d = $db->fetch_array($rows))){
+                    $aIds[] = $d['id'];
+                }
+                $val = "'".implode(",", $aIds)."'";
+                break;
+            case CatalogType::TP_ELDEPENDSNAME:
+                $cfg = new CatalogElementListConfig();
+                $cfg->elnames = explode(",", $val);
+                $rows = CatalogQuery::ElementList($db, $pfx, $userid, $isAdmin, $cfg);
+                $aNames = array();
+                while (($d = $db->fetch_array($rows))){
+                    $aNames[] = $d['nm'];
+                }
+                $val = "'".implode(",", $aNames)."'";
+                break;
+            case CatalogType::TP_FILES:
+                $aFiles = CatalogQuery::ElementDetailOptionFilesUpdate($db, $pfx, $elid, $option, $val);
+
+                $val = "'".implode(",", $aFiles)."'";
+                break;
+            /**/
+            default:
+                $val = strval($val);
+                break;
+        }
+
+        $element->values[$name] = $val;
+        return $val;
+    }
+
+    /**
+     * @param CatalogElement $element
+     */
+    public function GetElementValue($element){
+        $name = $this->name;
+        return isset($element->values[$name]) ? $element->values[$name] : null;
     }
 }
 

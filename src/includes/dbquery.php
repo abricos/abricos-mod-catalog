@@ -620,24 +620,32 @@ class CatalogQuery {
         return $db->query_first($sql);
     }
 
-    public static function ElementAppend(Ab_Database $db, $pfx, $userid, $isOperator, $d){
+    /**
+     * @param CatalogApp $app
+     * @param CatalogElement $element
+     * @return mixed
+     */
+    public static function ElementAppend(CatalogApp $app, $element){
+        $db = $app->db;
+        $pfx = $app->GetDBPrefix();
+
         $sql = "
 			INSERT INTO ".$pfx."element
 			(catalogid, eltypeid, userid, title, name, metatitle, metakeys, metadesc, ord, 
 				version, prevelementid, changelog, ismoder, dateline) VALUES (
-				".bkint($d->catid).",
-				".bkint($d->tpid).",
-				".bkint($userid).",
-				'".bkstr($d->tl)."',
-				'".bkstr($d->nm)."',
-				'".bkstr($d->mtl)."',
-				'".bkstr($d->mks)."',
-				'".bkstr($d->mdsc)."',
-				".bkint($d->ord).",
-				".bkint($d->v).",
-				".bkint($d->pelid).",
-				'".bkstr($d->chlg)."',
-				".($isOperator ? 1 : 0).",
+				".bkint($element->catalogid).",
+				".bkint($element->elTypeId).",
+				".bkint(Abricos::$user->id).",
+				'".bkstr($element->title)."',
+				'".bkstr($element->name)."',
+				'".bkstr($element->metaTitle)."',
+				'".bkstr($element->metaKeys)."',
+				'".bkstr($element->metaDescript)."',
+				".bkint($element->order).",
+				".bkint($element->version).",
+				".bkint($element->pElementId).",
+				'".bkstr($element->changelog)."',
+				0,
 				".TIMENOW."
 			)
 		";
@@ -704,39 +712,34 @@ class CatalogQuery {
         $db->query_write($sql);
     }
 
-    /**
-     * Обновить значение опций элемента
-     *
-     * @param Ab_Database $db
-     * @param string $pfx
-     * @param integer $elid
-     * @param CatalogElementType $elType
-     * @param object $d
-     */
-    public static function ElementDetailUpdate(Ab_Database $db, $pfx, $userid, $isAdmin, $elid, CatalogElementType $elType, $d){
-        $options = $elType->options;
-        if ($options->Count() == 0){
+    public static function ElementOptionsUpdate(CatalogApp $app, CatalogElementTypeList $elTypeList, CatalogElement $element){
+
+        $optionList = $app->ElementTypeList()->GetFullOptionList($element->elTypeId);
+
+        $count = $optionList->Count();
+        if ($count === 0){
             return;
         }
 
-        $insfld = array();
-        $insval = array();
-        $upd = array();
-
-        $utm = Abricos::TextParser();
-        $utmf = Abricos::TextParser(true);
-
-        foreach ($d as $optName => $val){
-            $option = $options->GetByName($optName);
-            if (empty($option)){
-                continue;
+        $sqlData = array();
+        for ($i = 0; $i < $count; $i++){
+            $option = $optionList->GetByIndex($i);
+            $elTypeId = $option->elTypeId;
+            if (!isset($sqlData[$elTypeId])){
+                $sqlData[$elTypeId] = array(
+                    "insertField" => array(),
+                    "insertValue" => array(),
+                    "update" => array()
+                );
             }
+            $val = $option->FixElementValue($element);
 
             switch ($option->type){
                 case CatalogType::TP_BOOLEAN:
                     $val = empty($val) ? 0 : 1;
                     break;
                 case CatalogType::TP_NUMBER:
+                case CatalogType::TP_TABLE:
                     $val = bkint($val);
                     break;
                 case CatalogType::TP_DOUBLE:
@@ -744,14 +747,12 @@ class CatalogQuery {
                     $val = doubleval($val);
                     break;
                 case CatalogType::TP_STRING:
-                    $val = "'".bkstr($utmf->Parser($val))."'";
-                    break;
-                case CatalogType::TP_TABLE:
-                    $val = bkint($val);
-                    break;
                 case CatalogType::TP_TEXT:
-                    $val = "'".bkstr($utm->Parser($val))."'";
+                    $val = "''".bkstr($val)."''";
                     break;
+                default:
+                    continue;
+                /* // TODO: release
                 case CatalogType::TP_ELDEPENDS:
                     $cfg = new CatalogElementListConfig();
                     $cfg->elids = explode(",", $val);
@@ -777,24 +778,27 @@ class CatalogQuery {
 
                     $val = "'".implode(",", $aFiles)."'";
                     break;
-                default:
-                    $val = bkstr($val);
-                    break;
+                /**/
             }
-            $insfld[] = "fld_".$optName;
-            $insval[] = $val;
-            $upd[] = "fld_".$optName."=".$val;
-        }
 
-        $sql = "
-			INSERT INTO ".$pfx.$elType->tableName."
-			(elementid, ".implode(", ", $insfld).") VALUES (
-				".bkint($elid).",
-				".implode(", ", $insval)."
-			)ON DUPLICATE KEY UPDATE
-				".implode(", ", $upd)."
-		";
-        $db->query_write($sql);
+            $sqlData[$elTypeId]['insertField'][] = "fld_".$option->name;
+            $sqlData[$elTypeId]['insertValue'][] = $val;
+            $sqlData[$elTypeId]['update'][] = "fld_".$option->name."=".$val;
+        }
+        foreach ($sqlData as $elTypeId => $d){
+            $elType = $elTypeList->Get($elTypeId);
+
+            $tableName = CatalogElementOption::GetTableName($app, $elType);
+
+            $sql = "
+                INSERT INTO ".$tableName."
+                (elementid, ".implode(", ", $d['insertField']).") VALUES (
+                    ".bkint($element->id).",
+                    ".implode(", ", $d['insertValue'])."
+                ) ON DUPLICATE KEY UPDATE ".implode(", ", $d['update'])."
+            ";
+            $app->db->query_write($sql);
+        }
     }
 
     public static function ElementDetailOptionFilesUpdate(Ab_Database $db, $pfx, $elid, CatalogElementOption $option, $files){

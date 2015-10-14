@@ -31,6 +31,9 @@
       "dbField": "nm",
       "json": "nm"
     },
+    "values": {
+      "type": "array"
+    },
     "foto": {
       "type": "string"
     },

@@ -109,6 +109,27 @@ Component.entryPoint = function(NS){
                     option: option
                 });
             }, this);
+        },
+        toJSON: function(){
+            var ws = this._optionsWidgets,
+                values = {};
+
+            for (var i = 0; i < ws.length; i++){
+                values = Y.merge(values, ws[i].toJSON());
+            }
+            return {
+                id: this.get('element').get('id'),
+                elTypeId: this._typeSelectWidget.get('selected'),
+                values: values
+            };
+        },
+        save: function(){
+            var data = this.toJSON();
+
+            this.set('waiting', true);
+            this.get('appInstance').elementSave(data, function(){
+                this.set('waiting', false);
+            }, this);
         }
     }, {
         ATTRS: {
@@ -116,6 +137,9 @@ Component.entryPoint = function(NS){
             templateBlockName: {value: 'widget'},
             elementid: {value: 0},
             element: {}
+        },
+        CLICKS: {
+            save: 'save'
         }
     });
 
@@ -139,6 +163,15 @@ Component.entryPoint = function(NS){
         onInitAppWidget: function(err, appInstance){
             var tp = this.template,
                 option = this.get('option');
+        },
+        toJSON: function(){
+            var d = {},
+                option = this.get('option');
+            d[option.get('name')] = this.getValue();
+            return d;
+        },
+        getValue: function(){
+            return '';
         }
     };
     OWS.OptionWidgetExt = OptionWidgetExt;

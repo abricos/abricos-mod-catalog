@@ -11,11 +11,14 @@
 /**
  * Class CatalogElement
  *
+ * @property CatalogApp $app
+ *
  * @property int $catalogid Catalog ID
  * @property int $elTypeId Element Type ID
  * @property int $userid User ID
  * @property string $title Title
  * @property string $name Name
+ * @property array $values
  * @property string $foto Image ID of filemanager module
  * @property string $fotoExt Image Extension
  *
@@ -63,6 +66,17 @@ class CatalogElement extends AbricosModel {
 
     public function URI(){
         return "";
+    }
+
+    public function GetValue($optionName){
+        if (!isset($this->values[$optionName])){
+            return;
+        }
+        return $this->values[$optionName];
+    }
+
+    public function SetValue($optionName, $value){
+        $this->values[$optionName] = $value;
     }
 }
 
