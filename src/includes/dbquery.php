@@ -898,8 +898,9 @@ class CatalogQuery {
         $pfx = $app->GetDBPrefix();
         $sql = "
 			INSERT INTO ".$pfx."eltype
-				(name, title_".Abricos::$LNG.", titlelist_".Abricos::$LNG.", descript_".Abricos::$LNG.", dateline) VALUES (
+				(name, composite, title_".Abricos::$LNG.", titlelist_".Abricos::$LNG.", descript_".Abricos::$LNG.", dateline) VALUES (
 				'".bkstr($elType->name)."',
+				'".bkstr($elType->composite)."',
 				'".bkstr($elType->title->Get())."',
 				'".bkstr($elType->titles->Get())."',
 				'".bkstr($elType->descript->Get())."',

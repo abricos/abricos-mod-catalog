@@ -22,22 +22,22 @@ if ($updateManager->isInstall()){
     $db->query_write("
 		CREATE TABLE IF NOT EXISTS ".$pfx."catalog (
 			catalogid int(10) UNSIGNED NOT NULL auto_increment,
-			parentcatalogid int(10) UNSIGNED NOT NULL default '0' COMMENT 'ID родителя',
-			name varchar(250) NOT NULL default '',
-			title varchar(250) NOT NULL default '',
+			parentcatalogid int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'ID родителя',
+			name varchar(250) NOT NULL DEFAULT '',
+			title varchar(250) NOT NULL DEFAULT '',
 			descript text NOT NULL COMMENT 'Описание',
-			metatitle varchar(250) NOT NULL default '' COMMENT 'Тег title',
-			metakeys varchar(250) NOT NULL default '' COMMENT 'Тег keywords',
-			metadesc varchar(250) NOT NULL default '' COMMENT 'Тег description',
-            menudisable tinyint(1) UNSIGNED NOT NULL default 0 COMMENT '1-отключено из меню',
-            listdisable tinyint(1) UNSIGNED NOT NULL default 0 COMMENT '1-отключено из списка',
-			level int(2) UNSIGNED NOT NULL default '0' COMMENT 'Уровень вложений',
-			ord int(3) NOT NULL default '0' COMMENT 'Сортировка',
+			metatitle varchar(250) NOT NULL DEFAULT '' COMMENT 'Тег title',
+			metakeys varchar(250) NOT NULL DEFAULT '' COMMENT 'Тег keywords',
+			metadesc varchar(250) NOT NULL DEFAULT '' COMMENT 'Тег description',
+            menudisable tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '1-отключено из меню',
+            listdisable tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '1-отключено из списка',
+			level int(2) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Уровень вложений',
+			ord int(3) NOT NULL DEFAULT '0' COMMENT 'Сортировка',
 			
 			language CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
 			
-			dateline int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
-			deldate int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
+			dateline int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'дата добавления',
+			deldate int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'дата удаления',
 			
 			PRIMARY KEY (catalogid),
 			KEY deldate (deldate)
@@ -47,11 +47,11 @@ if ($updateManager->isInstall()){
     $db->query_write("
 		CREATE TABLE IF NOT EXISTS ".$pfx."dict (
 			dictid int(5) UNSIGNED NOT NULL auto_increment,
-			title varchar(250) NOT NULL default '',
-			name varchar(250) NOT NULL default '',
+			title varchar(250) NOT NULL DEFAULT '',
+			name varchar(250) NOT NULL DEFAULT '',
 			descript text NOT NULL COMMENT 'Описание',
-			dateline int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
-			deldate int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
+			dateline int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'дата добавления',
+			deldate int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'дата удаления',
 		
 			PRIMARY KEY (dictid)
 		)".$charset);
@@ -64,26 +64,26 @@ if ($updateManager->isInstall()){
 			eltypeid int(5) UNSIGNED NOT NULL COMMENT 'Тип элемента',
 			
 			userid int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Автор добавленной записи',
-			ismoder tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-ожидает модерацию',
+			ismoder tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '1-ожидает модерацию',
 			
-			title VARCHAR(250) NOT NULL default 'Название',
-			name VARCHAR(250) NOT NULL default 'Имя',
+			title VARCHAR(250) NOT NULL DEFAULT 'Название',
+			name VARCHAR(250) NOT NULL DEFAULT 'Имя',
 			ord int(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Пользовательская сортировка',
 
 			version int(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Версия записи',
-			isarhversion tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-есть новая версия, этот помещен в архив',
+			isarhversion tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '1-есть новая версия, этот помещен в архив',
 			prevelementid int(10) UNSIGNED NOT NULL COMMENT 'Предыдущая версия элемента',
 			changelog text NOT NULL COMMENT 'Список изменений',
 			
-			metatitle varchar(250) NOT NULL default '' COMMENT 'Тег title',
-			metakeys varchar(250) NOT NULL default '' COMMENT 'Тег keywords',
-			metadesc varchar(250) NOT NULL default '' COMMENT 'Тег description',
+			metatitle varchar(250) NOT NULL DEFAULT '' COMMENT 'Тег title',
+			metakeys varchar(250) NOT NULL DEFAULT '' COMMENT 'Тег keywords',
+			metadesc varchar(250) NOT NULL DEFAULT '' COMMENT 'Тег description',
 
 			language CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
 			
-			dateline int(10) UNSIGNED NOT NULL default '0' COMMENT 'Дата добавления',
-			upddate int(10) UNSIGNED NOT NULL default '0' COMMENT 'Дата обновления',
-			deldate int(10) UNSIGNED NOT NULL default '0' COMMENT 'Дата удаления',
+			dateline int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Дата добавления',
+			upddate int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Дата обновления',
+			deldate int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Дата удаления',
 		
 			PRIMARY KEY (elementid),
 			KEY name (name),
@@ -97,11 +97,12 @@ if ($updateManager->isInstall()){
     $db->query_write("
 		CREATE TABLE IF NOT EXISTS ".$pfx."eltype (
 			eltypeid INT(5) UNSIGNED NOT NULL auto_increment,
-			name VARCHAR(250) NOT NULL default '',
-			fotouse int(1) UNSIGNED NOT NULL default '0' COMMENT 'В опциях элемента есть фотографии, по умолчанию - нет',
+			name VARCHAR(250) NOT NULL DEFAULT '',
+			composite VARCHAR(250) NOT NULL DEFAULT '' COMMENT 'Выражение для формирования названия элемента',
+			fotouse int(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'В опциях элемента есть фотографии, по умолчанию - нет',
 
-			dateline int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
-			deldate int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
+			dateline int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'дата добавления',
+			deldate int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'дата удаления',
 		
 			PRIMARY KEY (eltypeid),
 			KEY eltype (deldate)
@@ -111,13 +112,13 @@ if ($updateManager->isInstall()){
     $db->query_write("
 		CREATE TABLE IF NOT EXISTS ".$pfx."eloptgroup (
 			eloptgroupid int(5) UNSIGNED NOT NULL auto_increment,
-			parenteloptgroupid int(5) UNSIGNED NOT NULL default '0',
-			eltypeid int(5) UNSIGNED NOT NULL default '0' COMMENT 'Тип элемента',
-			name varchar(50) NOT NULL default '' COMMENT 'Имя (идентификатор)',
-			title varchar(250) NOT NULL default '',
+			parenteloptgroupid int(5) UNSIGNED NOT NULL DEFAULT '0',
+			eltypeid int(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Тип элемента',
+			name varchar(50) NOT NULL DEFAULT '' COMMENT 'Имя (идентификатор)',
+			title varchar(250) NOT NULL DEFAULT '',
 			descript text NOT NULL COMMENT 'Описание',
-			ord int(5) NOT NULL default '0' COMMENT 'Сортировка',
-			issystem tinyint(1) UNSIGNED NOT NULL default 0 COMMENT 'Системная группа',
+			ord int(5) NOT NULL DEFAULT '0' COMMENT 'Сортировка',
+			issystem tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Системная группа',
 			
 			language CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
 			
@@ -129,24 +130,24 @@ if ($updateManager->isInstall()){
     $db->query_write("
 		CREATE TABLE IF NOT EXISTS ".$pfx."eloption (
 			eloptionid int(5) UNSIGNED NOT NULL auto_increment,
-			eltypeid int(5) UNSIGNED NOT NULL default '0' COMMENT 'Тип элемента',
-			eloptgroupid int(5) UNSIGNED NOT NULL default '0' COMMENT 'Группа',
-			fieldtype int(1) UNSIGNED NOT NULL default '0' COMMENT 'Тип поля',
-			fieldsize varchar(50) NOT NULL default '' COMMENT 'Размер поля',
-			currencyid int(5) UNSIGNED NOT NULL default '0' COMMENT 'Идентификатор валюты для денежного типа',
+			eltypeid int(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Тип элемента',
+			eloptgroupid int(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Группа',
+			fieldtype int(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Тип поля',
+			fieldsize varchar(50) NOT NULL DEFAULT '' COMMENT 'Размер поля',
+			currencyid int(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Идентификатор валюты для денежного типа',
 			param text NOT NULL COMMENT 'Параметры опции',
-			name varchar(50) NOT NULL default 'имя поля',
-			title varchar(250) NOT NULL default '',
+			name varchar(50) NOT NULL DEFAULT 'имя поля',
+			title varchar(250) NOT NULL DEFAULT '',
 			descript text NOT NULL COMMENT 'Описание',
-			eltitlesource int(1) NOT NULL default '0' COMMENT '1-элемент является составной частью названия элемента',
-			ord int(5) NOT NULL default '0' COMMENT 'Сортировка',
-			issystem tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-системная опция',
-			disable tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-опция отключена',
+			eltitlesource int(1) NOT NULL DEFAULT '0' COMMENT '1-элемент является составной частью названия элемента',
+			ord int(5) NOT NULL DEFAULT '0' COMMENT 'Сортировка',
+			issystem tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '1-системная опция',
+			disable tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '1-опция отключена',
 			
 			language CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
 			
-			dateline int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
-			deldate int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата удаления',
+			dateline int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'дата добавления',
+			deldate int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'дата удаления',
 			
 			PRIMARY KEY (eloptionid),
 			KEY eloption (language, deldate)
@@ -158,8 +159,8 @@ if ($updateManager->isInstall()){
 			fotoid int(10) UNSIGNED NOT NULL auto_increment,
 			elementid int(10) UNSIGNED NOT NULL COMMENT 'Идентификатор элемента',
 			fileid varchar(8) NOT NULL,
-			ord int(4) UNSIGNED NOT NULL default '0' COMMENT 'Сортировка',
-			dateline int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления',
+			ord int(4) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Сортировка',
+			dateline int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'дата добавления',
 			PRIMARY KEY (fotoid),
 			KEY elementid (elementid)
 		)".$charset);
@@ -178,9 +179,9 @@ if ($updateManager->isUpdate('0.2.5.1') && !$updateManager->isInstall()){
 		ALTER TABLE ".$pfx."element 
 		ADD ord int(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Пользовательская сортировка',
 			
-		ADD metatitle varchar(250) NOT NULL default '' COMMENT 'Тег title',
-		ADD metakeys varchar(250) NOT NULL default '' COMMENT 'Тег keywords',
-		ADD metadesc varchar(250) NOT NULL default '' COMMENT 'Тег description',
+		ADD metatitle varchar(250) NOT NULL DEFAULT '' COMMENT 'Тег title',
+		ADD metakeys varchar(250) NOT NULL DEFAULT '' COMMENT 'Тег keywords',
+		ADD metadesc varchar(250) NOT NULL DEFAULT '' COMMENT 'Тег description',
 			
 		ADD KEY element (catalogid, deldate),
 		ADD KEY ord (ord)
@@ -193,7 +194,7 @@ if ($updateManager->isUpdate('0.2.5.1') && !$updateManager->isInstall()){
 
     $db->query_write("
 		ALTER TABLE ".$pfx."eloption
-		ADD issystem tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-системная опция'
+		ADD issystem tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '1-системная опция'
 	");
 
 }
@@ -201,7 +202,7 @@ if ($updateManager->isUpdate('0.2.5.1') && !$updateManager->isInstall()){
 if ($updateManager->isUpdate('0.2.5.2') && !$updateManager->isInstall()){
     $db->query_write("
 		ALTER TABLE ".$pfx."eloption
-		ADD fieldsize varchar(50) NOT NULL default '' COMMENT 'Размер поля'
+		ADD fieldsize varchar(50) NOT NULL DEFAULT '' COMMENT 'Размер поля'
 	");
 }
 
@@ -224,8 +225,8 @@ if ($updateManager->isUpdate('0.2.5.3') && !$updateManager->isInstall()){
     // группирование опций элемента
     $db->query_write("
 		ALTER TABLE ".$pfx."eloptgroup
-		ADD name varchar(50) NOT NULL default '' COMMENT 'Имя (идентификатор)',
-		ADD issystem tinyint(1) UNSIGNED NOT NULL default 0 COMMENT 'Системная группа'
+		ADD name varchar(50) NOT NULL DEFAULT '' COMMENT 'Имя (идентификатор)',
+		ADD issystem tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Системная группа'
 	");
 
 }
@@ -263,14 +264,14 @@ if ($updateManager->isUpdate('0.2.6') && !$updateManager->isInstall()){
     $db->query_write("
 		ALTER TABLE ".$pfx."element
 		ADD userid int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Автор добавленной записи',
-		ADD ismoder tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-ожидает модерацию',
+		ADD ismoder tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '1-ожидает модерацию',
 
-		ADD isarhversion tinyint(1) UNSIGNED NOT NULL default '0' COMMENT '1-есть новая версия, этот помещен в архив',
+		ADD isarhversion tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '1-есть новая версия, этот помещен в архив',
 		ADD version int(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Версия записи',
 		ADD prevelementid int(10) UNSIGNED NOT NULL COMMENT 'Предыдущая версия элемента',
 		ADD changelog text NOT NULL COMMENT 'Список изменений',
 			
-		ADD upddate int(10) UNSIGNED NOT NULL default '0' COMMENT 'Дата обновления',
+		ADD upddate int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Дата обновления',
 		ADD language CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
 
 		ADD INDEX name (name),
@@ -286,7 +287,7 @@ if ($updateManager->isUpdate('0.2.6') && !$updateManager->isInstall()){
     // добавлен автор элемента, модерация элемента, версионность элементов
     $db->query_write("
 		ALTER TABLE ".$pfx."foto
-		ADD dateline int(10) UNSIGNED NOT NULL default '0' COMMENT 'дата добавления'
+		ADD dateline int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'дата добавления'
 	");
 
     $db->query_write("DROP TABLE IF EXISTS ".$pfx."link");
@@ -303,7 +304,7 @@ if ($updateManager->isUpdate('0.2.6')){
 			eloptionid int(5) UNSIGNED NOT NULL COMMENT 'Идентификатор опции элемента',
 			elementid int(10) UNSIGNED NOT NULL COMMENT 'Идентификатор элемента',
 			elementdepid int(10) UNSIGNED NOT NULL COMMENT 'Ссылается на элемент - id',
-			ord int(4) UNSIGNED NOT NULL default '0' COMMENT 'Сортировка',
+			ord int(4) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Сортировка',
 
 			PRIMARY KEY (eldependsid),
 			KEY dep (eloptionid, elementid) 
@@ -316,7 +317,7 @@ if ($updateManager->isUpdate('0.2.6')){
 			eloptionid int(5) UNSIGNED NOT NULL COMMENT 'Идентификатор опции элемента',
 			elementid int(10) UNSIGNED NOT NULL COMMENT 'Идентификатор элемента',
 			elementdepname varchar(250) NOT NULL COMMENT 'Ссылается на элемент - имя',
-			ord int(4) UNSIGNED NOT NULL default '0' COMMENT 'Сортировка',
+			ord int(4) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Сортировка',
 	
 			PRIMARY KEY (eldependsnameid),
 			KEY dep (eloptionid, elementid)
@@ -331,8 +332,8 @@ if ($updateManager->isUpdate('0.2.6')){
 			userid int(10) UNSIGNED NOT NULL COMMENT 'Пользователь',
 			filehash varchar(8) NOT NULL COMMENT 'Идентификатор файла',
 			filename varchar(250) NOT NULL COMMENT 'Имя файла',
-			ord int(4) UNSIGNED NOT NULL default '0' COMMENT 'Сортировка',
-			dateline int(10) UNSIGNED NOT NULL default '0' COMMENT 'Дата добавления',
+			ord int(4) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Сортировка',
+			dateline int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Дата добавления',
 			PRIMARY KEY (fileid),
 			KEY elementid (elementid), 
 			KEY file (eloptionid, elementid) 
@@ -343,7 +344,7 @@ if ($updateManager->isUpdate('0.2.6')){
 if ($updateManager->isUpdate('0.2.7.1') && !$updateManager->isInstall()){
     $db->query_write("
 		ALTER TABLE ".$pfx."eltype
-		ADD titlelist VARCHAR(250) NOT NULL default '' COMMENT 'Название списка'
+		ADD titlelist VARCHAR(250) NOT NULL DEFAULT '' COMMENT 'Название списка'
 	");
     $db->query_write("UPDATE ".$pfx."eltype SET titlelist=title ");
 }
@@ -351,8 +352,8 @@ if ($updateManager->isUpdate('0.2.7.1') && !$updateManager->isInstall()){
 if ($updateManager->isUpdate('0.2.9') && !$updateManager->isInstall()){
     $db->query_write("
 		ALTER TABLE ".$pfx."catalog
-		ADD menudisable tinyint(1) UNSIGNED NOT NULL default 0 COMMENT '1-отключено из меню',
-		ADD listdisable tinyint(1) UNSIGNED NOT NULL default 0 COMMENT '1-отключено из списка'
+		ADD menudisable tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '1-отключено из меню',
+		ADD listdisable tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '1-отключено из списка'
 	");
 }
 
@@ -376,7 +377,7 @@ if ($updateManager->isUpdate('0.3.0')){
 			prefix varchar(20) NOT NULL DEFAULT '' COMMENT 'Префикс',
 			postfix varchar(20) NOT NULL DEFAULT '' COMMENT 'Постфикс',
 
-			ord int(4) UNSIGNED NOT NULL default '0' COMMENT 'Сортировка',
+			ord int(4) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Сортировка',
 
 			language CHAR(2) NOT NULL DEFAULT '' COMMENT 'Язык',
 
@@ -405,7 +406,14 @@ if ($updateManager->isUpdate('0.3.0')){
 if ($updateManager->isUpdate('0.3.1') && !$updateManager->isInstall()){
     $db->query_write("
 		ALTER TABLE ".$pfx."eloption
-		ADD currencyid int(5) UNSIGNED NOT NULL default '0' COMMENT 'Идентификатор валюты для денежного типа'
+		ADD currencyid int(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Идентификатор валюты для денежного типа'
+	");
+}
+
+if ($updateManager->isUpdate('0.3.2') && !$updateManager->isInstall()){
+    $db->query_write("
+		ALTER TABLE ".$pfx."eltype
+		ADD composite VARCHAR(250) NOT NULL DEFAULT '' COMMENT 'Выражение для формирования названия элемента'
 	");
 }
 

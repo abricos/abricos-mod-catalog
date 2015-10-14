@@ -21,6 +21,10 @@
       "type": "string",
       "json": "nm"
     },
+    "composite": {
+      "type": "string",
+      "json": "cmps"
+    },
     "options": {
       "type": "modelList:ElementOptionList",
       "notNULL": true

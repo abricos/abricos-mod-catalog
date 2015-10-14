@@ -660,13 +660,6 @@ Component.entryPoint = function(NS){
 
             }, 1000);
         },
-        _wsClear: function(){
-            var ws = this.wsOptions;
-            for (var i = 0; i < ws.length; i++){
-                ws[i].destroy();
-            }
-            this.wsOptions = [];
-        },
         elementTypeChange: function(){
             var tpid = this.gel('tplist.id').value | 0;
             if (this.element.typeid == tpid){
@@ -676,30 +669,7 @@ Component.entryPoint = function(NS){
             this.element.typeid = tpid;
             this.renderOptions();
         },
-        onClick: function(el, tp){
-            switch (el.id) {
-                case tp['bcreate']:
-                case tp['bcreatec']:
-                case tp['bsave']:
-                case tp['bsavec']:
-                case tp['bsavenewv']:
-                case tp['bsavenewvc']:
-                    this.save();
-                    return true;
-                case tp['bmoder']:
-                case tp['bmoderc']:
-                    this.moder();
-                    return true;
-                case tp['bcancel']:
-                case tp['bcancelc']:
-                    this.onCancelClick();
-                    return true;
-            }
-            return false;
-        },
-        onCancelClick: function(){
-            NS.life(this.cfg['onCancelClick'], this);
-        },
+
         moder: function(){
             this.elHide('btnsc,btnscc');
             this.elShow('btnpc,btnpcc');

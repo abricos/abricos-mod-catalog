@@ -1227,6 +1227,8 @@ abstract class CatalogApp extends AbricosApplication {
             CatalogQuery::ElementTypeUpdate($this->db, $this->pfx, $elTypeId, $d);
         }
 
+        $this->CacheClear();
+
         $ret = new stdClass();
         $ret->elTypeId = $elTypeId;
         return $ret;

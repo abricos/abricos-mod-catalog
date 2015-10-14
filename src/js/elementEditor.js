@@ -74,6 +74,7 @@ Component.entryPoint = function(NS){
                 srcNode: tp.one('typeSelect'),
                 selected: elType.get('id')
             });
+
             this._typeSelectWidget.after('selectedChange', this._renderOptions, this);
             this._renderOptions();
         },
@@ -91,9 +92,11 @@ Component.entryPoint = function(NS){
                 elTypeId = this._typeSelectWidget.get('selected'),
                 elType = elementTypeList.getById(elTypeId),
                 element = this.get('element'),
-                ws = this._cleanOptionWidgets()
+                ws = this._cleanOptionWidgets();
 
-            elType.get('options').each(function(option){
+            tp.toggleView(elType.get('composite') === '', 'titleField');
+
+            elementTypeList.optionEach(elTypeId, function(option){
                 var type = option.get('type'),
                     OptionWidget = OWS[type];
 

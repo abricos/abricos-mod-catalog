@@ -10,17 +10,17 @@ Component.entryPoint = function(NS){
         SYS = Brick.mod.sys;
 
     NS.FTYPE = {
-        BOOLEAN:        0,
-        NUMBER:         1,
-        DOUBLE:         2,
-        STRING:         3,
+        BOOLEAN: 0,
+        NUMBER: 1,
+        DOUBLE: 2,
+        STRING: 3,
         // 'LIST':		4,
-        TABLE:          5,
-        TEXT:           7,
-        ELDEPENDS:      9,
-        ELDEPENDSNAME:  10,
-        FILES:          11,
-        CURRENCY:       12
+        TABLE: 5,
+        TEXT: 7,
+        ELDEPENDS: 9,
+        ELDEPENDSNAME: 10,
+        FILES: 11,
+        CURRENCY: 12
     };
 
     NS.Config = Y.Base.create('config', SYS.AppModel, [], {
@@ -48,7 +48,30 @@ Component.entryPoint = function(NS){
     });
 
     NS.ElementTypeList = Y.Base.create('elementTypeList', SYS.AppModelList, [], {
-        appItem: NS.ElementType
+        appItem: NS.ElementType,
+        comparator: function(model){
+            return model.get('order') * -1;
+        },
+        optionEach: function(elTypeId, fn, context){
+            var appInstance = this.appInstance,
+                elTypeBase = this.getById(0),
+                elType = this.getById(elTypeId),
+                OptionList = appInstance.get('ElementOptionList'),
+                list = new OptionList({
+                    appInstance: appInstance
+                });
+
+            elTypeBase.get('options').each(function(option){
+                list.add(option);
+            }, this);
+            if (elTypeId > 0 && elType){
+                elType.get('options').each(function(option){
+                    list.add(option);
+                }, this);
+            }
+            list.each(fn, context);
+            return list;
+        }
     });
 
     NS.ElementOption = Y.Base.create('elementOption', SYS.AppModel, [], {
@@ -56,7 +79,10 @@ Component.entryPoint = function(NS){
     });
 
     NS.ElementOptionList = Y.Base.create('elementOption', SYS.AppModelList, [], {
-        appItem: NS.ElementOption
+        appItem: NS.ElementOption,
+        comparator: function(model){
+            return model.get('order') * -1;
+        }
     });
 
 };
