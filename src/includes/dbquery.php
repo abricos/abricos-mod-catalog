@@ -522,7 +522,10 @@ class CatalogQuery {
         return intval($row['cnt']);
     }
 
-    public static function Element(Ab_Database $db, $pfx, $elementid){
+    public static function Element(CatalogApp $app, $elementid){
+        $db = $app->db;
+        $pfx = $app->GetDBPrefix();
+
         $sql = "
 			SELECT
 				e.elementid as id,
@@ -602,22 +605,50 @@ class CatalogQuery {
     }
 
 
-    public static function ElementDetail(Ab_Database $db, $pfx, $elid, CatalogElementType $elType){
-        $options = $elType->options;
-        $fields = array();
-        for ($i = 0; $i < $options->Count(); $i++){
-            $option = $options->GetByIndex($i);
-            $fields[] = "e.fld_".$option->name." as ".$option->name."";
+    public static function ElementOptionsData(CatalogApp $app, CatalogElementTypeList $elTypeList, CatalogElement $element){
+        $optionList = $app->ElementTypeList()->GetFullOptionList($element->elTypeId);
+
+        $ret = array();
+        $count = $optionList->Count();
+        if ($count === 0){
+            return $ret;
         }
-        $sql = "
-			SELECT
-				e.elementid as id
-				".(count($fields) > 0 ? ",".implode(",", $fields) : "")."
-			FROM ".$pfx.$elType->tableName." e
-			WHERE e.elementid=".bkint($elid)."
-			LIMIT 1
-		";
-        return $db->query_first($sql);
+
+        $sqlData = array();
+        for ($i = 0; $i < $count; $i++){
+            $option = $optionList->GetByIndex($i);
+            $elTypeId = $option->elTypeId;
+            if (!isset($sqlData[$elTypeId])){
+                $sqlData[$elTypeId] = array(
+                    "fields" => array()
+                );
+            }
+            $sqlData[$elTypeId]['fields'][] = "e.fld_".$option->name." as ".$option->name."";
+        }
+        foreach ($sqlData as $elTypeId => $d){
+            $elType = $elTypeList->Get($elTypeId);
+
+            $fields = $sqlData[$elTypeId]['fields'];
+
+            $tableName = CatalogElementType::GetTableName($app, $elType);
+
+            $sql = "
+                SELECT
+                    e.elementid as id
+                    ".(count($fields) > 0 ? ",".implode(",", $fields) : "")."
+                FROM ".$tableName." e
+                WHERE e.elementid=".bkint($element->id)."
+                LIMIT 1
+            ";
+            $d = $app->db->query_first($sql);
+            if (empty($d)){
+                continue;
+            }
+            foreach($d as $name => $value){
+                $ret[$name] = $value;
+            }
+        }
+        return $ret;
     }
 
     /**
@@ -632,7 +663,7 @@ class CatalogQuery {
         $sql = "
 			INSERT INTO ".$pfx."element
 			(catalogid, eltypeid, userid, title, name, metatitle, metakeys, metadesc, ord, 
-				version, prevelementid, changelog, ismoder, dateline) VALUES (
+				version, prevelementid, changelog, ismoder, dateline, upddate) VALUES (
 				".bkint($element->catalogid).",
 				".bkint($element->elTypeId).",
 				".bkint(Abricos::$user->id).",
@@ -646,6 +677,7 @@ class CatalogQuery {
 				".bkint($element->pElementId).",
 				'".bkstr($element->changelog)."',
 				0,
+				".TIMENOW.",
 				".TIMENOW."
 			)
 		";

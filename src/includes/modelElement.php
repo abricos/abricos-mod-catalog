@@ -142,7 +142,9 @@ class CatalogELConfig extends AbricosModel {
     protected $_structName = 'ELConfig';
 
     public function SetConfig($d){
-        $this->filters = isset($d->filter) ? $d->filter : array();
+        if (isset($d->filter)){
+            $this->filters = $d->filter;
+        }
 
         $aFFields = explode(',', $this->filterFields);
 

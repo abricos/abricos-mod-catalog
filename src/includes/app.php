@@ -50,6 +50,8 @@ abstract class CatalogApp extends AbricosApplication {
         switch ($d->do){
             case "catalogList":
                 return $this->CatalogListToJSON();
+            case "element":
+                return $this->ElementToJSON($d->elementid);
             case "elementSave":
                 return $this->ElementSaveToJSON($d->elementData);
             case "elementList":
@@ -61,10 +63,6 @@ abstract class CatalogApp extends AbricosApplication {
 
             // old funcitons
             /*
-            case "cataloginitdata":
-                return $this->CatalogInitDataToJSON();
-            case "catalog":
-                return $this->CatalogToAJAX($d->catid, $d->elementlist);
             case "catalogsave":
                 return $this->CatalogSaveToAJAX($d->catid, $d->savedata);
             case "catalogremove":
@@ -285,6 +283,45 @@ abstract class CatalogApp extends AbricosApplication {
         return $this->_cache['CatalogList'] = $list;
     }
 
+    public function ElementToJSON($elementid){
+        $ret = $this->Element($elementid);
+        return $this->ResultToJSON('element', $ret);
+    }
+
+    public function Element($elementid){
+        $elementid = intval($elementid);
+        if (!isset($this->_cache['Element'])){
+            $this->_cache['Element'] = array();
+        }
+        if (isset($this->_cache['Element'][$elementid])){
+            return $this->_cache['Element'][$elementid];
+        }
+        if (!$this->IsViewRole()){
+            return 403;
+        }
+
+        $d = CatalogQuery::Element($this, $elementid);
+        if (empty($d)){
+            return 404;
+        }
+
+        /** @var CatalogElement $element */
+        $element = $this->InstanceClass('Element', $d);
+
+        $this->ElementOptionsDataFill($element);
+
+        return $element;
+    }
+
+    /**
+     * @param CatalogElement $element
+     */
+    protected function ElementOptionsDataFill($element){
+        $elTypeList = $this->ElementTypeList();
+        $optionsData = CatalogQuery::ElementOptionsData($this, $elTypeList, $element);
+        $element->values = $optionsData;
+    }
+
     public function ElementSaveToJSON($d){
         $ret = $this->ElementSave($d);
         return $this->ResultToJSON('elementSave', $ret);
@@ -313,13 +350,14 @@ abstract class CatalogApp extends AbricosApplication {
             }
             $elType->_cacheCompositeVars = $vars;
         }
-        $count = count($vars);
+        $count = count($vars[0]);
         if ($count === 0){
             return;
         }
         for ($i = 0; $i < $count; $i++){
             $composite = str_replace($vars[0][$i], $element->GetValue($vars[1][$i]), $composite);
         }
+
         $element->title = $composite;
     }
 
@@ -769,7 +807,7 @@ abstract class CatalogApp extends AbricosApplication {
      *
      * @param CatalogElement $element
      */
-    public function ElementDetailFill($element, $dbEl){
+    public function old_ElementDetailFill($element, $dbEl){
         $elTypeList = $this->ElementTypeList();
 
         $tpBase = $elTypeList->Get(0);
@@ -943,22 +981,7 @@ abstract class CatalogApp extends AbricosApplication {
      * @param integer $elid идентифиатор элемента
      * @return CatalogElement
      */
-    public function Element($elid, $clearCache = false){
-        if (!$this->IsViewRole()){
-            return null;
-        }
-
-        if ($clearCache || !is_array($this->_cacheElementById)){
-            $this->_cacheElementById = array();
-        }
-        if (!empty($this->_cacheElementById[$elid])){
-            return $this->_cacheElementById[$elid];
-        }
-
-        $dbEl = CatalogQuery::Element($this->db, $this->pfx, $elid);
-        if (empty($dbEl)){
-            return null;
-        }
+    public function old_Element($elid, $clearCache = false){
 
         $element = new $this->CatalogElementClass($dbEl);
 

@@ -32,11 +32,16 @@ Component.entryPoint = function(NS){
             },
             catalogList: {
                 attribute: true,
-                type: 'modelList:CatalogList',
+                type: 'modelList:CatalogList'
             },
             elementTypeList: {
                 attribute: true,
-                type: 'modelList:ElementTypeList',
+                type: 'modelList:ElementTypeList'
+            },
+            element: {
+                attach: 'elementTypeList',
+                args: ['elementid'],
+                type: 'model:Element'
             },
             elementSave: {
                 args: ['elementData']

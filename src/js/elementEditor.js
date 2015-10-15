@@ -13,7 +13,9 @@ Component.entryPoint = function(NS){
         COMPONENT = this,
         SYS = Brick.mod.sys;
 
-    NS.ElementEditorWidget = Y.Base.create('elementEditorWidget', SYS.AppWidget, [], {
+    NS.ElementEditorWidget = Y.Base.create('elementEditorWidget', SYS.AppWidget, [
+        SYS.WidgetEditorStatus
+    ], {
         onInitAppWidget: function(err, appInstance){
             this._optionsWidgets = [];
             this.set('waiting', true);
@@ -106,6 +108,7 @@ Component.entryPoint = function(NS){
                 ws[ws.length] = new OptionWidget({
                     appInstance: appInstance,
                     srcNode: tp.append('options', '<div></div>'),
+                    element: element,
                     option: option
                 });
             }, this);
@@ -138,6 +141,11 @@ Component.entryPoint = function(NS){
             component: {value: COMPONENT},
             templateBlockName: {value: 'widget'},
             elementid: {value: 0},
+            isEdit: {
+                getter: function(){
+                    return this.get('elementid') > 0;
+                }
+            },
             element: {}
         },
         CLICKS: {
@@ -153,6 +161,7 @@ Component.entryPoint = function(NS){
     OptionWidgetExt.NAME = 'optionWidget';
     OptionWidgetExt.ATTRS = {
         component: {value: COMPONENT},
+        element: {},
         option: {}
     };
     OptionWidgetExt.prototype = {
@@ -163,8 +172,15 @@ Component.entryPoint = function(NS){
             };
         },
         onInitAppWidget: function(err, appInstance){
-            var tp = this.template,
-                option = this.get('option');
+            var element = this.get('element'),
+                values = element.get('values') || {},
+                option = this.get('option'),
+                name = option.get('name'),
+                value = values[name] || '';
+
+            this._renderOption(value);
+        },
+        _renderOption: function(){
         },
         toJSON: function(){
             var d = {},
@@ -181,6 +197,9 @@ Component.entryPoint = function(NS){
     OWS[NS.FTYPE.STRING] = Y.Base.create('optionWidget', SYS.AppWidget, [
         OWS.OptionWidgetExt
     ], {
+        _renderOption: function(value){
+            this.template.setValue('value', value);
+        },
         getValue: function(){
             return this.template.getValue('value');
         }

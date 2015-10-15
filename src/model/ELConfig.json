@@ -8,7 +8,8 @@
       "type": "string"
     },
     "filters": {
-      "type": "modelList:ELConfigFilterList"
+      "type": "modelList:ELConfigFilterList",
+      "notNULL": true
     }
   }
 }
