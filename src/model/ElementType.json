@@ -22,7 +22,17 @@
       "json": "nm"
     },
     "composite": {
-      "type": "string",
+      "type": "multiLang",
+      "json": "cmps"
+    },
+    "prefix": {
+      "type": "multiLang"
+    },
+    "postfix": {
+      "type": "multiLang"
+    },
+    "composite": {
+      "type": "multiLang",
       "json": "cmps"
     },
     "options": {

@@ -935,11 +935,14 @@ class CatalogQuery {
     public static function ElementTypeAppend(CatalogApp $app, CatalogElementType $elType){
         $db = $app->db;
         $pfx = $app->GetDBPrefix();
+        $langid = bkstr(Abricos::$LNG);
         $sql = "
 			INSERT INTO ".$pfx."eltype
-				(name, composite, title_".Abricos::$LNG.", titlelist_".Abricos::$LNG.", descript_".Abricos::$LNG.", dateline) VALUES (
+				(name, composite_".$langid.", prefix_".$langid.", postfix_".$langid.", title_".$langid.", titlelist_".$langid.", descript_".$langid.", dateline) VALUES (
 				'".bkstr($elType->name)."',
-				'".bkstr($elType->composite)."',
+				'".bkstr($elType->composite->Get())."',
+				'".bkstr($elType->prefix->Get())."',
+				'".bkstr($elType->postfix->Get())."',
 				'".bkstr($elType->title->Get())."',
 				'".bkstr($elType->titles->Get())."',
 				'".bkstr($elType->descript->Get())."',
@@ -950,15 +953,19 @@ class CatalogQuery {
         return $db->insert_id();
     }
 
-    public static function ElementTypeUpdate(Ab_Database $db, $pfx, $elTypeId, $d){
+    public static function ElementTypeUpdate(CatalogApp $app, CatalogElementType $elType){
+        $db = $app->db;
+        $pfx = $app->GetDBPrefix();
+        $langid = bkstr(Abricos::$LNG);
+
         $sql = "
 			UPDATE ".$pfx."eltype
 			SET
-				name='".bkstr($d->nm)."',
-				title='".bkstr($d->tl)."',
-				titlelist='".bkstr($d->tls)."',
-				descript='".bkstr($d->dsc)."'
-			WHERE eltypeid=".bkint($elTypeId)."
+				name='".bkstr($elType->name)."',
+				title_".$langid."='".bkstr($elType->title->Get())."',
+				titlelist_".$langid."='".bkstr($elType->titles->Get())."',
+				descript_".$langid."='".bkstr($elType->descript->Get())."'
+			WHERE eltypeid=".bkint($elType->id)."
 			LIMIT 1
 		";
         $db->query_write($sql);

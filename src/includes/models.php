@@ -157,11 +157,13 @@ class CatalogList extends AbricosModelList {
 /**
  * Class CatalogElementType
  *
+ * @property string $name
  * @property AbricosMultiLangValue $title
  * @property AbricosMultiLangValue $titles
  * @property AbricosMultiLangValue $descript
- * @property string $name
- * @property string $composite The expression for the formation of names
+ * @property AbricosMultiLangValue $composite The expression for the formation of names
+ * @property AbricosMultiLangValue $prefix
+ * @property AbricosMultiLangValue $postfix
  * @property CatalogElementOptionList $options
  */
 class CatalogElementType extends AbricosModel {

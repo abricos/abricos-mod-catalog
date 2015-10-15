@@ -98,7 +98,7 @@ if ($updateManager->isInstall()){
 		CREATE TABLE IF NOT EXISTS ".$pfx."eltype (
 			eltypeid INT(5) UNSIGNED NOT NULL auto_increment,
 			name VARCHAR(250) NOT NULL DEFAULT '',
-			composite VARCHAR(250) NOT NULL DEFAULT '' COMMENT 'Выражение для формирования названия элемента',
+
 			fotouse int(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'В опциях элемента есть фотографии, по умолчанию - нет',
 
 			dateline int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'дата добавления',
@@ -411,10 +411,6 @@ if ($updateManager->isUpdate('0.3.1') && !$updateManager->isInstall()){
 }
 
 if ($updateManager->isUpdate('0.3.2') && !$updateManager->isInstall()){
-    $db->query_write("
-		ALTER TABLE ".$pfx."eltype
-		ADD composite VARCHAR(250) NOT NULL DEFAULT '' COMMENT 'Выражение для формирования названия элемента'
-	");
 }
 
 ?>

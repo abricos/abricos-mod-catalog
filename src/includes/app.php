@@ -362,7 +362,7 @@ abstract class CatalogApp extends AbricosApplication {
             return;
         }
         $elType = $this->ElementTypeList()->Get($element->elTypeId);
-        $composite = $elType->composite;
+        $composite = $elType->composite->Get();
         if (empty($composite)){
             return;
         }
@@ -370,7 +370,7 @@ abstract class CatalogApp extends AbricosApplication {
         $vars = $elType->_cacheCompositeVars;
         if (!is_array($vars)){
             $vars = array();
-            preg_match_all("/\{v#([0-9a-zA-Z_.]+)\}/", $composite, $vars);
+            preg_match_all("/\{v#([0-9a-zA-Z_.:]+)\}/", $composite, $vars);
 
             if (!is_array($vars) || !isset($vars[0]) || !is_array($vars[0])){
                 return;
@@ -382,7 +382,25 @@ abstract class CatalogApp extends AbricosApplication {
             return;
         }
         for ($i = 0; $i < $count; $i++){
-            $composite = str_replace($vars[0][$i], $element->GetValue($vars[1][$i]), $composite);
+            $arr = explode(":", $vars[1][$i]);
+            $value = $vars[1][$i];
+            if (count($arr) === 2){
+                if ($arr[0] === 'eltype'){
+                    $value = $arr[1];
+                    switch($value){
+                        case 'title':
+                        case 'titles':
+                        case 'prefix':
+                        case 'postfix':
+                            $value = $elType->$value;
+                            $value = $value->Get();
+                            break;
+                    }
+                }
+            } else {
+                $value = $element->GetValue($value);
+            }
+            $composite = str_replace($vars[0][$i], $value, $composite);
         }
 
         $element->title = $composite;
