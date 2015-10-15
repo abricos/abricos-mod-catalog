@@ -46,6 +46,9 @@ Component.entryPoint = function(NS){
             elementSave: {
                 args: ['elementData']
             },
+            elementRemove: {
+                args: ['elementid']
+            },
             elementList: {
                 attach: 'elementTypeList',
                 args: ['config'],

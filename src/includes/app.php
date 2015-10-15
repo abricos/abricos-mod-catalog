@@ -54,6 +54,8 @@ abstract class CatalogApp extends AbricosApplication {
                 return $this->ElementToJSON($d->elementid);
             case "elementSave":
                 return $this->ElementSaveToJSON($d->elementData);
+            case "elementRemove":
+                return $this->ElementRemoveToJSON($d->elementid);
             case "elementList":
                 return $this->ElementListToJSON($d->config);
             case "elementTypeList":
@@ -320,6 +322,30 @@ abstract class CatalogApp extends AbricosApplication {
         $elTypeList = $this->ElementTypeList();
         $optionsData = CatalogQuery::ElementOptionsData($this, $elTypeList, $element);
         $element->values = $optionsData;
+    }
+
+    public function ElementRemoveToJSON($elementid){
+        $ret = $this->ElementRemove($elementid);
+        return $this->ResultToJSON('elementRemove', $ret);
+    }
+
+    public function ElementRemove($elementid){
+        if (!$this->IsAdminRole()){
+            return 403;
+        }
+
+        $element = $this->Element($elementid);
+        if (is_integer($element)){
+            return $element;
+        }
+        // TODO: Release remove for Moderator Element
+
+        CatalogQuery::ElementRemove($this, $elementid);
+        $this->CacheClear();
+
+        $ret = new stdClass();
+        $ret->elementid = $elementid;
+        return $ret;
     }
 
     public function ElementSaveToJSON($d){
@@ -1190,35 +1216,6 @@ abstract class CatalogApp extends AbricosApplication {
         return $elid;
     }
 
-    /**
-     * Событие на подверждение модератором нового элемента
-     *
-     * @param integer $elementid
-     */
-    protected function OnElementModer($elementid){
-    }
-
-    public function ElementRemove($elid){
-        if (!$this->IsOperatorRole()){
-            return null;
-        }
-
-        $el = $this->Element($elid);
-
-        if ($this->IsOperatorOnlyRole()){
-
-            if ($el->userid != $this->userid || !$el->isModer){
-                // оператор может удалять только свои записи
-                // не прошедшии модерацию
-                return null;
-            }
-        }
-
-        CatalogQuery::ElementRemove($this->db, $this->pfx, $elid);
-
-        return true;
-    }
-
     private function TableCheck($tname){
         $rows = CatalogQuery::TableList($this->db);
 
@@ -1228,16 +1225,6 @@ abstract class CatalogApp extends AbricosApplication {
             }
         }
         return false;
-    }
-
-    public function ElementTypeSaveToJSON($elTypeId, $d){
-        /*
-        $this->ElementTypeSave($elTypeId, $d);
-
-        $this->_cacheElementTypeList = null;
-
-        return $this->ElementTypeListToJSON();
-        /**/
     }
 
     /**

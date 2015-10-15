@@ -644,7 +644,7 @@ class CatalogQuery {
             if (empty($d)){
                 continue;
             }
-            foreach($d as $name => $value){
+            foreach ($d as $name => $value){
                 $ret[$name] = $value;
             }
         }
@@ -725,14 +725,15 @@ class CatalogQuery {
         $db->query_write($sql);
     }
 
-    public static function ElementRemove(Ab_Database $db, $pfx, $elid){
+    public static function ElementRemove(CatalogApp $app, $elementid){
+        $pfx = $app->GetDBPrefix();
         $sql = "
 			UPDATE ".$pfx."element
 			SET deldate=".TIMENOW."
-			WHERE elementid=".bkint($elid)."
+			WHERE elementid=".bkint($elementid)."
 			LIMIT 1
 		";
-        $db->query_write($sql);
+        $app->db->query_write($sql);
     }
 
     public static function ElementListRemoveByCatId(Ab_Database $db, $pfx, $catid){
