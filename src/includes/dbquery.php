@@ -685,24 +685,26 @@ class CatalogQuery {
         return $db->insert_id();
     }
 
-    public static function ElementUpdate(Ab_Database $db, $pfx, $elid, $d){
+    public static function ElementUpdate(CatalogApp $app, CatalogElement $element){
+        $pfx = $app->GetDBPrefix();
+
         $sql = "
 			UPDATE ".$pfx."element
 			SET
-				catalogid=".bkint($d->catid).",
-				eltypeid=".bkint($d->tpid).",
-				title='".bkstr($d->tl)."',
-				name='".bkstr($d->nm)."',
-				metatitle='".bkstr($d->mtl)."',
-				metakeys='".bkstr($d->mks)."',
-				metadesc='".bkstr($d->mdsc)."',
-				changelog='".bkstr($d->chlg)."',
-				ord=".bkint($d->ord).",
+				catalogid=".bkint($element->catalogid).",
+				eltypeid=".bkint($element->elTypeId).",
+				title='".bkstr($element->title)."',
+				name='".bkstr($element->name)."',
+				metatitle='".bkstr($element->metaTitle)."',
+				metakeys='".bkstr($element->metaKeys)."',
+				metadesc='".bkstr($element->metaDescript)."',
+				changelog='".bkstr($element->changelog)."',
+				ord=".bkint($element->order).",
 				upddate=".TIMENOW."
-			WHERE elementid=".bkint($elid)."
+			WHERE elementid=".bkint($element->id)."
 			LIMIT 1
 		";
-        $db->query_write($sql);
+        $app->db->query_write($sql);
     }
 
     public static function ElementToArhive(Ab_Database $db, $pfx, $elid){

@@ -79,12 +79,6 @@ abstract class CatalogApp extends AbricosApplication {
                 return $this->ElementIdByNameToAJAX($d->elname);
             case "elementmoder":
                 return $this->ElementModerToAJAX($d->elementid);
-            case "elementremove":
-                return $this->ElementRemove($d->elementid);
-            case "elementtypesave":
-                return $this->ElementTypeSaveToAJAX($d->eltypeid, $d->savedata);
-            case "elementtyperemove":
-                return $this->ElementTypeRemoveToAJAX($d->eltypeid);
             case "elementoptionsave":
                 return $this->ElementOptionSaveToAJAX($d->optionid, $d->savedata);
             case "elementoptionremove":
@@ -369,7 +363,7 @@ abstract class CatalogApp extends AbricosApplication {
         }
         $elType = $this->ElementTypeList()->Get($element->elTypeId);
         $composite = $elType->composite;
-        if ($composite === ''){
+        if (empty($composite)){
             return;
         }
 
@@ -427,6 +421,14 @@ abstract class CatalogApp extends AbricosApplication {
 
             $element->id = CatalogQuery::ElementAppend($this, $element);
         } else {
+            $current = $this->Element($element->id);
+            if (empty($current)){
+                return 404;
+            }
+            if ($config->elementNameUnique){
+                $element->name = $current->name;
+            }
+            CatalogQuery::ElementUpdate($this, $element);
 
         }
         CatalogQuery::ElementOptionsUpdate($this, $elTypeList, $element);
@@ -1159,12 +1161,6 @@ abstract class CatalogApp extends AbricosApplication {
                 return null;
             }
 
-            if ($this->cfgElementNameUnique){
-                // имя элемента уникальное, поэтому изменять его нельзя
-                $d->nm = $el->name;
-            }
-
-            CatalogQuery::ElementUpdate($this->db, $this->pfx, $elid, $d);
         }
 
         if (!empty($d->values)){

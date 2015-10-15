@@ -117,7 +117,8 @@ Component.entryPoint = function(NS){
             }, this);
         },
         toJSON: function(){
-            var ws = this._optionsWidgets,
+            var tp = this.template,
+                ws = this._optionsWidgets,
                 element = this.get('element'),
                 values = {};
 
@@ -127,6 +128,7 @@ Component.entryPoint = function(NS){
             return {
                 id: element.get('id'),
                 elTypeId: this._typeSelectWidget.get('selected'),
+                title: tp.getValue('title'),
                 catalogid: element.get('catalogid'),
                 values: values
             };
