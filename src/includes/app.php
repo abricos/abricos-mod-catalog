@@ -324,7 +324,14 @@ abstract class CatalogApp extends AbricosApplication {
 
     public function ElementSaveToJSON($d){
         $ret = $this->ElementSave($d);
-        return $this->ResultToJSON('elementSave', $ret);
+        if (is_integer($ret)){
+            return $this->ResultToJSON('elementSave', $ret);
+        }
+
+        return $this->ImplodeJSON(array(
+            $this->ResultToJSON('elementSave', $ret),
+            $this->ElementToJSON($ret->elementid)
+        ));
     }
 
     /**
@@ -992,18 +999,6 @@ abstract class CatalogApp extends AbricosApplication {
         return $element;
     }
 
-    public function ElementToAJAX($elid, $clearCache = false){
-        $element = $this->Element($elid, $clearCache);
-        if (empty($element)){
-            return null;
-        }
-
-        $ret = new stdClass();
-        $ret->element = $element->ToAJAX($this);
-
-        return $ret;
-    }
-
     public function ElementIdByNameToAJAX($elname){
         $element = $this->ElementByName($elname);
         if (empty($element)){
@@ -1174,16 +1169,6 @@ abstract class CatalogApp extends AbricosApplication {
     protected function OnElementAppendByOperator($elementid){
     }
 
-    public function ElementSaveToAJAX($elid, $d){
-        $elid = $this->ElementSave($elid, $d);
-
-        if (empty($elid)){
-            return null;
-        }
-
-        return $this->ElementToAJAX($elid, true);
-    }
-
     public function ElementModer($elid){
         if (!$this->IsAdminRole()){
             return null;
@@ -1211,16 +1196,6 @@ abstract class CatalogApp extends AbricosApplication {
      * @param integer $elementid
      */
     protected function OnElementModer($elementid){
-    }
-
-    public function ElementModerToAJAX($elid){
-        $elid = $this->ElementModer($elid);
-
-        if (empty($elid)){
-            return null;
-        }
-
-        return $this->ElementToAJAX($elid, true);
     }
 
     public function ElementRemove($elid){
@@ -1452,18 +1427,6 @@ abstract class CatalogApp extends AbricosApplication {
         return $list;
     }
 
-    public function ElementOptionGroupListToAJAX($clearCache = false){
-        $list = $this->ElementOptionGroupList($clearCache);
-
-        if (empty($list)){
-            return null;
-        }
-
-        $ret = new stdClass();
-        $ret->eloptgroups = $list->ToAJAX($this);
-        return $ret;
-    }
-
     /**
      * В процессе добавления фото к элементу/каталогу идентификатор файла
      * помещается в буфер. Если в течении времени, фото так и не было прикреплено
@@ -1653,16 +1616,6 @@ abstract class CatalogApp extends AbricosApplication {
         return $ret;
     }
 
-    public function ElementOptionSaveToAJAX($optionid, $d){
-        $optionid = $this->ElementOptionSave($optionid, $d);
-
-        if (empty($optionid)){
-            return null;
-        }
-
-        return $this->ElementTypeListToJSON(true);
-    }
-
     public function ElementOptionRemove($elTypeId, $optionid){
         if (!$this->IsAdminRole()){
             return null;
@@ -1683,12 +1636,6 @@ abstract class CatalogApp extends AbricosApplication {
         CatalogQuery::ElementOptionRemove($this->db, $this->pfx, $optionid);
 
         CatalogQuery::ElementOptionFieldRemove($this->db, $this->pfx, $elType, $option);
-    }
-
-    public function ElementOptionRemoveToAJAX($elTypeId, $optionid){
-        $this->ElementOptionRemove($elTypeId, $optionid);
-
-        return $this->ElementTypeListToJSON(true);
     }
 
     public function OptionTableValueSave($eltypeid, $optionid, $valueid, $value){
@@ -1830,51 +1777,6 @@ abstract class CatalogApp extends AbricosApplication {
         return $ret;
     }
 
-    /**
-     * Получить список пользователей
-     *
-     * @param CatalogElementList|CataloElement $data
-     * @return CatalogUserList
-     */
-    public function UserList($data){
-        $users = new CatalogUserList();
-        if (!$this->IsViewRole()){
-            return $users;
-        }
-
-        $uids = array();
-        $ucids = array();
-        if ($data instanceof CatalogElementList){
-            for ($i = 0; $i < $data->Count(); $i++){
-                $el = $data->GetByIndex($i);
-                if (isset($ucids[$el->userid]) && $ucids[$el->userid]){
-                    continue;
-                }
-                $ucids[$el->userid] = true;
-                $uids[] = $el->userid;
-            }
-        } else if ($data instanceof CatalogElement){
-            $uids[] = $data->userid;
-        }
-
-        $rows = CatalogQuery::UserList($this->db, $uids);
-        while (($d = $this->db->fetch_array($rows))){
-            $user = new CatalogUser($d);
-            $users->Add($user);
-        }
-        return $users;
-    }
-
-    /**
-     * Автор элемента каталога
-     *
-     * @param CatalogElement $element
-     * @return CatalogElement
-     */
-    public function UserByElement(CatalogElement $element){
-        $users = $this->UserList($element);
-        return $users->GetByIndex(0);
-    }
 
     /**
      * Получить список файлов
@@ -1950,18 +1852,6 @@ abstract class CatalogApp extends AbricosApplication {
     }
 
 
-    public function CurrencyListToAJAX($clearCache = false){
-        $list = $this->CurrencyList($clearCache);
-
-        if (empty($list)){
-            return null;
-        }
-
-        $ret = new stdClass();
-        $ret->currencies = $list->ToAJAX($this);
-        return $ret;
-    }
-
     private $_cacheCurrencyList = null;
 
     /**
@@ -2020,12 +1910,6 @@ abstract class CatalogApp extends AbricosApplication {
         }
 
         return $currencyId;
-    }
-
-    public function CurrencySaveToAJAX($currencyId, $d){
-        $this->CurrencySave($currencyId, $d);
-
-        return $this->CurrencyListToAJAX(true);
     }
 
     public function CurrencyRemove($currencyId){

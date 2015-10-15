@@ -8,7 +8,6 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-
     var Y = Brick.YUI,
         COMPONENT = this,
         SYS = Brick.mod.sys;
@@ -17,6 +16,10 @@ Component.entryPoint = function(NS){
         SYS.WidgetEditorStatus
     ], {
         onInitAppWidget: function(err, appInstance){
+            this.publish('save');
+            this.publish('saved');
+            this.publish('canceled');
+
             this._optionsWidgets = [];
             this.set('waiting', true);
             appInstance.config(function(err, result){
@@ -130,11 +133,20 @@ Component.entryPoint = function(NS){
         },
         save: function(){
             var data = this.toJSON();
+            this.fire('save', {'saveData': data});
 
             this.set('waiting', true);
-            this.get('appInstance').elementSave(data, function(){
+            this.get('appInstance').elementSave(data, function(err, result){
                 this.set('waiting', false);
+
+                this.fire('saved', {
+                    err: err,
+                    result: result
+                });
             }, this);
+        },
+        cancel: function(){
+            this.fire('canceled');
         }
     }, {
         ATTRS: {
@@ -149,7 +161,8 @@ Component.entryPoint = function(NS){
             element: {}
         },
         CLICKS: {
-            save: 'save'
+            save: 'save',
+            cancel: 'cancel'
         }
     });
 
