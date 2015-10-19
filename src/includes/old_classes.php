@@ -623,7 +623,7 @@ class CatalogFotoList extends AbricosList {
 /**
  * Параметры списка
  */
-class CatalogElementListConfig {
+class old_CatalogElementListConfig {
 
     /**
      * Количество на странице. 0 - все элементы

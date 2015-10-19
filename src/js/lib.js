@@ -54,7 +54,7 @@ Component.entryPoint = function(NS){
                 args: ['config'],
                 attribute: false,
                 type: 'modelList:ElementList'
-            }
+            },
         }
     };
 
