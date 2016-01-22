@@ -16,6 +16,8 @@ Component.entryPoint = function(NS){
 
     var UID = Brick.env.user.id;
 
+    var SYS = Brick.mod.sys;
+
     var ElementEditBooleanWidget = function(container, option, value, cfg){
         cfg = L.merge({}, cfg || {});
         ElementEditBooleanWidget.superclass.constructor.call(this, container, {
@@ -364,18 +366,16 @@ Component.entryPoint = function(NS){
         },
         onLoad: function(option, value, cfg){
 
-            var Editor = Brick.widget.Editor;
-            this.editorWidget = new Editor(this.gel('text'), {
-                'toolbar': Editor.TOOLBAR_STANDART,
-                // 'mode': Editor.MODE_VISUAL,
-                'toolbarExpert': false,
-                'separateIntro': false
+            var Editor = SYS.Editor;
+            this.editorWidget = new Editor({
+                srcNode: this.gel('text'),
+                toolbar: Editor.TOOLBAR_MINIMAL,
+                mode: Editor.MODE_VISUAL,
+                content: value
             });
-
-            this.editorWidget.setContent(value);
         },
         getValue: function(){
-            return this.editorWidget.getContent();
+            return this.editorWidget.get('content');
         }
     });
     NS.ElementEditTextWidget = ElementEditTextWidget;

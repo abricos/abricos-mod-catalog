@@ -14,6 +14,8 @@ Component.entryPoint = function(NS){
         buildTemplate = this.buildTemplate,
         BW = Brick.mod.widget.Widget;
 
+    var SYS = Brick.mod.sys;
+
     var CatalogViewWidget = function(container, manager, cat, cfg){
         cfg = L.merge({
             'addElementClick': null
@@ -186,15 +188,13 @@ Component.entryPoint = function(NS){
                 'limit': 1
             });
 
-            var Editor = Brick.widget.Editor;
-            this.editorWidget = new Editor(this.gel('text'), {
-                'toolbar': Editor.TOOLBAR_STANDART,
-                // 'mode': Editor.MODE_VISUAL,
-                'toolbarExpert': false,
-                'separateIntro': false
+            var Editor = SYS.Editor;
+            this.editorWidget = new Editor({
+                srcNode: this.gel('text'),
+                toolbar: Editor.TOOLBAR_MINIMAL,
+                mode: Editor.MODE_VISUAL,
+                content: dtl.descript
             });
-
-            this.editorWidget.setContent(dtl.descript);
 
             var __self = this, keypress = function(e){
                 if (e.keyCode != 13){
@@ -236,9 +236,9 @@ Component.entryPoint = function(NS){
             NS.life(this.cfg['onCancelClick']);
         },
         save: function(){
+            var foto = '',
+                fotos = this.fotosWidget.fotos;
 
-            var foto = '';
-            var fotos = this.fotosWidget.fotos;
             if (fotos.length > 0){
                 foto = fotos[fotos.length - 1];
             }
@@ -246,7 +246,7 @@ Component.entryPoint = function(NS){
             var sd = {
                 'pid': this.parentWidget.getValue(),
                 'tl': this.gel('tl').value,
-                'dsc': this.editorWidget.getContent(),
+                'dsc': this.editorWidget.get('content'),
                 'foto': foto,
                 'mdsb': this.gel('mdsb').checked ? 1 : 0,
                 'ldsb': this.gel('ldsb').checked ? 1 : 0,
