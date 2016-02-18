@@ -10,6 +10,12 @@
     "filters": {
       "type": "modelList:ELConfigFilterList",
       "notNULL": true
+    },
+    "extOptions": {
+      "type": "string"
+    },
+    "limit": {
+      "type": "int"
     }
   }
 }

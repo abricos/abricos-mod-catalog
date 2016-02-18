@@ -12,13 +12,6 @@
  */
 abstract class CatalogApp extends AbricosApplication {
 
-    /**
-     * Catalog datatable prefix
-     *
-     * @var string
-     * @deprecated
-     */
-    private $pfx;
 
     public function __construct(Ab_ModuleManager $manager){
         parent::__construct($manager, array('catalog'));
@@ -387,7 +380,7 @@ abstract class CatalogApp extends AbricosApplication {
             if (count($arr) === 2){
                 if ($arr[0] === 'eltype'){
                     $value = $arr[1];
-                    switch($value){
+                    switch ($value){
                         case 'title':
                         case 'titles':
                         case 'prefix':
@@ -462,7 +455,10 @@ abstract class CatalogApp extends AbricosApplication {
     private $_elsConfigs;
 
     protected function GetElementListConfig($d){
-        if (!is_object($d)){
+        if (is_string($d)){
+            $d = new stdClass();
+            $d->id = $d;
+        } else if (!is_object($d)){
             $d = new stdClass();
         }
         $d->id = isset($d->id) ? $d->id : 'default';
@@ -497,6 +493,7 @@ abstract class CatalogApp extends AbricosApplication {
         if (empty($config)){
             return 500;
         }
+        print_r($config->ToJSON()); exit;
 
         $list = $this->InstanceClass('ElementList');
         $rows = CatalogQuery::ElementList($this, $config);
