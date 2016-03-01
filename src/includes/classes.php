@@ -268,6 +268,17 @@ class CatalogList extends CatalogItemList {
         return parent::Get($id);
     }
 
+    public function GetByName($name){
+        $count = $this->Count();
+        for ($i = 0; $i < $count; $i++){
+            $item = $this->GetByIndex($i);
+            if ($item->name === $name){
+                return $item;
+            }
+        }
+        return null;
+    }
+
     /**
      * Поиск элемента по списку, включая поиск по дочерним элементам
      *
