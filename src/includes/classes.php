@@ -898,17 +898,22 @@ class CatalogElement extends CatalogItem {
         }
     }
 
-    public function FotoSrc($w = 0, $h = 0){
+    public function FotoSrc($w = 0, $h = 0, $cropMode = 0){
 
         if (empty($this->foto)){
             return "/images/empty.gif";
         }
 
         $arr = array();
-        if ($w > 0)
+        if ($w > 0){
             $arr[] = "w_".$w;
-        if ($h > 0)
+        }
+        if ($h > 0){
             $arr[] = "h_".$h;
+        }
+        if ($cropMode !== 0){
+            $arr[] = "cm_".(intval($cropMode));
+        }
 
         $ret = "/filemanager/i/".$this->foto."/";
         if (count($arr) > 0){
