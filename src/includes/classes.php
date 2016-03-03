@@ -1172,12 +1172,17 @@ class CatalogFoto extends AbricosItem {
         $this->height = $d['h'];
     }
 
-    public function Link($w = 0, $h = 0){
+    public function Link($w = 0, $h = 0, $cropMode = 0){
         $arr = array();
-        if ($w > 0)
+        if ($w > 0){
             $arr[] = "w_".$w;
-        if ($h > 0)
+        }
+        if ($h > 0){
             $arr[] = "h_".$h;
+        }
+        if ($cropMode > 0){
+            $arr[] = "cm_".$cropMode;
+        }
 
         $ret = "/filemanager/i/".$this->filehash."/";
         if (count($arr) > 0){
