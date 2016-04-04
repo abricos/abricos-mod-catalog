@@ -502,6 +502,30 @@ Component.entryPoint = function(NS){
     ElementEditFilesWidget.uploadFiles = null;
     NS.ElementEditFilesWidget = ElementEditFilesWidget;
 
+    var ElementEditJavaScriptWidget = function(container, option, value, cfg){
+        cfg = L.merge({}, cfg || {});
+        ElementEditJavaScriptWidget.superclass.constructor.call(this, container, {
+            'buildTemplate': buildTemplate, 'tnames': 'optjavascript'
+        }, option, value, cfg);
+    };
+    YAHOO.extend(ElementEditJavaScriptWidget, BW, {
+        buildTData: function(option, value, cfg){
+            return {'tl': option.title};
+        },
+        init: function(option, value, cfg){
+            this.option = option;
+            this.value = value;
+            this.cfg = cfg;
+        },
+        onLoad: function(option, value, cfg){
+            this.elSetValue('val', value);
+        },
+        getValue: function(){
+            return this.gel('val').value;
+        }
+    });
+    NS.ElementEditJavaScriptWidget = ElementEditJavaScriptWidget;
+
     var ElementEditorWidget = function(container, manager, element, cfg){
         cfg = L.merge({
             'fromElement': null,
@@ -769,6 +793,9 @@ Component.entryPoint = function(NS){
                         break;
                     case NS.FTYPE['FILES']:
                         ws[ws.length] = new NS.ElementEditFilesWidget(div, man, option, value);
+                        break;
+                    case NS.FTYPE['JAVASCRIPT']:
+                        ws[ws.length] = new NS.ElementEditJavaScriptWidget(div, option, value);
                         break;
                 }
             });

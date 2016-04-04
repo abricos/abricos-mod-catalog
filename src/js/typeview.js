@@ -46,7 +46,7 @@ Component.entryPoint = function(NS){
             switch (el.id) {
                 case tp['baddoption']:
                     this.optionListWidget.showNewEditor();
-                    break;
+                    return true;
             }
             return false;
         }

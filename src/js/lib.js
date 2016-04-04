@@ -29,17 +29,18 @@ Component.entryPoint = function(NS){
     NS.ItemList = SysNS.ItemList;
 
     NS.FTYPE = {
-        'BOOLEAN': 0,
-        'NUMBER': 1,
-        'DOUBLE': 2,
-        'STRING': 3,
-        // 'LIST':		4,
-        'TABLE': 5,
-        'TEXT': 7,
-        'ELDEPENDS': 9,
-        'ELDEPENDSNAME': 10,
-        'FILES': 11,
-        'CURRENCY': 12
+        BOOLEAN:        0,
+        NUMBER:         1,
+        DOUBLE:         2,
+        STRING:         3,
+        // LIST:        4,
+        TABLE:          5,
+        TEXT:           7,
+        ELDEPENDS:      9,
+        ELDEPENDSNAME:  10,
+        FILES:          11,
+        CURRENCY:       12,
+        JAVASCRIPT:     13,
     };
 
     var Dict = function(d){
