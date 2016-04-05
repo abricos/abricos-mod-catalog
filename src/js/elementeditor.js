@@ -502,13 +502,13 @@ Component.entryPoint = function(NS){
     ElementEditFilesWidget.uploadFiles = null;
     NS.ElementEditFilesWidget = ElementEditFilesWidget;
 
-    var ElementEditJavaScriptWidget = function(container, option, value, cfg){
+    var ElementEditHTMLCodeWidget = function(container, option, value, cfg){
         cfg = L.merge({}, cfg || {});
-        ElementEditJavaScriptWidget.superclass.constructor.call(this, container, {
-            'buildTemplate': buildTemplate, 'tnames': 'optjavascript'
+        ElementEditHTMLCodeWidget.superclass.constructor.call(this, container, {
+            'buildTemplate': buildTemplate, 'tnames': 'optHTMLCode'
         }, option, value, cfg);
     };
-    YAHOO.extend(ElementEditJavaScriptWidget, BW, {
+    YAHOO.extend(ElementEditHTMLCodeWidget, BW, {
         buildTData: function(option, value, cfg){
             return {'tl': option.title};
         },
@@ -524,7 +524,7 @@ Component.entryPoint = function(NS){
             return this.gel('val').value;
         }
     });
-    NS.ElementEditJavaScriptWidget = ElementEditJavaScriptWidget;
+    NS.ElementEditHTMLCodeWidget = ElementEditHTMLCodeWidget;
 
     var ElementEditorWidget = function(container, manager, element, cfg){
         cfg = L.merge({
@@ -794,8 +794,8 @@ Component.entryPoint = function(NS){
                     case NS.FTYPE['FILES']:
                         ws[ws.length] = new NS.ElementEditFilesWidget(div, man, option, value);
                         break;
-                    case NS.FTYPE['JAVASCRIPT']:
-                        ws[ws.length] = new NS.ElementEditJavaScriptWidget(div, option, value);
+                    case NS.FTYPE['HTMLCODE']:
+                        ws[ws.length] = new NS.ElementEditHTMLCodeWidget(div, option, value);
                         break;
                 }
             });

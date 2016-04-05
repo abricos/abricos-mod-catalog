@@ -1405,7 +1405,7 @@ class CatalogModuleManager {
             case Catalog::TP_ELDEPENDS:
             case Catalog::TP_ELDEPENDSNAME:
             case Catalog::TP_FILES:
-            case Catalog::TP_JAVASCRIPT:
+            case Catalog::TP_HTMLCODE:
                 $d->sz = 0;
                 break;
         }

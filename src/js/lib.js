@@ -40,7 +40,7 @@ Component.entryPoint = function(NS){
         ELDEPENDSNAME:  10,
         FILES:          11,
         CURRENCY:       12,
-        JAVASCRIPT:     13,
+        HTMLCODE:     13,
     };
 
     var Dict = function(d){

@@ -639,7 +639,7 @@ class CatalogDbQuery {
                 case Catalog::TP_TEXT:
                     $val = "'".bkstr($utm->Parser($val))."'";
                     break;
-                case Catalog::TP_JAVASCRIPT:
+                case Catalog::TP_HTMLCODE:
                     $val = "'".bkstr($val)."'";
                     break;
                 case Catalog::TP_ELDEPENDS:
@@ -952,7 +952,7 @@ class CatalogDbQuery {
             case Catalog::TP_ELDEPENDS:
             case Catalog::TP_ELDEPENDSNAME:
             case Catalog::TP_FILES:
-            case Catalog::TP_JAVASCRIPT:
+            case Catalog::TP_HTMLCODE:
                 $sql .= "TEXT NOT NULL ";
                 break;
         }
@@ -991,7 +991,7 @@ class CatalogDbQuery {
                 $sql .= "VARCHAR(".$d->sz.") NOT NULL DEFAULT ''";
                 break;
             case Catalog::TP_TEXT:
-            case Catalog::TP_JAVASCRIPT:
+            case Catalog::TP_HTMLCODE:
                 $sql .= "TEXT NOT NULL ";
                 break;
             case Catalog::TP_TABLE:

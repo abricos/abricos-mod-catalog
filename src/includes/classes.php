@@ -82,7 +82,7 @@ class Catalog extends CatalogItem {
      *
      * @var integer
      */
-    const TP_JAVASCRIPT = 13;
+    const TP_HTMLCODE = 13;
 
     /**
      * @var Catalog
