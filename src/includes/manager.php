@@ -2,7 +2,8 @@
 /**
  * @package Abricos
  * @subpackage Catalog
- * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+ * @copyright 2012-2016 Alexander Kuzmin
+ * @license http://opensource.org/licenses/mit-license.php MIT License
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
@@ -21,5 +22,3 @@ class CatalogManager extends Ab_ModuleManager {
         parent::__construct($module);
     }
 }
-
-?>

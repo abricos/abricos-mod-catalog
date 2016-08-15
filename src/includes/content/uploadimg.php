@@ -2,6 +2,8 @@
 /**
  * @package Abricos
  * @subpackage Catalog
+ * @copyright 2012-2016 Alexander Kuzmin
+ * @license http://opensource.org/licenses/mit-license.php MIT License
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
@@ -75,5 +77,3 @@ for ($i = 0; $i < 10; $i++){
 }
 
 $brick->param->var['result'] = json_encode($resa);
-
-?>
