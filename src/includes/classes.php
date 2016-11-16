@@ -1039,6 +1039,12 @@ class CatalogElementDetail {
     }
 }
 
+/**
+ * Class CatalogElementList
+ *
+ * @method CatalogElement GetByIndex($i)
+ * @method CatalogElement Get($id)
+ */
 class CatalogElementList extends CatalogItemList {
 
     /**
@@ -1052,26 +1058,6 @@ class CatalogElementList extends CatalogItemList {
      * @var integer
      */
     public $total;
-
-    public function Add($item){
-        parent::Add($item);
-    }
-
-    /**
-     * @param integer $i
-     * @return CatalogElement
-     */
-    public function GetByIndex($i){
-        return parent::GetByIndex($i);
-    }
-
-    /**
-     * @param integer $id
-     * @return CatalogElement
-     */
-    public function Get($id){
-        return parent::Get($id);
-    }
 
     public function ToAJAX(){
         $man = func_get_arg(0);
@@ -1432,85 +1418,16 @@ class CatalogElementOrderOptionList extends CatalogItemList {
     }
 }
 
-class CatalogItem {
-    public $id;
-
-    public function __construct($d){
-        $this->id = isset($d['id']) ? intval($d['id']) : 0;
-    }
-
-    public function ToAJAX(){
-        $ret = new stdClass();
-        $ret->id = $this->id;
-        return $ret;
-    }
+class CatalogItem extends AbricosItem {
 }
 
-class CatalogItemList {
-
-    protected $_list = array();
-    protected $_map = array();
-
-    protected $isCheckDouble = false;
-
-    public function __construct(){
-        $this->_list = array();
-        $this->_map = array();
-    }
-
-    public function Add($item){
-        if (empty($item)){
-            return;
-        }
-
-        if ($this->isCheckDouble){
-            $checkItem = $this->Get($item->id);
-            if (!empty($checkItem)){
-                return;
-            }
-        }
-
-        $index = count($this->_list);
-        $this->_list[$index] = $item;
-        $this->_map[$item->id] = $index;
-    }
-
-    public function Count(){
-        return count($this->_list);
-    }
-
-    /**
-     * @param integer $index
-     * @return CatalogItem
-     */
-    public function GetByIndex($index){
-        return $this->_list[$index];
-    }
-
-    /**
-     * @param integer $id
-     * @return CatalogItem
-     */
-    public function Get($id){
-        if (!isset($this->_map[$id])){
-            return null;
-        }
-        $index = $this->_map[$id];
-        return $this->_list[$index];
-    }
-
-    public function ToAJAX(){
-        $list = array();
-        $count = $this->Count();
-        for ($i = 0; $i < $count; $i++){
-            $list[] = $this->GetByIndex($i)->ToAJAX();
-        }
-
-        $ret = new stdClass();
-        $ret->list = $list;
-
-        return $ret;
-    }
+/**
+ * Class CatalogItemList
+ *
+ * @method CatalogItem GetByIndex($index)
+ * @method CatalogItem Get($id)
+ */
+class CatalogItemList extends AbricosList {
 }
 
 class CatalogStatisticElement extends AbricosItem {

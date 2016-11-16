@@ -1182,7 +1182,7 @@ class CatalogModuleManager {
         }
 
         $list = new CatalogElementTypeList();
-        $curType = new CatalogElementType();
+        $curType = new CatalogElementType(array("id" => 0));
         $list->Add($curType);
 
         $rows = CatalogDbQuery::ElementTypeList($this->db, $this->pfx);
@@ -1674,13 +1674,12 @@ class CatalogModuleManager {
     /**
      * Получить список пользователей
      *
-     * @param CatalogElementList|CataloElement $data
-     * @return CatalogUserList
+     * @param CatalogElementList|CatalogElement $data
+     * @return UProfileUserList
      */
     public function UserList($data){
-        $users = new CatalogUserList();
         if (!$this->IsViewRole()){
-            return $users;
+            return null;
         }
 
         $uids = array();
@@ -1698,12 +1697,10 @@ class CatalogModuleManager {
             $uids[] = $data->userid;
         }
 
-        $rows = CatalogDbQuery::UserList($this->db, $uids);
-        while (($d = $this->db->fetch_array($rows))){
-            $user = new CatalogUser($d);
-            $users->Add($user);
-        }
-        return $users;
+        /** @var UProfileApp $uprofileApp */
+        $uprofileApp = Abricos::GetApp('uprofile');
+
+        return $uprofileApp->UserListByIds($uids);
     }
 
     /**
