@@ -680,6 +680,11 @@ class CatalogDbQuery {
             $upd[] = "fld_".$optName."=".$val;
         }
 
+        if ($elType->id === 0){
+            $insfld[] = "changelog";
+            $insval[] = "''";
+        }
+
         $sql = "
 			INSERT INTO ".$pfx.$elType->tableName."
 			(elementid, ".implode(", ", $insfld).") VALUES (

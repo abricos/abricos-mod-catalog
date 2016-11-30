@@ -29,18 +29,18 @@ Component.entryPoint = function(NS){
     NS.ItemList = SysNS.ItemList;
 
     NS.FTYPE = {
-        BOOLEAN:        0,
-        NUMBER:         1,
-        DOUBLE:         2,
-        STRING:         3,
+        BOOLEAN: 0,
+        NUMBER: 1,
+        DOUBLE: 2,
+        STRING: 3,
         // LIST:        4,
-        TABLE:          5,
-        TEXT:           7,
-        ELDEPENDS:      9,
-        ELDEPENDSNAME:  10,
-        FILES:          11,
-        CURRENCY:       12,
-        HTMLCODE:     13,
+        TABLE: 5,
+        TEXT: 7,
+        ELDEPENDS: 9,
+        ELDEPENDSNAME: 10,
+        FILES: 11,
+        CURRENCY: 12,
+        HTMLCODE: 13,
     };
 
     var Dict = function(d){
@@ -245,7 +245,7 @@ Component.entryPoint = function(NS){
             this.metaDesc = d['mdsc'];
 
             this.optionsBase = d['optb'];
-            this.optionsPers = d['optp'];
+            this.optionsPers = d['optp'] || {};
 
             this.changeLog = d['chlg'];
         },

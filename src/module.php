@@ -40,28 +40,12 @@ class CatalogModule extends Ab_Module {
     public $currentModMan = null;
     public $updateShemaModule = null;
 
-    private $_manager;
-
     function __construct(){
         CatalogModule::$instance = $this;
-        $this->version = "0.3.1";
+        $this->version = "0.3.2";
         $this->name = "catalog";
         $this->takelink = "catalogbase";
     }
-
-    /**
-     * Получить менеджер
-     *
-     * @return CatalogManager
-     */
-    public function GetManager(){
-        if (is_null($this->_manager)){
-            require_once 'includes/manager.php';
-            $this->_manager = new CatalogManager($this);
-        }
-        return $this->_manager;
-    }
-
 
     public function SetModuleManager($modname){
         $this->currentModMan = Abricos::$modules->GetModule($modname);
@@ -81,7 +65,6 @@ class CatalogModule extends Ab_Module {
         }
 
         if ($adress->level >= 2){
-
             $this->SetModuleManager($adress->dir[1]);
 
             $p = $adress->dir[2];
@@ -170,7 +153,6 @@ class CatalogModule extends Ab_Module {
         CatalogQueryExt::ModuleManagerUpdate(Abricos::$db, $info['id'], $this->version);
         $this->updateShemaModule = null;
     }
-
 }
 
 class CatalogQueryExt {
